@@ -1,5 +1,5 @@
 {
-  "name": "@forum/web",
+  "name": "@quoorum/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,10 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@forum/api": "workspace:*",
-    "@forum/core": "workspace:*",
-    "@forum/db": "workspace:*",
-    "@forum/ui": "workspace:*",
+    "@quoorum/api": "workspace:*",
+    "@quoorum/core": "workspace:*",
+    "@quoorum/db": "workspace:*",
+    "@quoorum/ui": "workspace:*",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-checkbox": "^1.3.3",

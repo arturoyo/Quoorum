@@ -132,7 +132,7 @@ export default function SignupPage() {
         <CardContent className="space-y-4">
           <p className="text-center text-sm text-gray-400">
             Haz clic en el enlace del email para activar tu cuenta y comenzar a
-            usar Forum.
+            usar Quoorum.
           </p>
           <Button
             variant="outline"

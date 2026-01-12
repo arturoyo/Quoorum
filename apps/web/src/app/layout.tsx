@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "Forum - Multi-Agent Deliberation System",
+  title: "Quoorum - Multi-Agent Deliberation System",
   description: "Strategic decision-making through AI expert deliberation",
 };
 

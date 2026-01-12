@@ -3,8 +3,8 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/client";
 import { logError, logWarning } from "@/lib/monitoring";
-import { db } from "@forum/db";
-import { subscriptions, plans, usage } from "@forum/db/schema";
+import { db } from "@quoorum/db";
+import { subscriptions, plans, usage } from "@quoorum/db/schema";
 import { eq } from "drizzle-orm";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;

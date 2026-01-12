@@ -12,7 +12,7 @@
  * - forumExpertPerformanceUpdate: Recalculate expert ratings
  */
 
-import { db } from '@forum/db'
+import { db } from '@quoorum/db'
 import {
   forumDebates,
   forumExpertFeedback,
@@ -22,7 +22,7 @@ import {
   forumReports,
   forumScheduledReports,
   profiles,
-} from '@forum/db/schema'
+} from '@quoorum/db/schema'
 import { and, avg, count, desc, eq, gte, lt, sql } from 'drizzle-orm'
 import { inngest } from '../client'
 import { logger } from '../lib/logger'
@@ -735,7 +735,7 @@ export const forumWhatsAppDebate = inngest.createFunction(
       // Step 2: Run the debate using ForumSystem
       const result = await step.run('run-debate', async () => {
         // Dynamic import to avoid circular dependencies
-        const { ForumSystem } = await import('@forum/forum')
+        const { ForumSystem } = await import('@quoorum/forum')
 
         const forumSystem = new ForumSystem({
           maxRounds: 3,
@@ -773,7 +773,7 @@ export const forumWhatsAppDebate = inngest.createFunction(
       // Step 4: Format and send results back to WhatsApp
       await step.run('send-whatsapp-response', async () => {
         // TODO: WhatsApp service not yet migrated to @forum
-        // const { createWhatsAppService } = await import('@forum/whatsapp')
+        // const { createWhatsAppService } = await import('@quoorum/whatsapp')
         // const whatsappService = createWhatsAppService()
         const whatsappService = { sendTextMessage: async (_id: string, _msg: string) => {} }
 
@@ -836,7 +836,7 @@ export const forumWhatsAppDebate = inngest.createFunction(
         // Send error message to WhatsApp
         try {
           // TODO: WhatsApp service not yet migrated to @forum
-          // const { createWhatsAppService } = await import('@forum/whatsapp')
+          // const { createWhatsAppService } = await import('@quoorum/whatsapp')
           // const whatsappService = createWhatsAppService()
           // await whatsappService.sendTextMessage(
           //   conversationId,

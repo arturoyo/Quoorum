@@ -113,7 +113,7 @@ const useCases = [
 const testimonials = [
   {
     quote:
-      "Forum cambió la forma en que tomamos decisiones estratégicas. El consenso de expertos nos da confianza en cada paso.",
+      "Quoorum cambió la forma en que tomamos decisiones estratégicas. El consenso de expertos nos da confianza en cada paso.",
     author: "María García",
     role: "CEO @ TechStartup",
     avatar: "MG",
@@ -213,7 +213,7 @@ export default function HomePage() {
                 </div>
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-                Forum
+                Quoorum
               </span>
             </Link>
 
@@ -274,7 +274,7 @@ export default function HomePage() {
 
           {/* Subheadline */}
           <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Forum reúne 25+ expertos de IA que deliberan en tiempo real sobre tus decisiones
+            Quoorum reúne 25+ expertos de IA que deliberan en tiempo real sobre tus decisiones
             más importantes.{" "}
             <span className="text-white font-medium">
               A diferencia de un chatbot, nuestro sistema auto-mejora la calidad 
@@ -358,7 +358,7 @@ export default function HomePage() {
               </span>
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Forum combina IA de última generación con metodología probada de toma de decisiones.
+              Quoorum combina IA de última generación con metodología probada de toma de decisiones.
             </p>
           </div>
 
@@ -406,7 +406,7 @@ export default function HomePage() {
               </span>
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Desde startups hasta enterprises, Forum ayuda a tomar decisiones críticas.
+              Desde startups hasta enterprises, Quoorum ayuda a tomar decisiones críticas.
             </p>
           </div>
 
@@ -634,7 +634,7 @@ export default function HomePage() {
                 Empieza a tomar mejores decisiones hoy
               </h2>
               <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-                Únete a cientos de equipos que usan Forum para decisiones estratégicas.
+                Únete a cientos de equipos que usan Quoorum para decisiones estratégicas.
                 5 debates gratis, sin tarjeta de crédito.
               </p>
               <Link href="/signup">
@@ -664,7 +664,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-                  Forum
+                  Quoorum
                 </span>
               </Link>
               <p className="text-gray-500 text-sm leading-relaxed">
@@ -700,7 +700,7 @@ export default function HomePage() {
           </div>
 
           <div className="border-t border-white/5 pt-8 text-center text-gray-600 text-sm">
-            <p>&copy; {new Date().getFullYear()} Forum. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} Quoorum. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>

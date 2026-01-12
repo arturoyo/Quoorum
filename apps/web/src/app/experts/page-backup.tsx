@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExpertPanel, type ExpertInfo } from "@forum/ui";
+import { ExpertPanel, type ExpertInfo } from "@quoorum/ui";
 import { useState } from "react";
 
 const mockExperts: ExpertInfo[] = [

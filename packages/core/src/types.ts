@@ -1,4 +1,4 @@
-import type { AIConfig, ExpertConfig } from "@forum/ai";
+import type { AIConfig, ExpertConfig } from "@quoorum/ai";
 
 export interface DeliberationConfig {
   id: string;

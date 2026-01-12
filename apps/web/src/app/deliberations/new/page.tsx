@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreateDeliberationForm } from "@forum/ui";
+import { CreateDeliberationForm } from "@quoorum/ui";
 
 export default function NewDeliberationPage() {
   const router = useRouter();

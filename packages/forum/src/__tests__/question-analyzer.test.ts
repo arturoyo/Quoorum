@@ -14,12 +14,12 @@ import {
   type QuestionAnalysis,
 } from '../question-analyzer'
 
-// Mock @forum/ai
-vi.mock('@forum/ai', () => ({
+// Mock @quoorum/ai
+vi.mock('@quoorum/ai', () => ({
   getAIClient: vi.fn(),
 }))
 
-import { getAIClient } from '@forum/ai'
+import { getAIClient } from '@quoorum/ai'
 
 describe('Question Analyzer', () => {
   beforeEach(() => {

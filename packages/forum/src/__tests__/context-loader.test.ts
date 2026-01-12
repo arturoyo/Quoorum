@@ -6,8 +6,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { loadContext, synthesizeContext } from '../context-loader'
 import type { LoadContextOptions } from '../context-loader'
 
-// Mock @forum/ai
-vi.mock('@forum/ai', () => ({
+// Mock @quoorum/ai
+vi.mock('@quoorum/ai', () => ({
   getAIClient: vi.fn(() => ({
     generate: vi.fn().mockResolvedValue({ text: 'mocked response' }),
   })),

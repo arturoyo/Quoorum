@@ -1,4 +1,4 @@
-import type { ExpertConfig } from "@forum/ai";
+import type { ExpertConfig } from "@quoorum/ai";
 import { DeliberationExpert } from "./deliberation-expert.js";
 import type { BaseExpert } from "./base-expert.js";
 

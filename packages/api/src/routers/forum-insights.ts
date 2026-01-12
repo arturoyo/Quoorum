@@ -8,8 +8,8 @@
 import { z } from 'zod'
 import { eq, and, desc, gte, count, sql } from 'drizzle-orm'
 import { router, protectedProcedure } from '../trpc'
-import { db } from '@forum/db'
-import { forumConsultations, clients } from '@forum/db/schema'
+import { db } from '@quoorum/db'
+import { forumConsultations, clients } from '@quoorum/db/schema'
 import { logger } from '../lib/logger'
 
 export const forumInsightsRouter = router({

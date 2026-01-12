@@ -1,5 +1,5 @@
 /**
- * @forum/forum
+ * @quoorum/forum
  *
  * Sistema de deliberacion multi-agente para decisiones estrategicas
  */
@@ -219,7 +219,7 @@ export type { DebateUpdate } from './websocket-server'
 // PDF Export
 // TODO: Temporarily commented out due to html-pdf-node causing build issues in Next.js
 // This uses puppeteer and other Node-only dependencies that cannot be bundled for the browser
-// Import directly from '@forum/forum/pdf-export' when needed in server-only contexts
+// Import directly from '@quoorum/forum/pdf-export' when needed in server-only contexts
 // export { generateDebatePDF, generateDebateMarkdown } from './pdf-export'
 // export type { PDFExportOptions } from './pdf-export'
 

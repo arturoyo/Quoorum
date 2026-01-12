@@ -8,7 +8,7 @@
  * - Expertos recomendados
  */
 
-import { getAIClient } from '@forum/ai'
+import { getAIClient } from '@quoorum/ai'
 
 /**
  * Área de conocimiento identificada

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
 import { router, publicProcedure, protectedProcedure } from "../trpc.js";
-import { opinions, type OpinionMetadata } from "@forum/db";
+import { opinions, type OpinionMetadata } from "@quoorum/db";
 
 const metadataSchema = z.object({
   tokensUsed: z.number().optional(),

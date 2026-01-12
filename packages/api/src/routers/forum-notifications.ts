@@ -4,8 +4,8 @@
  * Handles Forum-related notifications and preferences.
  */
 
-import { db } from '@forum/db'
-import { forumNotificationPreferences, forumNotifications } from '@forum/db/schema'
+import { db } from '@quoorum/db'
+import { forumNotificationPreferences, forumNotifications } from '@quoorum/db/schema'
 import { and, count, desc, eq, lt } from 'drizzle-orm'
 import { z } from 'zod'
 import { adminProcedure, protectedProcedure, router } from '../trpc'

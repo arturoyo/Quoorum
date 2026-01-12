@@ -5,8 +5,8 @@
  */
 
 import { TRPCError } from '@trpc/server'
-import { db } from '@forum/db'
-import { forumDebates, forumReports, forumScheduledReports } from '@forum/db/schema'
+import { db } from '@quoorum/db'
+import { forumDebates, forumReports, forumScheduledReports } from '@quoorum/db/schema'
 import { and, desc, eq, gte, inArray, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { protectedProcedure, router } from '../trpc'

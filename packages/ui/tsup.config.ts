@@ -6,7 +6,7 @@ export default defineConfig({
   dts: true,
   clean: true,
   sourcemap: true,
-  external: ["react", "@forum/api"],
+  external: ["react", "@quoorum/api"],
   esbuildOptions(options) {
     options.jsx = "automatic";
   },

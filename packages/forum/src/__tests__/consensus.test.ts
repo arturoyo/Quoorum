@@ -6,8 +6,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { calculateConsensusScore } from '../consensus'
 import type { RankedOption } from '../types'
 
-// Mock @forum/ai
-vi.mock('@forum/ai', () => ({
+// Mock @quoorum/ai
+vi.mock('@quoorum/ai', () => ({
   getAIClient: vi.fn(() => ({
     generate: vi.fn(),
   })),

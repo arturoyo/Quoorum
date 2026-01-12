@@ -1,5 +1,5 @@
 {
-  "name": "@forum/api",
+  "name": "@quoorum/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,10 +16,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@forum/ai": "workspace:*",
-    "@forum/core": "workspace:*",
-    "@forum/db": "workspace:*",
-    "@forum/forum": "workspace:*",
+    "@quoorum/ai": "workspace:*",
+    "@quoorum/core": "workspace:*",
+    "@quoorum/db": "workspace:*",
+    "@quoorum/forum": "workspace:*",
     "@trpc/server": "^10.45.0",
     "drizzle-orm": "^0.38.0",
     "superjson": "^2.2.0",

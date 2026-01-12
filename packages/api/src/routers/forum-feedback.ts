@@ -7,12 +7,12 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { router, protectedProcedure } from '../trpc'
-import { db } from '@forum/db'
+import { db } from '@quoorum/db'
 import {
   forumExpertFeedback,
   forumExpertRatings,
   forumDebates,
-} from '@forum/db/schema'
+} from '@quoorum/db/schema'
 import { eq, and, desc, sql, avg, count } from 'drizzle-orm'
 
 export const forumFeedbackRouter = router({

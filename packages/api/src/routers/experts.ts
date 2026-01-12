@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, publicProcedure, protectedProcedure } from "../trpc.js";
-import { experts } from "@forum/db";
-import type { AIConfig } from "@forum/ai";
+import { experts } from "@quoorum/db";
+import type { AIConfig } from "@quoorum/ai";
 
 const aiConfigSchema = z.object({
   provider: z.enum(["openai", "anthropic", "google", "groq"]),

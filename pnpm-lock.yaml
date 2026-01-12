@@ -30,16 +30,16 @@ importers:
 
   apps/web:
     dependencies:
-      '@forum/api':
+      '@quoorum/api':
         specifier: workspace:*
         version: link:../../packages/api
-      '@forum/core':
+      '@quoorum/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@forum/db':
+      '@quoorum/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@forum/ui':
+      '@quoorum/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@radix-ui/react-accordion':
@@ -218,16 +218,16 @@ importers:
 
   packages/api:
     dependencies:
-      '@forum/ai':
+      '@quoorum/ai':
         specifier: workspace:*
         version: link:../ai
-      '@forum/core':
+      '@quoorum/core':
         specifier: workspace:*
         version: link:../core
-      '@forum/db':
+      '@quoorum/db':
         specifier: workspace:*
         version: link:../db
-      '@forum/forum':
+      '@quoorum/forum':
         specifier: workspace:*
         version: link:../forum
       '@trpc/server':
@@ -255,10 +255,10 @@ importers:
 
   packages/core:
     dependencies:
-      '@forum/ai':
+      '@quoorum/ai':
         specifier: workspace:*
         version: link:../ai
-      '@forum/db':
+      '@quoorum/db':
         specifier: workspace:*
         version: link:../db
       ai:
@@ -302,10 +302,10 @@ importers:
 
   packages/forum:
     dependencies:
-      '@forum/ai':
+      '@quoorum/ai':
         specifier: workspace:*
         version: link:../ai
-      '@forum/db':
+      '@quoorum/db':
         specifier: workspace:*
         version: link:../db
       drizzle-orm:
@@ -358,7 +358,7 @@ importers:
 
   packages/ui:
     dependencies:
-      '@forum/api':
+      '@quoorum/api':
         specifier: workspace:*
         version: link:../api
       '@tanstack/react-query':

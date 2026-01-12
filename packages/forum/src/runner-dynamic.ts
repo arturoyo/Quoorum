@@ -5,7 +5,7 @@
  * quality monitoring y meta-moderación
  */
 
-import { getAIClient } from '@forum/ai'
+import { getAIClient } from '@quoorum/ai'
 import { forumLogger } from './logger'
 import { FORUM_AGENTS, AGENT_ORDER, estimateAgentCost } from './agents'
 import { ULTRA_OPTIMIZED_PROMPT, estimateTokens, getRoleEmoji } from './ultra-language'

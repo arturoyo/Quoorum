@@ -31,7 +31,7 @@ interface LogContext {
  *
  * @example
  * ```typescript
- * import { forumLogger } from '@forum/forum'
+ * import { forumLogger } from '@quoorum/forum'
  *
  * // Log básico
  * forumLogger.info('Debate iniciado', { debateId, userId })

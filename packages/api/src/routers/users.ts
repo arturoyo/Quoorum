@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, publicProcedure, protectedProcedure } from "../trpc.js";
-import { users } from "@forum/db";
+import { users } from "@quoorum/db";
 
 export const usersRouter = router({
   getById: publicProcedure

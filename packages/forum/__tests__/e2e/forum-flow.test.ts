@@ -11,7 +11,7 @@ import { shouldIntervene } from '../../src/meta-moderator'
 import type { DebateMessage } from '../../src/types'
 
 // Mock the AI client
-vi.mock('@forum/ai', () => ({
+vi.mock('@quoorum/ai', () => ({
   getAIClient: vi.fn(() => ({
     generate: vi.fn(async () => {
       // Return mock response for question analysis

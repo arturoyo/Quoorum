@@ -1,5 +1,5 @@
 {
-  "name": "@forum/forum",
+  "name": "@quoorum/forum",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -23,8 +23,8 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "@forum/ai": "workspace:*",
-    "@forum/db": "workspace:*",
+    "@quoorum/ai": "workspace:*",
+    "@quoorum/db": "workspace:*",
     "drizzle-orm": "^0.38.3",
     "openai": "^4.98.0",
     "pino": "^10.1.0",

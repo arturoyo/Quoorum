@@ -1,5 +1,5 @@
 {
-  "name": "forum",
+  "name": "quoorum",
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "scripts": {
@@ -11,9 +11,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "clean": "turbo clean && rm -rf node_modules",
-    "db:generate": "pnpm --filter @forum/db generate",
-    "db:migrate": "pnpm --filter @forum/db migrate",
-    "db:push": "pnpm --filter @forum/db push"
+    "db:generate": "pnpm --filter @quoorum/db generate",
+    "db:migrate": "pnpm --filter @quoorum/db migrate",
+    "db:push": "pnpm --filter @quoorum/db push"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",

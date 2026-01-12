@@ -1,7 +1,7 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import type { Database } from "@forum/db";
-import type { User } from "@forum/db";
+import type { Database } from "@quoorum/db";
+import type { User } from "@quoorum/db";
 
 export interface Context {
   db: Database;

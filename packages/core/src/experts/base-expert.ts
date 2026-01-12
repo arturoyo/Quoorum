@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { createModel, type ExpertConfig } from "@forum/ai";
+import { createModel, type ExpertConfig } from "@quoorum/ai";
 import type { ExpertOpinionResult } from "../types.js";
 
 export abstract class BaseExpert {

@@ -4,7 +4,7 @@
  * Carga contexto de multiples fuentes: manual, internet, repositorio
  */
 
-import { getAIClient } from '@forum/ai'
+import { getAIClient } from '@quoorum/ai'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import type { ContextSource, LoadedContext } from './types'

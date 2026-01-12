@@ -6,7 +6,7 @@
  */
 
 import { TRPCError } from '@trpc/server'
-import { db } from '@forum/db'
+import { db } from '@quoorum/db'
 import {
   adminRoles,
   adminUsers,
@@ -17,8 +17,8 @@ import {
   forumDebateTemplates,
   forumExpertPerformance,
   profiles,
-} from '@forum/db/schema'
-import { runDynamicDebate } from '@forum/forum'
+} from '@quoorum/db/schema'
+import { runDynamicDebate } from '@quoorum/forum'
 import { and, avg, count, desc, eq, like, or, sql, sum } from 'drizzle-orm'
 import { z } from 'zod'
 import { logger } from '../lib/logger'
@@ -755,7 +755,7 @@ export const forumRouter = router({
       // }
 
       // // Generate PDF
-      // const { generateDebatePDF } = await import('@forum/forum/pdf-export')
+      // const { generateDebatePDF } = await import('@quoorum/forum/pdf-export')
       // const debateResult = {
       //   sessionId: debate.id,
       //   question: debate.question,
@@ -807,7 +807,7 @@ export const forumRouter = router({
   refineQuestion: adminWithRateLimitProcedure
     .input(z.object({ question: z.string() }))
     .mutation(async ({ input }) => {
-      const { AIAssistant } = await import('@forum/forum/ai-assistant')
+      const { AIAssistant } = await import('@quoorum/forum/ai-assistant')
       return AIAssistant.refineQuestion(input.question)
     }),
 
@@ -818,7 +818,7 @@ export const forumRouter = router({
   suggestExperts: adminWithRateLimitProcedure
     .input(z.object({ question: z.string() }))
     .mutation(async ({ input }) => {
-      const { AIAssistant } = await import('@forum/forum/ai-assistant')
+      const { AIAssistant } = await import('@quoorum/forum/ai-assistant')
       return AIAssistant.suggestExperts(input.question)
     }),
 
@@ -829,7 +829,7 @@ export const forumRouter = router({
   extractInsights: adminWithRateLimitProcedure
     .input(z.object({ debateId: z.string() }))
     .query(async ({ input }) => {
-      const { AIAssistant } = await import('@forum/forum/ai-assistant')
+      const { AIAssistant } = await import('@quoorum/forum/ai-assistant')
       return AIAssistant.extractInsights(input.debateId)
     }),
 
@@ -840,7 +840,7 @@ export const forumRouter = router({
   generateSummary: adminWithRateLimitProcedure
     .input(z.object({ debateId: z.string() }))
     .query(async ({ input }) => {
-      const { AIAssistant } = await import('@forum/forum/ai-assistant')
+      const { AIAssistant } = await import('@quoorum/forum/ai-assistant')
       return AIAssistant.generateSmartSummary(input.debateId)
     }),
 
@@ -993,7 +993,7 @@ async function runDebateAsync(
       // Real-time callbacks for WebSocket broadcasting
       onRoundComplete: async (round) => {
         try {
-          const { broadcastDebateUpdate } = await import('@forum/forum/websocket-server')
+          const { broadcastDebateUpdate } = await import('@quoorum/forum/websocket-server')
           broadcastDebateUpdate({
             debateId,
             type: 'round_complete',
@@ -1005,7 +1005,7 @@ async function runDebateAsync(
       },
       onQualityCheck: async (quality) => {
         try {
-          const { broadcastDebateUpdate } = await import('@forum/forum/websocket-server')
+          const { broadcastDebateUpdate } = await import('@quoorum/forum/websocket-server')
           broadcastDebateUpdate({
             debateId,
             type: 'quality_check',
@@ -1017,7 +1017,7 @@ async function runDebateAsync(
       },
       onIntervention: async (intervention) => {
         try {
-          const { broadcastDebateUpdate } = await import('@forum/forum/websocket-server')
+          const { broadcastDebateUpdate } = await import('@quoorum/forum/websocket-server')
           broadcastDebateUpdate({
             debateId,
             type: 'intervention',

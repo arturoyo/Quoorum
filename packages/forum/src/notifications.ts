@@ -118,8 +118,8 @@ async function sendInAppNotification(userId: string, debate: DebateResult): Prom
   // Save to database and send via WebSocket
   try {
     // Import database client
-    const { db } = await import('@forum/db')
-    const { notifications } = await import('@forum/db/schema')
+    const { db } = await import('@quoorum/db')
+    const { notifications } = await import('@quoorum/db/schema')
 
     // Save to database
     await db.insert(notifications).values({
@@ -390,8 +390,8 @@ export async function notifyQualityIssue(
 
   // Save quality issue notification to database
   try {
-    const { db } = await import('@forum/db')
-    const { notifications } = await import('@forum/db/schema')
+    const { db } = await import('@quoorum/db')
+    const { notifications } = await import('@quoorum/db/schema')
 
     await db.insert(notifications).values({
       userId: notification.userId,
@@ -434,8 +434,8 @@ export async function notifyIntervention(
 
   // Save intervention notification to database
   try {
-    const { db } = await import('@forum/db')
-    const { notifications } = await import('@forum/db/schema')
+    const { db } = await import('@quoorum/db')
+    const { notifications } = await import('@quoorum/db/schema')
 
     await db.insert(notifications).values({
       userId: notification.userId,

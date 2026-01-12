@@ -91,7 +91,7 @@ function LoginContent() {
           Bienvenido de nuevo
         </CardTitle>
         <CardDescription className="text-gray-400">
-          Inicia sesión para acceder a Forum
+          Inicia sesión para acceder a Quoorum
         </CardDescription>
       </CardHeader>
 

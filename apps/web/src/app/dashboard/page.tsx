@@ -72,46 +72,108 @@ export default function DashboardPage() {
 
       setUser(user);
 
-      // TODO: Replace with actual API calls
-      // For now, using mock data
-      setData({
-        subscription: {
-          plan: "Pro",
-          status: "active",
-          debatesUsed: 12,
-          debatesLimit: 50,
-          currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-        recentDebates: [
-          {
-            id: "1",
-            question: "¿Cuál es la mejor estrategia para entrar en el mercado europeo?",
-            status: "completed",
-            consensusScore: 85,
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      try {
+        // Fetch real data from database
+        const { data: debates, error: debatesError } = await supabase
+          .from("forum_debates")
+          .select("id, question, status, consensus_score, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(5);
+
+        if (debatesError) {
+          console.error("Error fetching debates:", debatesError);
+        }
+
+        // Fetch subscription data (default to Free for now)
+        const { data: subscription } = await supabase
+          .from("subscriptions")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        // Calculate stats
+        const { count: totalCount } = await supabase
+          .from("forum_debates")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+
+        const { count: completedCount } = await supabase
+          .from("forum_debates")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("status", "completed");
+
+        const { data: avgData } = await supabase
+          .from("forum_debates")
+          .select("consensus_score")
+          .eq("user_id", user.id)
+          .eq("status", "completed")
+          .not("consensus_score", "is", null);
+
+        const avgConsensus =
+          avgData && avgData.length > 0
+            ? Math.round(
+                avgData.reduce((sum, d) => sum + (d.consensus_score || 0), 0) /
+                  avgData.length
+              )
+            : 0;
+
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const { count: thisMonthCount } = await supabase
+          .from("forum_debates")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .gte("created_at", startOfMonth.toISOString());
+
+        setData({
+          subscription: {
+            plan: subscription?.plan_id || "Free",
+            status: subscription?.status || "active",
+            debatesUsed: totalCount || 0,
+            debatesLimit: subscription?.plan_id === "Pro" ? 50 : 10,
+            currentPeriodEnd:
+              subscription?.current_period_end ||
+              new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           },
-          {
-            id: "2",
-            question: "¿Deberíamos pivotar hacia un modelo B2B o mantenernos en B2C?",
-            status: "completed",
-            consensusScore: 72,
-            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          recentDebates:
+            debates?.map((d) => ({
+              id: d.id,
+              question: d.question,
+              status: d.status,
+              consensusScore: d.consensus_score,
+              createdAt: d.created_at,
+            })) || [],
+          stats: {
+            totalDebates: totalCount || 0,
+            completedDebates: completedCount || 0,
+            avgConsensus,
+            thisMonth: thisMonthCount || 0,
           },
-          {
-            id: "3",
-            question: "¿Es el momento adecuado para levantar una ronda Series A?",
-            status: "in_progress",
-            consensusScore: null,
-            createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+        });
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+        // Set empty data on error
+        setData({
+          subscription: {
+            plan: "Free",
+            status: "active",
+            debatesUsed: 0,
+            debatesLimit: 10,
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           },
-        ],
-        stats: {
-          totalDebates: 45,
-          completedDebates: 42,
-          avgConsensus: 78,
-          thisMonth: 12,
-        },
-      });
+          recentDebates: [],
+          stats: {
+            totalDebates: 0,
+            completedDebates: 0,
+            avgConsensus: 0,
+            thisMonth: 0,
+          },
+        });
+      }
 
       setIsLoading(false);
     }
@@ -142,7 +204,7 @@ export default function DashboardPage() {
               <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">Forum</span>
+              <span className="text-xl font-bold text-white">Quoorum</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
@@ -177,7 +239,7 @@ export default function DashboardPage() {
             ¡Hola, {user.user_metadata?.full_name || user.email?.split("@")[0]}!
           </h1>
           <p className="text-gray-400 mt-1">
-            Aquí tienes un resumen de tu actividad en Forum.
+            Aquí tienes un resumen de tu actividad en Quoorum.
           </p>
         </div>
 

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
 import { router, publicProcedure, protectedProcedure } from "../trpc.js";
-import { rounds, type RoundStatus } from "@forum/db";
+import { rounds, type RoundStatus } from "@quoorum/db";
 
 const statusSchema = z.enum([
   "pending",

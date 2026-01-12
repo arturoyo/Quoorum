@@ -1,5 +1,5 @@
 {
-  "name": "@forum/core",
+  "name": "@quoorum/core",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,8 +16,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@forum/ai": "workspace:*",
-    "@forum/db": "workspace:*",
+    "@quoorum/ai": "workspace:*",
+    "@quoorum/db": "workspace:*",
     "ai": "^4.0.0",
     "zod": "^3.24.0"
   },

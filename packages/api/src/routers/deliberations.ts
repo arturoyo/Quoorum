@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
 import { router, publicProcedure, protectedProcedure } from "../trpc.js";
-import { deliberations, type DeliberationStatus } from "@forum/db";
+import { deliberations, type DeliberationStatus } from "@quoorum/db";
 
 const statusSchema = z.enum([
   "draft",

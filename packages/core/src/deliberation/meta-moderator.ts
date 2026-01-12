@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { createModel } from "@forum/ai";
+import { createModel } from "@quoorum/ai";
 import type {
   ExpertOpinionResult,
   FinalConsensus,

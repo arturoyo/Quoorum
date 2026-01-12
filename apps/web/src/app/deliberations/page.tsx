@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { DeliberationCard } from "@forum/ui";
+import { DeliberationCard } from "@quoorum/ui";
 
 const mockDeliberations = [
   {

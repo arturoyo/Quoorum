@@ -16,12 +16,12 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { router, protectedProcedure } from '../trpc'
-import { db } from '@forum/db'
+import { db } from '@quoorum/db'
 import {
   forumDebates,
   forumWebhooks,
   forumApiKeys,
-} from '@forum/db/schema'
+} from '@quoorum/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { inngest } from '../lib/inngest-client'
 import { logger } from '../lib/logger'

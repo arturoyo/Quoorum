@@ -422,7 +422,7 @@ export async function healthCheck() {
 
   // Check database
   try {
-    const { db } = await import('@forum/db')
+    const { db } = await import('@quoorum/db')
     const { sql } = await import('drizzle-orm')
     // Use sql template literal - cast to satisfy type checker
     const query = sql`SELECT 1` as unknown as string

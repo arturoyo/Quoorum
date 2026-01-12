@@ -9,9 +9,9 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
 import { router, protectedProcedure, expensiveRateLimitedProcedure } from "../trpc.js";
-import { db } from "@forum/db";
-import { forumDebates, profiles } from "@forum/db/schema";
-import { runDynamicDebate } from "@forum/forum";
+import { db } from "@quoorum/db";
+import { forumDebates, profiles } from "@quoorum/db/schema";
+import { runDynamicDebate } from "@quoorum/forum";
 import { logger } from "../lib/logger.js";
 import { inngest } from "../lib/inngest-client.js";
 

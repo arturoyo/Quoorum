@@ -9,14 +9,14 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { router, protectedProcedure } from '../trpc'
-import { db } from '@forum/db'
+import { db } from '@quoorum/db'
 import {
   adminUsers,
   adminRoles,
   forumSessions,
   forumMessages,
   forumContextSources,
-} from '@forum/db/schema'
+} from '@quoorum/db/schema'
 import { eq, and, desc, count } from 'drizzle-orm'
 import {
   runDebate,
@@ -27,7 +27,7 @@ import {
   CreateSessionSchema,
   type DebateRound,
   type DebateMessage,
-} from '@forum/forum'
+} from '@quoorum/forum'
 
 // ============================================================
 // Admin Middleware

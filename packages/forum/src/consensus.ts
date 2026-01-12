@@ -4,7 +4,7 @@
  * Detecta cuando los agentes han llegado a un consenso y extrae el ranking final
  */
 
-import { getAIClient } from '@forum/ai'
+import { getAIClient } from '@quoorum/ai'
 import { FORUM_AGENTS, getAgentName } from './agents'
 import type { DebateMessage, RankedOption, ConsensusResult } from './types'
 

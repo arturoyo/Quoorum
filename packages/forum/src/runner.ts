@@ -4,7 +4,7 @@
  * Ejecuta debates multi-agente hasta alcanzar consenso
  */
 
-import { getAIClient } from '@forum/ai'
+import { getAIClient } from '@quoorum/ai'
 import { FORUM_AGENTS, AGENT_ORDER, estimateAgentCost } from './agents'
 import { ULTRA_OPTIMIZED_PROMPT, estimateTokens, getRoleEmoji } from './ultra-language'
 import { checkConsensus } from './consensus'

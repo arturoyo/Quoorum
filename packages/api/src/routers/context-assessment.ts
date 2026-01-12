@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../trpc.js";
-import { getAIClient } from "@forum/ai";
+import { getAIClient } from "@quoorum/ai";
 
 /**
  * Context Assessment Router

@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { getStripe, getPriceId, type PlanId, type BillingInterval } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { logError } from "@/lib/monitoring";
-import { db } from "@forum/db";
-import { subscriptions } from "@forum/db/schema";
+import { db } from "@quoorum/db";
+import { subscriptions } from "@quoorum/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function POST(request: Request) {
