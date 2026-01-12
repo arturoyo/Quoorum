@@ -14,7 +14,6 @@ import {
   Sparkles,
   Database,
   Layers,
-  Cpu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -363,7 +362,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <div
                 key={feature.title}
                 className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/5 hover:border-white/10 transition-all duration-500 backdrop-blur-xl overflow-hidden"

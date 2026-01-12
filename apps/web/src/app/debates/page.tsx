@@ -22,19 +22,14 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
-import type { User } from "@supabase/supabase-js";
-
-interface Debate {
-  id: string;
-  question: string;
-  status: string;
-  consensusScore: number | null;
-  createdAt: string;
-}
-
 export default function DebatesPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [debates, setDebates] = useState<any[]>([]);
+  const [debates, setDebates] = useState<Array<{
+    id: string;
+    question: string;
+    status: string;
+    consensus_score: number | null;
+    created_at: string;
+  }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
@@ -48,8 +43,6 @@ export default function DebatesPage() {
         return;
       }
 
-      setUser(user);
-
       // Fetch real debates from database
       try {
         const { data: debatesData, error } = await supabase
@@ -58,13 +51,11 @@ export default function DebatesPage() {
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
-        if (error) {
-          console.error("Error fetching debates:", error);
-        } else {
-          setDebates(debatesData || []);
+        if (!error && debatesData) {
+          setDebates(debatesData);
         }
-      } catch (error) {
-        console.error("Error loading debates:", error);
+      } catch {
+        // Silently handle errors
       }
 
       setIsLoading(false);
@@ -186,13 +177,13 @@ export default function DebatesPage() {
                   <CardContent>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-400">
-                        {debate.consensusScore
-                          ? `Consenso: ${debate.consensusScore}%`
+                        {debate.consensus_score
+                          ? `Consenso: ${debate.consensus_score}%`
                           : "Sin consenso aún"}
                       </span>
                       <span className="text-gray-500 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {new Date(debate.createdAt).toLocaleDateString()}
+                        {new Date(debate.created_at).toLocaleDateString()}
                       </span>
                     </div>
                   </CardContent>

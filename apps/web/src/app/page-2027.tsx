@@ -14,7 +14,6 @@ import {
   Sparkles,
   Database,
   Layers,
-  Cpu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
