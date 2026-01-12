@@ -1,17 +1,23 @@
-# Forum - Sistema de Deliberación Multi-Agente
+# Quoorum - Sistema de Deliberación Multi-Agente con IA
 
-> Sistema de debates AI multi-agente para validar decisiones complejas mediante consenso inteligente.
+> Sistema de debates AI multi-agente para validar decisiones complejas mediante consenso inteligente de 25+ expertos especializados.
+
+**🌐 Website:** [quoorum.pro](https://quoorum.pro)
 
 ---
 
 ## Descripción
 
-Forum es un sistema de deliberación que simula debates entre múltiples agentes AI especializados para analizar preguntas complejas y llegar a un consenso fundamentado. Cada agente tiene un rol específico (optimizador, crítico, analista, sintetizador) que aporta una perspectiva única al debate.
+Quoorum es un sistema avanzado de deliberación que simula debates entre múltiples agentes AI especializados para analizar preguntas complejas y llegar a un consenso fundamentado. El sistema selecciona dinámicamente entre 25+ expertos según la naturaleza de la pregunta, cada uno con conocimientos especializados en diferentes dominios (estrategia, finanzas, tecnología, ética, etc.).
 
 ### Características Principales
 
-- **Multi-Agente**: 4 agentes especializados con roles distintos
+- **25+ Expertos Especializados**: Sistema dinámico que selecciona los expertos más relevantes según la pregunta
+- **Debates Auto-Mejorados**: Quality Monitor que detecta argumentos superficiales y redirige hacia mayor profundidad
+- **Memoria Institucional**: Búsqueda semántica de debates similares del pasado
 - **Consenso Inteligente**: Algoritmo que detecta acuerdo (threshold 70%)
+- **Meta-Moderador**: Interviene automáticamente cuando la calidad del debate baja
+- **Sistema de Aprendizaje**: Mejora continua basada en debates pasados
 - **Búsqueda Vectorial**: Pinecone para encontrar debates similares
 - **Exportación PDF**: Genera reportes profesionales con Puppeteer
 - **Cache Redis**: Optimización de respuestas frecuentes
@@ -32,8 +38,8 @@ Forum es un sistema de deliberación que simula debates entre múltiples agentes
 
 ```bash
 # Clonar repositorio
-git clone <repo-url>
-cd forum
+git clone https://github.com/arturoyo/Quoorum.git
+cd quoorum
 
 # Instalar dependencias
 pnpm install
@@ -53,20 +59,20 @@ pnpm dev
 
 ```env
 # Base de datos (requerido)
-DATABASE_URL="postgresql://user:password@localhost:5432/forum"
+DATABASE_URL="postgresql://user:password@localhost:5432/quoorum"
 
 # OpenAI (requerido para debates)
 OPENAI_API_KEY="sk-..."
 
 # Pinecone (opcional, para búsqueda vectorial)
 PINECONE_API_KEY="..."
-PINECONE_INDEX="forum-debates"
+PINECONE_INDEX="quoorum-debates"
 
 # Redis (opcional, para cache)
 REDIS_URL="redis://localhost:6379"
 
 # Aplicación
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_URL="https://quoorum.pro"
 NODE_ENV="development"
 ```
 
@@ -76,17 +82,22 @@ NODE_ENV="development"
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    FRONTEND (Next.js 14)                     │
+│                    FRONTEND (Next.js 15)                     │
 │                         apps/web/                            │
+│                  Landing 2026-27 Design                      │
 ├─────────────────────────────────────────────────────────────┤
 │                      API (tRPC v11)                          │
 │                      packages/api/                           │
 ├─────────────────────────────────────────────────────────────┤
-│                   FORUM ENGINE                               │
+│                   QUOORUM ENGINE                             │
 │                    packages/forum/                           │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
-│  │Optimizer │  │ Critic   │  │ Analyst  │  │Synthesizer│   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘    │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  25+ Expertos Especializados (Selección Dinámica)    │   │
+│  │  Strategy | Finance | Tech | Ethics | Legal | etc.   │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │Quality Monitor│  │Meta-Moderator│  │Learning System│     │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
 ├─────────────────────────────────────────────────────────────┤
 │                    DATABASE (Drizzle)                        │
 │                       packages/db/                           │
@@ -97,18 +108,19 @@ NODE_ENV="development"
 
 ### Packages del Monorepo
 
-| Paquete        | Propósito                                    | Dependencias Clave       |
-| -------------- | -------------------------------------------- | ------------------------ |
-| `@forum/forum` | Motor de debates multi-agente                | OpenAI, Pinecone, Redis  |
-| `@forum/api`   | tRPC routers para la API                     | tRPC, Zod                |
-| `@forum/db`    | Schemas y cliente de base de datos           | Drizzle ORM, PostgreSQL  |
-| `@forum/ai`    | Providers de IA (OpenAI, Anthropic, etc.)    | OpenAI, Anthropic, Groq  |
-| `@forum/core`  | Utilidades compartidas                       | TypeScript               |
+| Paquete          | Propósito                                    | Dependencias Clave       |
+| ---------------- | -------------------------------------------- | ------------------------ |
+| `@forum/forum`   | Motor de debates multi-agente                | OpenAI, Pinecone, Redis  |
+| `@forum/api`     | tRPC routers para la API                     | tRPC, Zod                |
+| `@forum/db`      | Schemas y cliente de base de datos           | Drizzle ORM, PostgreSQL  |
+| `@forum/ai`      | Providers de IA (OpenAI, Anthropic, etc.)    | OpenAI, Anthropic, Groq  |
+| `@forum/core`    | Utilidades compartidas                       | TypeScript               |
+| `@forum/ui`      | Componentes UI compartidos                   | React, Tailwind          |
 
 ### Estructura de Carpetas
 
 ```
-forum/
+quoorum/
 ├── apps/
 │   └── web/                  # Next.js App
 │       ├── src/app/          # Pages (App Router)
@@ -120,7 +132,10 @@ forum/
 │   │   ├── src/
 │   │   │   ├── runner.ts     # Orquestador de debates
 │   │   │   ├── consensus.ts  # Algoritmo de consenso
-│   │   │   ├── ai-assistant.ts # Agentes AI
+│   │   │   ├── expert-database.ts # 25+ expertos
+│   │   │   ├── quality-monitor.ts # Control de calidad
+│   │   │   ├── meta-moderator.ts  # Meta-moderador
+│   │   │   ├── learning-system.ts # Sistema de aprendizaje
 │   │   │   └── integrations/ # Pinecone, Redis, etc.
 │   │   └── package.json
 │   │
@@ -132,6 +147,9 @@ forum/
 │   │
 │   ├── ai/                   # Providers de IA
 │   │   └── src/providers/
+│   │
+│   ├── ui/                   # Componentes UI
+│   │   └── src/components/
 │   │
 │   └── core/                 # Utilidades compartidas
 │
@@ -166,12 +184,13 @@ console.log(result.consensusScore);  // 0.85 (85% consenso)
 console.log(result.ranking);         // [{ option: 'Sí', successRate: 85 }, ...]
 console.log(result.rounds);          // Array de rondas
 console.log(result.totalCostUsd);    // 0.023
+console.log(result.qualityMetrics);  // Métricas de calidad del debate
 ```
 
 ### Buscar Debates Similares
 
 ```typescript
-import { searchSimilarDebates } from '@forum/forum/integrations/pinecone';
+import { searchSimilarDebates } from '@forum/forum/question-similarity';
 
 const similar = await searchSimilarDebates('¿Deberíamos expandir?', {
   topK: 5,
@@ -197,17 +216,40 @@ const pdfBuffer = await exportDebateToPDF(result);
 import { api } from '@/lib/trpc';
 
 // Iniciar debate
-const debate = await api.forum.startDebate.mutate({
+const debate = await api.debates.create.mutate({
   question: '¿Deberíamos invertir en AI?',
   context: 'Contexto relevante...',
 });
 
 // Obtener resultado
-const result = await api.forum.getDebate.query({ id: debate.id });
+const result = await api.debates.get.query({ id: debate.id });
 
 // Listar debates del usuario
-const debates = await api.forum.list.query({ limit: 10 });
+const debates = await api.debates.list.query({ limit: 10 });
 ```
+
+---
+
+## Sistema de Expertos
+
+Quoorum cuenta con 25+ expertos especializados que se seleccionan dinámicamente según la pregunta:
+
+### Categorías de Expertos
+
+| Categoría | Expertos |
+| --------- | -------- |
+| **Estrategia** | Strategy Expert, Business Model Expert, Innovation Expert |
+| **Finanzas** | Financial Analyst, Investment Advisor, Risk Manager |
+| **Tecnología** | Tech Architect, Data Scientist, Security Expert |
+| **Operaciones** | Operations Manager, Supply Chain Expert, Quality Expert |
+| **Marketing** | Marketing Strategist, Brand Expert, Growth Hacker |
+| **Legal & Compliance** | Legal Advisor, Compliance Officer, Ethics Expert |
+| **Recursos Humanos** | HR Specialist, Culture Expert, Talent Acquisition |
+| **Producto** | Product Manager, UX Expert, Customer Success |
+
+### Selección Dinámica
+
+El sistema analiza la pregunta y selecciona automáticamente los 4-6 expertos más relevantes para el debate.
 
 ---
 
@@ -223,14 +265,20 @@ El sistema utiliza un algoritmo de consenso basado en:
    - Mínimo 3 rondas completadas
 4. **Máximo 20 rondas**: Si no hay consenso, se termina con mejor opción
 
-### Agentes Especializados
+### Quality Monitor
 
-| Agente       | Rol                                    |
-| ------------ | -------------------------------------- |
-| Optimizer    | Busca la mejor solución posible        |
-| Critic       | Identifica riesgos y problemas         |
-| Analyst      | Analiza datos y métricas               |
-| Synthesizer  | Resume y encuentra puntos en común     |
+El Quality Monitor evalúa cada mensaje en 3 dimensiones:
+- **Profundidad**: Presencia de datos, razonamiento causal, ejemplos
+- **Diversidad**: Variedad de perspectivas y enfoques
+- **Originalidad**: Aportaciones nuevas vs repetición
+
+### Meta-Moderador
+
+Interviene cuando detecta problemas:
+- Argumentos superficiales
+- Falta de diversidad
+- Consenso prematuro
+- Repetición excesiva
 
 ---
 
@@ -243,7 +291,7 @@ pnpm dev              # Iniciar desarrollo
 pnpm build            # Build producción
 pnpm typecheck        # Verificar TypeScript
 pnpm lint             # Ejecutar linter
-pnpm test             # Ejecutar tests
+pnpm test             # Ejecutar tests (166 tests)
 ```
 
 ### Base de Datos
@@ -280,20 +328,16 @@ pnpm --filter @forum/forum test
 pnpm --filter @forum/api test
 ```
 
-### Estructura de Tests
+### Cobertura de Tests
 
-```
-packages/
-├── forum/
-│   └── src/__tests__/
-│       ├── runner.test.ts
-│       ├── consensus.test.ts
-│       └── ai-assistant.test.ts
-│
-└── api/
-    └── src/routers/__tests__/
-        └── forum.test.ts
-```
+- ✅ 166 tests passing
+- ✅ Runner y consenso
+- ✅ Quality Monitor
+- ✅ Meta-Moderador
+- ✅ Learning System
+- ✅ Question Similarity
+- ✅ Expert Matcher
+- ✅ API routers
 
 ---
 
@@ -302,7 +346,7 @@ packages/
 El proyecto usa GitHub Actions para CI/CD:
 
 - **Validate**: TypeScript check en todo el monorepo
-- **Test**: Tests unitarios (API + Forum)
+- **Test**: Tests unitarios (API + Quoorum Engine)
 - **Build**: Build de producción
 
 Ver `.github/workflows/ci.yml` para detalles.
@@ -316,12 +360,12 @@ Ver `.github/workflows/ci.yml` para detalles.
 Para habilitar búsqueda de debates similares:
 
 1. Crear cuenta en [Pinecone](https://www.pinecone.io/)
-2. Crear índice `forum-debates` con dimensión 1536
+2. Crear índice `quoorum-debates` con dimensión 1536
 3. Configurar variables:
 
 ```env
 PINECONE_API_KEY="your-api-key"
-PINECONE_INDEX="forum-debates"
+PINECONE_INDEX="quoorum-debates"
 ```
 
 ### Redis (Cache)
@@ -348,6 +392,30 @@ GOOGLE_AI_API_KEY="..."
 
 # Groq (fallback rápido)
 GROQ_API_KEY="..."
+```
+
+---
+
+## Deployment
+
+### Vercel (Recomendado)
+
+```bash
+# Instalar Vercel CLI
+pnpm add -g vercel
+
+# Deploy
+vercel
+```
+
+### Docker
+
+```bash
+# Build imagen
+docker build -t quoorum .
+
+# Run container
+docker run -p 3000:3000 quoorum
 ```
 
 ---
@@ -379,17 +447,30 @@ MIT
 
 | Categoría     | Tecnología           |
 | ------------- | -------------------- |
-| Framework     | Next.js 14 (App Router) |
+| Framework     | Next.js 15 (App Router) |
 | Lenguaje      | TypeScript 5+        |
 | Estilos       | Tailwind CSS + shadcn/ui |
 | API           | tRPC v11             |
 | ORM           | Drizzle ORM          |
 | Database      | PostgreSQL           |
 | IA            | OpenAI, Anthropic, Google AI, Groq |
-| Testing       | Vitest               |
+| Testing       | Vitest (166 tests)   |
 | Monorepo      | Turborepo + pnpm     |
 
 ---
 
-_Forum v1.0.0_
-_Sistema de Deliberación Multi-Agente_
+## Roadmap
+
+- [ ] Integración con más providers de IA
+- [ ] Dashboard de analytics avanzado
+- [ ] API pública REST/GraphQL
+- [ ] Mobile app (React Native)
+- [ ] Integración con Slack/Teams
+- [ ] Webhooks para eventos
+- [ ] Multi-idioma (i18n)
+
+---
+
+_Quoorum v1.0.0_  
+_Sistema de Deliberación Multi-Agente con IA_  
+_[quoorum.pro](https://quoorum.pro)_
