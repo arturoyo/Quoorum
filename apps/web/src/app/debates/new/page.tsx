@@ -58,7 +58,16 @@ const CATEGORIES = [
 
 type Phase = "input" | "assessment" | "config" | "creating";
 
+export const dynamic = 'force-dynamic';
+
 export default function NewDebatePage() {
+  // Prevent SSR
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("input");
   const [isLoading, setIsLoading] = useState(false);
@@ -202,6 +211,10 @@ export default function NewDebatePage() {
   };
 
   const isAnalyzing = analyzeMutation.isPending || refineMutation.isPending;
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-slate-900">

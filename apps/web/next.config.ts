@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@forum/ui", "@forum/api", "@forum/core"],
+  transpilePackages: ["@quoorum/ui", "@quoorum/api", "@quoorum/core"],
+  // Skip static generation for certain routes
+  experimental: {
+    skipMiddlewareUrlNormalize: false,
+    skipTrailingSlashRedirect: false,
+  },
 };
 
 export default nextConfig;

@@ -25,9 +25,9 @@
   },
   "dependencies": {
     "@quoorum/api": "workspace:*",
-    "@trpc/client": "^10.45.0",
-    "@trpc/react-query": "^10.45.0",
-    "@tanstack/react-query": "^5.60.0",
+    "@trpc/client": "^10.45.4",
+    "@trpc/react-query": "^10.45.4",
+    "@tanstack/react-query": "^4.36.1",
     "react": "^19.0.0",
     "lucide-react": "^0.460.0",
     "clsx": "^2.1.0"
