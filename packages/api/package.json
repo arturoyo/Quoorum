@@ -1,0 +1,33 @@
+{
+  "name": "@forum/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@forum/ai": "workspace:*",
+    "@forum/core": "workspace:*",
+    "@forum/db": "workspace:*",
+    "@forum/forum": "workspace:*",
+    "@trpc/server": "^10.45.0",
+    "drizzle-orm": "^0.38.0",
+    "superjson": "^2.2.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.2"
+  }
+}
