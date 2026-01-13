@@ -23,6 +23,36 @@
 
 ## [2026-01-13] - LOGO PERSONALIZADO Y BRANDING
 
+### [12:00] - FIX: RESOLVER ERROR "UNSUPPORTED PROVIDER"
+
+**Solicitado por:** Usuario
+**Descripción:** Error 400 "Unsupported provider: provider is not enabled" al usar el sistema de debates
+**Acciones realizadas:**
+
+- Identificado que agentes Optimizer y Analyst usaban DeepSeek sin API key configurada
+- **SOLUCIÓN IMPLEMENTADA:** Cambiar agentes a OpenAI gpt-4o-mini (más accesible)
+  - Optimizer: `deepseek-chat` → `gpt-4o-mini` ($0.15/1M tokens)
+  - Analyst: `deepseek-chat` → `gpt-4o-mini` ($0.15/1M tokens)
+- Actualizado `.env.example` con variables de DeepSeek (por si usuario quiere usarlo en futuro)
+- Corregido variables de branding: `FORUM_EMAIL_FROM` → `QUOORUM_EMAIL_FROM`
+- Corregido index Pinecone: `forum-debates` → `quoorum-debates`
+
+**Archivos afectados:**
+
+- `packages/forum/src/agents.ts` (cambio de provider)
+- `.env.example` (agregado DEEPSEEK_API_KEY, correcciones branding)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+
+- Sistema ahora funciona solo con OpenAI API key (más común)
+- DeepSeek sigue disponible si usuario obtiene API key ($0.14/1M tokens - más barato)
+- Committed: `39fc2c8`
+- Pushed to GitHub
+
+---
+
 ### [11:45] - CREACIÓN E INTEGRACIÓN DE LOGO QUOORUM
 
 **Solicitado por:** Usuario
