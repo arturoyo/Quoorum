@@ -36,6 +36,7 @@ import {
 export default function SecurityPage() {
   const router = useRouter();
   const supabase = createClient();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -44,8 +45,24 @@ export default function SecurityPage() {
   });
   const [isSaving, setIsSaving] = useState(false);
 
-  // Queries
-  const { data: sessions, isLoading, refetch } = api.sessions.list.useQuery();
+  // Auth check (runs BEFORE query)
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+      } else {
+        setIsAuthenticated(true);
+      }
+    }
+    checkAuth();
+  }, [router, supabase.auth]);
+
+  // Queries (only execute when authenticated)
+  const { data: sessions, isLoading, refetch } = api.sessions.list.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
 
   // Mutations
   const revokeSession = api.sessions.revoke.useMutation({
@@ -57,16 +74,6 @@ export default function SecurityPage() {
       toast.error(error.message);
     },
   });
-
-  useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-      }
-    }
-    checkAuth();
-  }, [router, supabase.auth]);
 
   const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {

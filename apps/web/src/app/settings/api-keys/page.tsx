@@ -46,13 +46,30 @@ import {
 export default function ApiKeysPage() {
   const router = useRouter();
   const supabase = createClient();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [newKey, setNewKey] = useState<string | null>(null);
   const [showKey, setShowKey] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Queries
-  const { data: apiKeys, isLoading, refetch } = api.apiKeys.list.useQuery();
+  // Auth check (runs BEFORE query)
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+      } else {
+        setIsAuthenticated(true);
+      }
+    }
+    checkAuth();
+  }, [router, supabase.auth]);
+
+  // Queries (only execute when authenticated)
+  const { data: apiKeys, isLoading, refetch } = api.apiKeys.list.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
 
   // Mutations
   const createKey = api.apiKeys.create.useMutation({
@@ -76,16 +93,6 @@ export default function ApiKeysPage() {
       toast.error(error.message);
     },
   });
-
-  useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-      }
-    }
-    checkAuth();
-  }, [router, supabase.auth]);
 
   const handleCreateKey = () => {
     if (!newKeyName.trim()) {

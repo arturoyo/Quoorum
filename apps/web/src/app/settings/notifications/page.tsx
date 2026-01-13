@@ -31,9 +31,26 @@ import {
 export default function NotificationsPage() {
   const router = useRouter();
   const supabase = createClient();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Queries
-  const { data: settings, isLoading } = api.notificationSettings.get.useQuery();
+  // Auth check (runs BEFORE query)
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+      } else {
+        setIsAuthenticated(true);
+      }
+    }
+    checkAuth();
+  }, [router, supabase.auth]);
+
+  // Queries (only execute when authenticated)
+  const { data: settings, isLoading } = api.notificationSettings.get.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
 
   // Mutations
   const updateSettings = api.notificationSettings.update.useMutation({
@@ -44,16 +61,6 @@ export default function NotificationsPage() {
       toast.error(error.message);
     },
   });
-
-  useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-      }
-    }
-    checkAuth();
-  }, [router, supabase.auth]);
 
   const handleToggle = (key: string, value: boolean) => {
     updateSettings.mutate({ [key]: value });
