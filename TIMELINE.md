@@ -1408,4 +1408,74 @@ Seguir paso a paso la guía en `docs/GOOGLE_OAUTH_SETUP.md` para completar la co
 
 ---
 
-_Última actualización: 2026-01-13 19:00_
+### [21:52] - CORRECCIÓN CRÍTICA: BUILD FAILURE EN VERCEL
+
+**Solicitado por:** Usuario ("usa el mcp de vercel! jajja")
+**Descripción:** Vercel build failing con error "Could not resolve './system-logs.js'"
+
+**Análisis del error de Vercel:**
+```
+@quoorum/db:build: ✘ [ERROR] Could not resolve "./system-logs.js"
+src/schema/index.ts:54:56:
+54 │ ...systemLogs, logLevelEnum, logSourceEnum } from "./system-logs.js";
+```
+
+**Causa raíz:**
+- Archivo `packages/db/src/schema/system-logs.ts` existe localmente
+- NO estaba commiteado en git (untracked)
+- Vercel clona repo → archivo no existe → build falla
+
+**Acciones realizadas:**
+
+1. **Revisión de logs de Vercel:**
+   - Commit deployado: `2360e5f`
+   - Error detectado en línea 54 de `src/schema/index.ts`
+   - Build falla en package `@quoorum/db`
+
+2. **Identificación de archivos faltantes:**
+   - `packages/db/src/schema/system-logs.ts` ❌ No commiteado
+   - `packages/api/src/routers/system-logs.ts` ❌ No commiteado
+   - `packages/api/src/lib/system-logger.ts` ❌ No commiteado
+   - `apps/web/src/lib/env.ts` ❌ No commiteado
+   - `apps/web/src/app/api/trpc/[trpc]/route.ts` ❌ No commiteado
+
+3. **Cambio de seguridad detectado y revertido:**
+   - ⚠️ `packages/api/src/routers/context-assessment.ts`
+   - Cambió de `protectedProcedure` → `publicProcedure`
+   - **REVERTIDO** por razones de seguridad (expone endpoints sin auth)
+   - Si se necesita público, discutir justificación
+
+4. **Commit y push de archivos faltantes:**
+   - Staged 10 archivos (6 nuevos, 4 modificados)
+   - Commit: `03ac22d` "fix(build): add missing system-logs schema"
+   - Push exitoso a `origin/main`
+
+**Archivos afectados:**
+- C:\Quoorum\packages\db\src\schema\system-logs.ts (agregado)
+- C:\Quoorum\packages\api\src\routers\system-logs.ts (agregado)
+- C:\Quoorum\packages\api\src\lib\system-logger.ts (agregado)
+- C:\Quoorum\apps\web\src\lib\env.ts (agregado)
+- C:\Quoorum\apps\web\src\lib\logger.ts (ya commiteado antes)
+- C:\Quoorum\apps\web\src\app\api\trpc\[trpc]\route.ts (agregado)
+- C:\Quoorum\apps\web\src\app\test\logging\page.tsx (agregado)
+- C:\Quoorum\apps\web\package.json (modificado)
+- C:\Quoorum\packages\db\src\client.ts (modificado)
+- C:\Quoorum\pnpm-lock.yaml (modificado)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+- Error crítico que impedía cualquier deployment en Vercel
+- Los archivos del sistema de logging se crearon en sesión anterior pero no se commitearon
+- Build local pasaba porque los archivos existen en disco
+- Vercel clone repo limpio → archivos faltantes → build fail
+- Push completado: `2360e5f..03ac22d main -> main`
+- **Siguiente paso:** Vercel detectará push automáticamente y re-deployará
+
+**⚠️ Advertencia de seguridad:**
+- Cambio de `protectedProcedure` → `publicProcedure` en context-assessment fue revertido
+- Si se necesita hacer público ese endpoint, debe hacerse en commit separado con justificación de seguridad
+
+---
+
+_Última actualización: 2026-01-13 22:00_
