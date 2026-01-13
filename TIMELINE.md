@@ -1286,4 +1286,77 @@ _Última actualización: 2026-01-07 15:15 UTC_
 
 ---
 
+### [17:00] - DIAGNÓSTICO Y DOCUMENTACIÓN DE GOOGLE OAUTH
+
+**Solicitado por:** Usuario (reportó error 400 Bad Request en OAuth de Google)
+**Descripción:** Diagnosticar error de autenticación OAuth con Google y crear guía completa de configuración
+**Acciones realizadas:**
+
+1. **Diagnóstico del error 400 Bad Request:**
+   - URL que falla: `https://ipcbpkbvrftchbmpemlg.supabase.co/auth/v1/authorize?provider=google&redirect_to=http://localhost:3000/auth/callback?redirectTo=/debates`
+   - Error: 400 Bad Request
+   - Causa raíz probable:
+     - Redirect URL no autorizada en Supabase Dashboard
+     - Google OAuth provider no configurado correctamente
+     - Credenciales de Google Cloud Console faltantes o incorrectas
+
+2. **Revisión de código actual:**
+   - Archivo: `apps/web/src/app/(auth)/signup/page.tsx`
+   - Implementación encontrada:
+     ```typescript
+     await supabase.auth.signInWithOAuth({
+       provider,
+       options: {
+         redirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
+       },
+     });
+     ```
+   - ✅ Código correcto, problema es de configuración externa
+
+3. **Verificación de variables de entorno:**
+   - ✅ NEXT_PUBLIC_SUPABASE_URL correcta: `https://ipcbpkbvrftchbmpemlg.supabase.co`
+   - ✅ NEXT_PUBLIC_SUPABASE_ANON_KEY presente
+   - Variables OK, problema no es del .env
+
+4. **Creación de guía completa:**
+   - Archivo creado: `docs/GOOGLE_OAUTH_SETUP.md` (320 líneas)
+   - Contenido:
+     - Configuración completa de Supabase Dashboard
+     - Setup paso a paso de Google Cloud Console
+     - Habilitación de Google+ API
+     - Configuración de OAuth Consent Screen
+     - Creación de OAuth 2.0 Client ID
+     - Troubleshooting de errores comunes
+     - Checklist de configuración
+     - Instrucciones para producción
+
+5. **Documentación incluye:**
+   - ✅ Screenshots verbales de cada paso
+   - ✅ URLs exactas de configuración
+   - ✅ Sección de troubleshooting con 4 errores comunes
+   - ✅ Checklist de 13 items para verificar configuración
+   - ✅ Instrucciones específicas para producción
+
+**Archivos afectados:**
+- C:\Quoorum\docs\GOOGLE_OAUTH_SETUP.md (creado, 320 líneas)
+
+**Resultado:** ✅ Éxito (documentación creada)
+
+**Notas:**
+- Commit creado: `ce6b2fd` "docs: add comprehensive Google OAuth setup guide"
+- El usuario debe seguir la guía en `docs/GOOGLE_OAUTH_SETUP.md` para completar la configuración
+- Pasos críticos:
+  1. Configurar Redirect URLs en Supabase (http://localhost:3000/auth/callback)
+  2. Crear OAuth Client ID en Google Cloud Console
+  3. Habilitar Google+ API en Google Cloud
+  4. Pegar credenciales (Client ID + Secret) en Supabase
+  5. Reiniciar servidor
+- Una vez configurado, el error 400 desaparecerá
+- Servidor reiniciado y corriendo en http://localhost:3000
+
+**⚠️ Acción requerida del usuario:**
+Seguir paso a paso la guía en `docs/GOOGLE_OAUTH_SETUP.md` para completar la configuración de Google OAuth.
+
+---
+
 _Última actualización: 2026-01-13_
