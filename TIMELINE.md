@@ -21,6 +21,45 @@
 
 ---
 
+## [2026-01-13] - LOGO PERSONALIZADO Y BRANDING
+
+### [11:45] - CREACIÓN E INTEGRACIÓN DE LOGO QUOORUM
+
+**Solicitado por:** Usuario
+**Descripción:** Crear un logotipo personalizado que sea un ícono de conversación con forma de Q y aplicarlo en todas las páginas
+**Acciones realizadas:**
+
+- Creado componente `QuoorumLogo` con 3 variantes:
+  - `QuoorumLogo`: Versión completa con gradiente y puntos de conversación
+  - `QuoorumLogoSimple`: Versión simplificada para tamaños pequeños
+  - `QuoorumIcon`: Versión compacta para uso como ícono (24x24)
+- Diseño SVG de burbuja de conversación formando una Q
+- Gradiente purple-cyan (#a855f7 → #06b6d4) consistente con marca
+- 3 puntos de conversación dentro del logo (representan debate multi-agente)
+- Integrado en Landing, About, Blog y Contact pages
+- Reemplazado ícono genérico MessageCircle en headers y footers
+- Actualizado background de logo de gradiente a sólido #0A0A0F
+
+**Archivos afectados:**
+
+- `apps/web/src/components/ui/quoorum-logo.tsx` (CREADO - 130 líneas)
+- `apps/web/src/app/page.tsx` (Landing - header)
+- `apps/web/src/app/about/page.tsx` (header + footer)
+- `apps/web/src/app/blog/page.tsx` (header + footer)
+- `apps/web/src/app/contact/page.tsx` (header + footer)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+
+- TypeCheck pasado sin errores
+- Logo usa `React.useId()` para IDs únicos de gradientes (evita conflictos en SSR)
+- Tamaños: 40px en headers, 48px en footers
+- Committed: `9fd5117`
+- Deployed to Vercel production
+
+---
+
 ## [2026-01-03 - Sesión Completa] - CONFIGURACIÓN INICIAL Y BUGFIXES
 
 ### [15:30] - REINICIO DEL SERVIDOR
