@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { api } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,47 +23,35 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
+
 export default function DebatesPage() {
-  const [debates, setDebates] = useState<Array<{
-    id: string;
-    question: string;
-    status: string;
-    consensus_score: number | null;
-    created_at: string;
-  }>>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Auth check (runs BEFORE query)
   useEffect(() => {
-    async function loadDebates() {
+    async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
-
       if (!user) {
         router.push("/login");
-        return;
+      } else {
+        setIsAuthenticated(true);
       }
-
-      // Fetch real debates from database
-      try {
-        const { data: debatesData, error } = await supabase
-          .from("forum_debates")
-          .select("id, question, status, consensus_score, created_at")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false });
-
-        if (!error && debatesData) {
-          setDebates(debatesData);
-        }
-      } catch {
-        // Silently handle errors
-      }
-
-      setIsLoading(false);
     }
-
-    loadDebates();
+    checkAuth();
   }, [router, supabase.auth]);
+
+  // Fetch debates using tRPC (only if authenticated)
+  const { data: debates = [], isLoading } = api.debates.list.useQuery(
+    {
+      limit: 50,
+      offset: 0,
+    },
+    {
+      enabled: isAuthenticated, // Only run when user is authenticated
+    }
+  );
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -177,13 +166,13 @@ export default function DebatesPage() {
                   <CardContent>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-400">
-                        {debate.consensus_score
-                          ? `Consenso: ${debate.consensus_score}%`
+                        {debate.consensusScore
+                          ? `Consenso: ${Math.round(debate.consensusScore * 100)}%`
                           : "Sin consenso aún"}
                       </span>
                       <span className="text-gray-500 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {new Date(debate.created_at).toLocaleDateString()}
+                        {new Date(debate.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                   </CardContent>
