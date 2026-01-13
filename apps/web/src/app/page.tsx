@@ -20,58 +20,58 @@ import { Button } from "@/components/ui/button";
 const features = [
   {
     icon: Users,
-    title: "Panel de 25+ Expertos IA",
+    title: "25+ Expertos Especializados",
     description:
-      "Expertos en estrategia, tecnología, finanzas, ética y más debaten tus decisiones.",
+      "ChatGPT para estrategia, Claude para escritura, Perplexity para investigación. Cada IA con su superpoder.",
     gradient: "from-blue-500 to-cyan-500",
   },
   {
     icon: Brain,
-    title: "Consenso Inteligente",
+    title: "Enfrentamiento Constructivo",
     description:
-      "Algoritmo de consenso que analiza argumentos y calcula probabilidad de éxito.",
+      "Los expertos no están de acuerdo entre sí a propósito. Así encuentran puntos ciegos y asunciones peligrosas.",
     gradient: "from-purple-500 to-pink-500",
   },
   {
     icon: Zap,
-    title: "Tiempo Real",
+    title: "Debates en Tiempo Real",
     description:
-      "Observa cómo los expertos deliberan y construyen consenso en vivo.",
+      "Observa cómo discuten: Finanzas vs Ética, Corto plazo vs Largo plazo, Riesgo vs Oportunidad.",
     gradient: "from-yellow-500 to-orange-500",
   },
   {
     icon: BarChart3,
-    title: "Analytics Avanzados",
+    title: "Consenso Inteligente",
     description:
-      "Métricas de calidad, historial de debates y tendencias de decisiones.",
+      "Algoritmo que calcula probabilidad de éxito analizando argumentos, no popularidad.",
     gradient: "from-green-500 to-emerald-500",
   },
   {
     icon: Shield,
-    title: "Seguridad Enterprise",
+    title: "Control de Calidad Automático",
     description:
-      "Encriptación end-to-end, SOC 2 compliant, datos nunca compartidos.",
+      "Detecta cuando un experto está siendo superficial y lo obliga a profundizar o citar fuentes.",
     gradient: "from-red-500 to-rose-500",
   },
   {
     icon: Target,
     title: "Recomendaciones Accionables",
     description:
-      "Estrategias claras con puntos a favor, en contra y próximos pasos.",
+      "No solo \"qué hacer\", también quién está a favor/en contra y por qué, y próximos pasos específicos.",
     gradient: "from-indigo-500 to-purple-500",
   },
   {
     icon: Sparkles,
-    title: "Debates Auto-Mejorados",
+    title: "Análisis de Divergencias",
     description:
-      "Control de calidad que detecta argumentos superficiales y redirige hacia mayor profundidad.",
+      "Cuando no hay consenso, el sistema explica exactamente dónde están las diferencias y por qué importan.",
     gradient: "from-pink-500 to-rose-500",
   },
   {
     icon: Database,
     title: "Memoria Institucional",
     description:
-      "Encuentra y capitaliza debates similares del pasado. Tu conocimiento crece con cada decisión.",
+      "Encuentra debates similares del pasado. Si ya resolviste algo parecido, aprovecha ese conocimiento.",
     gradient: "from-cyan-500 to-blue-500",
   },
 ];
@@ -262,25 +262,30 @@ export default function HomePage() {
 
           {/* Main headline */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white max-w-5xl mx-auto leading-[1.1] mb-8 tracking-tight">
-            Toma mejores decisiones con{" "}
+            Toma mejores decisiones
+            <br />
+            con{" "}
             <span className="relative inline-block">
               <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-3xl opacity-50" />
               <span className="relative bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-                consenso de expertos IA
+                Quoorum
               </span>
             </span>
+            <br />
+            de expertos IA
           </h1>
 
           {/* Subheadline */}
           <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Quoorum reúne 25+ expertos de IA que deliberan en tiempo real sobre tus decisiones
-            más importantes.{" "}
+            Ya usas varias IAs porque{" "}
             <span className="text-white font-medium">
-              A diferencia de un chatbot, nuestro sistema auto-mejora la calidad 
-              del debate y aprende de cada decisión.
+              cada una tiene su especialidad.
             </span>{" "}
-            Obtén análisis profundo, consenso fundamentado 
-            y recomendaciones accionables en minutos, no semanas.
+            Quoorum las enfrenta automáticamente para encontrar tu mejor decisión.{" "}
+            <span className="text-white font-medium">
+              Estrategia vs Ética. Finanzas vs Tecnología. Corto vs Largo plazo.
+            </span>{" "}
+            Sin copiar/pegar entre pestañas.
           </p>
 
           {/* CTAs */}
@@ -326,6 +331,114 @@ export default function HomePage() {
               </div>
               <span className="group-hover:text-gray-400 transition-colors">Setup en 2 minutos</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Multiple AIs */}
+      <section className="py-32 px-4 relative">
+        <div className="container mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+              ¿Por qué{" "}
+              <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                múltiples IAs?
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Porque ya sabes que cada una tiene su especialidad. El problema es el trabajo manual.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto mb-20">
+            {/* Before */}
+            <div className="relative p-10 rounded-3xl bg-gradient-to-br from-red-500/5 to-orange-500/5 border border-red-500/20 backdrop-blur-xl">
+              <div className="absolute top-6 right-6 px-4 py-2 bg-red-500/20 rounded-full text-red-300 text-sm font-medium">
+                ❌ Antes (manual)
+              </div>
+              <div className="space-y-6 mt-12">
+                {[
+                  { step: "1", text: "Abro ChatGPT → Copy/paste respuesta" },
+                  { step: "2", text: "Abro Claude → Copy/paste respuesta" },
+                  { step: "3", text: "Abro Perplexity → Copy/paste respuesta" },
+                  { step: "4", text: "Abro Gemini → Copy/paste respuesta" },
+                  { step: "5", text: "Leo todo y sintetizo mentalmente 🤯" },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-300 font-semibold shrink-0">
+                      {item.step}
+                    </div>
+                    <p className="text-gray-300 pt-1">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 pt-8 border-t border-red-500/20">
+                <p className="text-red-300 text-sm">
+                  ⏱️ <strong>30-60 minutos</strong> de copiar/pegar y cambiar de pestañas
+                </p>
+              </div>
+            </div>
+
+            {/* After */}
+            <div className="relative p-10 rounded-3xl bg-gradient-to-br from-green-500/5 to-emerald-500/5 border border-green-500/20 backdrop-blur-xl">
+              <div className="absolute top-6 right-6 px-4 py-2 bg-green-500/20 rounded-full text-green-300 text-sm font-medium">
+                ✅ Con Quoorum
+              </div>
+              <div className="space-y-6 mt-12">
+                {[
+                  { step: "1", text: "Planteo mi pregunta una vez" },
+                  { step: "2", text: "25 expertos debaten automáticamente" },
+                  { step: "3", text: "Recibo consenso + análisis de divergencias" },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center justify-center text-green-300 font-semibold shrink-0">
+                      {item.step}
+                    </div>
+                    <p className="text-gray-300 pt-1">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 pt-8 border-t border-green-500/20">
+                <p className="text-green-300 text-sm">
+                  ⚡ <strong>3-5 minutos</strong> para decisiones complejas
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* AI Specialties Grid */}
+          <div className="max-w-5xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-12">
+              Cada experto con su especialidad
+            </h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[
+                { name: "Estratega", model: "GPT-4o", specialty: "Visión a largo plazo", icon: Target, gradient: "from-blue-500 to-cyan-500" },
+                { name: "Escritor", model: "Claude", specialty: "Comunicación clara", icon: MessageCircle, gradient: "from-purple-500 to-pink-500" },
+                { name: "Investigador", model: "Perplexity", specialty: "Datos y fuentes", icon: Brain, gradient: "from-green-500 to-emerald-500" },
+                { name: "Financiero", model: "GPT-4", specialty: "ROI y métricas", icon: TrendingUp, gradient: "from-yellow-500 to-orange-500" },
+                { name: "Ético", model: "Claude", specialty: "Implicaciones morales", icon: Shield, gradient: "from-red-500 to-rose-500" },
+                { name: "Táctico", model: "GPT-4o-mini", specialty: "Ejecución práctica", icon: Zap, gradient: "from-indigo-500 to-purple-500" },
+              ].map((expert) => (
+                <div
+                  key={expert.name}
+                  className="group relative p-6 rounded-2xl bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/10 hover:border-white/20 transition-all backdrop-blur-xl"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${expert.gradient} opacity-0 group-hover:opacity-10 transition-opacity rounded-2xl`} />
+                  <div className="relative">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${expert.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                      <expert.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h4 className="text-lg font-semibold text-white mb-1">{expert.name}</h4>
+                    <p className="text-xs text-gray-500 mb-2">{expert.model}</p>
+                    <p className="text-sm text-gray-400">{expert.specialty}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-gray-500 text-sm mt-8">
+              + 19 expertos más en tecnología, UX, marketing, legal, operaciones, y más
+            </p>
           </div>
         </div>
       </section>

@@ -1,11 +1,24 @@
 import { initTRPC, TRPCError } from "@trpc/server";
+import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import superjson from "superjson";
+import { db } from "@quoorum/db";
 import type { Database } from "@quoorum/db";
 import type { User } from "@quoorum/db";
 
 export interface Context {
   db: Database;
   user: User | null;
+  userId: string | null;
+}
+
+export async function createContext(_opts?: FetchCreateContextFnOptions) {
+  // For now, return context without auth
+  // Auth will be handled by middleware when needed
+  return {
+    db,
+    user: null,
+    userId: null,
+  };
 }
 
 const t = initTRPC.context<Context>().create({
@@ -20,7 +33,7 @@ export const publicProcedure = t.procedure;
 export const middleware = t.middleware;
 
 const isAuthenticated = middleware(async ({ ctx, next }) => {
-  if (!ctx.user) {
+  if (!ctx.user || !ctx.userId) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You must be logged in to access this resource",
@@ -30,6 +43,7 @@ const isAuthenticated = middleware(async ({ ctx, next }) => {
     ctx: {
       ...ctx,
       user: ctx.user,
+      userId: ctx.userId,
     },
   });
 });

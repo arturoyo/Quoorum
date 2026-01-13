@@ -72,16 +72,17 @@ class ForumLogger {
   constructor() {
     this.logger = pino({
       level: process.env['LOG_LEVEL'] || (this.isDevelopment ? 'debug' : 'info'),
-      transport: this.isDevelopment
-        ? {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'SYS:standard',
-              ignore: 'pid,hostname',
-            },
-          }
-        : undefined,
+      // NOTE: pino-pretty transport disabled for Next.js compatibility
+      // transport: this.isDevelopment
+      //   ? {
+      //       target: 'pino-pretty',
+      //       options: {
+      //         colorize: true,
+      //         translateTime: 'SYS:standard',
+      //         ignore: 'pid,hostname',
+      //       },
+      //     }
+      //   : undefined,
       redact: [
         'password',
         'token',
@@ -156,50 +157,51 @@ class ForumLogger {
     this.logger.error(errorContext, message)
 
     // Enviar a Sentry SOLO en producción
-    if (this.isProduction && typeof window === 'undefined') {
-      // Solo en servidor - usar import dinámico
-      // @ts-expect-error - Sentry is optional dependency
-      void import('@sentry/nextjs')
-        .then((Sentry) => {
-          if (error) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Sentry is dynamically imported, types not available
-            Sentry.captureException(error, {
-              extra: {
-                message,
-                ...context,
-              },
-              tags: (() => {
-                const tags: Record<string, string> = { service: 'forum' }
-                if (context && typeof context === 'object' && 'debateId' in context) {
-                  const debateId = context['debateId']
-                  if (debateId && (typeof debateId === 'string' || typeof debateId === 'number')) {
-                    tags['debateId'] = String(debateId)
-                  }
-                }
-                if (context && typeof context === 'object' && 'userId' in context) {
-                  const userId = context['userId']
-                  if (userId && (typeof userId === 'string' || typeof userId === 'number')) {
-                    tags['userId'] = String(userId)
-                  }
-                }
-                return tags
-              })(),
-            })
-          } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Sentry is dynamically imported, types not available
-            Sentry.captureMessage(message, {
-              level: 'error',
-              extra: context,
-              tags: {
-                service: 'forum',
-              },
-            })
-          }
-        })
-        .catch(() => {
-          // Sentry no disponible, continuar sin error
-        })
-    }
+    // TODO: Instalar @sentry/nextjs para habilitar
+    // if (this.isProduction && typeof window === 'undefined') {
+    //   // Solo en servidor - usar import dinámico
+    //   // @ts-expect-error - Sentry is optional dependency
+    //   void import('@sentry/nextjs')
+    //     .then((Sentry) => {
+    //       if (error) {
+    //         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Sentry is dynamically imported, types not available
+    //         Sentry.captureException(error, {
+    //           extra: {
+    //             message,
+    //             ...context,
+    //           },
+    //           tags: (() => {
+    //             const tags: Record<string, string> = { service: 'forum' }
+    //             if (context && typeof context === 'object' && 'debateId' in context) {
+    //               const debateId = context['debateId']
+    //               if (debateId && (typeof debateId === 'string' || typeof debateId === 'number')) {
+    //                 tags['debateId'] = String(debateId)
+    //               }
+    //             }
+    //             if (context && typeof context === 'object' && 'userId' in context) {
+    //               const userId = context['userId']
+    //               if (userId && (typeof userId === 'string' || typeof userId === 'number')) {
+    //                 tags['userId'] = String(userId)
+    //               }
+    //             }
+    //             return tags
+    //           })(),
+    //         })
+    //       } else {
+    //         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Sentry is dynamically imported, types not available
+    //         Sentry.captureMessage(message, {
+    //           level: 'error',
+    //           extra: context,
+    //           tags: {
+    //             service: 'forum',
+    //           },
+    //         })
+    //       }
+    //     })
+    //     .catch(() => {
+    //       // Sentry no disponible, continuar sin error
+    //     })
+    // }
   }
 
   /**
