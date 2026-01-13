@@ -1359,4 +1359,53 @@ Seguir paso a paso la guía en `docs/GOOGLE_OAUTH_SETUP.md` para completar la co
 
 ---
 
-_Última actualización: 2026-01-13_
+### [18:45] - CORRECCIÓN DE ERRORES DE TYPESCRIPT EN BUILD DE PRODUCCIÓN
+
+**Solicitado por:** Usuario ("y revisa junto con el mcp de vercel la parte de los errores que salen en el bulding")
+**Descripción:** Revisar y corregir errores de TypeScript que aparecen en el build de producción
+
+**Acciones realizadas:**
+
+1. **Ejecución de build de producción:**
+   - Comando: `pnpm --filter @quoorum/web build`
+   - Detectado error TypeScript en `DebateForm.tsx:459`
+   - Error: `Property 'contextQuality' does not exist on type 'ContextAssessment'`
+
+2. **Análisis de causa raíz:**
+   - Componente `DebateForm.tsx` usa propiedades que no existen en API schema
+   - Comparación con router real en `packages/api/src/routers/context-assessment.ts`
+   - Detectados 4 usos de propiedades inexistentes
+
+3. **Fixes aplicados en DebateForm.tsx (líneas 459-673):**
+   - ✅ `assessment.contextQuality` → `assessment.overallScore` (3 ocurrencias)
+   - ✅ `assumption.impact` eliminado (no existe en schema)
+   - ✅ `q.why` reemplazado con `q.dimension`
+   - ✅ Sección `assessment.suggestedExperts` eliminada (no existe en API)
+   - ✅ `assessment.estimatedRounds` reemplazado con `formData.maxRounds`
+
+**Archivos afectados:**
+- C:\Quoorum\apps\web\src\app\debates\new\DebateForm.tsx (5 errores corregidos)
+- C:\Quoorum\apps\web\src\app\settings\notifications\page.tsx (unused import)
+- C:\Quoorum\apps\web\src\lib\logger.ts (tRPC client fix)
+- C:\Quoorum\packages\forum\src\logger.ts (unused variable)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+- Build anterior fallaba con 5 errores de TypeScript
+- Todos los errores corregidos:
+  1. `contextQuality` → `overallScore` (propiedad correcta del schema)
+  2. `assumption.impact` eliminado (no existe en API schema)
+  3. `q.why` reemplazado con `q.dimension`
+  4. `assessment.suggestedExperts` removido (no existe en schema)
+  5. `assessment.estimatedRounds` reemplazado con `formData.maxRounds`
+  6. Unused import `Save` eliminado
+  7. Logger tRPC client fixed (usar fetch en lugar de hooks fuera de React)
+  8. Unused `isProduction` variable removed
+- Build exitoso: `pnpm --filter @quoorum/web build` ✅
+- Commit creado: `de83a96` "fix(build): resolve TypeScript errors in production build"
+- Todas las correcciones alineadas con el schema real del API (context-assessment router)
+
+---
+
+_Última actualización: 2026-01-13 19:00_
