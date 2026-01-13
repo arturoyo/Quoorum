@@ -50,5 +50,21 @@ export * from "./forum-reports.js";
 // Subscriptions and billing
 export * from "./subscriptions.js";
 
+// System logging
+export { systemLogs, logLevelEnum, logSourceEnum } from "./system-logs.js";
+export type { SystemLog, NewSystemLog } from "./system-logs.js";
+
 // Alias for backwards compatibility (forum package uses 'notifications' not 'forumNotifications')
 export { forumNotifications as notifications } from "./forum-notifications.js";
+
+// User settings
+export { notificationSettings, notificationSettingsRelations } from "./notification-settings.js";
+export type { NotificationSettings, NewNotificationSettings } from "./notification-settings.js";
+
+// Sessions
+export { sessions, sessionsRelations } from "./sessions.js";
+export type { Session, NewSession } from "./sessions.js";
+
+// API Keys
+export { apiKeys, apiKeysRelations } from "./api-keys.js";
+export type { ApiKey, NewApiKey } from "./api-keys.js";

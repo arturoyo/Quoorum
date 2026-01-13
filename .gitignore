@@ -30,3 +30,5 @@ pnpm-debug.log*
 # Test
 coverage/
 .nyc_output/
+# Temp Claude files
+tmpclaude-*

@@ -8,6 +8,8 @@ import {
   roundsRouter,
   usersRouter,
   votesRouter,
+  systemLogsRouter,
+  testLoggingRouter,
   // Forum routers
   forumRouter,
   forumDealsRouter,
@@ -19,6 +21,10 @@ import {
   adminForumRouter,
   contextAssessmentRouter,
   debatesRouter,
+  // Settings routers
+  notificationSettingsRouter,
+  sessionsRouter,
+  apiKeysRouter,
 } from "./routers/index.js";
 
 export const appRouter = router({
@@ -30,6 +36,8 @@ export const appRouter = router({
   rounds: roundsRouter,
   users: usersRouter,
   votes: votesRouter,
+  systemLogs: systemLogsRouter,
+  testLogging: testLoggingRouter, // TODO: Remove in production
   // Forum routers
   forum: forumRouter,
   forumDeals: forumDealsRouter,
@@ -41,9 +49,13 @@ export const appRouter = router({
   adminForum: adminForumRouter,
   contextAssessment: contextAssessmentRouter,
   debates: debatesRouter,
+  // Settings routers
+  notificationSettings: notificationSettingsRouter,
+  sessions: sessionsRouter,
+  apiKeys: apiKeysRouter,
 });
 
 export type AppRouter = typeof appRouter;
 
-export { router, publicProcedure, protectedProcedure } from "./trpc.js";
+export { router, publicProcedure, protectedProcedure, createContext } from "./trpc.js";
 export type { Context } from "./trpc.js";

@@ -6,6 +6,8 @@ export { opinionsRouter } from "./opinions.js";
 export { roundsRouter } from "./rounds.js";
 export { usersRouter } from "./users.js";
 export { votesRouter } from "./votes.js";
+export { systemLogsRouter } from "./system-logs.js";
+export { testLoggingRouter } from "./test-logging.js";
 
 // Forum routers
 export { forumRouter } from "./forum.js";
@@ -18,3 +20,8 @@ export { forumPublicApiRouter } from "./forum-public-api.js";
 export { adminForumRouter } from "./admin-forum.js";
 export { contextAssessmentRouter } from "./context-assessment.js";
 export { debatesRouter } from "./debates.js";
+
+// Settings routers
+export { notificationSettingsRouter } from "./notification-settings.js";
+export { sessionsRouter } from "./sessions.js";
+export { apiKeysRouter } from "./api-keys.js";

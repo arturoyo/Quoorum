@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { api } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -42,107 +43,74 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-interface ApiKey {
-  id: string;
-  name: string;
-  prefix: string;
-  createdAt: string;
-  lastUsed: string | null;
-}
-
 export default function ApiKeysPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-  const [isCreating, setIsCreating] = useState(false);
+  const supabase = createClient();
   const [newKeyName, setNewKeyName] = useState("");
   const [newKey, setNewKey] = useState<string | null>(null);
   const [showKey, setShowKey] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const supabase = createClient();
+  // Queries
+  const { data: apiKeys, isLoading, refetch } = api.apiKeys.list.useQuery();
+
+  // Mutations
+  const createKey = api.apiKeys.create.useMutation({
+    onSuccess: (data) => {
+      setNewKey(data.key);
+      setNewKeyName("");
+      toast.success("API key creada correctamente");
+      void refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteKey = api.apiKeys.delete.useMutation({
+    onSuccess: () => {
+      toast.success("API key eliminada");
+      void refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   useEffect(() => {
-    async function loadApiKeys() {
+    async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
-
       if (!user) {
         router.push("/login");
-        return;
       }
-
-      // TODO: Replace with actual API call
-      setApiKeys([
-        {
-          id: "1",
-          name: "Production API",
-          prefix: "forum_live_abc123",
-          createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          lastUsed: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        },
-        {
-          id: "2",
-          name: "Development",
-          prefix: "forum_test_xyz789",
-          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          lastUsed: null,
-        },
-      ]);
-
-      setIsLoading(false);
     }
-
-    loadApiKeys();
+    checkAuth();
   }, [router, supabase.auth]);
 
-  const handleCreateKey = async () => {
+  const handleCreateKey = () => {
     if (!newKeyName.trim()) {
       toast.error("Por favor, introduce un nombre para la API key");
       return;
     }
-
-    setIsCreating(true);
-
-    try {
-      // TODO: Replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const generatedKey = `forum_live_${Math.random().toString(36).substring(2, 15)}`;
-      setNewKey(generatedKey);
-
-      setApiKeys([
-        ...apiKeys,
-        {
-          id: String(apiKeys.length + 1),
-          name: newKeyName,
-          prefix: generatedKey.substring(0, 20) + "...",
-          createdAt: new Date().toISOString(),
-          lastUsed: null,
-        },
-      ]);
-
-      toast.success("API key creada correctamente");
-    } catch {
-      toast.error("Error al crear la API key");
-    } finally {
-      setIsCreating(false);
-    }
+    createKey.mutate({ name: newKeyName });
   };
 
-  const handleDeleteKey = async (id: string) => {
-    try {
-      // TODO: Replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setApiKeys(apiKeys.filter((key) => key.id !== id));
-      toast.success("API key eliminada");
-    } catch {
-      toast.error("Error al eliminar la API key");
+  const handleDeleteKey = (id: string) => {
+    if (confirm("¿Estás seguro de que quieres eliminar esta API key? Esta acción no se puede deshacer.")) {
+      deleteKey.mutate({ id });
     }
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    void navigator.clipboard.writeText(text);
     toast.success("Copiado al portapapeles");
+  };
+
+  const handleCloseDialog = () => {
+    setNewKey(null);
+    setNewKeyName("");
+    setShowKey(false);
+    setIsDialogOpen(false);
   };
 
   if (isLoading) {
@@ -222,7 +190,7 @@ export default function ApiKeysPage() {
                       Gestiona tus claves de acceso a la API de Forum
                     </CardDescription>
                   </div>
-                  <Dialog>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
                       <Button className="bg-purple-600 hover:bg-purple-700">
                         <Plus className="mr-2 h-4 w-4" />
@@ -288,10 +256,7 @@ export default function ApiKeysPage() {
 
                           <DialogFooter>
                             <Button
-                              onClick={() => {
-                                setNewKey(null);
-                                setNewKeyName("");
-                              }}
+                              onClick={handleCloseDialog}
                               className="bg-purple-600 hover:bg-purple-700"
                             >
                               Listo
@@ -318,10 +283,10 @@ export default function ApiKeysPage() {
                           <DialogFooter>
                             <Button
                               onClick={handleCreateKey}
-                              disabled={isCreating}
+                              disabled={createKey.isLoading}
                               className="bg-purple-600 hover:bg-purple-700"
                             >
-                              {isCreating ? (
+                              {createKey.isLoading ? (
                                 <>
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                   Creando...
@@ -337,7 +302,7 @@ export default function ApiKeysPage() {
                   </Dialog>
                 </CardHeader>
                 <CardContent>
-                  {apiKeys.length === 0 ? (
+                  {apiKeys && apiKeys.length === 0 ? (
                     <div className="text-center py-8">
                       <Key className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                       <p className="text-gray-400">No tienes API keys aún</p>
@@ -347,7 +312,7 @@ export default function ApiKeysPage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {apiKeys.map((key) => (
+                      {apiKeys?.map((key) => (
                         <div
                           key={key.id}
                           className="flex items-center justify-between p-4 rounded-lg bg-white/5"
@@ -364,10 +329,10 @@ export default function ApiKeysPage() {
                                 Creada:{" "}
                                 {new Date(key.createdAt).toLocaleDateString("es-ES")}
                               </span>
-                              {key.lastUsed && (
+                              {key.lastUsedAt && (
                                 <span>
                                   Último uso:{" "}
-                                  {new Date(key.lastUsed).toLocaleDateString("es-ES")}
+                                  {new Date(key.lastUsedAt).toLocaleDateString("es-ES")}
                                 </span>
                               )}
                             </div>
@@ -376,6 +341,7 @@ export default function ApiKeysPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteKey(key.id)}
+                            disabled={deleteKey.isLoading}
                             className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
                           >
                             <Trash2 className="h-4 w-4" />
