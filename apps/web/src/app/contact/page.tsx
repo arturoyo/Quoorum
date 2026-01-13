@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  MessageCircle,
   Mail,
   MapPin,
   Send,
@@ -13,6 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
 
 const contactMethods = [
   {
@@ -113,8 +113,8 @@ export default function ContactPage() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition" />
-              <div className="relative w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
+              <div className="relative w-10 h-10 rounded-2xl flex items-center justify-center bg-[#0A0A0F]">
+                <QuoorumLogo size={40} showGradient={true} />
               </div>
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
@@ -498,8 +498,8 @@ export default function ContactPage() {
               <Link href="/" className="flex items-center gap-3 mb-6 group">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition" />
-                  <div className="relative w-12 h-12 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-                    <MessageCircle className="w-6 h-6 text-white" />
+                  <div className="relative w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0A0A0F]">
+                    <QuoorumLogo size={48} showGradient={true} />
                   </div>
                 </div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
