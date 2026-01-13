@@ -86,7 +86,7 @@ async function sendEmailNotification(
       const resend = new Resend(process.env['RESEND_API_KEY'])
 
       await resend.emails.send({
-        from: process.env['FORUM_EMAIL_FROM'] || 'forum@wallie.app',
+        from: process.env['QUOORUM_EMAIL_FROM'] || 'noreply@quoorum.pro',
         to: emailData.to,
         subject: emailData.subject,
         html: emailData.html,

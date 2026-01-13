@@ -1,11 +1,13 @@
 import type { LanguageModelV1 } from "ai";
 import type { AIConfig, AIProvider, ProviderFactory } from "../types.js";
 import { anthropicProvider } from "./anthropic.js";
+import { deepseekProvider } from "./deepseek.js";
 import { googleProvider } from "./google.js";
 import { groqProvider } from "./groq.js";
 import { openaiProvider } from "./openai.js";
 
 export { anthropicProvider } from "./anthropic.js";
+export { deepseekProvider } from "./deepseek.js";
 export { googleProvider } from "./google.js";
 export { groqProvider } from "./groq.js";
 export { openaiProvider } from "./openai.js";
@@ -15,6 +17,7 @@ const providers: Record<AIProvider, ProviderFactory> = {
   anthropic: anthropicProvider,
   google: googleProvider,
   groq: groqProvider,
+  deepseek: deepseekProvider,
 };
 
 export function getProvider(name: AIProvider): ProviderFactory {

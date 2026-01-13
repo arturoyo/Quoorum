@@ -21,7 +21,7 @@ const env = {
   // Pinecone (Optional)
   pineconeApiKey: process.env['PINECONE_API_KEY'],
   pineconeEnvironment: process.env['PINECONE_ENVIRONMENT'] || 'us-east-1-aws',
-  pineconeIndexName: process.env['PINECONE_INDEX_NAME'] || 'wallie-forum-debates',
+  pineconeIndexName: process.env['PINECONE_INDEX_NAME'] || 'quoorum-debates',
 
   // Serper (Optional)
   serperApiKey: process.env['SERPER_API_KEY'],
@@ -128,7 +128,7 @@ export const envConfig = {
   email: {
     apiKey: env.resendApiKey,
     enabled: features.email,
-    from: 'Wallie Forum <forum@wallie.ai>',
+    from: 'Quoorum <noreply@quoorum.pro>',
   },
 
   // Slack
