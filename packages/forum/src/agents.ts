@@ -20,8 +20,8 @@ export const FORUM_AGENTS: Record<string, AgentConfig> = {
 - Defiende la accion sobre la paralisis
 - Encuentra el camino mas ambicioso pero viable
 - Argumenta por que SI funcionara`,
-    provider: 'deepseek',
-    model: 'deepseek-chat',
+    provider: 'openai',
+    model: 'gpt-4o-mini',
     temperature: 0.7,
   },
 
@@ -48,8 +48,8 @@ export const FORUM_AGENTS: Record<string, AgentConfig> = {
 - Estima esfuerzo, recursos, tiempo
 - Identifica blockers y dependencias
 - Datos sobre opiniones`,
-    provider: 'deepseek',
-    model: 'deepseek-chat',
+    provider: 'openai',
+    model: 'gpt-4o-mini',
     temperature: 0.3,
   },
 
