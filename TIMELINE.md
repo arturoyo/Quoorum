@@ -23,6 +23,40 @@
 
 ## [2026-01-13] - LOGO PERSONALIZADO Y BRANDING
 
+### [12:15] - OPTIMIZACIÓN: REVERTIR A DEEPSEEK (MÁS BARATO)
+
+**Solicitado por:** Usuario ("ya esta todo y deepseek igual hay que ponerla de las primeras")
+**Descripción:** Usuario configuró todas las variables de entorno en Vercel incluyendo DEEPSEEK_API_KEY, revertir a usar DeepSeek para ahorro de costos
+**Acciones realizadas:**
+
+- Confirmado que usuario tiene 27 variables configuradas en Vercel
+- Identificadas variables faltantes críticas:
+  - `SUPABASE_SERVICE_ROLE_KEY` (backend admin)
+  - `PINECONE_API_KEY` (búsqueda vectorial)
+- Variable mal nombrada: `FORUM_EMAIL_FROM` → debe ser `QUOORUM_EMAIL_FROM`
+- **REVERTIDO** agentes a DeepSeek ahora que tiene API key:
+  - Optimizer: `gpt-4o-mini` → `deepseek-chat` ($0.14/1M tokens - 7% más barato)
+  - Analyst: `gpt-4o-mini` → `deepseek-chat` ($0.14/1M tokens - 7% más barato)
+
+**Archivos afectados:**
+
+- `packages/forum/src/agents.ts` (revertido a DeepSeek)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+
+- Configuración óptima de agentes por costo/calidad:
+  - Optimizer: DeepSeek ($0.14) - más barato, bueno para creatividad
+  - Critic: Claude Sonnet 4 ($3.00) - mejor razonamiento crítico
+  - Analyst: DeepSeek ($0.14) - más barato, bueno para análisis
+  - Synthesizer: GPT-4o ($2.50) - mejor síntesis
+- Debate promedio: ~$0.28 USD (vs $0.30 con gpt-4o-mini)
+- Committed: `fe934b1`
+- Pushed to GitHub
+
+---
+
 ### [12:00] - FIX: RESOLVER ERROR "UNSUPPORTED PROVIDER"
 
 **Solicitado por:** Usuario
