@@ -67,7 +67,6 @@ interface LogContext {
 class ForumLogger {
   private logger: pino.Logger
   private isDevelopment = process.env['NODE_ENV'] === 'development'
-  private isProduction = process.env['NODE_ENV'] === 'production'
 
   constructor() {
     this.logger = pino({

@@ -25,7 +25,6 @@ import {
   Shield,
   ArrowLeft,
   Loader2,
-  Save,
 } from "lucide-react";
 
 export default function NotificationsPage() {
