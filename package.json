@@ -13,10 +13,12 @@
     "clean": "turbo clean && rm -rf node_modules",
     "db:generate": "pnpm --filter @quoorum/db generate",
     "db:migrate": "pnpm --filter @quoorum/db migrate",
-    "db:push": "pnpm --filter @quoorum/db push"
+    "db:push": "pnpm --filter @quoorum/db push",
+    "validate:env": "tsx scripts/validate-env.ts"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",
+    "tsx": "^4.21.0",
     "turbo": "^2.3.0",
     "typescript": "^5.7.2",
     "vitest": "^4.0.16"

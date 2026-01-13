@@ -1,0 +1,226 @@
+import { z } from "zod";
+import { router, protectedProcedure, publicProcedure } from "../trpc.js";
+import { db } from "@quoorum/db";
+import { systemLogs } from "@quoorum/db/schema";
+import { desc, and, eq, gte, lte, like, or } from "drizzle-orm";
+
+// ═══════════════════════════════════════════════════════════
+// SCHEMAS DE VALIDACIÓN
+// ═══════════════════════════════════════════════════════════
+const logLevelSchema = z.enum(["debug", "info", "warn", "error", "fatal"]);
+const logSourceSchema = z.enum(["client", "server", "worker", "cron"]);
+
+const createLogSchema = z.object({
+  level: logLevelSchema,
+  source: logSourceSchema,
+  message: z.string().min(1).max(1000),
+  metadata: z.record(z.unknown()).optional(),
+  errorName: z.string().max(255).optional(),
+  errorMessage: z.string().optional(),
+  errorStack: z.string().optional(),
+  durationMs: z.number().optional(),
+});
+
+const listLogsSchema = z.object({
+  limit: z.number().min(1).max(100).default(50),
+  offset: z.number().min(0).default(0),
+  level: logLevelSchema.optional(),
+  source: logSourceSchema.optional(),
+  userId: z.string().uuid().optional(),
+  search: z.string().optional(), // Buscar en message
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+});
+
+const statsSchema = z.object({
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+});
+
+// ═══════════════════════════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════════════════════════
+export const systemLogsRouter = router({
+  // -----------------------------------------------------------
+  // CREATE: Insertar log (público - permite logs sin auth)
+  // -----------------------------------------------------------
+  create: publicProcedure
+    .input(createLogSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [log] = await db
+        .insert(systemLogs)
+        .values({
+          ...input,
+          userId: ctx.userId || null, // Puede ser null si no autenticado
+        })
+        .returning();
+
+      return log;
+    }),
+
+  // -----------------------------------------------------------
+  // BATCH CREATE: Insertar múltiples logs (para performance)
+  // -----------------------------------------------------------
+  createBatch: publicProcedure
+    .input(z.array(createLogSchema).max(100)) // Máximo 100 logs por batch
+    .mutation(async ({ ctx, input }) => {
+      if (input.length === 0) return [];
+
+      const logs = await db
+        .insert(systemLogs)
+        .values(
+          input.map((log) => ({
+            ...log,
+            userId: ctx.userId || null,
+          }))
+        )
+        .returning();
+
+      return logs;
+    }),
+
+  // -----------------------------------------------------------
+  // LIST: Obtener logs con filtros (solo admins)
+  // -----------------------------------------------------------
+  list: protectedProcedure
+    .input(listLogsSchema)
+    .query(async ({ ctx, input }) => {
+      // TODO: Verificar que el usuario es admin
+      // const isAdmin = await checkIsAdmin(ctx.userId)
+      // if (!isAdmin) throw new TRPCError({ code: 'FORBIDDEN' })
+
+      const { limit, offset, level, source, userId, search, startDate, endDate } = input;
+
+      // Construir condiciones
+      const conditions = [];
+
+      if (level) {
+        conditions.push(eq(systemLogs.level, level));
+      }
+
+      if (source) {
+        conditions.push(eq(systemLogs.source, source));
+      }
+
+      if (userId) {
+        conditions.push(eq(systemLogs.userId, userId));
+      }
+
+      if (search) {
+        conditions.push(
+          or(
+            like(systemLogs.message, `%${search}%`),
+            like(systemLogs.errorMessage, `%${search}%`)
+          )
+        );
+      }
+
+      if (startDate) {
+        conditions.push(gte(systemLogs.createdAt, new Date(startDate)));
+      }
+
+      if (endDate) {
+        conditions.push(lte(systemLogs.createdAt, new Date(endDate)));
+      }
+
+      const logs = await db
+        .select()
+        .from(systemLogs)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(systemLogs.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      // Contar total para paginación
+      const [{ count }] = await db
+        .select({ count: db.$count(systemLogs) })
+        .from(systemLogs)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      return {
+        logs,
+        total: Number(count),
+        hasMore: offset + limit < Number(count),
+      };
+    }),
+
+  // -----------------------------------------------------------
+  // STATS: Estadísticas de logs (solo admins)
+  // -----------------------------------------------------------
+  stats: protectedProcedure
+    .input(statsSchema)
+    .query(async ({ ctx, input }) => {
+      // TODO: Verificar que el usuario es admin
+
+      const { startDate, endDate } = input;
+
+      const conditions = [];
+      if (startDate) {
+        conditions.push(gte(systemLogs.createdAt, new Date(startDate)));
+      }
+      if (endDate) {
+        conditions.push(lte(systemLogs.createdAt, new Date(endDate)));
+      }
+
+      // Total logs
+      const [{ total }] = await db
+        .select({ total: db.$count(systemLogs) })
+        .from(systemLogs)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      // Por nivel
+      const byLevel = await db
+        .select({
+          level: systemLogs.level,
+          count: db.$count(systemLogs),
+        })
+        .from(systemLogs)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .groupBy(systemLogs.level);
+
+      // Por source
+      const bySource = await db
+        .select({
+          source: systemLogs.source,
+          count: db.$count(systemLogs),
+        })
+        .from(systemLogs)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .groupBy(systemLogs.source);
+
+      return {
+        total: Number(total),
+        byLevel: byLevel.map((row) => ({
+          level: row.level,
+          count: Number(row.count),
+        })),
+        bySource: bySource.map((row) => ({
+          source: row.source,
+          count: Number(row.count),
+        })),
+      };
+    }),
+
+  // -----------------------------------------------------------
+  // DELETE OLD: Eliminar logs antiguos (solo admins, para limpieza)
+  // -----------------------------------------------------------
+  deleteOld: protectedProcedure
+    .input(
+      z.object({
+        olderThanDays: z.number().min(1).max(365).default(30),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // TODO: Verificar que el usuario es admin
+
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - input.olderThanDays);
+
+      const deleted = await db
+        .delete(systemLogs)
+        .where(lte(systemLogs.createdAt, cutoffDate))
+        .returning({ id: systemLogs.id });
+
+      return { deletedCount: deleted.length };
+    }),
+});
