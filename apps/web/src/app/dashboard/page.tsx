@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -82,15 +83,20 @@ export default function DashboardPage() {
           .limit(5);
 
         if (debatesError) {
-          console.error("Error fetching debates:", debatesError);
+          logger.error("Error fetching debates", debatesError);
         }
 
         // Fetch subscription data (default to Free for now)
-        const { data: subscription } = await supabase
+        const { data: subscription, error: subscriptionError } = await supabase
           .from("subscriptions")
           .select("*")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
+        
+        if (subscriptionError && subscriptionError.code !== 'PGRST116') {
+          // PGRST116 is "not found" which is expected if no subscription exists
+          logger.error("Error fetching subscription", subscriptionError);
+        }
 
         // Calculate stats
         const { count: totalCount } = await supabase
@@ -155,7 +161,7 @@ export default function DashboardPage() {
           },
         });
       } catch (error) {
-        console.error("Error loading dashboard:", error);
+        logger.error("Error loading dashboard", error as Error);
         // Set empty data on error
         setData({
           subscription: {
