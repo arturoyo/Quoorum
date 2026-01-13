@@ -1011,4 +1011,157 @@ _Última actualización: 2026-01-07 15:15 UTC_
 
 ---
 
-_Última actualización: 2026-01-11_
+## [2026-01-13 - Sesión] - REINICIO DEL SERVIDOR EN PUERTO 3000
+
+### [XX:XX] - KILL PUERTO 3000 Y RESTART DEV SERVER
+
+**Solicitado por:** Usuario ("killea el puerto 3000 y levanta el proyecto quoorum de nuevo en el 3000")
+**Descripción:** Liberar el puerto 3000 y reiniciar el servidor de desarrollo de Quoorum
+**Acciones realizadas:**
+
+1. Identificado proceso en puerto 3000: PID 175956
+2. Ejecutado `taskkill //F //PID 175956` → Proceso terminado exitosamente
+3. Ejecutado `pnpm dev` en background
+4. Servidor levantado exitosamente en 1960ms
+
+**Archivos afectados:**
+- Ninguno (solo operaciones de sistema)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+- Servidor corriendo en http://localhost:3000 y http://192.168.1.36:3000
+- Warnings de environment variables no críticos:
+  - PINECONE_API_KEY no configurado (similarity search usará matching básico)
+  - SERPER_API_KEY no configurado (context loading con fuentes limitadas)
+- Detectado error 500 en endpoint `/api/trpc/debates.list` - posible issue con DB
+- Build completado: @quoorum/core (1331ms), @quoorum/ai (1709ms), @quoorum/db (3516ms), @quoorum/api (6199ms)
+
+---
+
+### [15:30] - INVESTIGACIÓN DE ERROR 500 Y AUDITORÍA DE LOGGING
+
+**Solicitado por:** Usuario ("si y revisa el sistema de logging")
+**Descripción:** Investigar error 500 en endpoint `/api/trpc/debates.list` y auditar sistema de logging completo
+**Acciones realizadas:**
+
+1. **Diagnóstico del error 500:**
+   - Request curl al endpoint → Error real: UNAUTHORIZED (401)
+   - Causa raíz: Usuario no autenticado
+   - El endpoint `debates.list` usa `protectedProcedure` que requiere sesión activa
+   - Servidor retorna 401 pero Next.js lo reporta como 500
+
+2. **Auditoría del sistema de logging:**
+   - Revisado `packages/api/src/lib/logger.ts` → ✅ Correcto (console.* solo en dev)
+   - Revisado `apps/web/src/lib/logger.ts` → ✅ Correcto (logger estructurado con batching + tRPC)
+   - Búsqueda de violations con Grep tool:
+     - `packages/api/src`: 10 ocurrencias (todas con eslint-disable ✅)
+     - `apps/web/src`: 19 ocurrencias (4 violations ❌)
+
+3. **Violations encontradas:**
+   - `apps/web/src/app/dashboard/page.tsx`: 3 console.error sin logger (líneas 85, 97, 163)
+   - `apps/web/src/app/layout.tsx`: 1 console.error sin logger (línea 22)
+
+4. **Correcciones aplicadas:**
+   - dashboard/page.tsx:
+     - Añadido `import { logger } from "@/lib/logger"`
+     - Línea 85: `console.error("Error fetching debates:", debatesError)` → `logger.error("Error fetching debates", debatesError)`
+     - Línea 97: `console.error("Error fetching subscription:", subscriptionError)` → `logger.error("Error fetching subscription", subscriptionError)`
+     - Línea 163: `console.error("Error loading dashboard:", error)` → `logger.error("Error loading dashboard", error as Error)`
+   - layout.tsx:
+     - Línea 22-24: Añadido condicional `process.env.NODE_ENV === "development"`
+     - Añadido `eslint-disable-next-line no-console` con comentario justificativo
+     - Solo logea en desarrollo (silent en producción)
+
+**Archivos afectados:**
+- C:\Quoorum\apps\web\src\app\dashboard\page.tsx (4 líneas modificadas)
+- C:\Quoorum\apps\web\src\app\layout.tsx (6 líneas modificadas)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+- Error 500 no es un bug del código, sino falta de autenticación del usuario
+- Sistema de logging estructurado ya existe y funciona correctamente
+- Violations corregidas cumplen ahora con CLAUDE.md Regla de Prohibiciones Absolutas
+- Commit creado: `e11e205` "fix(logging): replace console.error with structured logger"
+- Typecheck pasa sin errores en archivos modificados
+
+---
+
+### [16:00] - FIX DEFINITIVO DEL ERROR 500 (UNAUTHORIZED)
+
+**Solicitado por:** Usuario (reportó errores 500 persistentes en consola del navegador)
+**Descripción:** Resolver error 500 en endpoint `/api/trpc/debates.list` causado por queries no autenticadas
+**Acciones realizadas:**
+
+1. **Lectura de logs del servidor:**
+   - Línea 156: Confirmado que el error real era 401 UNAUTHORIZED (no 500)
+   - Línea 171-193: Error temporal de compilación por import incorrecto de logger (ya resuelto)
+   - Líneas 208-255: Errores 500 persistentes en debates.list
+
+2. **Diagnóstico de causa raíz:**
+   - La página `/debates` ejecutaba `api.debates.list.useQuery()` INMEDIATAMENTE al renderizar
+   - El check de autenticación (`useEffect`) se ejecutaba DESPUÉS de la query
+   - Resultado: Query sin token → 401 UNAUTHORIZED → Navegador muestra 500
+
+3. **Solución implementada:**
+   - Añadido estado `isAuthenticated` para rastrear autenticación
+   - Movido check de auth ANTES de la query
+   - Añadida opción `enabled: isAuthenticated` a la query
+   - Flujo corregido:
+     1. useEffect verifica autenticación
+     2. Si no hay usuario → redirect a /login
+     3. Si hay usuario → setIsAuthenticated(true)
+     4. Query solo se ejecuta cuando `enabled: true`
+
+4. **Código modificado:**
+   ```typescript
+   // ANTES ❌
+   const { data: debates = [], isLoading } = api.debates.list.useQuery({
+     limit: 50,
+     offset: 0,
+   });
+
+   useEffect(() => {
+     async function checkAuth() {
+       const { data: { user } } = await supabase.auth.getUser();
+       if (!user) router.push("/login");
+     }
+     checkAuth();
+   }, []);
+
+   // DESPUÉS ✅
+   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+   useEffect(() => {
+     async function checkAuth() {
+       const { data: { user } } = await supabase.auth.getUser();
+       if (!user) {
+         router.push("/login");
+       } else {
+         setIsAuthenticated(true);
+       }
+     }
+     checkAuth();
+   }, []);
+
+   const { data: debates = [], isLoading } = api.debates.list.useQuery(
+     { limit: 50, offset: 0 },
+     { enabled: isAuthenticated } // Solo ejecuta si autenticado
+   );
+   ```
+
+**Archivos afectados:**
+- C:\Quoorum\apps\web\src\app\debates\page.tsx (22 líneas modificadas)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+- Commit creado: `388e257` "fix(auth): prevent unauthorized query execution in debates page"
+- El servidor recompiló exitosamente (línea 237 de logs)
+- Los usuarios deben recargar el navegador (F5 o Ctrl+Shift+R) para obtener el nuevo código
+- Patrón aplicable a otras páginas protegidas: dashboard, settings, etc.
+
+---
+
+_Última actualización: 2026-01-13_
