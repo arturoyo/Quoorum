@@ -71,26 +71,13 @@ export const sessionsRouter = router({
   /**
    * Revocar todas las sesiones excepto la actual
    * Útil para "cerrar sesión en todos los dispositivos"
+   * 
+   * NOTA: Por ahora elimina todas las sesiones del usuario.
+   * En el futuro, se puede añadir sessionToken al contexto para excluir la actual.
    */
   revokeAll: protectedProcedure.mutation(async ({ ctx }) => {
-    // Obtener token de sesión actual desde el contexto
-    // En producción esto vendría del header Authorization
-    const currentSessionToken = ctx.sessionToken;
-
-    if (currentSessionToken) {
-      // Eliminar todas excepto la actual
-      await db
-        .delete(sessions)
-        .where(
-          and(
-            eq(sessions.userId, ctx.userId),
-            // SQL: session_token != currentSessionToken
-          )
-        );
-    } else {
-      // Si no hay token de sesión actual, eliminar todas
-      await db.delete(sessions).where(eq(sessions.userId, ctx.userId));
-    }
+    // Eliminar todas las sesiones del usuario
+    await db.delete(sessions).where(eq(sessions.userId, ctx.userId));
 
     return { success: true };
   }),
@@ -98,26 +85,25 @@ export const sessionsRouter = router({
   /**
    * Actualizar última actividad de la sesión actual
    * Se llama periódicamente desde el frontend
+   * 
+   * NOTA: Por ahora actualiza la sesión más reciente del usuario.
+   * En el futuro, se puede añadir sessionToken al contexto para identificar la sesión exacta.
    */
   updateActivity: protectedProcedure.mutation(async ({ ctx }) => {
-    const sessionToken = ctx.sessionToken;
+    // Actualizar la sesión más reciente del usuario
+    const [latestSession] = await db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.userId, ctx.userId))
+      .orderBy(desc(sessions.lastActive))
+      .limit(1);
 
-    if (!sessionToken) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "No session token provided",
-      });
+    if (latestSession) {
+      await db
+        .update(sessions)
+        .set({ lastActive: new Date() })
+        .where(eq(sessions.id, latestSession.id));
     }
-
-    await db
-      .update(sessions)
-      .set({ lastActive: new Date() })
-      .where(
-        and(
-          eq(sessions.sessionToken, sessionToken),
-          eq(sessions.userId, ctx.userId)
-        )
-      );
 
     return { success: true };
   }),

@@ -82,6 +82,13 @@ export const apiKeysRouter = router({
         })
         .returning();
 
+      if (!created) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create API key",
+        });
+      }
+
       // ⚠️ IMPORTANTE: Solo devolver la key AHORA
       // No se podrá recuperar después
       return {

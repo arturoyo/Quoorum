@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../trpc";
 import { db } from "@quoorum/db";
 import { notificationSettings } from "@quoorum/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 // ═══════════════════════════════════════════════════════════
 // SCHEMAS DE VALIDACIÓN

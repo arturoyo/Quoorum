@@ -46,12 +46,12 @@ export const systemLogsRouter = router({
   // -----------------------------------------------------------
   create: publicProcedure
     .input(createLogSchema)
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const [log] = await db
         .insert(systemLogs)
         .values({
           ...input,
-          userId: ctx.userId || null, // Puede ser null si no autenticado
+          userId: null, // Public endpoint - no userId required
         })
         .returning();
 
@@ -63,7 +63,7 @@ export const systemLogsRouter = router({
   // -----------------------------------------------------------
   createBatch: publicProcedure
     .input(z.array(createLogSchema).max(100)) // Máximo 100 logs por batch
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       if (input.length === 0) return [];
 
       const logs = await db
@@ -71,7 +71,7 @@ export const systemLogsRouter = router({
         .values(
           input.map((log) => ({
             ...log,
-            userId: ctx.userId || null,
+            userId: null, // Public endpoint - no userId required
           }))
         )
         .returning();
@@ -84,7 +84,7 @@ export const systemLogsRouter = router({
   // -----------------------------------------------------------
   list: protectedProcedure
     .input(listLogsSchema)
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       // TODO: Verificar que el usuario es admin
       // const isAdmin = await checkIsAdmin(ctx.userId)
       // if (!isAdmin) throw new TRPCError({ code: 'FORBIDDEN' })
@@ -132,10 +132,12 @@ export const systemLogsRouter = router({
         .offset(offset);
 
       // Contar total para paginación
-      const [{ count }] = await db
+      const countResult = await db
         .select({ count: db.$count(systemLogs) })
         .from(systemLogs)
         .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      const count = countResult[0]?.count ?? 0;
 
       return {
         logs,
@@ -149,7 +151,7 @@ export const systemLogsRouter = router({
   // -----------------------------------------------------------
   stats: protectedProcedure
     .input(statsSchema)
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       // TODO: Verificar que el usuario es admin
 
       const { startDate, endDate } = input;
@@ -163,10 +165,12 @@ export const systemLogsRouter = router({
       }
 
       // Total logs
-      const [{ total }] = await db
+      const totalResult = await db
         .select({ total: db.$count(systemLogs) })
         .from(systemLogs)
         .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      const total = totalResult[0]?.total ?? 0;
 
       // Por nivel
       const byLevel = await db
@@ -210,7 +214,7 @@ export const systemLogsRouter = router({
         olderThanDays: z.number().min(1).max(365).default(30),
       })
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       // TODO: Verificar que el usuario es admin
 
       const cutoffDate = new Date();
