@@ -270,7 +270,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 - 155 ESLint **ERRORS** (no warnings)
 - Mayoría son type safety issues (`@typescript-eslint/no-unsafe-*`)
 - Relacionados con integración de AI providers (tipo `AIProvider` y `AIModel` marcados como `error`)
-- Requiere revisión de tipos en `packages/forum/src/ai-client.ts` y `ai-assistant.ts`
+- Requiere revisión de tipos en `packages/quoorum/src/ai-client.ts` y `ai-assistant.ts`
 
 **Impacto:**
 

@@ -75,14 +75,14 @@ export default function ApiKeysPage() {
         {
           id: "1",
           name: "Production API",
-          prefix: "forum_live_abc123",
+          prefix: "quoorum_live_abc123",
           createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
           lastUsed: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
         },
         {
           id: "2",
           name: "Development",
-          prefix: "forum_test_xyz789",
+          prefix: "quoorum_test_xyz789",
           createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
           lastUsed: null,
         },
@@ -106,7 +106,7 @@ export default function ApiKeysPage() {
       // TODO: Replace with actual API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const generatedKey = `forum_live_${Math.random().toString(36).substring(2, 15)}`;
+      const generatedKey = `quoorum_live_${Math.random().toString(36).substring(2, 15)}`;
       setNewKey(generatedKey);
 
       setApiKeys([

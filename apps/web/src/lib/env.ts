@@ -49,7 +49,7 @@ const env = {
   serperApiKey: process.env.SERPER_API_KEY,
   
   // Optional: WebSocket
-  wsPort: parseInt(process.env.QUOORUM_WS_PORT || process.env.FORUM_WS_PORT || '3001', 10),
+  wsPort: parseInt(process.env.QUOORUM_WS_PORT || '3001', 10),
   wsUrl: process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001',
   
   // Optional: Notifications

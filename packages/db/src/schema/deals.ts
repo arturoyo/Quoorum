@@ -1,6 +1,6 @@
 /**
  * Deals Schema (stub)
- * Deal records for Forum system
+ * Deal records for Quoorum system
  */
 import { pgTable, uuid, varchar, text, timestamp, jsonb, real, pgEnum } from "drizzle-orm/pg-core";
 import { clients } from "./clients.js";

@@ -1,6 +1,6 @@
 /**
  * Conversations Schema (stub)
- * Conversation records for Forum system
+ * Conversation records for Quoorum system
  */
 import { pgTable, uuid, varchar, text, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { clients } from "./clients.js";

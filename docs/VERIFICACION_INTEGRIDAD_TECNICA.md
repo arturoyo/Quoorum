@@ -105,7 +105,7 @@ z.record(z.string(), z.string())
 # Renombradas a .disabled (prevenir errores de compilación):
 apps/web/src/app/admin/ab-testing/ → ab-testing.disabled/
 apps/web/src/app/admin/ai-usage/ → ai-usage.disabled/
-apps/web/src/app/admin/forum/ → forum.disabled/
+apps/web/src/app/admin/quoorum/ → forum.disabled/
 apps/web/src/app/admin/agents-live/ → agents-live.disabled/
 apps/web/src/app/settings/goals/ → goals.disabled/
 ```

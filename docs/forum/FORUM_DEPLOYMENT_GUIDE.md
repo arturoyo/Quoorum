@@ -1,4 +1,4 @@
-# 🚀 Forum Dynamic System - Guía de Deployment 100%
+# 🚀 Quoorum Dynamic System - Guía de Deployment 100%
 
 ## 1. Configuración de Entorno
 
@@ -71,10 +71,10 @@ pnpm drizzle-kit migrate
 psql $DATABASE_URL
 
 # Verificar tablas de forum
-\dt forum_*
+\dt quoorum_*
 ```
 
-Deberías ver 6 tablas: `forum_debates`, `forum_debate_comments`, `forum_debate_reactions`, `forum_custom_experts`, `forum_expert_performance`, `forum_debate_embeddings`.
+Deberías ver 6 tablas: `quoorum_debates`, `quoorum_debate_comments`, `quoorum_debate_reactions`, `quoorum_custom_experts`, `quoorum_expert_performance`, `quoorum_debate_embeddings`.
 
 ## 3. Build del Proyecto
 
@@ -96,7 +96,7 @@ El backend tRPC está integrado en la app Next.js, no necesita un deploy separad
 
 ### WebSocket Server
 
-El servidor WebSocket en `packages/forum/src/websocket-server.ts` debe correr como un proceso separado.
+El servidor WebSocket en `packages/quoorum/src/websocket-server.ts` debe correr como un proceso separado.
 
 **Opción 1: Node.js (PM2)**
 
@@ -118,8 +118,8 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
-COPY packages/forum/dist ./dist
-COPY packages/forum/package.json .
+COPY packages/quoorum/dist ./dist
+COPY packages/quoorum/package.json .
 
 RUN npm install --production
 
@@ -178,12 +178,12 @@ pnpm -w test
 1. Crea una cuenta en [Pinecone](https://www.pinecone.io/).
 2. Crea un índice con 1536 dimensiones (para `text-embedding-3-small`).
 3. Añade `PINECONE_API_KEY` y `PINECONE_ENVIRONMENT` a tu `.env`.
-4. Descomenta el código de integración en `packages/forum/src/question-similarity.ts`.
+4. Descomenta el código de integración en `packages/quoorum/src/question-similarity.ts`.
 
 ### Search API (Serper)
 1. Crea una cuenta en [Serper](https://serper.dev/).
 2. Añade `SERPER_API_KEY` a tu `.env`.
-3. Descomenta el código de integración en `packages/forum/src/context-loader.ts`.
+3. Descomenta el código de integración en `packages/quoorum/src/context-loader.ts`.
 
 ---
 

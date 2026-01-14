@@ -9,7 +9,7 @@
 ## ✅ Lo Que Integré
 
 ### 1. **Animations System** ✅ 100%
-**Ubicación:** `apps/web/src/components/forum/debate-viewer.tsx`
+**Ubicación:** `apps/web/src/components/quoorum/debate-viewer.tsx`
 
 **Integración:**
 - ✅ Importado en debate-viewer
@@ -44,7 +44,7 @@ return (
 
 **Código:**
 ```typescript
-import { CommandPalette } from '@/components/forum/command-palette'
+import { CommandPalette } from '@/components/quoorum/command-palette'
 
 <NavigationHistoryProvider>
   <CommandPalette />
@@ -68,7 +68,7 @@ import { CommandPalette } from '@/components/forum/command-palette'
 refineQuestion: adminProcedure
   .input(z.object({ question: z.string() }))
   .mutation(async ({ input }) => {
-    const { AIAssistant } = await import('@wallie/forum/ai-assistant')
+    const { AIAssistant } = await import('@wallie/quoorum/ai-assistant')
     return AIAssistant.refineQuestion(input.question)
   }),
 ```
@@ -82,7 +82,7 @@ refine({ question: "¿Deberíamos..." })
 ---
 
 ### 4. **Advanced Charts** ✅ 100%
-**Ubicación:** `apps/web/src/components/forum/analytics-dashboard.tsx`
+**Ubicación:** `apps/web/src/components/quoorum/analytics-dashboard.tsx`
 
 **Integración:**
 - ✅ Importados en analytics-dashboard
@@ -118,7 +118,7 @@ import { ConsensusTrendChart } from './advanced-charts'
 
 ### ✅ AI Assistant
 - 4 endpoints API creados
-- Conectados con @wallie/forum/ai-assistant
+- Conectados con @wallie/quoorum/ai-assistant
 - Listos para usar desde frontend
 
 ### ✅ Advanced Charts
@@ -133,10 +133,10 @@ import { ConsensusTrendChart } from './advanced-charts'
 **Commit:** `4c49215` - "feat: Integrate quick wins 100%"
 
 **Archivos modificados:**
-- `apps/web/src/components/forum/debate-viewer.tsx` (animations)
+- `apps/web/src/components/quoorum/debate-viewer.tsx` (animations)
 - `apps/web/src/app/layout.tsx` (command palette)
 - `packages/api/src/routers/forum.ts` (AI endpoints)
-- `apps/web/src/components/forum/analytics-dashboard.tsx` (charts)
+- `apps/web/src/components/quoorum/analytics-dashboard.tsx` (charts)
 
 ---
 
@@ -158,7 +158,7 @@ Todos los quick wins están:
 
 ### Animations
 ```typescript
-import { FadeIn, SlideUp, StaggerList } from '@/components/forum/animations'
+import { FadeIn, SlideUp, StaggerList } from '@/components/quoorum/animations'
 
 <FadeIn>
   <YourComponent />
@@ -178,7 +178,7 @@ mutate({ question: "Tu pregunta" })
 
 ### Advanced Charts
 ```typescript
-import { ConsensusTrendChart } from '@/components/forum/advanced-charts'
+import { ConsensusTrendChart } from '@/components/quoorum/advanced-charts'
 
 <ConsensusTrendChart data={yourData} />
 ```

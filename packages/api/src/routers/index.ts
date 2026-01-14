@@ -9,15 +9,15 @@ export { votesRouter } from "./votes.js";
 export { systemLogsRouter } from "./system-logs.js";
 export { testLoggingRouter } from "./test-logging.js";
 
-// Forum routers
-export { forumRouter } from "./forum.js";
-export { forumDealsRouter } from "./forum-deals.js";
-export { forumFeedbackRouter } from "./forum-feedback.js";
-export { forumInsightsRouter } from "./forum-insights.js";
-export { forumNotificationsRouter } from "./forum-notifications.js";
-export { forumReportsRouter } from "./forum-reports.js";
-export { forumPublicApiRouter } from "./forum-public-api.js";
-export { adminForumRouter } from "./admin-forum.js";
+// Quoorum routers
+export { quoorumRouter } from "./quoorum.js";
+export { quoorumDealsRouter } from "./quoorum-deals.js";
+export { quoorumFeedbackRouter } from "./quoorum-feedback.js";
+export { quoorumInsightsRouter } from "./quoorum-insights.js";
+export { quoorumNotificationsRouter } from "./quoorum-notifications.js";
+export { quoorumReportsRouter } from "./quoorum-reports.js";
+export { quoorumPublicApiRouter } from "./quoorum-public-api.js";
+export { adminQuoorumRouter } from "./admin-quoorum.js";
 export { contextAssessmentRouter } from "./context-assessment.js";
 export { debatesRouter } from "./debates.js";
 

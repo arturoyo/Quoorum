@@ -213,7 +213,7 @@ const navigation: NavigationItem[] = [
   },
   {
     name: 'Forum',
-    href: '/forum',
+    href: "/quoorum",
     icon: MessageCircle,
     shortcut: 'G → F',
     // Solo mostrar si tiene acceso al addon
@@ -249,7 +249,7 @@ const navigation: NavigationItem[] = [
   { name: 'Todos', href: '/todos', icon: CheckSquare, shortcut: 'G → T' },
   { name: 'Analytics', href: '/insights', icon: LineChart, shortcut: 'G → I' },
   { name: 'Timeline', href: '/timeline', icon: Clock, shortcut: 'G → T' },
-  { name: 'Forum', href: '/forum', icon: MessageCircle, shortcut: 'G → F' },
+  { name: 'Forum', href: "/quoorum", icon: MessageCircle, shortcut: 'G → F' },
   { name: 'Productivity', href: '/productivity', icon: Trophy, shortcut: 'G → P' },
 ]
 ```
@@ -303,7 +303,7 @@ const navigation: NavigationItem[] = [
 
 ### Consideraciones
 
-1. **Forum:** Requiere verificación de acceso al addon `forum_estrategico`
+1. **Forum:** Requiere verificación de acceso al addon `quoorum_estrategico`
 2. **Voice:** Requiere feature flag `coldCallingEnabled`
 3. **Stats:** Redirige a `/insights` (funcionalidad consolidada)
 4. **Shortcuts:** Algunos conflictos (G→D para Dashboard y Deals)

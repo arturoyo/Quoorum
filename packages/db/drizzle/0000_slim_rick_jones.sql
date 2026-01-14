@@ -8,12 +8,12 @@ CREATE TYPE "public"."debate_mode" AS ENUM('static', 'dynamic');--> statement-br
 CREATE TYPE "public"."debate_status" AS ENUM('pending', 'in_progress', 'completed', 'failed', 'cancelled');--> statement-breakpoint
 CREATE TYPE "public"."debate_visibility" AS ENUM('private', 'team', 'public');--> statement-breakpoint
 CREATE TYPE "public"."feedback_sentiment" AS ENUM('helpful', 'neutral', 'unhelpful');--> statement-breakpoint
-CREATE TYPE "public"."forum_notification_channel" AS ENUM('in_app', 'email', 'push', 'whatsapp');--> statement-breakpoint
-CREATE TYPE "public"."forum_notification_priority" AS ENUM('low', 'normal', 'high', 'urgent');--> statement-breakpoint
-CREATE TYPE "public"."forum_notification_type" AS ENUM('debate_completed', 'debate_failed', 'new_comment', 'comment_reply', 'debate_shared', 'consensus_reached', 'expert_recommendation', 'weekly_digest', 'debate_reminder', 'team_action');--> statement-breakpoint
-CREATE TYPE "public"."forum_report_format" AS ENUM('pdf', 'html', 'markdown');--> statement-breakpoint
-CREATE TYPE "public"."forum_report_status" AS ENUM('pending', 'generating', 'completed', 'failed');--> statement-breakpoint
-CREATE TYPE "public"."forum_report_type" AS ENUM('single_debate', 'weekly_summary', 'monthly_summary', 'deal_analysis', 'expert_performance', 'custom');--> statement-breakpoint
+CREATE TYPE "public"."quoorum_notification_channel" AS ENUM('in_app', 'email', 'push', 'whatsapp');--> statement-breakpoint
+CREATE TYPE "public"."quoorum_notification_priority" AS ENUM('low', 'normal', 'high', 'urgent');--> statement-breakpoint
+CREATE TYPE "public"."quoorum_notification_type" AS ENUM('debate_completed', 'debate_failed', 'new_comment', 'comment_reply', 'debate_shared', 'consensus_reached', 'expert_recommendation', 'weekly_digest', 'debate_reminder', 'team_action');--> statement-breakpoint
+CREATE TYPE "public"."quoorum_report_format" AS ENUM('pdf', 'html', 'markdown');--> statement-breakpoint
+CREATE TYPE "public"."quoorum_report_status" AS ENUM('pending', 'generating', 'completed', 'failed');--> statement-breakpoint
+CREATE TYPE "public"."quoorum_report_type" AS ENUM('single_debate', 'weekly_summary', 'monthly_summary', 'deal_analysis', 'expert_performance', 'custom');--> statement-breakpoint
 CREATE TYPE "public"."plan_tier" AS ENUM('free', 'starter', 'pro', 'business', 'enterprise');--> statement-breakpoint
 CREATE TYPE "public"."response_approach" AS ENUM('empathetic', 'assertive', 'consultative', 'direct');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status" AS ENUM('active', 'canceled', 'past_due', 'trialing', 'paused', 'unpaid');--> statement-breakpoint
@@ -156,7 +156,7 @@ CREATE TABLE "experts" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_api_keys" (
+CREATE TABLE "quoorum_api_keys" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"name" varchar(100) NOT NULL,
@@ -173,7 +173,7 @@ CREATE TABLE "forum_api_keys" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_consultations" (
+CREATE TABLE "quoorum_consultations" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"client_id" uuid,
@@ -200,7 +200,7 @@ CREATE TABLE "forum_consultations" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_context_sources" (
+CREATE TABLE "quoorum_context_sources" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"session_id" uuid NOT NULL,
 	"source_type" varchar(20) NOT NULL,
@@ -209,7 +209,7 @@ CREATE TABLE "forum_context_sources" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_custom_experts" (
+CREATE TABLE "quoorum_custom_experts" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"name" varchar(100) NOT NULL,
@@ -224,7 +224,7 @@ CREATE TABLE "forum_custom_experts" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_deal_links" (
+CREATE TABLE "quoorum_deal_links" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"debate_id" uuid NOT NULL,
@@ -239,7 +239,7 @@ CREATE TABLE "forum_deal_links" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_deal_recommendations" (
+CREATE TABLE "quoorum_deal_recommendations" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"deal_id" uuid NOT NULL,
@@ -255,7 +255,7 @@ CREATE TABLE "forum_deal_recommendations" (
 	"expires_at" timestamp with time zone
 );
 --> statement-breakpoint
-CREATE TABLE "forum_debate_comments" (
+CREATE TABLE "quoorum_debate_comments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"debate_id" uuid NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -265,14 +265,14 @@ CREATE TABLE "forum_debate_comments" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_debate_likes" (
+CREATE TABLE "quoorum_debate_likes" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"debate_id" uuid NOT NULL,
 	"user_id" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_debate_templates" (
+CREATE TABLE "quoorum_debate_templates" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(100) NOT NULL,
 	"description" text,
@@ -288,7 +288,7 @@ CREATE TABLE "forum_debate_templates" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_debates" (
+CREATE TABLE "quoorum_debates" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"question" text NOT NULL,
@@ -316,7 +316,7 @@ CREATE TABLE "forum_debates" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_expert_feedback" (
+CREATE TABLE "quoorum_expert_feedback" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"debate_id" uuid NOT NULL,
@@ -335,7 +335,7 @@ CREATE TABLE "forum_expert_feedback" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_expert_performance" (
+CREATE TABLE "quoorum_expert_performance" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"expert_id" varchar(100) NOT NULL,
 	"total_debates" integer DEFAULT 0 NOT NULL,
@@ -347,7 +347,7 @@ CREATE TABLE "forum_expert_performance" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_expert_ratings" (
+CREATE TABLE "quoorum_expert_ratings" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"expert_id" text NOT NULL,
 	"total_ratings" integer DEFAULT 0 NOT NULL,
@@ -362,10 +362,10 @@ CREATE TABLE "forum_expert_ratings" (
 	"followed_count" integer DEFAULT 0 NOT NULL,
 	"success_count" integer DEFAULT 0 NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "forum_expert_ratings_expert_id_unique" UNIQUE("expert_id")
+	CONSTRAINT "quoorum_expert_ratings_expert_id_unique" UNIQUE("expert_id")
 );
 --> statement-breakpoint
-CREATE TABLE "forum_messages" (
+CREATE TABLE "quoorum_messages" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"session_id" uuid NOT NULL,
 	"round" integer NOT NULL,
@@ -378,7 +378,7 @@ CREATE TABLE "forum_messages" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_notification_preferences" (
+CREATE TABLE "quoorum_notification_preferences" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"debate_completed" jsonb DEFAULT '{"enabled":true,"channels":["in_app","email"]}'::jsonb,
@@ -392,14 +392,14 @@ CREATE TABLE "forum_notification_preferences" (
 	"timezone" text DEFAULT 'Europe/Madrid',
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "forum_notification_preferences_user_id_unique" UNIQUE("user_id")
+	CONSTRAINT "quoorum_notification_preferences_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
-CREATE TABLE "forum_notifications" (
+CREATE TABLE "quoorum_notifications" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
-	"type" "forum_notification_type" NOT NULL,
-	"priority" "forum_notification_priority" DEFAULT 'normal' NOT NULL,
+	"type" "quoorum_notification_type" NOT NULL,
+	"priority" "quoorum_notification_priority" DEFAULT 'normal' NOT NULL,
 	"debate_id" uuid,
 	"title" text NOT NULL,
 	"message" text NOT NULL,
@@ -414,14 +414,14 @@ CREATE TABLE "forum_notifications" (
 	"expires_at" timestamp with time zone
 );
 --> statement-breakpoint
-CREATE TABLE "forum_reports" (
+CREATE TABLE "quoorum_reports" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
-	"type" "forum_report_type" NOT NULL,
+	"type" "quoorum_report_type" NOT NULL,
 	"title" text NOT NULL,
 	"description" text,
-	"format" "forum_report_format" DEFAULT 'pdf' NOT NULL,
-	"status" "forum_report_status" DEFAULT 'pending' NOT NULL,
+	"format" "quoorum_report_format" DEFAULT 'pdf' NOT NULL,
+	"status" "quoorum_report_status" DEFAULT 'pending' NOT NULL,
 	"error_message" text,
 	"file_url" text,
 	"file_size" integer,
@@ -434,12 +434,12 @@ CREATE TABLE "forum_reports" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_scheduled_reports" (
+CREATE TABLE "quoorum_scheduled_reports" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"name" text NOT NULL,
-	"type" "forum_report_type" NOT NULL,
-	"format" "forum_report_format" DEFAULT 'pdf' NOT NULL,
+	"type" "quoorum_report_type" NOT NULL,
+	"format" "quoorum_report_format" DEFAULT 'pdf' NOT NULL,
 	"schedule" jsonb NOT NULL,
 	"delivery_method" jsonb NOT NULL,
 	"parameters" jsonb,
@@ -453,7 +453,7 @@ CREATE TABLE "forum_scheduled_reports" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_sessions" (
+CREATE TABLE "quoorum_sessions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"question" text NOT NULL,
@@ -470,7 +470,7 @@ CREATE TABLE "forum_sessions" (
 	"completed_at" timestamp with time zone
 );
 --> statement-breakpoint
-CREATE TABLE "forum_translations" (
+CREATE TABLE "quoorum_translations" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"message_id" uuid NOT NULL,
 	"translation" text NOT NULL,
@@ -479,7 +479,7 @@ CREATE TABLE "forum_translations" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_webhook_logs" (
+CREATE TABLE "quoorum_webhook_logs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"webhook_id" uuid NOT NULL,
 	"event" varchar(50) NOT NULL,
@@ -493,7 +493,7 @@ CREATE TABLE "forum_webhook_logs" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "forum_webhooks" (
+CREATE TABLE "quoorum_webhooks" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"name" varchar(100) DEFAULT 'Webhook' NOT NULL,
@@ -636,35 +636,35 @@ ALTER TABLE "deals" ADD CONSTRAINT "deals_user_id_profiles_id_fk" FOREIGN KEY ("
 ALTER TABLE "deals" ADD CONSTRAINT "deals_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "deals" ADD CONSTRAINT "deals_owner_id_profiles_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."profiles"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "deliberations" ADD CONSTRAINT "deliberations_created_by_id_users_id_fk" FOREIGN KEY ("created_by_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_api_keys" ADD CONSTRAINT "forum_api_keys_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_consultations" ADD CONSTRAINT "forum_consultations_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_consultations" ADD CONSTRAINT "forum_consultations_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_consultations" ADD CONSTRAINT "forum_consultations_conversation_id_conversations_id_fk" FOREIGN KEY ("conversation_id") REFERENCES "public"."conversations"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_context_sources" ADD CONSTRAINT "forum_context_sources_session_id_forum_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."forum_sessions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_custom_experts" ADD CONSTRAINT "forum_custom_experts_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_deal_links" ADD CONSTRAINT "forum_deal_links_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_deal_links" ADD CONSTRAINT "forum_deal_links_debate_id_forum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."forum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_deal_links" ADD CONSTRAINT "forum_deal_links_deal_id_deals_id_fk" FOREIGN KEY ("deal_id") REFERENCES "public"."deals"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_deal_recommendations" ADD CONSTRAINT "forum_deal_recommendations_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_deal_recommendations" ADD CONSTRAINT "forum_deal_recommendations_deal_id_deals_id_fk" FOREIGN KEY ("deal_id") REFERENCES "public"."deals"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_debate_comments" ADD CONSTRAINT "forum_debate_comments_debate_id_forum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."forum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_debate_comments" ADD CONSTRAINT "forum_debate_comments_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_debate_comments" ADD CONSTRAINT "forum_debate_comments_parent_id_forum_debate_comments_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."forum_debate_comments"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_debate_likes" ADD CONSTRAINT "forum_debate_likes_debate_id_forum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."forum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_debate_likes" ADD CONSTRAINT "forum_debate_likes_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_debate_templates" ADD CONSTRAINT "forum_debate_templates_created_by_profiles_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."profiles"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_debates" ADD CONSTRAINT "forum_debates_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_expert_feedback" ADD CONSTRAINT "forum_expert_feedback_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_expert_feedback" ADD CONSTRAINT "forum_expert_feedback_debate_id_forum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."forum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_messages" ADD CONSTRAINT "forum_messages_session_id_forum_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."forum_sessions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_notification_preferences" ADD CONSTRAINT "forum_notification_preferences_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_notifications" ADD CONSTRAINT "forum_notifications_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_notifications" ADD CONSTRAINT "forum_notifications_debate_id_forum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."forum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_reports" ADD CONSTRAINT "forum_reports_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_scheduled_reports" ADD CONSTRAINT "forum_scheduled_reports_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_translations" ADD CONSTRAINT "forum_translations_message_id_forum_messages_id_fk" FOREIGN KEY ("message_id") REFERENCES "public"."forum_messages"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_webhook_logs" ADD CONSTRAINT "forum_webhook_logs_webhook_id_forum_webhooks_id_fk" FOREIGN KEY ("webhook_id") REFERENCES "public"."forum_webhooks"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "forum_webhooks" ADD CONSTRAINT "forum_webhooks_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_api_keys" ADD CONSTRAINT "quoorum_api_keys_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_consultations" ADD CONSTRAINT "quoorum_consultations_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_consultations" ADD CONSTRAINT "quoorum_consultations_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_consultations" ADD CONSTRAINT "quoorum_consultations_conversation_id_conversations_id_fk" FOREIGN KEY ("conversation_id") REFERENCES "public"."conversations"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_context_sources" ADD CONSTRAINT "quoorum_context_sources_session_id_quoorum_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."quoorum_sessions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_custom_experts" ADD CONSTRAINT "quoorum_custom_experts_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_deal_links" ADD CONSTRAINT "quoorum_deal_links_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_deal_links" ADD CONSTRAINT "quoorum_deal_links_debate_id_quoorum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."quoorum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_deal_links" ADD CONSTRAINT "quoorum_deal_links_deal_id_deals_id_fk" FOREIGN KEY ("deal_id") REFERENCES "public"."deals"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_deal_recommendations" ADD CONSTRAINT "quoorum_deal_recommendations_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_deal_recommendations" ADD CONSTRAINT "quoorum_deal_recommendations_deal_id_deals_id_fk" FOREIGN KEY ("deal_id") REFERENCES "public"."deals"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_debate_comments" ADD CONSTRAINT "quoorum_debate_comments_debate_id_quoorum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."quoorum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_debate_comments" ADD CONSTRAINT "quoorum_debate_comments_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_debate_comments" ADD CONSTRAINT "quoorum_debate_comments_parent_id_quoorum_debate_comments_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."quoorum_debate_comments"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_debate_likes" ADD CONSTRAINT "quoorum_debate_likes_debate_id_quoorum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."quoorum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_debate_likes" ADD CONSTRAINT "quoorum_debate_likes_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_debate_templates" ADD CONSTRAINT "quoorum_debate_templates_created_by_profiles_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."profiles"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_debates" ADD CONSTRAINT "quoorum_debates_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_expert_feedback" ADD CONSTRAINT "quoorum_expert_feedback_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_expert_feedback" ADD CONSTRAINT "quoorum_expert_feedback_debate_id_quoorum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."quoorum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_messages" ADD CONSTRAINT "quoorum_messages_session_id_quoorum_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."quoorum_sessions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_notification_preferences" ADD CONSTRAINT "quoorum_notification_preferences_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_notifications" ADD CONSTRAINT "quoorum_notifications_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_notifications" ADD CONSTRAINT "quoorum_notifications_debate_id_quoorum_debates_id_fk" FOREIGN KEY ("debate_id") REFERENCES "public"."quoorum_debates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_reports" ADD CONSTRAINT "quoorum_reports_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_scheduled_reports" ADD CONSTRAINT "quoorum_scheduled_reports_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_translations" ADD CONSTRAINT "quoorum_translations_message_id_quoorum_messages_id_fk" FOREIGN KEY ("message_id") REFERENCES "public"."quoorum_messages"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_webhook_logs" ADD CONSTRAINT "quoorum_webhook_logs_webhook_id_quoorum_webhooks_id_fk" FOREIGN KEY ("webhook_id") REFERENCES "public"."quoorum_webhooks"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quoorum_webhooks" ADD CONSTRAINT "quoorum_webhooks_user_id_profiles_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "opinions" ADD CONSTRAINT "opinions_round_id_rounds_id_fk" FOREIGN KEY ("round_id") REFERENCES "public"."rounds"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "opinions" ADD CONSTRAINT "opinions_expert_id_experts_id_fk" FOREIGN KEY ("expert_id") REFERENCES "public"."experts"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rounds" ADD CONSTRAINT "rounds_deliberation_id_deliberations_id_fk" FOREIGN KEY ("deliberation_id") REFERENCES "public"."deliberations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -674,39 +674,39 @@ ALTER TABLE "usage" ADD CONSTRAINT "usage_user_id_users_id_fk" FOREIGN KEY ("use
 ALTER TABLE "votes" ADD CONSTRAINT "votes_round_id_rounds_id_fk" FOREIGN KEY ("round_id") REFERENCES "public"."rounds"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "votes" ADD CONSTRAINT "votes_expert_id_experts_id_fk" FOREIGN KEY ("expert_id") REFERENCES "public"."experts"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "votes" ADD CONSTRAINT "votes_opinion_id_opinions_id_fk" FOREIGN KEY ("opinion_id") REFERENCES "public"."opinions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "idx_forum_consultations_user" ON "forum_consultations" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_consultations_client" ON "forum_consultations" USING btree ("client_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_consultations_conversation" ON "forum_consultations" USING btree ("conversation_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_consultations_created" ON "forum_consultations" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "idx_forum_consultations_urgency" ON "forum_consultations" USING btree ("urgency");--> statement-breakpoint
-CREATE INDEX "idx_forum_context_session" ON "forum_context_sources" USING btree ("session_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_deal_links_user" ON "forum_deal_links" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_deal_links_debate" ON "forum_deal_links" USING btree ("debate_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_deal_links_deal" ON "forum_deal_links" USING btree ("deal_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_deal_links_context" ON "forum_deal_links" USING btree ("context");--> statement-breakpoint
-CREATE INDEX "idx_forum_deal_recs_user" ON "forum_deal_recommendations" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_deal_recs_deal" ON "forum_deal_recommendations" USING btree ("deal_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_deal_recs_active" ON "forum_deal_recommendations" USING btree ("deal_id","is_active");--> statement-breakpoint
-CREATE INDEX "idx_forum_expert_feedback_user" ON "forum_expert_feedback" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_expert_feedback_debate" ON "forum_expert_feedback" USING btree ("debate_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_expert_feedback_expert" ON "forum_expert_feedback" USING btree ("expert_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_expert_feedback_rating" ON "forum_expert_feedback" USING btree ("rating");--> statement-breakpoint
-CREATE INDEX "idx_forum_expert_ratings_avg" ON "forum_expert_ratings" USING btree ("avg_rating");--> statement-breakpoint
-CREATE INDEX "idx_forum_messages_session" ON "forum_messages" USING btree ("session_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_messages_round" ON "forum_messages" USING btree ("session_id","round");--> statement-breakpoint
-CREATE INDEX "idx_forum_notifications_user" ON "forum_notifications" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_notifications_type" ON "forum_notifications" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "idx_forum_notifications_debate" ON "forum_notifications" USING btree ("debate_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_notifications_unread" ON "forum_notifications" USING btree ("user_id","is_read");--> statement-breakpoint
-CREATE INDEX "idx_forum_notifications_created" ON "forum_notifications" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "idx_forum_reports_user" ON "forum_reports" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_reports_type" ON "forum_reports" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "idx_forum_reports_status" ON "forum_reports" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "idx_forum_reports_created" ON "forum_reports" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "idx_forum_scheduled_reports_user" ON "forum_scheduled_reports" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_scheduled_reports_active" ON "forum_scheduled_reports" USING btree ("is_active");--> statement-breakpoint
-CREATE INDEX "idx_forum_scheduled_reports_next" ON "forum_scheduled_reports" USING btree ("next_run_at");--> statement-breakpoint
-CREATE INDEX "idx_forum_sessions_user" ON "forum_sessions" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_forum_sessions_status" ON "forum_sessions" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "idx_forum_sessions_created" ON "forum_sessions" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "idx_forum_translations_message" ON "forum_translations" USING btree ("message_id");
+CREATE INDEX "idx_quoorum_consultations_user" ON "quoorum_consultations" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_consultations_client" ON "quoorum_consultations" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_consultations_conversation" ON "quoorum_consultations" USING btree ("conversation_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_consultations_created" ON "quoorum_consultations" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_consultations_urgency" ON "quoorum_consultations" USING btree ("urgency");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_context_session" ON "quoorum_context_sources" USING btree ("session_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_deal_links_user" ON "quoorum_deal_links" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_deal_links_debate" ON "quoorum_deal_links" USING btree ("debate_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_deal_links_deal" ON "quoorum_deal_links" USING btree ("deal_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_deal_links_context" ON "quoorum_deal_links" USING btree ("context");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_deal_recs_user" ON "quoorum_deal_recommendations" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_deal_recs_deal" ON "quoorum_deal_recommendations" USING btree ("deal_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_deal_recs_active" ON "quoorum_deal_recommendations" USING btree ("deal_id","is_active");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_expert_feedback_user" ON "quoorum_expert_feedback" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_expert_feedback_debate" ON "quoorum_expert_feedback" USING btree ("debate_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_expert_feedback_expert" ON "quoorum_expert_feedback" USING btree ("expert_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_expert_feedback_rating" ON "quoorum_expert_feedback" USING btree ("rating");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_expert_ratings_avg" ON "quoorum_expert_ratings" USING btree ("avg_rating");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_messages_session" ON "quoorum_messages" USING btree ("session_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_messages_round" ON "quoorum_messages" USING btree ("session_id","round");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_notifications_user" ON "quoorum_notifications" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_notifications_type" ON "quoorum_notifications" USING btree ("type");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_notifications_debate" ON "quoorum_notifications" USING btree ("debate_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_notifications_unread" ON "quoorum_notifications" USING btree ("user_id","is_read");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_notifications_created" ON "quoorum_notifications" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_reports_user" ON "quoorum_reports" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_reports_type" ON "quoorum_reports" USING btree ("type");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_reports_status" ON "quoorum_reports" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_reports_created" ON "quoorum_reports" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_scheduled_reports_user" ON "quoorum_scheduled_reports" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_scheduled_reports_active" ON "quoorum_scheduled_reports" USING btree ("is_active");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_scheduled_reports_next" ON "quoorum_scheduled_reports" USING btree ("next_run_at");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_sessions_user" ON "quoorum_sessions" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_sessions_status" ON "quoorum_sessions" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_sessions_created" ON "quoorum_sessions" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "idx_quoorum_translations_message" ON "quoorum_translations" USING btree ("message_id");

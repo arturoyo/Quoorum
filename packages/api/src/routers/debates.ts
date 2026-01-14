@@ -10,8 +10,8 @@ import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
 import { router, protectedProcedure, expensiveRateLimitedProcedure } from "../trpc.js";
 import { db } from "@quoorum/db";
-import { forumDebates, profiles } from "@quoorum/db/schema";
-import { runDynamicDebate } from "@quoorum/forum";
+import { quoorumDebates, profiles } from "@quoorum/db/schema";
+import { runDynamicDebate } from "@quoorum/quoorum";
 import { logger } from "../lib/logger.js";
 import { inngest } from "../lib/inngest-client.js";
 
@@ -93,7 +93,7 @@ export const debatesRouter = router({
 
       // Create debate record
       const [debate] = await db
-        .insert(forumDebates)
+        .insert(quoorumDebates)
         .values({
           userId: ctx.user.id,
           question: input.question,
@@ -155,11 +155,11 @@ export const debatesRouter = router({
     .query(async ({ ctx, input }) => {
       const [debate] = await db
         .select()
-        .from(forumDebates)
+        .from(quoorumDebates)
         .where(
           and(
-            eq(forumDebates.id, input.id),
-            eq(forumDebates.userId, ctx.user.id)
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
           )
         );
 
@@ -186,17 +186,17 @@ export const debatesRouter = router({
     )
     .query(async ({ ctx, input }) => {
       // Build conditions array
-      const conditions = [eq(forumDebates.userId, ctx.user.id)];
+      const conditions = [eq(quoorumDebates.userId, ctx.user.id)];
 
       if (input.status) {
-        conditions.push(eq(forumDebates.status, input.status));
+        conditions.push(eq(quoorumDebates.status, input.status));
       }
 
       const debates = await db
         .select()
-        .from(forumDebates)
+        .from(quoorumDebates)
         .where(and(...conditions))
-        .orderBy(desc(forumDebates.createdAt))
+        .orderBy(desc(quoorumDebates.createdAt))
         .limit(input.limit)
         .offset(input.offset);
 
@@ -211,11 +211,11 @@ export const debatesRouter = router({
     .mutation(async ({ ctx, input }) => {
       const [debate] = await db
         .select()
-        .from(forumDebates)
+        .from(quoorumDebates)
         .where(
           and(
-            eq(forumDebates.id, input.id),
-            eq(forumDebates.userId, ctx.user.id)
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
           )
         );
 
@@ -234,7 +234,7 @@ export const debatesRouter = router({
       }
 
       await db
-        .update(forumDebates)
+        .update(quoorumDebates)
         .set({
           status: "cancelled",
           completedAt: new Date(),
@@ -242,8 +242,8 @@ export const debatesRouter = router({
         })
         .where(
           and(
-            eq(forumDebates.id, input.id),
-            eq(forumDebates.userId, ctx.user.id)
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
           )
         );
 
@@ -258,17 +258,17 @@ export const debatesRouter = router({
     .query(async ({ ctx, input }) => {
       const [debate] = await db
         .select({
-          id: forumDebates.id,
-          status: forumDebates.status,
-          totalRounds: forumDebates.totalRounds,
-          consensusScore: forumDebates.consensusScore,
-          updatedAt: forumDebates.updatedAt,
+          id: quoorumDebates.id,
+          status: quoorumDebates.status,
+          totalRounds: quoorumDebates.totalRounds,
+          consensusScore: quoorumDebates.consensusScore,
+          updatedAt: quoorumDebates.updatedAt,
         })
-        .from(forumDebates)
+        .from(quoorumDebates)
         .where(
           and(
-            eq(forumDebates.id, input.id),
-            eq(forumDebates.userId, ctx.user.id)
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
           )
         );
 
@@ -295,9 +295,9 @@ async function runDebateAsync(
   try {
     // Update status to in_progress
     await db
-      .update(forumDebates)
+      .update(quoorumDebates)
       .set({ status: "in_progress", startedAt: new Date(), updatedAt: new Date() })
-      .where(and(eq(forumDebates.id, debateId), eq(forumDebates.userId, userId)));
+      .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
 
     // Map context to LoadedContext format
     type ContextSourceType = "manual" | "internet" | "repo";
@@ -332,7 +332,7 @@ async function runDebateAsync(
 
     // Update debate with results
     await db
-      .update(forumDebates)
+      .update(quoorumDebates)
       .set({
         status: "completed",
         completedAt: new Date(),
@@ -346,7 +346,7 @@ async function runDebateAsync(
         qualityMetrics: result.qualityMetrics,
         interventions: result.interventions,
       })
-      .where(and(eq(forumDebates.id, debateId), eq(forumDebates.userId, userId)));
+      .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
   } catch (error) {
     logger.error(
       "Debate execution failed",
@@ -355,13 +355,13 @@ async function runDebateAsync(
     );
 
     await db
-      .update(forumDebates)
+      .update(quoorumDebates)
       .set({
         status: "failed",
         completedAt: new Date(),
         updatedAt: new Date(),
       })
-      .where(and(eq(forumDebates.id, debateId), eq(forumDebates.userId, userId)));
+      .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
   }
 }
 

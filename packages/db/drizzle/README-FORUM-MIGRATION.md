@@ -1,8 +1,8 @@
-# Forum Debates Migration Guide
+# Quoorum Debates Migration Guide
 
 ## Overview
 
-This migration adds the complete Forum Dynamic System to the database, including:
+This migration adds the complete Quoorum Dynamic System to the database, including:
 - Debate storage and history
 - Team collaboration (comments, reactions)
 - Custom experts
@@ -12,12 +12,12 @@ This migration adds the complete Forum Dynamic System to the database, including
 ## Tables Created
 
 ### Core Tables
-1. **forum_debates** - Main debate storage
-2. **forum_debate_comments** - Team collaboration comments
-3. **forum_debate_reactions** - User reactions (like, bookmark)
-4. **forum_custom_experts** - User-created custom experts
-5. **forum_expert_performance** - Expert performance tracking
-6. **forum_debate_embeddings** - Question embeddings for similarity
+1. **quoorum_debates** - Main debate storage
+2. **quoorum_debate_comments** - Team collaboration comments
+3. **quoorum_debate_reactions** - User reactions (like, bookmark)
+4. **quoorum_custom_experts** - User-created custom experts
+5. **quoorum_expert_performance** - Expert performance tracking
+6. **quoorum_debate_embeddings** - Question embeddings for similarity
 
 ### Enums Created
 - `debate_mode`: 'static', 'dynamic'
@@ -39,8 +39,8 @@ This migration adds the complete Forum Dynamic System to the database, including
   If pgvector is not installed, the embeddings table will still work but without vector similarity search. You can install pgvector later and add the index:
   
   ```sql
-  CREATE INDEX forum_debate_embeddings_embedding_idx 
-  ON forum_debate_embeddings 
+  CREATE INDEX quoorum_debate_embeddings_embedding_idx 
+  ON quoorum_debate_embeddings 
   USING ivfflat (embedding vector_cosine_ops) 
   WITH (lists = 100);
   ```
@@ -65,7 +65,7 @@ pnpm drizzle-kit migrate
 psql $DATABASE_URL
 
 # Run the migration
-\i packages/db/drizzle/0016_forum_debates.sql
+\i packages/db/drizzle/0016_quoorum_debates.sql
 ```
 
 ### Option 3: Using Drizzle Push (Development Only)
@@ -85,15 +85,15 @@ After running the migration, verify it worked:
 -- Check tables exist
 SELECT table_name 
 FROM information_schema.tables 
-WHERE table_name LIKE 'forum_%';
+WHERE table_name LIKE 'quoorum_%';
 
 -- Expected output:
--- forum_debates
--- forum_debate_comments
--- forum_debate_reactions
--- forum_custom_experts
--- forum_expert_performance
--- forum_debate_embeddings
+-- quoorum_debates
+-- quoorum_debate_comments
+-- quoorum_debate_reactions
+-- quoorum_custom_experts
+-- quoorum_expert_performance
+-- quoorum_debate_embeddings
 
 -- Check enums exist
 SELECT typname 
@@ -112,12 +112,12 @@ If you need to rollback this migration:
 
 ```sql
 -- Drop tables (in reverse order due to foreign keys)
-DROP TABLE IF EXISTS forum_debate_embeddings CASCADE;
-DROP TABLE IF EXISTS forum_expert_performance CASCADE;
-DROP TABLE IF EXISTS forum_custom_experts CASCADE;
-DROP TABLE IF EXISTS forum_debate_reactions CASCADE;
-DROP TABLE IF EXISTS forum_debate_comments CASCADE;
-DROP TABLE IF EXISTS forum_debates CASCADE;
+DROP TABLE IF EXISTS quoorum_debate_embeddings CASCADE;
+DROP TABLE IF EXISTS quoorum_expert_performance CASCADE;
+DROP TABLE IF EXISTS quoorum_custom_experts CASCADE;
+DROP TABLE IF EXISTS quoorum_debate_reactions CASCADE;
+DROP TABLE IF EXISTS quoorum_debate_comments CASCADE;
+DROP TABLE IF EXISTS quoorum_debates CASCADE;
 
 -- Drop enums
 DROP TYPE IF EXISTS debate_visibility;
@@ -154,23 +154,23 @@ If you have high query volume, consider adding:
 
 ```sql
 -- For analytics queries
-CREATE INDEX forum_debates_user_created_idx 
-ON forum_debates(user_id, created_at DESC);
+CREATE INDEX quoorum_debates_user_created_idx 
+ON quoorum_debates(user_id, created_at DESC);
 
 -- For quality filtering
-CREATE INDEX forum_debates_consensus_score_idx 
-ON forum_debates(consensus_score) 
+CREATE INDEX quoorum_debates_consensus_score_idx 
+ON quoorum_debates(consensus_score) 
 WHERE status = 'completed';
 
 -- For cost tracking
-CREATE INDEX forum_debates_cost_idx 
-ON forum_debates(total_cost_usd) 
+CREATE INDEX quoorum_debates_cost_idx 
+ON quoorum_debates(total_cost_usd) 
 WHERE status = 'completed';
 ```
 
 ## Integration with Application
 
-After migration, the Forum system will be fully functional:
+After migration, the Quoorum system will be fully functional:
 
 ### Backend (tRPC API)
 - All 18 endpoints will work
@@ -235,7 +235,7 @@ After successful migration:
 For issues or questions:
 - Check logs: `packages/api/logs/`
 - Review schema: `packages/db/src/schema/forum-debates.ts`
-- See API docs: `packages/forum/API_DOCUMENTATION.md`
+- See API docs: `packages/quoorum/API_DOCUMENTATION.md`
 
 ---
 

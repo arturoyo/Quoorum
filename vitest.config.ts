@@ -16,11 +16,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@forum/ai": path.resolve(__dirname, "./packages/ai/src"),
-      "@forum/api": path.resolve(__dirname, "./packages/api/src"),
-      "@forum/core": path.resolve(__dirname, "./packages/core/src"),
-      "@forum/db": path.resolve(__dirname, "./packages/db/src"),
-      "@forum/forum": path.resolve(__dirname, "./packages/forum/src"),
+      "@quoorum/ai": path.resolve(__dirname, "./packages/ai/src"),
+      "@quoorum/api": path.resolve(__dirname, "./packages/api/src"),
+      "@quoorum/core": path.resolve(__dirname, "./packages/core/src"),
+      "@quoorum/db": path.resolve(__dirname, "./packages/db/src"),
+      "@quoorum/quoorum": path.resolve(__dirname, "./packages/quoorum/src"),
     },
   },
 });

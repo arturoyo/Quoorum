@@ -1,6 +1,6 @@
 /**
  * Clients Schema (stub)
- * Client records for Forum system
+ * Client records for Quoorum system
  */
 import { pgTable, uuid, varchar, text, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
 

@@ -37,7 +37,7 @@
 ### Archivos Corregidos Recientemente
 
 1. `apps/web/src/app/settings/saved-replies/page.tsx` - Tipo en reduce
-2. `apps/web/src/app/(app)/forum/page.tsx` - Mode y context
+2. `apps/web/src/app/(app)/quoorum/page.tsx` - Mode y context
 3. `apps/web/src/app/admin/ab-testing.disabled/page.tsx` - @ts-nocheck
 4. `apps/web/src/app/admin/diagnostics/page.tsx` - Tipos de status
 5. `apps/web/src/app/admin/embedding-cache/page.tsx` - Callbacks async

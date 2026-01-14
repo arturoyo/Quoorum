@@ -35,7 +35,7 @@ import {
   ArrowRight,
   Target,
 } from "lucide-react";
-import { ContextReadiness } from "@/components/forum/context-readiness";
+import { ContextReadiness } from "@/components/quoorum/context-readiness";
 import type { ContextAssessment, ContextAnswers } from "@/lib/context-assessment/types";
 
 const EXAMPLE_QUESTIONS = [

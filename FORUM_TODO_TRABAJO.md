@@ -137,7 +137,7 @@ console.log('Result:', result)
 ### Phase 4: Frontend (1 día)
 
 #### 4.1 Debate Viewer
-- [ ] Abrir `apps/web/src/components/forum/debate-viewer.tsx`
+- [ ] Abrir `apps/web/src/components/quoorum/debate-viewer.tsx`
 - [ ] Verificar que renderiza sin errores
 - [ ] Conectar con API real (no mocks)
 - [ ] Testear con debate real

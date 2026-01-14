@@ -1,4 +1,4 @@
-# 🎉 Forum Dynamic System - Reporte Final 100%
+# 🎉 Quoorum Dynamic System - Reporte Final 100%
 
 **Fecha:** 2025-01-01  
 **Branch:** `feature/forum-dynamic-system`  
@@ -98,12 +98,12 @@ El **Sistema Dinámico de Forum** ha sido completado al **100%** y está listo p
 
 #### Database Schema
 - ✅ **6 tablas** creadas:
-  - `forum_debates`: Debates principales
-  - `forum_debate_comments`: Comentarios de equipo
-  - `forum_debate_reactions`: Reacciones de usuarios
-  - `forum_custom_experts`: Expertos personalizados
-  - `forum_expert_performance`: Performance tracking
-  - `forum_debate_embeddings`: Embeddings para similarity
+  - `quoorum_debates`: Debates principales
+  - `quoorum_debate_comments`: Comentarios de equipo
+  - `quoorum_debate_reactions`: Reacciones de usuarios
+  - `quoorum_custom_experts`: Expertos personalizados
+  - `quoorum_expert_performance`: Performance tracking
+  - `quoorum_debate_embeddings`: Embeddings para similarity
 
 #### Migraciones
 - ✅ **Migration 0016**: SQL completo para todas las tablas
@@ -182,7 +182,7 @@ El **Sistema Dinámico de Forum** ha sido completado al **100%** y está listo p
 
 ### Backend
 ```
-packages/forum/src/
+packages/quoorum/src/
 ├── index.ts                    # Entry point
 ├── types.ts                    # Type definitions
 ├── expert-database.ts          # 25 expertos
@@ -204,11 +204,11 @@ packages/forum/src/
 ### Frontend
 ```
 apps/web/src/
-├── components/forum/
+├── components/quoorum/
 │   ├── debate-viewer.tsx       # Main debate UI
 │   ├── analytics-dashboard.tsx # Analytics
 │   └── custom-experts.tsx      # Custom experts CRUD
-└── app/(app)/forum/
+└── app/(app)/quoorum/
     └── page.tsx                # Forum page
 ```
 

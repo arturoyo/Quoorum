@@ -40,7 +40,7 @@
 
 **Archivos afectados:**
 
-- `packages/forum/src/agents.ts` (revertido a DeepSeek)
+- `packages/quoorum/src/agents.ts` (revertido a DeepSeek)
 
 **Resultado:** ✅ Éxito
 
@@ -133,7 +133,7 @@
 
 **Archivos afectados:**
 
-- `packages/forum/src/agents.ts` (cambio de provider)
+- `packages/quoorum/src/agents.ts` (cambio de provider)
 - `.env.example` (agregado DEEPSEEK_API_KEY, correcciones branding)
 
 **Resultado:** ✅ Éxito
@@ -560,7 +560,7 @@
 
 **Archivos afectados:**
 
-- docs/forum/FORUM_HONEST_REVIEW.md (nuevo)
+- docs/quoorum/FORUM_HONEST_REVIEW.md (nuevo)
 
 **Resultado:** ✅ Éxito
 **Notas:** Sin conflictos, merge limpio
@@ -578,29 +578,29 @@
    - apps/web/src/app/dashboard/page.tsx
    - packages/api/src/routers/forum.ts
 3. Resolución con `git checkout --theirs`:
-   - dashboard/page.tsx: Aceptadas modificaciones del Forum system
-   - forum.ts: Aceptado router completo del Forum system
+   - dashboard/page.tsx: Aceptadas modificaciones del Quoorum system
+   - forum.ts: Aceptado router completo del Quoorum system
 4. `git add` de archivos resueltos
 5. `git commit --no-verify` con mensaje detallado
 
 **Archivos afectados (116 archivos modificados):**
 
-- apps/web/src/app/(app)/forum/: Páginas del forum
-- apps/web/src/components/forum/: 7 componentes UI nuevos
+- apps/web/src/app/(app)/quoorum/: Páginas del forum
+- apps/web/src/components/quoorum/: 7 componentes UI nuevos
 - apps/web/src/components/dashboard/forum-insights-widget.tsx (nuevo)
 - packages/ai/src/forum-advisor/: Sistema advisor con IA
 - packages/api/src/routers/: 6 routers nuevos (deals, feedback, insights, notifications, public-api, reports)
 - packages/db/src/schema/: 7 schemas nuevos (api, consultations, deals, debates, feedback, notifications, reports)
-- packages/forum/src/orchestration/: 25 archivos del motor de debates
-- packages/forum/test-\*.ts: 11 archivos de test
+- packages/quoorum/src/orchestration/: 25 archivos del motor de debates
+- packages/quoorum/test-\*.ts: 11 archivos de test
 - packages/whatsapp/src/commands.ts (nuevo)
 - packages/workers/src/functions/forum-workers.ts (nuevo)
-- docs/forum/: 13 archivos de documentación
+- docs/quoorum/: 13 archivos de documentación
 
 **Resultado:** ✅ Éxito
 **Notas:**
 
-- Conflictos resueltos aceptando la versión completa del Forum system
+- Conflictos resueltos aceptando la versión completa del Quoorum system
 - Sistema Forum ahora completamente integrado con:
   - AI debate orchestration engine
   - Multi-provider support (OpenAI, Anthropic, Gemini, Groq)
@@ -621,7 +621,7 @@
 
 **Archivos afectados:** Ninguno (solo push)
 **Resultado:** ✅ Éxito
-**Notas:** Develop actualizado en remoto con Forum system completo
+**Notas:** Develop actualizado en remoto con Quoorum system completo
 
 ---
 
@@ -700,7 +700,7 @@
 
 - Deployments en Vercel fallaban inmediatamente (9s-13s duración, 0ms build time)
 - Causa raíz: Archivo `next.config.mjs` duplicado causaba conflicto con `next.config.js`
-- Causa secundaria: `pnpm-lock.yaml` desactualizado con `packages/forum/package.json` (ERR_PNPM_OUTDATED_LOCKFILE)
+- Causa secundaria: `pnpm-lock.yaml` desactualizado con `packages/quoorum/package.json` (ERR_PNPM_OUTDATED_LOCKFILE)
 
 **Acciones realizadas:**
 
@@ -722,7 +722,7 @@
 
 3. **Fix 2: Actualización pnpm-lock.yaml:**
    - Error detectado: `ERR_PNPM_OUTDATED_LOCKFILE`
-   - Lockfile desincronizado con packages/forum/package.json
+   - Lockfile desincronizado con packages/quoorum/package.json
    - Faltaban dependencias: @pinecone-database/pinecone, openai, redis, component-emitter
    - Ejecutado `pnpm install` para regenerar lockfile
    - Añadido override: `emitter: npm:component-emitter@^2.0.0`
@@ -770,7 +770,7 @@ _Última actualización: 2026-01-03 19:15 UTC_
   - Generado reporte final `AUDITORIA_TECNICA_FINAL.md`.
 - **Fixes de Build (TypeScript/Lint):**
   - `packages/api/src/routers/wizard.ts`: Corregido error TS4111 (Index signature) usando cast a `any` controlado para el objeto de actualización dinámico, manteniendo validación Zod.
-  - `apps/web/src/components/forum/websocket-provider.tsx`: Reemplazado `console.log` por `captureMessage` para cumplir reglas de linter.
+  - `apps/web/src/components/quoorum/websocket-provider.tsx`: Reemplazado `console.log` por `captureMessage` para cumplir reglas de linter.
   - `packages/api/src/trpc.ts`: Eliminados imports no utilizados.
 - **Gestión de Código:**
   - Ejecutado `pnpm typecheck` con éxito.
@@ -779,7 +779,7 @@ _Última actualización: 2026-01-03 19:15 UTC_
 **Archivos afectados:**
 
 - `packages/api/src/routers/wizard.ts`
-- `apps/web/src/components/forum/websocket-provider.tsx`
+- `apps/web/src/components/quoorum/websocket-provider.tsx`
 - `packages/api/src/trpc.ts`
 - `AUDITORIA_TECNICA_FINAL.md`
 
@@ -1155,7 +1155,7 @@ _Última actualización: 2026-01-07 15:15 UTC_
 - /apps/web/src/lib/context-assessment/types.ts
 - /apps/web/src/lib/context-assessment/analyzer.ts
 - /apps/web/src/lib/context-assessment/index.ts
-- /apps/web/src/components/forum/context-readiness.tsx
+- /apps/web/src/components/quoorum/context-readiness.tsx
 - /apps/web/src/components/ui/collapsible.tsx
 - /packages/api/src/routers/context-assessment.ts
 

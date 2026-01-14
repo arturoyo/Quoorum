@@ -206,7 +206,7 @@ pnpm clean-logs
 ```
 apps/web/src/app/admin/ab-testing.disabled/page.tsx  # @ts-nocheck
 apps/web/src/app/admin/forum.disabled/page.tsx        # @ts-nocheck
-apps/web/src/app/(app)/forum/experts/page.tsx         # CustomExpert no usado
+apps/web/src/app/(app)/quoorum/experts/page.tsx         # CustomExpert no usado
 ```
 
 **Acción:**

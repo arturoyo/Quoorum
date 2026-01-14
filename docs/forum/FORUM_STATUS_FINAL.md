@@ -1,4 +1,4 @@
-# 🎯 Forum Dynamic System - Estado Final Real
+# 🎯 Quoorum Dynamic System - Estado Final Real
 
 ## Resumen Ejecutivo
 

@@ -90,7 +90,7 @@ NODE_ENV="development"
 │                      packages/api/                           │
 ├─────────────────────────────────────────────────────────────┤
 │                   QUOORUM ENGINE                             │
-│                    packages/forum/                           │
+│                    packages/quoorum/                           │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │  25+ Expertos Especializados (Selección Dinámica)    │   │
 │  │  Strategy | Finance | Tech | Ethics | Legal | etc.   │   │
@@ -108,14 +108,14 @@ NODE_ENV="development"
 
 ### Packages del Monorepo
 
-| Paquete          | Propósito                                    | Dependencias Clave       |
-| ---------------- | -------------------------------------------- | ------------------------ |
-| `@forum/forum`   | Motor de debates multi-agente                | OpenAI, Pinecone, Redis  |
-| `@forum/api`     | tRPC routers para la API                     | tRPC, Zod                |
-| `@forum/db`      | Schemas y cliente de base de datos           | Drizzle ORM, PostgreSQL  |
-| `@forum/ai`      | Providers de IA (OpenAI, Anthropic, etc.)    | OpenAI, Anthropic, Groq  |
-| `@forum/core`    | Utilidades compartidas                       | TypeScript               |
-| `@forum/ui`      | Componentes UI compartidos                   | React, Tailwind          |
+| Paquete              | Propósito                                    | Dependencias Clave       |
+| -------------------- | -------------------------------------------- | ------------------------ |
+| `@quoorum/quoorum`   | Motor de debates multi-agente                | OpenAI, Pinecone, Redis  |
+| `@quoorum/api`       | tRPC routers para la API                     | tRPC, Zod                |
+| `@quoorum/db`        | Schemas y cliente de base de datos           | Drizzle ORM, PostgreSQL  |
+| `@quoorum/ai`        | Providers de IA (OpenAI, Anthropic, etc.)    | OpenAI, Anthropic, Groq  |
+| `@quoorum/core`      | Utilidades compartidas                       | TypeScript               |
+| `@quoorum/ui`        | Componentes UI compartidos                   | React, Tailwind          |
 
 ### Estructura de Carpetas
 
@@ -128,7 +128,7 @@ quoorum/
 │       └── src/lib/          # Utilidades cliente
 │
 ├── packages/
-│   ├── forum/                # Motor de debates
+│   ├── quoorum/              # Motor de debates
 │   │   ├── src/
 │   │   │   ├── runner.ts     # Orquestador de debates
 │   │   │   ├── consensus.ts  # Algoritmo de consenso
@@ -165,7 +165,7 @@ quoorum/
 ### Ejecutar un Debate Programáticamente
 
 ```typescript
-import { runDebate } from '@forum/forum';
+import { runDebate } from '@quoorum/quoorum';
 
 const result = await runDebate({
   sessionId: 'session-123',
@@ -190,7 +190,7 @@ console.log(result.qualityMetrics);  // Métricas de calidad del debate
 ### Buscar Debates Similares
 
 ```typescript
-import { searchSimilarDebates } from '@forum/forum/question-similarity';
+import { searchSimilarDebates } from '@quoorum/quoorum/question-similarity';
 
 const similar = await searchSimilarDebates('¿Deberíamos expandir?', {
   topK: 5,
@@ -203,7 +203,7 @@ const similar = await searchSimilarDebates('¿Deberíamos expandir?', {
 ### Exportar Debate a PDF
 
 ```typescript
-import { exportDebateToPDF } from '@forum/forum/pdf-export';
+import { exportDebateToPDF } from '@quoorum/quoorum/pdf-export';
 
 const pdfBuffer = await exportDebateToPDF(result);
 // Guardar o enviar el PDF
@@ -306,10 +306,10 @@ pnpm db:studio        # Abrir Drizzle Studio
 
 ```bash
 # Ejecutar demo interactiva
-pnpm --filter @forum/forum demo
+pnpm --filter @quoorum/quoorum demo
 
 # Ejecutar debate desde CLI
-pnpm --filter @forum/forum cli "¿Deberíamos invertir en Bitcoin?"
+pnpm --filter @quoorum/quoorum cli "¿Deberíamos invertir en Bitcoin?"
 ```
 
 ---
@@ -324,8 +324,8 @@ pnpm test
 pnpm test:coverage
 
 # Tests de un paquete específico
-pnpm --filter @forum/forum test
-pnpm --filter @forum/api test
+pnpm --filter @quoorum/quoorum test
+pnpm --filter @quoorum/api test
 ```
 
 ### Cobertura de Tests

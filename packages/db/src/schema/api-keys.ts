@@ -14,7 +14,7 @@ export const apiKeys = pgTable('api_keys', {
   // Key info
   name: varchar('name', { length: 100 }).notNull(),
   keyHash: varchar('key_hash', { length: 255 }).notNull(), // Hash SHA-256 de la key
-  prefix: varchar('prefix', { length: 20 }).notNull(), // forum_live_abc... (primeros 20 chars para mostrar)
+  prefix: varchar('prefix', { length: 20 }).notNull(), // quoorum_live_abc... (primeros 20 chars para mostrar)
 
   // Usage tracking
   lastUsedAt: timestamp('last_used_at', { withTimezone: true }),

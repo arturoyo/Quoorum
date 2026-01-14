@@ -228,7 +228,7 @@ d26c386 - feat(forum): implement roadmap features
 
 ### Módulos Principales
 ```
-packages/forum/src/
+packages/quoorum/src/
 ├── analytics/          # 7 módulos (< 120 líneas cada uno)
 ├── integrations/       # 4 integraciones
 ├── types.ts           # Tipos completos
@@ -257,7 +257,7 @@ packages/forum/src/
 ### Frontend
 ```
 apps/web/src/
-├── components/forum/
+├── components/quoorum/
 │   ├── debate-viewer.tsx
 │   ├── analytics-dashboard.tsx
 │   ├── loading-states.tsx
@@ -267,7 +267,7 @@ apps/web/src/
 │   └── admin-dashboard.tsx
 ├── hooks/
 │   └── use-forum.ts
-└── app/(app)/forum/
+└── app/(app)/quoorum/
     └── page.tsx
 ```
 

@@ -230,9 +230,9 @@ importers:
       '@quoorum/db':
         specifier: workspace:*
         version: link:../db
-      '@quoorum/forum':
+      '@quoorum/quoorum':
         specifier: workspace:*
-        version: link:../forum
+        version: link:../quoorum
       '@trpc/server':
         specifier: ^10.45.0
         version: 10.45.4
@@ -303,7 +303,7 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
-  packages/forum:
+  packages/quoorum:
     dependencies:
       '@quoorum/ai':
         specifier: workspace:*
@@ -5475,7 +5475,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.3.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -6353,7 +6353,7 @@ snapshots:
   https-proxy-agent@5.0.0:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
     optional: true

@@ -19,7 +19,7 @@
     "@quoorum/ai": "workspace:*",
     "@quoorum/core": "workspace:*",
     "@quoorum/db": "workspace:*",
-    "@quoorum/forum": "workspace:*",
+    "@quoorum/quoorum": "workspace:*",
     "@trpc/server": "^10.45.0",
     "drizzle-orm": "^0.38.0",
     "superjson": "^2.2.0",

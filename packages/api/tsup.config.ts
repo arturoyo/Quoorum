@@ -6,5 +6,5 @@ export default defineConfig({
   dts: true,
   clean: true,
   sourcemap: true,
-  external: ["@quoorum/ai", "@quoorum/core", "@quoorum/db", "@quoorum/forum", "drizzle-orm"],
+  external: ["@quoorum/ai", "@quoorum/core", "@quoorum/db", "@quoorum/quoorum", "drizzle-orm"],
 });

@@ -1018,8 +1018,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_api_keys": {
-      "name": "forum_api_keys",
+    "public.quoorum_api_keys": {
+      "name": "quoorum_api_keys",
       "schema": "",
       "columns": {
         "id": {
@@ -1115,9 +1115,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_api_keys_user_id_profiles_id_fk": {
-          "name": "forum_api_keys_user_id_profiles_id_fk",
-          "tableFrom": "forum_api_keys",
+        "quoorum_api_keys_user_id_profiles_id_fk": {
+          "name": "quoorum_api_keys_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_api_keys",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -1135,8 +1135,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_consultations": {
-      "name": "forum_consultations",
+    "public.quoorum_consultations": {
+      "name": "quoorum_consultations",
       "schema": "",
       "columns": {
         "id": {
@@ -1292,8 +1292,8 @@
         }
       },
       "indexes": {
-        "idx_forum_consultations_user": {
-          "name": "idx_forum_consultations_user",
+        "idx_quoorum_consultations_user": {
+          "name": "idx_quoorum_consultations_user",
           "columns": [
             {
               "expression": "user_id",
@@ -1307,8 +1307,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_consultations_client": {
-          "name": "idx_forum_consultations_client",
+        "idx_quoorum_consultations_client": {
+          "name": "idx_quoorum_consultations_client",
           "columns": [
             {
               "expression": "client_id",
@@ -1322,8 +1322,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_consultations_conversation": {
-          "name": "idx_forum_consultations_conversation",
+        "idx_quoorum_consultations_conversation": {
+          "name": "idx_quoorum_consultations_conversation",
           "columns": [
             {
               "expression": "conversation_id",
@@ -1337,8 +1337,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_consultations_created": {
-          "name": "idx_forum_consultations_created",
+        "idx_quoorum_consultations_created": {
+          "name": "idx_quoorum_consultations_created",
           "columns": [
             {
               "expression": "created_at",
@@ -1352,8 +1352,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_consultations_urgency": {
-          "name": "idx_forum_consultations_urgency",
+        "idx_quoorum_consultations_urgency": {
+          "name": "idx_quoorum_consultations_urgency",
           "columns": [
             {
               "expression": "urgency",
@@ -1369,9 +1369,9 @@
         }
       },
       "foreignKeys": {
-        "forum_consultations_user_id_profiles_id_fk": {
-          "name": "forum_consultations_user_id_profiles_id_fk",
-          "tableFrom": "forum_consultations",
+        "quoorum_consultations_user_id_profiles_id_fk": {
+          "name": "quoorum_consultations_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_consultations",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -1382,9 +1382,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_consultations_client_id_clients_id_fk": {
-          "name": "forum_consultations_client_id_clients_id_fk",
-          "tableFrom": "forum_consultations",
+        "quoorum_consultations_client_id_clients_id_fk": {
+          "name": "quoorum_consultations_client_id_clients_id_fk",
+          "tableFrom": "quoorum_consultations",
           "tableTo": "clients",
           "columnsFrom": [
             "client_id"
@@ -1395,9 +1395,9 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "forum_consultations_conversation_id_conversations_id_fk": {
-          "name": "forum_consultations_conversation_id_conversations_id_fk",
-          "tableFrom": "forum_consultations",
+        "quoorum_consultations_conversation_id_conversations_id_fk": {
+          "name": "quoorum_consultations_conversation_id_conversations_id_fk",
+          "tableFrom": "quoorum_consultations",
           "tableTo": "conversations",
           "columnsFrom": [
             "conversation_id"
@@ -1415,8 +1415,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_context_sources": {
-      "name": "forum_context_sources",
+    "public.quoorum_context_sources": {
+      "name": "quoorum_context_sources",
       "schema": "",
       "columns": {
         "id": {
@@ -1459,8 +1459,8 @@
         }
       },
       "indexes": {
-        "idx_forum_context_session": {
-          "name": "idx_forum_context_session",
+        "idx_quoorum_context_session": {
+          "name": "idx_quoorum_context_session",
           "columns": [
             {
               "expression": "session_id",
@@ -1476,10 +1476,10 @@
         }
       },
       "foreignKeys": {
-        "forum_context_sources_session_id_forum_sessions_id_fk": {
-          "name": "forum_context_sources_session_id_forum_sessions_id_fk",
-          "tableFrom": "forum_context_sources",
-          "tableTo": "forum_sessions",
+        "quoorum_context_sources_session_id_quoorum_sessions_id_fk": {
+          "name": "quoorum_context_sources_session_id_quoorum_sessions_id_fk",
+          "tableFrom": "quoorum_context_sources",
+          "tableTo": "quoorum_sessions",
           "columnsFrom": [
             "session_id"
           ],
@@ -1496,8 +1496,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_custom_experts": {
-      "name": "forum_custom_experts",
+    "public.quoorum_custom_experts": {
+      "name": "quoorum_custom_experts",
       "schema": "",
       "columns": {
         "id": {
@@ -1580,9 +1580,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_custom_experts_user_id_profiles_id_fk": {
-          "name": "forum_custom_experts_user_id_profiles_id_fk",
-          "tableFrom": "forum_custom_experts",
+        "quoorum_custom_experts_user_id_profiles_id_fk": {
+          "name": "quoorum_custom_experts_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_custom_experts",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -1600,8 +1600,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_deal_links": {
-      "name": "forum_deal_links",
+    "public.quoorum_deal_links": {
+      "name": "quoorum_deal_links",
       "schema": "",
       "columns": {
         "id": {
@@ -1685,8 +1685,8 @@
         }
       },
       "indexes": {
-        "idx_forum_deal_links_user": {
-          "name": "idx_forum_deal_links_user",
+        "idx_quoorum_deal_links_user": {
+          "name": "idx_quoorum_deal_links_user",
           "columns": [
             {
               "expression": "user_id",
@@ -1700,8 +1700,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_deal_links_debate": {
-          "name": "idx_forum_deal_links_debate",
+        "idx_quoorum_deal_links_debate": {
+          "name": "idx_quoorum_deal_links_debate",
           "columns": [
             {
               "expression": "debate_id",
@@ -1715,8 +1715,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_deal_links_deal": {
-          "name": "idx_forum_deal_links_deal",
+        "idx_quoorum_deal_links_deal": {
+          "name": "idx_quoorum_deal_links_deal",
           "columns": [
             {
               "expression": "deal_id",
@@ -1730,8 +1730,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_deal_links_context": {
-          "name": "idx_forum_deal_links_context",
+        "idx_quoorum_deal_links_context": {
+          "name": "idx_quoorum_deal_links_context",
           "columns": [
             {
               "expression": "context",
@@ -1747,9 +1747,9 @@
         }
       },
       "foreignKeys": {
-        "forum_deal_links_user_id_profiles_id_fk": {
-          "name": "forum_deal_links_user_id_profiles_id_fk",
-          "tableFrom": "forum_deal_links",
+        "quoorum_deal_links_user_id_profiles_id_fk": {
+          "name": "quoorum_deal_links_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_deal_links",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -1760,10 +1760,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_deal_links_debate_id_forum_debates_id_fk": {
-          "name": "forum_deal_links_debate_id_forum_debates_id_fk",
-          "tableFrom": "forum_deal_links",
-          "tableTo": "forum_debates",
+        "quoorum_deal_links_debate_id_quoorum_debates_id_fk": {
+          "name": "quoorum_deal_links_debate_id_quoorum_debates_id_fk",
+          "tableFrom": "quoorum_deal_links",
+          "tableTo": "quoorum_debates",
           "columnsFrom": [
             "debate_id"
           ],
@@ -1773,9 +1773,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_deal_links_deal_id_deals_id_fk": {
-          "name": "forum_deal_links_deal_id_deals_id_fk",
-          "tableFrom": "forum_deal_links",
+        "quoorum_deal_links_deal_id_deals_id_fk": {
+          "name": "quoorum_deal_links_deal_id_deals_id_fk",
+          "tableFrom": "quoorum_deal_links",
           "tableTo": "deals",
           "columnsFrom": [
             "deal_id"
@@ -1793,8 +1793,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_deal_recommendations": {
-      "name": "forum_deal_recommendations",
+    "public.quoorum_deal_recommendations": {
+      "name": "quoorum_deal_recommendations",
       "schema": "",
       "columns": {
         "id": {
@@ -1880,8 +1880,8 @@
         }
       },
       "indexes": {
-        "idx_forum_deal_recs_user": {
-          "name": "idx_forum_deal_recs_user",
+        "idx_quoorum_deal_recs_user": {
+          "name": "idx_quoorum_deal_recs_user",
           "columns": [
             {
               "expression": "user_id",
@@ -1895,8 +1895,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_deal_recs_deal": {
-          "name": "idx_forum_deal_recs_deal",
+        "idx_quoorum_deal_recs_deal": {
+          "name": "idx_quoorum_deal_recs_deal",
           "columns": [
             {
               "expression": "deal_id",
@@ -1910,8 +1910,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_deal_recs_active": {
-          "name": "idx_forum_deal_recs_active",
+        "idx_quoorum_deal_recs_active": {
+          "name": "idx_quoorum_deal_recs_active",
           "columns": [
             {
               "expression": "deal_id",
@@ -1933,9 +1933,9 @@
         }
       },
       "foreignKeys": {
-        "forum_deal_recommendations_user_id_profiles_id_fk": {
-          "name": "forum_deal_recommendations_user_id_profiles_id_fk",
-          "tableFrom": "forum_deal_recommendations",
+        "quoorum_deal_recommendations_user_id_profiles_id_fk": {
+          "name": "quoorum_deal_recommendations_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_deal_recommendations",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -1946,9 +1946,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_deal_recommendations_deal_id_deals_id_fk": {
-          "name": "forum_deal_recommendations_deal_id_deals_id_fk",
-          "tableFrom": "forum_deal_recommendations",
+        "quoorum_deal_recommendations_deal_id_deals_id_fk": {
+          "name": "quoorum_deal_recommendations_deal_id_deals_id_fk",
+          "tableFrom": "quoorum_deal_recommendations",
           "tableTo": "deals",
           "columnsFrom": [
             "deal_id"
@@ -1966,8 +1966,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_debate_comments": {
-      "name": "forum_debate_comments",
+    "public.quoorum_debate_comments": {
+      "name": "quoorum_debate_comments",
       "schema": "",
       "columns": {
         "id": {
@@ -2018,10 +2018,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_debate_comments_debate_id_forum_debates_id_fk": {
-          "name": "forum_debate_comments_debate_id_forum_debates_id_fk",
-          "tableFrom": "forum_debate_comments",
-          "tableTo": "forum_debates",
+        "quoorum_debate_comments_debate_id_quoorum_debates_id_fk": {
+          "name": "quoorum_debate_comments_debate_id_quoorum_debates_id_fk",
+          "tableFrom": "quoorum_debate_comments",
+          "tableTo": "quoorum_debates",
           "columnsFrom": [
             "debate_id"
           ],
@@ -2031,9 +2031,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_debate_comments_user_id_profiles_id_fk": {
-          "name": "forum_debate_comments_user_id_profiles_id_fk",
-          "tableFrom": "forum_debate_comments",
+        "quoorum_debate_comments_user_id_profiles_id_fk": {
+          "name": "quoorum_debate_comments_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_debate_comments",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -2044,10 +2044,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_debate_comments_parent_id_forum_debate_comments_id_fk": {
-          "name": "forum_debate_comments_parent_id_forum_debate_comments_id_fk",
-          "tableFrom": "forum_debate_comments",
-          "tableTo": "forum_debate_comments",
+        "quoorum_debate_comments_parent_id_quoorum_debate_comments_id_fk": {
+          "name": "quoorum_debate_comments_parent_id_quoorum_debate_comments_id_fk",
+          "tableFrom": "quoorum_debate_comments",
+          "tableTo": "quoorum_debate_comments",
           "columnsFrom": [
             "parent_id"
           ],
@@ -2064,8 +2064,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_debate_likes": {
-      "name": "forum_debate_likes",
+    "public.quoorum_debate_likes": {
+      "name": "quoorum_debate_likes",
       "schema": "",
       "columns": {
         "id": {
@@ -2097,10 +2097,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_debate_likes_debate_id_forum_debates_id_fk": {
-          "name": "forum_debate_likes_debate_id_forum_debates_id_fk",
-          "tableFrom": "forum_debate_likes",
-          "tableTo": "forum_debates",
+        "quoorum_debate_likes_debate_id_quoorum_debates_id_fk": {
+          "name": "quoorum_debate_likes_debate_id_quoorum_debates_id_fk",
+          "tableFrom": "quoorum_debate_likes",
+          "tableTo": "quoorum_debates",
           "columnsFrom": [
             "debate_id"
           ],
@@ -2110,9 +2110,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_debate_likes_user_id_profiles_id_fk": {
-          "name": "forum_debate_likes_user_id_profiles_id_fk",
-          "tableFrom": "forum_debate_likes",
+        "quoorum_debate_likes_user_id_profiles_id_fk": {
+          "name": "quoorum_debate_likes_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_debate_likes",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -2130,8 +2130,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_debate_templates": {
-      "name": "forum_debate_templates",
+    "public.quoorum_debate_templates": {
+      "name": "quoorum_debate_templates",
       "schema": "",
       "columns": {
         "id": {
@@ -2220,9 +2220,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_debate_templates_created_by_profiles_id_fk": {
-          "name": "forum_debate_templates_created_by_profiles_id_fk",
-          "tableFrom": "forum_debate_templates",
+        "quoorum_debate_templates_created_by_profiles_id_fk": {
+          "name": "quoorum_debate_templates_created_by_profiles_id_fk",
+          "tableFrom": "quoorum_debate_templates",
           "tableTo": "profiles",
           "columnsFrom": [
             "created_by"
@@ -2240,8 +2240,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_debates": {
-      "name": "forum_debates",
+    "public.quoorum_debates": {
+      "name": "quoorum_debates",
       "schema": "",
       "columns": {
         "id": {
@@ -2409,9 +2409,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_debates_user_id_profiles_id_fk": {
-          "name": "forum_debates_user_id_profiles_id_fk",
-          "tableFrom": "forum_debates",
+        "quoorum_debates_user_id_profiles_id_fk": {
+          "name": "quoorum_debates_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_debates",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -2429,8 +2429,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_expert_feedback": {
-      "name": "forum_expert_feedback",
+    "public.quoorum_expert_feedback": {
+      "name": "quoorum_expert_feedback",
       "schema": "",
       "columns": {
         "id": {
@@ -2536,8 +2536,8 @@
         }
       },
       "indexes": {
-        "idx_forum_expert_feedback_user": {
-          "name": "idx_forum_expert_feedback_user",
+        "idx_quoorum_expert_feedback_user": {
+          "name": "idx_quoorum_expert_feedback_user",
           "columns": [
             {
               "expression": "user_id",
@@ -2551,8 +2551,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_expert_feedback_debate": {
-          "name": "idx_forum_expert_feedback_debate",
+        "idx_quoorum_expert_feedback_debate": {
+          "name": "idx_quoorum_expert_feedback_debate",
           "columns": [
             {
               "expression": "debate_id",
@@ -2566,8 +2566,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_expert_feedback_expert": {
-          "name": "idx_forum_expert_feedback_expert",
+        "idx_quoorum_expert_feedback_expert": {
+          "name": "idx_quoorum_expert_feedback_expert",
           "columns": [
             {
               "expression": "expert_id",
@@ -2581,8 +2581,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_expert_feedback_rating": {
-          "name": "idx_forum_expert_feedback_rating",
+        "idx_quoorum_expert_feedback_rating": {
+          "name": "idx_quoorum_expert_feedback_rating",
           "columns": [
             {
               "expression": "rating",
@@ -2598,9 +2598,9 @@
         }
       },
       "foreignKeys": {
-        "forum_expert_feedback_user_id_profiles_id_fk": {
-          "name": "forum_expert_feedback_user_id_profiles_id_fk",
-          "tableFrom": "forum_expert_feedback",
+        "quoorum_expert_feedback_user_id_profiles_id_fk": {
+          "name": "quoorum_expert_feedback_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_expert_feedback",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -2611,10 +2611,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_expert_feedback_debate_id_forum_debates_id_fk": {
-          "name": "forum_expert_feedback_debate_id_forum_debates_id_fk",
-          "tableFrom": "forum_expert_feedback",
-          "tableTo": "forum_debates",
+        "quoorum_expert_feedback_debate_id_quoorum_debates_id_fk": {
+          "name": "quoorum_expert_feedback_debate_id_quoorum_debates_id_fk",
+          "tableFrom": "quoorum_expert_feedback",
+          "tableTo": "quoorum_debates",
           "columnsFrom": [
             "debate_id"
           ],
@@ -2631,8 +2631,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_expert_performance": {
-      "name": "forum_expert_performance",
+    "public.quoorum_expert_performance": {
+      "name": "quoorum_expert_performance",
       "schema": "",
       "columns": {
         "id": {
@@ -2702,8 +2702,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_expert_ratings": {
-      "name": "forum_expert_ratings",
+    "public.quoorum_expert_ratings": {
+      "name": "quoorum_expert_ratings",
       "schema": "",
       "columns": {
         "id": {
@@ -2800,8 +2800,8 @@
         }
       },
       "indexes": {
-        "idx_forum_expert_ratings_avg": {
-          "name": "idx_forum_expert_ratings_avg",
+        "idx_quoorum_expert_ratings_avg": {
+          "name": "idx_quoorum_expert_ratings_avg",
           "columns": [
             {
               "expression": "avg_rating",
@@ -2819,8 +2819,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "forum_expert_ratings_expert_id_unique": {
-          "name": "forum_expert_ratings_expert_id_unique",
+        "quoorum_expert_ratings_expert_id_unique": {
+          "name": "quoorum_expert_ratings_expert_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "expert_id"
@@ -2831,8 +2831,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_messages": {
-      "name": "forum_messages",
+    "public.quoorum_messages": {
+      "name": "quoorum_messages",
       "schema": "",
       "columns": {
         "id": {
@@ -2900,8 +2900,8 @@
         }
       },
       "indexes": {
-        "idx_forum_messages_session": {
-          "name": "idx_forum_messages_session",
+        "idx_quoorum_messages_session": {
+          "name": "idx_quoorum_messages_session",
           "columns": [
             {
               "expression": "session_id",
@@ -2915,8 +2915,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_messages_round": {
-          "name": "idx_forum_messages_round",
+        "idx_quoorum_messages_round": {
+          "name": "idx_quoorum_messages_round",
           "columns": [
             {
               "expression": "session_id",
@@ -2938,10 +2938,10 @@
         }
       },
       "foreignKeys": {
-        "forum_messages_session_id_forum_sessions_id_fk": {
-          "name": "forum_messages_session_id_forum_sessions_id_fk",
-          "tableFrom": "forum_messages",
-          "tableTo": "forum_sessions",
+        "quoorum_messages_session_id_quoorum_sessions_id_fk": {
+          "name": "quoorum_messages_session_id_quoorum_sessions_id_fk",
+          "tableFrom": "quoorum_messages",
+          "tableTo": "quoorum_sessions",
           "columnsFrom": [
             "session_id"
           ],
@@ -2958,8 +2958,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_notification_preferences": {
-      "name": "forum_notification_preferences",
+    "public.quoorum_notification_preferences": {
+      "name": "quoorum_notification_preferences",
       "schema": "",
       "columns": {
         "id": {
@@ -3053,9 +3053,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_notification_preferences_user_id_profiles_id_fk": {
-          "name": "forum_notification_preferences_user_id_profiles_id_fk",
-          "tableFrom": "forum_notification_preferences",
+        "quoorum_notification_preferences_user_id_profiles_id_fk": {
+          "name": "quoorum_notification_preferences_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_notification_preferences",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -3069,8 +3069,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "forum_notification_preferences_user_id_unique": {
-          "name": "forum_notification_preferences_user_id_unique",
+        "quoorum_notification_preferences_user_id_unique": {
+          "name": "quoorum_notification_preferences_user_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "user_id"
@@ -3081,8 +3081,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_notifications": {
-      "name": "forum_notifications",
+    "public.quoorum_notifications": {
+      "name": "quoorum_notifications",
       "schema": "",
       "columns": {
         "id": {
@@ -3100,14 +3100,14 @@
         },
         "type": {
           "name": "type",
-          "type": "forum_notification_type",
+          "type": "quoorum_notification_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "priority": {
           "name": "priority",
-          "type": "forum_notification_priority",
+          "type": "quoorum_notification_priority",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -3190,8 +3190,8 @@
         }
       },
       "indexes": {
-        "idx_forum_notifications_user": {
-          "name": "idx_forum_notifications_user",
+        "idx_quoorum_notifications_user": {
+          "name": "idx_quoorum_notifications_user",
           "columns": [
             {
               "expression": "user_id",
@@ -3205,8 +3205,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_notifications_type": {
-          "name": "idx_forum_notifications_type",
+        "idx_quoorum_notifications_type": {
+          "name": "idx_quoorum_notifications_type",
           "columns": [
             {
               "expression": "type",
@@ -3220,8 +3220,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_notifications_debate": {
-          "name": "idx_forum_notifications_debate",
+        "idx_quoorum_notifications_debate": {
+          "name": "idx_quoorum_notifications_debate",
           "columns": [
             {
               "expression": "debate_id",
@@ -3235,8 +3235,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_notifications_unread": {
-          "name": "idx_forum_notifications_unread",
+        "idx_quoorum_notifications_unread": {
+          "name": "idx_quoorum_notifications_unread",
           "columns": [
             {
               "expression": "user_id",
@@ -3256,8 +3256,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_notifications_created": {
-          "name": "idx_forum_notifications_created",
+        "idx_quoorum_notifications_created": {
+          "name": "idx_quoorum_notifications_created",
           "columns": [
             {
               "expression": "created_at",
@@ -3273,9 +3273,9 @@
         }
       },
       "foreignKeys": {
-        "forum_notifications_user_id_profiles_id_fk": {
-          "name": "forum_notifications_user_id_profiles_id_fk",
-          "tableFrom": "forum_notifications",
+        "quoorum_notifications_user_id_profiles_id_fk": {
+          "name": "quoorum_notifications_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_notifications",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -3286,10 +3286,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "forum_notifications_debate_id_forum_debates_id_fk": {
-          "name": "forum_notifications_debate_id_forum_debates_id_fk",
-          "tableFrom": "forum_notifications",
-          "tableTo": "forum_debates",
+        "quoorum_notifications_debate_id_quoorum_debates_id_fk": {
+          "name": "quoorum_notifications_debate_id_quoorum_debates_id_fk",
+          "tableFrom": "quoorum_notifications",
+          "tableTo": "quoorum_debates",
           "columnsFrom": [
             "debate_id"
           ],
@@ -3306,8 +3306,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_reports": {
-      "name": "forum_reports",
+    "public.quoorum_reports": {
+      "name": "quoorum_reports",
       "schema": "",
       "columns": {
         "id": {
@@ -3325,7 +3325,7 @@
         },
         "type": {
           "name": "type",
-          "type": "forum_report_type",
+          "type": "quoorum_report_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -3344,7 +3344,7 @@
         },
         "format": {
           "name": "format",
-          "type": "forum_report_format",
+          "type": "quoorum_report_format",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -3352,7 +3352,7 @@
         },
         "status": {
           "name": "status",
-          "type": "forum_report_status",
+          "type": "quoorum_report_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -3421,8 +3421,8 @@
         }
       },
       "indexes": {
-        "idx_forum_reports_user": {
-          "name": "idx_forum_reports_user",
+        "idx_quoorum_reports_user": {
+          "name": "idx_quoorum_reports_user",
           "columns": [
             {
               "expression": "user_id",
@@ -3436,8 +3436,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_reports_type": {
-          "name": "idx_forum_reports_type",
+        "idx_quoorum_reports_type": {
+          "name": "idx_quoorum_reports_type",
           "columns": [
             {
               "expression": "type",
@@ -3451,8 +3451,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_reports_status": {
-          "name": "idx_forum_reports_status",
+        "idx_quoorum_reports_status": {
+          "name": "idx_quoorum_reports_status",
           "columns": [
             {
               "expression": "status",
@@ -3466,8 +3466,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_reports_created": {
-          "name": "idx_forum_reports_created",
+        "idx_quoorum_reports_created": {
+          "name": "idx_quoorum_reports_created",
           "columns": [
             {
               "expression": "created_at",
@@ -3483,9 +3483,9 @@
         }
       },
       "foreignKeys": {
-        "forum_reports_user_id_profiles_id_fk": {
-          "name": "forum_reports_user_id_profiles_id_fk",
-          "tableFrom": "forum_reports",
+        "quoorum_reports_user_id_profiles_id_fk": {
+          "name": "quoorum_reports_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_reports",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -3503,8 +3503,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_scheduled_reports": {
-      "name": "forum_scheduled_reports",
+    "public.quoorum_scheduled_reports": {
+      "name": "quoorum_scheduled_reports",
       "schema": "",
       "columns": {
         "id": {
@@ -3528,14 +3528,14 @@
         },
         "type": {
           "name": "type",
-          "type": "forum_report_type",
+          "type": "quoorum_report_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "format": {
           "name": "format",
-          "type": "forum_report_format",
+          "type": "quoorum_report_format",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -3614,8 +3614,8 @@
         }
       },
       "indexes": {
-        "idx_forum_scheduled_reports_user": {
-          "name": "idx_forum_scheduled_reports_user",
+        "idx_quoorum_scheduled_reports_user": {
+          "name": "idx_quoorum_scheduled_reports_user",
           "columns": [
             {
               "expression": "user_id",
@@ -3629,8 +3629,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_scheduled_reports_active": {
-          "name": "idx_forum_scheduled_reports_active",
+        "idx_quoorum_scheduled_reports_active": {
+          "name": "idx_quoorum_scheduled_reports_active",
           "columns": [
             {
               "expression": "is_active",
@@ -3644,8 +3644,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_scheduled_reports_next": {
-          "name": "idx_forum_scheduled_reports_next",
+        "idx_quoorum_scheduled_reports_next": {
+          "name": "idx_quoorum_scheduled_reports_next",
           "columns": [
             {
               "expression": "next_run_at",
@@ -3661,9 +3661,9 @@
         }
       },
       "foreignKeys": {
-        "forum_scheduled_reports_user_id_profiles_id_fk": {
-          "name": "forum_scheduled_reports_user_id_profiles_id_fk",
-          "tableFrom": "forum_scheduled_reports",
+        "quoorum_scheduled_reports_user_id_profiles_id_fk": {
+          "name": "quoorum_scheduled_reports_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_scheduled_reports",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -3681,8 +3681,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_sessions": {
-      "name": "forum_sessions",
+    "public.quoorum_sessions": {
+      "name": "quoorum_sessions",
       "schema": "",
       "columns": {
         "id": {
@@ -3777,8 +3777,8 @@
         }
       },
       "indexes": {
-        "idx_forum_sessions_user": {
-          "name": "idx_forum_sessions_user",
+        "idx_quoorum_sessions_user": {
+          "name": "idx_quoorum_sessions_user",
           "columns": [
             {
               "expression": "user_id",
@@ -3792,8 +3792,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_sessions_status": {
-          "name": "idx_forum_sessions_status",
+        "idx_quoorum_sessions_status": {
+          "name": "idx_quoorum_sessions_status",
           "columns": [
             {
               "expression": "status",
@@ -3807,8 +3807,8 @@
           "method": "btree",
           "with": {}
         },
-        "idx_forum_sessions_created": {
-          "name": "idx_forum_sessions_created",
+        "idx_quoorum_sessions_created": {
+          "name": "idx_quoorum_sessions_created",
           "columns": [
             {
               "expression": "created_at",
@@ -3830,8 +3830,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_translations": {
-      "name": "forum_translations",
+    "public.quoorum_translations": {
+      "name": "quoorum_translations",
       "schema": "",
       "columns": {
         "id": {
@@ -3874,8 +3874,8 @@
         }
       },
       "indexes": {
-        "idx_forum_translations_message": {
-          "name": "idx_forum_translations_message",
+        "idx_quoorum_translations_message": {
+          "name": "idx_quoorum_translations_message",
           "columns": [
             {
               "expression": "message_id",
@@ -3891,10 +3891,10 @@
         }
       },
       "foreignKeys": {
-        "forum_translations_message_id_forum_messages_id_fk": {
-          "name": "forum_translations_message_id_forum_messages_id_fk",
-          "tableFrom": "forum_translations",
-          "tableTo": "forum_messages",
+        "quoorum_translations_message_id_quoorum_messages_id_fk": {
+          "name": "quoorum_translations_message_id_quoorum_messages_id_fk",
+          "tableFrom": "quoorum_translations",
+          "tableTo": "quoorum_messages",
           "columnsFrom": [
             "message_id"
           ],
@@ -3911,8 +3911,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_webhook_logs": {
-      "name": "forum_webhook_logs",
+    "public.quoorum_webhook_logs": {
+      "name": "quoorum_webhook_logs",
       "schema": "",
       "columns": {
         "id": {
@@ -3987,10 +3987,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_webhook_logs_webhook_id_forum_webhooks_id_fk": {
-          "name": "forum_webhook_logs_webhook_id_forum_webhooks_id_fk",
-          "tableFrom": "forum_webhook_logs",
-          "tableTo": "forum_webhooks",
+        "quoorum_webhook_logs_webhook_id_quoorum_webhooks_id_fk": {
+          "name": "quoorum_webhook_logs_webhook_id_quoorum_webhooks_id_fk",
+          "tableFrom": "quoorum_webhook_logs",
+          "tableTo": "quoorum_webhooks",
           "columnsFrom": [
             "webhook_id"
           ],
@@ -4007,8 +4007,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forum_webhooks": {
-      "name": "forum_webhooks",
+    "public.quoorum_webhooks": {
+      "name": "quoorum_webhooks",
       "schema": "",
       "columns": {
         "id": {
@@ -4112,9 +4112,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "forum_webhooks_user_id_profiles_id_fk": {
-          "name": "forum_webhooks_user_id_profiles_id_fk",
-          "tableFrom": "forum_webhooks",
+        "quoorum_webhooks_user_id_profiles_id_fk": {
+          "name": "quoorum_webhooks_user_id_profiles_id_fk",
+          "tableFrom": "quoorum_webhooks",
           "tableTo": "profiles",
           "columnsFrom": [
             "user_id"
@@ -5044,8 +5044,8 @@
         "unhelpful"
       ]
     },
-    "public.forum_notification_channel": {
-      "name": "forum_notification_channel",
+    "public.quoorum_notification_channel": {
+      "name": "quoorum_notification_channel",
       "schema": "public",
       "values": [
         "in_app",
@@ -5054,8 +5054,8 @@
         "whatsapp"
       ]
     },
-    "public.forum_notification_priority": {
-      "name": "forum_notification_priority",
+    "public.quoorum_notification_priority": {
+      "name": "quoorum_notification_priority",
       "schema": "public",
       "values": [
         "low",
@@ -5064,8 +5064,8 @@
         "urgent"
       ]
     },
-    "public.forum_notification_type": {
-      "name": "forum_notification_type",
+    "public.quoorum_notification_type": {
+      "name": "quoorum_notification_type",
       "schema": "public",
       "values": [
         "debate_completed",
@@ -5080,8 +5080,8 @@
         "team_action"
       ]
     },
-    "public.forum_report_format": {
-      "name": "forum_report_format",
+    "public.quoorum_report_format": {
+      "name": "quoorum_report_format",
       "schema": "public",
       "values": [
         "pdf",
@@ -5089,8 +5089,8 @@
         "markdown"
       ]
     },
-    "public.forum_report_status": {
-      "name": "forum_report_status",
+    "public.quoorum_report_status": {
+      "name": "quoorum_report_status",
       "schema": "public",
       "values": [
         "pending",
@@ -5099,8 +5099,8 @@
         "failed"
       ]
     },
-    "public.forum_report_type": {
-      "name": "forum_report_type",
+    "public.quoorum_report_type": {
+      "name": "quoorum_report_type",
       "schema": "public",
       "values": [
         "single_debate",

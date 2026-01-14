@@ -17,12 +17,12 @@ Transform Forum from a backend-only system to a fully integrated, production-rea
 - ✅ 42 visualization and enhancement features
 
 ### Database Schema
-- ✅ `forum_debates` - Main debates table
-- ✅ `forum_debate_comments` - Comments system
-- ✅ `forum_debate_likes` - Likes/reactions
-- ✅ `forum_expert_performance` - Learning system tracking
-- ✅ `forum_custom_experts` - Custom expert profiles (premium)
-- ✅ `forum_debate_templates` - Industry templates
+- ✅ `quoorum_debates` - Main debates table
+- ✅ `quoorum_debate_comments` - Comments system
+- ✅ `quoorum_debate_likes` - Likes/reactions
+- ✅ `quoorum_expert_performance` - Learning system tracking
+- ✅ `quoorum_custom_experts` - Custom expert profiles (premium)
+- ✅ `quoorum_debate_templates` - Industry templates
 
 ### UI Integration
 - ✅ Forum added to sidebar (admin only)
@@ -72,7 +72,7 @@ Transform Forum from a backend-only system to a fully integrated, production-rea
 
 **Files to create:**
 ```
-apps/web/src/components/forum/
+apps/web/src/components/quoorum/
 ├── real-time-viewer.tsx
 ├── interactive-controls.tsx
 ├── notification-settings.tsx
@@ -107,7 +107,7 @@ packages/api/src/routers/
 
 **Implemented files:**
 ```
-packages/forum/src/
+packages/quoorum/src/
 ├── learning-system.ts ✅
 ├── question-similarity.ts ✅
 └── config.ts (adaptive config) ✅
@@ -145,12 +145,12 @@ packages/api/src/routers/
 
 **Files to create:**
 ```
-apps/web/src/app/(app)/forum/
+apps/web/src/app/(app)/quoorum/
 ├── analytics/page.tsx
 ├── shared/[token]/page.tsx
 └── export/route.ts
 
-apps/web/src/components/forum/
+apps/web/src/components/quoorum/
 ├── analytics-dashboard.tsx
 ├── export-dialog.tsx
 └── share-dialog.tsx
@@ -189,7 +189,7 @@ apps/web/src/components/forum/
 
 **Implemented files:**
 ```
-packages/forum/src/
+packages/quoorum/src/
 ├── caching.ts ✅
 ├── rate-limiting-advanced.ts ✅
 ├── templates.ts ✅
@@ -219,7 +219,7 @@ packages/forum/src/
 
 **Implemented test files:**
 ```
-packages/forum/
+packages/quoorum/
 ├── test-metaModerator.ts ✅ (7/7)
 ├── test-learningSystem.ts ✅ (12/12)
 ├── test-qualityMonitor.ts ✅ (6/6)
@@ -341,8 +341,8 @@ packages/forum/
 
 ## 🔗 Related Documents
 
-- [DYNAMIC_SYSTEM.md](packages/forum/DYNAMIC_SYSTEM.md) - Technical architecture
-- [README.md](packages/forum/README.md) - Package documentation
+- [DYNAMIC_SYSTEM.md](packages/quoorum/DYNAMIC_SYSTEM.md) - Technical architecture
+- [README.md](packages/quoorum/README.md) - Package documentation
 - [CLAUDE.md](CLAUDE.md) - Development guidelines
 
 ---

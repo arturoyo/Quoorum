@@ -149,17 +149,17 @@ await db
 
 ```typescript
 // ANTES
-await db.update(forumReports).set({ status: 'generating' }).where(eq(forumReports.id, reportId))
-const [report] = await db.select().from(forumReports).where(eq(forumReports.id, reportId))
+await db.update(quoorumReports).set({ status: 'generating' }).where(eq(quoorumReports.id, reportId))
+const [report] = await db.select().from(quoorumReports).where(eq(quoorumReports.id, reportId))
 
 // DESPUÉS
-const [report] = await db.select().from(forumReports).where(eq(forumReports.id, reportId))
+const [report] = await db.select().from(quoorumReports).where(eq(quoorumReports.id, reportId))
 if (!report) return
 
 await db
-  .update(forumReports)
+  .update(quoorumReports)
   .set({ status: 'generating' })
-  .where(and(eq(forumReports.id, reportId), eq(forumReports.userId, report.userId)))
+  .where(and(eq(quoorumReports.id, reportId), eq(quoorumReports.userId, report.userId)))
 ```
 
 **Razón:** Defense in depth - Aunque el reporte ya fue creado con el userId correcto, el where clause debe incluir siempre el filtro de userId para prevenir modificaciones no autorizadas.
@@ -194,7 +194,7 @@ Las siguientes tablas contienen `userId` y **SIEMPRE** deben filtrarse por este 
 - `goals` (userGoals) - Objetivos
 - `prospects` - Prospectos
 - `wallieAnnotations` - Anotaciones de Wallie
-- `forumReports` - Reportes del foro
+- `quoorumReports` - Reportes del foro
 - `supportTickets` - Tickets de soporte
 - `userFeedback` - Feedback de usuarios
 - Y todas las demás tablas con campo `userId`

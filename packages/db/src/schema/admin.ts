@@ -1,6 +1,6 @@
 /**
  * Admin Schema
- * Admin users and roles for Forum system
+ * Admin users and roles for Quoorum system
  */
 import { pgTable, uuid, varchar, text, timestamp, jsonb, boolean, pgEnum } from "drizzle-orm/pg-core";
 import { profiles } from "./profiles.js";

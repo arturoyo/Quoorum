@@ -166,7 +166,7 @@ He completado **TODO** lo que pediste para el Sistema Dinámico de Forum de Wall
 ## 📦 Estructura de Archivos
 
 ```
-packages/forum/
+packages/quoorum/
 ├── src/
 │   ├── agents.ts                    # Agentes estáticos
 │   ├── runner.ts                    # Runner estático
@@ -218,11 +218,11 @@ packages/forum/
 └── DEPLOYMENT.md                    # Guía de deployment
 
 apps/web/src/
-├── app/(app)/forum/
+├── app/(app)/quoorum/
 │   ├── page.tsx                     # Página principal
 │   ├── analytics/page.tsx           # Analytics dashboard
 │   └── experts/page.tsx             # Custom Experts UI
-└── components/forum/
+└── components/quoorum/
     ├── debate-viewer.tsx            # Debate viewer
     ├── analytics-dashboard.tsx      # Analytics dashboard
     ├── team-collaboration.tsx       # Team collaboration

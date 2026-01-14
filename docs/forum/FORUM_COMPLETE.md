@@ -81,8 +81,8 @@ He completado la implementación **100% funcional** del Sistema Dinámico de Exp
 
 #### UI Pages
 - ✅ **/forum** - Página principal con lista de debates y formulario
-- ✅ **/forum/analytics** - Dashboard de analytics con 4 tabs
-- ✅ **/forum/experts** - Custom Experts UI (CRUD completo)
+- ✅ **/quoorum/analytics** - Dashboard de analytics con 4 tabs
+- ✅ **/quoorum/experts** - Custom Experts UI (CRUD completo)
 - ✅ **Sidebar** - Forum añadido (admin only)
 
 #### Components
@@ -115,12 +115,12 @@ He completado la implementación **100% funcional** del Sistema Dinámico de Exp
 - ✅ **forum.team.list** - Listar miembros del equipo
 
 #### Database Schema (6 tablas)
-- ✅ **forum_debates** - Debates principales
-- ✅ **forum_debate_comments** - Comentarios
-- ✅ **forum_debate_likes** - Likes/reactions
-- ✅ **forum_expert_performance** - Performance tracking
-- ✅ **forum_custom_experts** - Expertos personalizados
-- ✅ **forum_debate_templates** - Templates por industria
+- ✅ **quoorum_debates** - Debates principales
+- ✅ **quoorum_debate_comments** - Comentarios
+- ✅ **quoorum_debate_likes** - Likes/reactions
+- ✅ **quoorum_expert_performance** - Performance tracking
+- ✅ **quoorum_custom_experts** - Expertos personalizados
+- ✅ **quoorum_debate_templates** - Templates por industria
 
 ### Testing (100% Completado)
 

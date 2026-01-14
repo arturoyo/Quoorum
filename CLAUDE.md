@@ -875,7 +875,7 @@ proyecto/
 **Arquitectura Técnica:**
 
 ```typescript
-packages/forum/
+packages/quoorum/
 ├── src/
 │   ├── index.ts              // Export principal
 │   ├── runner.ts             // Orquestación de debates (máx. 20 rondas)
@@ -911,9 +911,9 @@ packages/forum/
 
 ```typescript
 import { runDebate } from '@wallie/forum'
-import { exportDebateToPDF } from '@wallie/forum/pdf-export'
-import { createAIAssistant } from '@wallie/forum/ai-assistant'
-import { searchSimilarDebates } from '@wallie/forum/integrations/pinecone'
+import { exportDebateToPDF } from '@wallie/quoorum/pdf-export'
+import { createAIAssistant } from '@wallie/quoorum/ai-assistant'
+import { searchSimilarDebates } from '@wallie/quoorum/integrations/pinecone'
 ```
 
 **Casos de uso:**

@@ -76,7 +76,7 @@ export default function DashboardPage() {
       try {
         // Fetch real data from database
         const { data: debates, error: debatesError } = await supabase
-          .from("forum_debates")
+          .from("quoorum_debates")
           .select("id, question, status, consensus_score, created_at")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
@@ -100,18 +100,18 @@ export default function DashboardPage() {
 
         // Calculate stats
         const { count: totalCount } = await supabase
-          .from("forum_debates")
+          .from("quoorum_debates")
           .select("*", { count: "exact", head: true })
           .eq("user_id", user.id);
 
         const { count: completedCount } = await supabase
-          .from("forum_debates")
+          .from("quoorum_debates")
           .select("*", { count: "exact", head: true })
           .eq("user_id", user.id)
           .eq("status", "completed");
 
         const { data: avgData } = await supabase
-          .from("forum_debates")
+          .from("quoorum_debates")
           .select("consensus_score")
           .eq("user_id", user.id)
           .eq("status", "completed")
@@ -130,7 +130,7 @@ export default function DashboardPage() {
         startOfMonth.setHours(0, 0, 0, 0);
 
         const { count: thisMonthCount } = await supabase
-          .from("forum_debates")
+          .from("quoorum_debates")
           .select("*", { count: "exact", head: true })
           .eq("user_id", user.id)
           .gte("created_at", startOfMonth.toISOString());

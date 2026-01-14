@@ -94,9 +94,9 @@ const broadcastNewMessage = () => {
 **Archivos más afectados:**
 
 - `packages/api/src/routers/gmail.ts` (2)
-- `packages/forum/src/integrations/pinecone.ts` (4)
-- `packages/forum/src/integrations/redis.ts` (5)
-- `packages/forum/src/debug.ts` (8)
+- `packages/quoorum/src/integrations/pinecone.ts` (4)
+- `packages/quoorum/src/integrations/redis.ts` (5)
+- `packages/quoorum/src/debug.ts` (8)
 - `packages/api/src/lib/ai-request-helper.ts` (4)
 - `packages/api/src/__tests__/sandbox/mocks.ts` (5)
 

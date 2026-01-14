@@ -4,7 +4,7 @@
 
 ### Pinecone (Vector DB)
 - **Propósito:** Búsqueda de similitud semántica entre debates.
-- **Implementación:** `packages/forum/src/integrations/pinecone.ts`
+- **Implementación:** `packages/quoorum/src/integrations/pinecone.ts`
 - **Features:**
   - Creación automática de index si no existe
   - Generación de embeddings con `text-embedding-3-small`
@@ -16,7 +16,7 @@
 
 ### Serper (Search API)
 - **Propósito:** Carga de contexto en tiempo real desde internet.
-- **Implementación:** `packages/forum/src/integrations/serper.ts`
+- **Implementación:** `packages/quoorum/src/integrations/serper.ts`
 - **Features:**
   - Búsqueda web y de noticias
   - Carga de contexto para una pregunta (web + news)
@@ -30,7 +30,7 @@
 
 ### Redis Caching
 - **Propósito:** Caching avanzado para mejorar performance y reducir costos.
-- **Implementación:** `packages/forum/src/integrations/redis.ts`
+- **Implementación:** `packages/quoorum/src/integrations/redis.ts`
 - **Features:**
   - Conexión a Redis con fallback a in-memory cache
   - Operaciones CRUD: `get`, `set`, `delete`, `exists`
@@ -44,7 +44,7 @@
 
 ### Rate Limiting Granular
 - **Propósito:** Control de uso y costos por tier de usuario.
-- **Implementación:** `packages/forum/src/rate-limiting-advanced.ts`
+- **Implementación:** `packages/quoorum/src/rate-limiting-advanced.ts`
 - **Features:**
   - 4 tiers: `free`, `starter`, `pro`, `enterprise`
   - Límites por debates/hora, debates/día, rondas/debate, debates concurrentes, y costo/día
@@ -56,7 +56,7 @@
 
 ### Onboarding & Ayuda
 - **Propósito:** Mejorar la experiencia de nuevos usuarios.
-- **Implementación:** `apps/web/src/components/forum/onboarding.tsx`
+- **Implementación:** `apps/web/src/components/quoorum/onboarding.tsx`
 - **Features:**
   - **Onboarding Modal:** Tutorial interactivo de 5 pasos para nuevos usuarios.
   - **Quick Start Guide:** Guía rápida accesible en cualquier momento.
@@ -65,7 +65,7 @@
 
 ### Tooltips
 - **Propósito:** Proveer información contextual sin saturar la UI.
-- **Implementación:** `apps/web/src/components/forum/tooltips.tsx`
+- **Implementación:** `apps/web/src/components/quoorum/tooltips.tsx`
 - **Features:**
   - Sistema de tooltips genérico con delay y posicionamiento
   - 10+ variantes predefinidas: `DebateMode`, `Consensus`, `SuccessRate`, `QualityScore`, `Cost`, `Rich`, `Info`, `KeyboardShortcut`, `FeatureBadge`, `Expert`, `Stat`.
@@ -74,7 +74,7 @@
 
 ### Debate Scheduling
 - **Propósito:** Programar debates para que se ejecuten en el futuro.
-- **Implementación:** `packages/forum/src/scheduling.ts`
+- **Implementación:** `packages/quoorum/src/scheduling.ts`
 - **Features:**
   - **One-time scheduling:** Programar un debate para una fecha y hora específicas.
   - **Recurring scheduling:** Programar debates recurrentes (diario, semanal, mensual).
@@ -83,7 +83,7 @@
 
 ### Custom Templates
 - **Propósito:** Crear y reusar templates para debates comunes.
-- **Implementación:** `packages/forum/src/custom-templates.ts`
+- **Implementación:** `packages/quoorum/src/custom-templates.ts`
 - **Features:**
   - 6 templates predefinidos (Pivot, Pricing, Features, Market Entry, Retention, Fundraising).
   - CRUD completo para templates personalizados.
@@ -92,7 +92,7 @@
 
 ### Integraciones de Mensajería
 - **Propósito:** Notificar a equipos sobre el estado de los debates.
-- **Implementación:** `packages/forum/src/integrations/messaging.ts`
+- **Implementación:** `packages/quoorum/src/integrations/messaging.ts`
 - **Features:**
   - **Slack:** Notificaciones con formato enriquecido (attachments, colores).
   - **Discord:** Notificaciones con embeds.
@@ -105,8 +105,8 @@
 ### Métricas y Dashboards
 - **Propósito:** Proveer insights profundos sobre el uso y performance del sistema.
 - **Implementación:**
-  - `packages/forum/src/analytics-advanced.ts` (lógica)
-  - `apps/web/src/components/forum/admin-dashboard.tsx` (UI)
+  - `packages/quoorum/src/analytics-advanced.ts` (lógica)
+  - `apps/web/src/components/quoorum/admin-dashboard.tsx` (UI)
 - **Features:**
   - **Cálculo de Métricas:** 20+ métricas (avg consensus, avg cost, top experts, etc.).
   - **User Analytics:** Reportes por usuario con trends y breakdown de costos.

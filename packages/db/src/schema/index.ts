@@ -37,15 +37,15 @@ export type { NewUser, User } from "./users.js";
 export { votes } from "./votes.js";
 export type { NewVote, Vote } from "./votes.js";
 
-// Forum-specific schemas
-export * from "./forum.js";
-export * from "./forum-api.js";
-export * from "./forum-consultations.js";
-export * from "./forum-deals.js";
-export * from "./forum-debates.js";
-export * from "./forum-feedback.js";
-export * from "./forum-notifications.js";
-export * from "./forum-reports.js";
+// Quoorum-specific schemas
+export * from "./quoorum.js";
+export * from "./quoorum-api.js";
+export * from "./quoorum-consultations.js";
+export * from "./quoorum-deals.js";
+export * from "./quoorum-debates.js";
+export * from "./quoorum-feedback.js";
+export * from "./quoorum-notifications.js";
+export * from "./quoorum-reports.js";
 
 // Subscriptions and billing
 export * from "./subscriptions.js";
@@ -54,8 +54,8 @@ export * from "./subscriptions.js";
 export { systemLogs, logLevelEnum, logSourceEnum } from "./system-logs.js";
 export type { SystemLog, NewSystemLog } from "./system-logs.js";
 
-// Alias for backwards compatibility (forum package uses 'notifications' not 'forumNotifications')
-export { forumNotifications as notifications } from "./forum-notifications.js";
+// Alias for backwards compatibility (quoorum package uses 'notifications' not 'quoorumNotifications')
+export { quoorumNotifications as notifications } from "./quoorum-notifications.js";
 
 // User settings
 export { notificationSettings, notificationSettingsRelations } from "./notification-settings.js";

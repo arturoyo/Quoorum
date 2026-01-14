@@ -21,9 +21,9 @@ const deleteApiKeySchema = z.object({
 // UTILIDADES
 // ═══════════════════════════════════════════════════════════
 function generateApiKey(): { key: string; hash: string; prefix: string } {
-  // Generar key aleatoria: forum_live_[32 chars random]
+  // Generar key aleatoria: quoorum_live_[32 chars random]
   const randomPart = randomBytes(24).toString("base64url"); // URL-safe base64
-  const key = `forum_live_${randomPart}`;
+  const key = `quoorum_live_${randomPart}`;
 
   // Hash para almacenar en DB (nunca guardar la key en texto plano)
   const hash = createHash("sha256").update(key).digest("hex");

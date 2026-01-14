@@ -1,4 +1,4 @@
-# 🎉 Roadmap Completado - Forum Dynamic System
+# 🎉 Roadmap Completado - Quoorum Dynamic System
 
 ## 📊 Resumen Ejecutivo
 
@@ -117,23 +117,23 @@ Se implementaron **TODAS** las mejoras del roadmap de corto y medio plazo, lleva
 ## 🗂️ Archivos Creados
 
 ### Integraciones
-- `packages/forum/src/integrations/pinecone.ts` - Vector DB
-- `packages/forum/src/integrations/serper.ts` - Search API
-- `packages/forum/src/integrations/redis.ts` - Caching
-- `packages/forum/src/integrations/messaging.ts` - Slack/Discord
+- `packages/quoorum/src/integrations/pinecone.ts` - Vector DB
+- `packages/quoorum/src/integrations/serper.ts` - Search API
+- `packages/quoorum/src/integrations/redis.ts` - Caching
+- `packages/quoorum/src/integrations/messaging.ts` - Slack/Discord
 
 ### Optimizaciones
-- `packages/forum/src/rate-limiting-advanced.ts` - Rate limiting granular
+- `packages/quoorum/src/rate-limiting-advanced.ts` - Rate limiting granular
 
 ### Features
-- `packages/forum/src/scheduling.ts` - Debate scheduling
-- `packages/forum/src/custom-templates.ts` - Templates system
-- `packages/forum/src/analytics-advanced.ts` - Analytics
+- `packages/quoorum/src/scheduling.ts` - Debate scheduling
+- `packages/quoorum/src/custom-templates.ts` - Templates system
+- `packages/quoorum/src/analytics-advanced.ts` - Analytics
 
 ### UX
-- `apps/web/src/components/forum/onboarding.tsx` - Onboarding
-- `apps/web/src/components/forum/tooltips.tsx` - Tooltips
-- `apps/web/src/components/forum/admin-dashboard.tsx` - Admin UI
+- `apps/web/src/components/quoorum/onboarding.tsx` - Onboarding
+- `apps/web/src/components/quoorum/tooltips.tsx` - Tooltips
+- `apps/web/src/components/quoorum/admin-dashboard.tsx` - Admin UI
 
 ### Documentación
 - `FORUM_ROADMAP_FEATURES.md` - Documentación técnica

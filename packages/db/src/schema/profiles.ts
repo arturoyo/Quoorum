@@ -1,6 +1,6 @@
 /**
  * Profiles Schema (stub)
- * User profiles for Forum system
+ * User profiles for Quoorum system
  */
 import { pgTable, uuid, varchar, text, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
 
