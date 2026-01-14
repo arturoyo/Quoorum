@@ -48,7 +48,9 @@ async function flushBatch() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        json: logsToSend,
+        "0": {
+          json: logsToSend,
+        },
       }),
     });
 
