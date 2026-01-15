@@ -14,10 +14,17 @@
     "db:generate": "pnpm --filter @quoorum/db generate",
     "db:migrate": "pnpm --filter @quoorum/db migrate",
     "db:push": "pnpm --filter @quoorum/db push",
-    "validate:env": "tsx scripts/validate-env.ts"
+    "validate:env": "tsx scripts/validate-env.ts",
+    "preflight": "bash scripts/pre-flight.sh",
+    "backup": "bash scripts/backup-db.sh",
+    "rollback": "bash scripts/rollback-db.sh",
+    "check": "pnpm preflight && pnpm typecheck && pnpm lint",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "tsx": "^4.21.0",
     "turbo": "^2.3.0",
     "typescript": "^5.7.2",
