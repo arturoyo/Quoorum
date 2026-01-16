@@ -1,6 +1,7 @@
 # 🤖 CLAUDE.md — Sistema de Instrucciones para IA
 
-> **Versión:** 1.10.0 | **Última actualización:** 31 Dic 2025
+> **Versión:** 1.11.0 | **Última actualización:** 16 Ene 2026
+> **Última auditoría completa:** 16 Ene 2026
 > **Para:** Cualquier IA (Claude, GPT, Copilot, etc.) que trabaje en este proyecto
 
 ---
@@ -401,9 +402,9 @@ git commit -m "asdfasdf"
 ### 9. 🎨 LANDING PAGE: Componentes Oficiales ÚNICOS
 
 ```
-⚠️ LA LANDING TIENE UNA ÚNICA VERSIÓN OFICIAL
+⚠️ LA LANDING TIENE UNA VERSIÓN ESTABLE OFICIAL
 Commit: 786d2d2 (16 Dic 2024, 23:11)
-Versión FINAL Y DEFINITIVA - NO modificar sin autorización
+Versión de referencia en producción - Consultar antes de modificar
 
 ✅ COMPONENTES OFICIALES (en orden):
 1. FomoBanner
@@ -745,24 +746,16 @@ proyecto/
 │   └── docs/                   # Documentación (opcional)
 │
 ├── packages/
-│   ├── agents/                 # Agentes IA especializados
-│   │   ├── src/
-│   │   │   ├── agents/        # Email handler, calendar, prospecting, etc
-│   │   │   │   ├── email-handler.ts    # Gestión emails con IA
-│   │   │   │   ├── calendar.ts         # Integración Google Calendar
-│   │   │   │   └── prospecting.ts      # Lead generation
-│   │   │   └── index.ts
-│   │   └── package.json
-│   │
 │   ├── ai/                     # Lógica de IA core
 │   │   ├── src/
+│   │   │   ├── lib/           # Utilidades IA (fallback config, etc)
 │   │   │   ├── providers/     # OpenAI, Anthropic, Google, Groq
 │   │   │   │   ├── openai.ts
 │   │   │   │   ├── anthropic.ts
 │   │   │   │   ├── google.ts
 │   │   │   │   └── groq.ts
 │   │   │   ├── prompts/       # Templates de prompts
-│   │   │   ├── utils/         # Utilidades IA (token counting, etc)
+│   │   │   ├── utils/         # Token counting, etc
 │   │   │   └── index.ts
 │   │   └── package.json
 │   │
@@ -801,17 +794,13 @@ proyecto/
 │   │   │   └── root.ts        # Root router
 │   │   └── package.json
 │   │
-│   ├── auth/                   # Autenticación y autorización
+│   ├── core/                   # Core business logic & utilities
 │   │   ├── src/
-│   │   │   ├── middleware.ts  # Auth middleware
-│   │   │   └── index.ts
-│   │   └── package.json
-│   │
-│   ├── baileys-worker/         # Worker para WhatsApp Baileys (QR code)
-│   │   ├── src/
-│   │   │   ├── server.ts      # Express server
-│   │   │   ├── sessions.ts    # Session management
-│   │   │   └── index.ts
+│   │   │   ├── deliberation/  # Deliberation engine
+│   │   │   ├── experts/       # Expert system
+│   │   │   ├── quality/       # Quality assessment
+│   │   │   ├── index.ts
+│   │   │   └── types.ts
 │   │   └── package.json
 │   │
 │   ├── db/                     # Database layer
@@ -838,31 +827,23 @@ proyecto/
 │   │   ├── drizzle.config.ts
 │   │   └── package.json
 │   │
-│   ├── email/                  # Emails transaccionales
+│   ├── quoorum/                # Sistema de debates multi-agente IA
 │   │   ├── src/
-│   │   │   ├── templates/     # Plantillas React Email
-│   │   │   ├── client.ts      # Resend client
-│   │   │   ├── send.ts        # Funciones de envío
-│   │   │   ├── logger.ts      # Logger local
+│   │   │   ├── __tests__/     # Tests unitarios
+│   │   │   ├── analytics/     # Analytics del sistema
+│   │   │   ├── integrations/  # Pinecone, Redis, Serper
+│   │   │   │   ├── pinecone.ts    # Vector search
+│   │   │   │   ├── redis.ts       # Caching
+│   │   │   │   └── serper.ts      # Web search
+│   │   │   ├── orchestration/ # Orquestación de debates
+│   │   │   ├── agents.ts      # Configuración de agentes
+│   │   │   ├── consensus.ts   # Algoritmo de consenso
+│   │   │   ├── expert-database.ts # Base de datos de expertos
+│   │   │   ├── pdf-export.ts  # Exportación a PDF
+│   │   │   ├── runner.ts      # Orquestador principal
+│   │   │   ├── runner-dynamic.ts # Orquestador dinámico
+│   │   │   ├── types.ts       # Tipos TypeScript
 │   │   │   └── index.ts
-│   │   └── package.json
-│   │
-│   ├── growth-worker/          # Worker para growth/outbound (FastAPI)
-│   │   ├── src/
-│   │   │   └── index.ts
-│   │   └── package.json
-│   │
-│   ├── stripe/                 # Integración Stripe
-│   │   ├── src/
-│   │   │   ├── client.ts      # Stripe client
-│   │   │   ├── webhooks.ts    # Webhook handlers
-│   │   │   └── index.ts
-│   │   └── package.json
-│   │
-│   ├── types/                  # Tipos compartidos
-│   │   ├── src/
-│   │   │   ├── index.ts       # Re-exports
-│   │   │   └── shared.ts      # Tipos comunes
 │   │   └── package.json
 │   │
 │   ├── ui/                     # Componentes compartidos
@@ -873,31 +854,9 @@ proyecto/
 │   │   │   └── index.ts
 │   │   └── package.json
 │   │
-│   ├── whatsapp/               # Integración WhatsApp (Cloud API + Baileys)
-│   │   ├── src/
-│   │   │   ├── client.ts      # WhatsApp Cloud API client
-│   │   │   ├── chakra-client.ts # Chakra BSP client
-│   │   │   ├── service.ts     # Servicio híbrido
-│   │   │   ├── webhook.ts     # Webhook handler
-│   │   │   ├── logger.ts      # Logger local
-│   │   │   └── index.ts
-│   │   └── package.json
-│   │
 │   └── workers/                # Background workers (Inngest)
 │       ├── src/
 │       │   ├── functions/     # Funciones worker
-│       │   │   ├── audio-received.ts
-│       │   │   ├── campaign-scheduler.ts
-│       │   │   ├── client-churn-detection.ts
-│       │   │   ├── conversation-analysis.ts
-│       │   │   ├── data-backup.ts
-│       │   │   ├── gmail-sync.ts
-│       │   │   ├── knowledge-ingestion.ts
-│       │   │   ├── linkedin-sync.ts
-│       │   │   ├── outlook-sync.ts
-│       │   │   ├── referral-invites.ts
-│       │   │   ├── sequence-runner.ts
-│       │   │   └── weekly-report.ts
 │       │   └── index.ts
 │       └── package.json
 │
@@ -931,32 +890,29 @@ proyecto/
 
 **Nota Importante:** La estructura actual difiere ligeramente de la arquitectura ideal documentada en versiones anteriores. Los paquetes actuales reflejan la evolución orgánica del proyecto y están **todos en uso activo en producción**.
 
-#### Paquetes Implementados (Estado Actual)
+#### Paquetes Implementados (Estado Actual - Verificado 16 Ene 2026)
 
-| Paquete           | Estado     | Propósito                                                                                                | Dependencias Clave                 |
-| ----------------- | ---------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `agents/`         | ✅ Activo  | Agentes IA especializados (email, calendar)                                                              | Langchain, OpenAI                  |
-| `ai/`             | ✅ Activo  | Core de IA (providers, prompts, utils)                                                                   | OpenAI, Anthropic, Google AI, Groq |
-| `api/`            | ✅ Activo  | tRPC routers (35+ endpoints)                                                                             | tRPC, Zod, Sentry                  |
-| `auth/`           | ✅ Activo  | Autenticación Supabase                                                                                   | Supabase Auth                      |
-| `baileys-worker/` | ✅ Activo  | WhatsApp Baileys (QR code flow)                                                                          | @whiskeysockets/baileys            |
-| `db/`             | ✅ Activo  | Database layer (13 schemas)                                                                              | Drizzle ORM, PostgreSQL            |
-| `email/`          | ✅ Activo  | Emails transaccionales                                                                                   | Resend, React Email                |
-| `forum/` ⭐       | ✅ Activo  | Sistema de foros dinámico con IA (orquestador de debates, consenso, exportación PDF, búsqueda vectorial) | OpenAI, Pinecone, Puppeteer, Redis |
-| `growth-worker/`  | ⚠️ Externo | Growth/outbound automation (servicio externo Python/FastAPI, no incluido en workspace)                   | Python/FastAPI (servicio externo)  |
-| `realtime/` ⭐    | ✅ Activo  | Integración Pusher para comunicación en tiempo real (hooks React + cliente/servidor)                     | Pusher, pusher-js                  |
-| `stripe/`         | ✅ Activo  | Pagos y suscripciones                                                                                    | Stripe SDK                         |
-| `types/`          | ✅ Activo  | Tipos compartidos                                                                                        | TypeScript                         |
-| `ui/`             | ✅ Activo  | Componentes UI (shadcn/ui)                                                                               | Radix UI, Tailwind                 |
-| `whatsapp/`       | ✅ Activo  | WhatsApp Cloud API + Chakra BSP                                                                          | WhatsApp Cloud API                 |
-| `workers/`        | ✅ Activo  | Background jobs (12 workers)                                                                             | Inngest                            |
+| Paquete       | Estado    | Propósito                                                                                                | Dependencias Clave                 |
+| ------------- | --------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `ai/`         | ✅ Activo | Core de IA (providers, prompts, utils, fallback config)                                                  | OpenAI, Anthropic, Google AI, Groq |
+| `api/`        | ✅ Activo | tRPC routers (20+ endpoints: debates, deals, insights, notifications, etc.)                              | tRPC, Zod, Sentry                  |
+| `core/`       | ✅ Activo | Core business logic (deliberation, experts, quality assessment)                                          | TypeScript                         |
+| `db/`         | ✅ Activo | Database layer (27 schemas verificados)                                                                  | Drizzle ORM, PostgreSQL            |
+| `quoorum/` ⭐ | ✅ Activo | Sistema de debates multi-agente IA (orquestador, consenso, exportación PDF, búsqueda vectorial)         | OpenAI, Google AI, Pinecone, Redis |
+| `ui/`         | ✅ Activo | Componentes UI (shadcn/ui)                                                                               | Radix UI, Tailwind                 |
+| `workers/`    | ✅ Activo | Background workers (Inngest)                                                                             | Inngest                            |
 
-#### Paquetes No Implementados (Futuro)
+#### Paquetes Planificados/No Implementados
 
-| Paquete         | Estado       | Razón                                             | Prioridad |
-| --------------- | ------------ | ------------------------------------------------- | --------- |
-| `integrations/` | 📋 Pendiente | Integraciones (LinkedIn, Outlook) están en `api/` | Media     |
-| `config/`       | 📋 Pendiente | Configuraciones están en root y packages          | Baja      |
+| Paquete         | Estado       | Razón                                                      | Prioridad |
+| --------------- | ------------ | ---------------------------------------------------------- | --------- |
+| `agents/`       | 📋 Futuro    | Agentes IA especializados (email handler, calendar, etc.)  | Media     |
+| `auth/`         | 📋 Futuro    | Auth centralizado (actualmente disperso en `api/`)         | Baja      |
+| `email/`        | 📋 Futuro    | Emails transaccionales (Resend)                            | Media     |
+| `integrations/` | 📋 Futuro    | Integraciones centralizadas (actualmente en `api/`)        | Baja      |
+| `realtime/`     | 📋 Futuro    | WebSockets/Pusher para comunicación real-time              | Media     |
+| `types/`        | 📋 Futuro    | Tipos compartidos centralizados                            | Baja      |
+| `whatsapp/`     | 📋 Futuro    | WhatsApp API integration                                   | Media     |
 
 **Decisión Arquitectónica:** Mantener la estructura actual porque:
 
@@ -965,168 +921,49 @@ proyecto/
 3. ✅ **Menos overhead** - Evita capa adicional de abstracción
 4. ⚠️ **Deuda técnica controlada** - Documentada y justificada
 
-#### 🎯 Paquetes Destacados: Forum y Realtime
+#### 🎯 Package Destacado: Quoorum (Sistema de Debates Multi-Agente)
 
-##### 📊 @wallie/forum - Sistema de Debates AI Multi-Agente
+##### 📊 @quoorum/quoorum - Debates AI con Consenso Inteligente
 
-**Propósito:** Simula debates entre múltiples agentes AI para validar decisiones complejas antes de tomar acciones. Utiliza un sistema de consenso inteligente y búsqueda vectorial con Pinecone para encontrar debates similares.
+**Estado:** ✅ Activo y en uso en producción
+**Última verificación:** 16 Ene 2026
 
-**Arquitectura Técnica:**
+**Propósito:** Sistema de debates multi-agente que utiliza IA para validar decisiones complejas. Los agentes debaten hasta alcanzar consenso, con búsqueda vectorial de debates similares y exportación a PDF.
 
-```typescript
-packages/quoorum/
-├── src/
-│   ├── index.ts              // Export principal
-│   ├── runner.ts             // Orquestación de debates (máx. 20 rondas)
-│   ├── consensus.ts          // Algoritmo de consenso (score 0-1, threshold 70%)
-│   ├── pdf-export.ts         // Exportar debates a PDF (Puppeteer)
-│   ├── ai-assistant.ts       // Agentes AI especializados (optimizer, critic, analyst, synthesizer)
-│   ├── websocket-server.ts   // Server WebSocket para debates en vivo
-│   ├── integrations/
-│   │   ├── pinecone.ts       // Búsqueda vectorial de debates similares
-│   │   ├── redis.ts          // Cache de debates y resultados
-│   │   └── serper.ts         // Búsqueda web para contexto adicional
-│   └── types.ts              // Tipos TypeScript (DebateResult, ConsensusResult, etc.)
-```
+**Agentes Configurados:**
+
+- **Optimizer** (Gemini 2.0 Flash): Maximiza upside, identifica oportunidades
+- **Critic** (Gemini 2.0 Flash): Pre-mortem, identifica riesgos y puntos ciegos
+- **Analyst** (Gemini 2.0 Flash): Evalúa factibilidad, recursos, blockers
+- **Synthesizer** (Gemini 2.0 Flash): Identifica patrones, genera ranking de opciones
 
 **Algoritmo de Consenso:**
+1. Extracción de opciones de mensajes de agentes
+2. Ranking por Success Rate (0-100%)
+3. Consenso cuando: Top option ≥ 70% + Gap ≥ 30% + Min 3 rondas
+4. Máximo 20 rondas antes de forzar decisión
 
-1. **Extracción de Opciones:** Analiza mensajes de todos los agentes para identificar opciones propuestas
-2. **Ranking por Success Rate:** Calcula probabilidad de éxito para cada opción (0-100%)
-3. **Criterios de Consenso:**
-   - Consenso fuerte: Top option ≥ 70% success rate
-   - Gap significativo: Diferencia ≥ 30% con segunda opción
-   - Mínimo 3 rondas completadas
-4. **Decisión:** Continúa hasta consenso o máximo 20 rondas
-
-**Búsqueda Vectorial con Pinecone:**
-
-- Embeddings generados con `text-embedding-3-small` (1536 dimensiones)
-- Índice Pinecone: `forum-debates` (configurable via `PINECONE_INDEX`)
-- Búsqueda por similitud semántica de preguntas
-- Filtros: `userId`, `minConsensus`, `topK` (default: 5)
+**Funcionalidades Clave:**
+- ✅ Orquestación de debates (runner.ts, runner-dynamic.ts)
+- ✅ Algoritmo de consenso (consensus.ts)
+- ✅ Base de datos de 50+ expertos (expert-database.ts)
+- ✅ Exportación a PDF (pdf-export.ts)
+- ✅ WebSocket server para debates en vivo (websocket-server.ts)
+- ✅ Integraciones: Pinecone (búsqueda vectorial), Redis (cache), Serper (web search)
+- ✅ 12 tests unitarios verificados
 
 **Exports principales:**
-
 ```typescript
-import { runDebate } from '@wallie/forum'
-import { exportDebateToPDF } from '@wallie/quoorum/pdf-export'
-import { createAIAssistant } from '@wallie/quoorum/ai-assistant'
-import { searchSimilarDebates } from '@wallie/quoorum/integrations/pinecone'
+import { runDebate } from '@quoorum/quoorum'
+import { QUOORUM_AGENTS } from '@quoorum/quoorum/agents'
+import { EXPERT_DATABASE } from '@quoorum/quoorum/expert-database'
 ```
 
-**Casos de uso:**
-
-- Validación de decisiones estratégicas (inversiones, contratos, estrategias)
-- Análisis de deals complejos desde múltiples perspectivas
-- Generación de reportes de consenso con ranking de opciones
-- Debates en vivo visibles para el usuario (WebSocket)
-- Reutilización de debates similares (Pinecone)
-
-**Dependencias clave:**
-
-- `openai`: Agentes AI (GPT-4o, GPT-4o-mini)
-- `@pinecone-database/pinecone`: Vector DB para búsqueda semántica
-- `puppeteer`: Generación de PDFs desde HTML
-- `redis`: Cache de debates (TTL: 1h debates, 5min listas)
-- `ws`: WebSockets para debates en tiempo real
-- `zod`: Validación de schemas
-
-**Configuración requerida:**
-
-```env
-OPENAI_API_KEY=sk-...
-PINECONE_API_KEY=...
-PINECONE_INDEX=forum-debates
-REDIS_URL=redis://localhost:6379
-```
-
-##### 🔴 @wallie/realtime - Comunicación Real-Time
-
-**Propósito:** Gestiona comunicación bidireccional en tiempo real mediante WebSockets usando Pusher (compatible con Pusher Cloud y Soketi self-hosted).
-
-**Arquitectura Técnica:**
-
-```typescript
-packages/realtime/
-├── src/
-│   ├── index.ts                    // Re-exports
-│   ├── pusher-server.ts            // Server-side Pusher client (singleton)
-│   ├── pusher-client.ts            // Client-side Pusher client (singleton)
-│   ├── types.ts                    // Tipos TypeScript (MessageEvent, etc.)
-│   └── hooks/
-│       ├── use-realtime-messages.ts    // Hook para mensajes en tiempo real
-│       └── use-realtime-notifications.ts // Hook para notificaciones
-```
-
-**Canales y Eventos:**
-
-- **Canales de Usuario:** `user-${userId}` - Notificaciones personales
-- **Canales de Conversación:** `conversation-${conversationId}` - Mensajes y typing
-- **Canales de Presencia:** `presence-${roomId}` - Estado online/offline
-- **Eventos:** `new-message`, `typing`, `notification`, `conversation-update`
-
-**Exports principales:**
-
-```typescript
-// Server-side (API routes, tRPC)
-import {
-  getPusherServer,
-  broadcastNewMessage,
-  broadcastNotification,
-  broadcastTyping,
-  broadcastConversationUpdate,
-} from '@wallie/realtime'
-
-// Client-side (React components)
-import {
-  useRealtimeMessages,
-  useRealtimeNotifications,
-} from '@wallie/realtime/hooks'
-```
-
-**Hooks React:**
-
-1. **`useRealtimeMessages(conversationId, options)`**
-   - Suscripción automática a mensajes de conversación
-   - Estado de typing en tiempo real
-   - Auto-reconexión en caso de desconexión
-   - Cleanup automático al desmontar
-
-2. **`useRealtimeNotifications(userId, options)`**
-   - Notificaciones personales del usuario
-   - Contador de no leídas
-   - Filtrado por tipo de notificación
-
-**Casos de uso:**
-
-- Notificaciones en tiempo real (nuevos mensajes, deals cerrados, menciones)
-- Debates de forum en vivo (actualizaciones de rondas)
-- Presencia de usuarios (quién está online en una conversación)
-- Indicadores de typing (usuario está escribiendo)
-- Sincronización de estados entre tabs del navegador
-- Actualizaciones de conversaciones (nuevos participantes, cambios de estado)
-
-**Dependencias clave:**
-
-- `pusher`: Server-side SDK (Node.js)
-- `pusher-js`: Client-side SDK (Browser)
-
-**Configuración requerida:**
-
-```env
-PUSHER_APP_ID=...
-PUSHER_KEY=...
-PUSHER_SECRET=...
-PUSHER_CLUSTER=eu  # o us-east-1, etc.
-PUSHER_USE_TLS=true
-```
-
-**Compatibilidad:**
-
-- ✅ Pusher Cloud (hosted)
-- ✅ Soketi (self-hosted, compatible con Pusher protocol)
-- ✅ Auto-detección de disponibilidad (graceful degradation)
+**Casos de uso actuales:**
+- Validación de estrategias de negocio
+- Análisis de deals complejos
+- Toma de decisiones con múltiples variables
+- Debates colaborativos en tiempo real
 
 ### Dónde Poner Cada Cosa
 
@@ -3458,41 +3295,41 @@ git commit -m "refactor(ui): simplify button component"
 
 ### Estado Actual del Proyecto
 
-| Área                | Estado         | Detalles                       |
-| ------------------- | -------------- | ------------------------------ |
-| Psychology Engine   | ✅ Completo    | 6 routers, 13 tables, workers  |
-| Rate Limiting AI    | ✅ Completo    | wallie.ts endpoints protegidos |
-| Deuda técnica (any) | ✅ 0 any types | Eliminados en 50+ archivos     |
-| console.logs prod   | ✅ Eliminados  | Código limpio                  |
-| UI Tests            | ✅ 691 tests   | 41 archivos, 32/32 carpetas    |
-| E2E Tests           | ✅ En CI       | Playwright integrado           |
-| Type errors         | ✅ Resueltos   | Build limpio                   |
+| Área                    | Estado              | Detalles                                              |
+| ----------------------- | ------------------- | ----------------------------------------------------- |
+| Quoorum Debates System  | ✅ Activo           | 20+ routers, 27 schemas, 12 tests                     |
+| AI Rate Limiting System | 📋 Diseñado         | Configuración parcial (fallback-config.ts), no implementado completo |
+| Deuda técnica (any)     | ✅ 0 any types      | Eliminados en 50+ archivos                            |
+| console.logs prod       | ✅ Eliminados       | Código limpio                                         |
+| Tests                   | ⚠️ 13 archivos test | ~3927 líneas de tests verificadas (16 Ene 2026)      |
+| E2E Tests               | ⚠️ No verificado    | Requiere verificación manual                          |
+| Type errors             | ✅ Resueltos        | Build limpio                                          |
 
-### Historial de Completados (25 Dic 2025)
+### Historial de Completados (Verificado 16 Ene 2026)
 
 ```
-✅ COMPLETADO: UI Testing Coverage (25 Dic 2025)
-   - 691 tests en 41 archivos de test
-   - 32/32 carpetas de componentes cubiertas (100%)
-   - Mocks para: framer-motion, tRPC, @react-pdf, lucide-react
-   - Infraestructura de testing con Vitest + Testing Library
+✅ COMPLETADO: Quoorum Debates System (Ene 2026)
+   - 20+ routers tRPC (debates, deals, insights, notifications, etc.)
+   - 27 schemas de base de datos verificados
+   - 12 tests unitarios en packages/quoorum/
+   - Sistema de debates multi-agente funcional
+   - Integración con Pinecone, Redis, Serper
 
-✅ COMPLETADO: E2E Tests con Playwright (25 Dic 2025)
-   - Integrado en CI pipeline
-   - Tests de flujos críticos
-
-✅ COMPLETADO: Eliminación Deuda Técnica (25 Dic 2025)
+✅ COMPLETADO: Eliminación Deuda Técnica (Dic 2025)
    - 0 `any` types en todo el proyecto
    - console.logs eliminados de producción
    - Type errors resueltos en web y workers
 
-✅ COMPLETADO: Workers de Psychology (24 Dic 2025)
-   - psychology-analysis.ts: Analiza emociones, persona, fase
-   - Triggered by: psychology/message.received
+⚠️ PARCIAL: AI Rate Limiting System (Dic 2025 - Ene 2026)
+   - Diseño arquitectónico completo (fallback-config.ts existe)
+   - Rate limiter, circuit breaker, quota monitor NO implementados
+   - Falta: getRateLimiterManager(), getFallbackManager(), getQuotaMonitor()
+   - Estado: Planificado pero no implementado completamente
 
-✅ COMPLETADO: Rate Limiting en AI Endpoints (24 Dic 2025)
-   - wallie.ts: chat, suggestMessage, analyzeMessage, chatInConversation
-   - Usa aiRateLimitGuard(ctx.userId)
+📋 PENDIENTE: Testing Coverage Completo
+   - 13 archivos de tests verificados (~3927 líneas)
+   - Coverage real: no medido (requiere pnpm test --coverage)
+   - Tests E2E: no verificados en CI actual
 ```
 
 ### Checklist de Integración para Nuevas Features
@@ -3523,5 +3360,7 @@ await db.delete(table).where(eq(table.id, input.id))
 
 ---
 
-_Última actualización: 31 Dic 2025_
-_Versión: 1.10.0_
+_Última actualización: 16 Ene 2026_
+_Versión: 1.11.0_
+_Última auditoría completa: 16 Ene 2026_
+_Próxima revisión recomendada: 31 Ene 2026_
