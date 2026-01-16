@@ -3238,16 +3238,14 @@ Si los tests E2E fallan, se sube automáticamente:
    - Validación manual con pnpm check, pnpm typecheck, pnpm lint
 ```
 
-**⚠️ IMPORTANTE:** La documentación anterior describe el pipeline IDEAL que debería
-configurarse, pero actualmente NO existe. Para crear el workflow:
+**⚠️ IMPORTANTE:** La documentación anterior describe el pipeline IDEAL, pero
+**NO debe implementarse** porque:
 
-```bash
-# 1. Crear directorio
-mkdir -p .github/workflows
+1. ❌ **GitHub Actions COBRA DINERO** (consumo de minutos)
+2. ✅ **Ya tenemos validación local** (Husky pre-commit hooks)
+3. ✅ **Vercel CI/CD está activo** (builds automáticos)
 
-# 2. Crear archivo ci.yml con la configuración descrita arriba
-# 3. Commit y push para activar GitHub Actions
-```
+**NO crear archivo .github/workflows/ci.yml** - El sistema actual es suficiente y gratuito.
 
 **Sistema de validación local equivalente:**
 
@@ -3668,7 +3666,7 @@ git commit -m "refactor(ui): simplify button component"
    - Directorio .github/workflows/ NO EXISTE
    - Pipeline documentado en CLAUDE.md es aspiracional
    - Alternativas funcionando: Husky pre-commit + Vercel CI
-   - TODO: Crear workflow ci.yml si se desea CI en GitHub
+   - ⚠️ NO IMPLEMENTAR: GitHub Actions cobra dinero, usar sistema actual
 ```
 
 ### Checklist de Integración para Nuevas Features
