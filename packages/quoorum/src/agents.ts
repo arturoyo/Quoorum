@@ -2,13 +2,21 @@
  * Forum Agents Configuration
  *
  * Configuracion de los 4 agentes que participan en el debate
+ * Configuración de providers via variables de entorno (ver config/agent-config.ts)
  */
 
 import type { AgentConfig, AgentRole } from './types'
+import { getAgentConfig } from './config/agent-config'
 
 // ============================================================================
 // AGENT CONFIGURATIONS
 // ============================================================================
+
+// Get provider configurations from environment (with free tier defaults)
+const optimizerConfig = getAgentConfig('optimizer')
+const criticConfig = getAgentConfig('critic')
+const analystConfig = getAgentConfig('analyst')
+const synthesizerConfig = getAgentConfig('synthesizer')
 
 export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
   optimizer: {
@@ -20,9 +28,9 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
 - Defiende la accion sobre la paralisis
 - Encuentra el camino mas ambicioso pero viable
 - Argumenta por que SI funcionara`,
-    provider: 'google',
-    model: 'gemini-2.0-flash-exp',
-    temperature: 0.7,
+    provider: optimizerConfig.provider,
+    model: optimizerConfig.model,
+    temperature: optimizerConfig.temperature,
   },
 
   critic: {
@@ -34,9 +42,9 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
 - Cuestiona TODOS los supuestos
 - Devil's advocate brutal pero constructivo
 - Identifica puntos ciegos y riesgos ocultos`,
-    provider: 'google',
-    model: 'gemini-2.0-flash-exp',
-    temperature: 0.5,
+    provider: criticConfig.provider,
+    model: criticConfig.model,
+    temperature: criticConfig.temperature,
   },
 
   analyst: {
@@ -48,9 +56,9 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
 - Estima esfuerzo, recursos, tiempo
 - Identifica blockers y dependencias
 - Datos sobre opiniones`,
-    provider: 'google',
-    model: 'gemini-2.0-flash-exp',
-    temperature: 0.3,
+    provider: analystConfig.provider,
+    model: analystConfig.model,
+    temperature: analystConfig.temperature,
   },
 
   synthesizer: {
@@ -62,9 +70,9 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
 - Extrae opciones viables del ruido
 - Calcula % de exito realista
 - Genera ranking final con pros/cons`,
-    provider: 'google',
-    model: 'gemini-2.0-flash-exp',
-    temperature: 0.3,
+    provider: synthesizerConfig.provider,
+    model: synthesizerConfig.model,
+    temperature: synthesizerConfig.temperature,
   },
 }
 
