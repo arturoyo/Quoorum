@@ -8,7 +8,7 @@
 import { getAIClient } from '@quoorum/ai'
 import { quoorumLogger } from './logger'
 import { QUOORUM_AGENTS, AGENT_ORDER, estimateAgentCost } from './agents'
-import { ULTRA_OPTIMIZED_PROMPT, estimateTokens, getRoleEmoji } from './ultra-language'
+import { estimateTokens, getRoleEmoji } from './ultra-language'
 import { checkConsensus } from './consensus'
 import { analyzeQuestion } from './question-analyzer'
 import { matchExperts } from './expert-matcher'
@@ -488,7 +488,16 @@ function buildAgentPrompt(
 ): string {
   const parts: string[] = []
 
-  parts.push(ULTRA_OPTIMIZED_PROMPT)
+  // Clear instructions for debate participation
+  parts.push(`
+INSTRUCCIONES DEL DEBATE:
+- Participa de forma concisa pero clara (1-3 oraciones máximo)
+- Responde a los argumentos previos de otros agentes
+- Presenta tu perspectiva única desde tu rol
+- Mantente objetivo y enfocado en responder la pregunta
+- Máximo 150 tokens por respuesta
+`)
+
   parts.push(`\nTU ROL: ${agent.name} (${agent.role})`)
   parts.push(agent.prompt)
   parts.push(`\n--- CONTEXTO ---\n${contextPrompt}`)
@@ -509,7 +518,8 @@ function buildAgentPrompt(
     }
   }
 
-  parts.push('\n--- TU RESPUESTA (max 15 tokens, ultra-comprimida) ---')
+  parts.push('\n--- TU RESPUESTA ---')
+  parts.push('Responde de forma concisa y clara (1-3 oraciones):')
 
   return parts.join('\n')
 }
