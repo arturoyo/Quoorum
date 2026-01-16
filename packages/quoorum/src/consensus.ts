@@ -15,10 +15,11 @@ import type { DebateMessage, RankedOption, ConsensusResult } from './types'
 export async function checkConsensus(
   messages: DebateMessage[],
   round: number,
-  maxRounds: number
+  maxRounds: number,
+  question: string
 ): Promise<ConsensusResult> {
   // Extract options and analyze debate
-  const options = await rankOptions(messages)
+  const options = await rankOptions(messages, question)
 
   if (options.length === 0) {
     return {
@@ -70,21 +71,31 @@ export async function checkConsensus(
 // OPTION RANKING
 // ============================================================================
 
-const RANKING_PROMPT = `
-Analiza el debate y extrae las opciones viables con su % de exito.
+function buildRankingPrompt(question: string): string {
+  return `
+PREGUNTA ORIGINAL:
+${question}
 
-REGLAS:
-1. Identifica 2-4 opciones principales
-2. Calcula % de exito basado en argumentos del debate
-3. Lista pros y cons de cada opcion
-4. Identifica que agentes apoyan cada opcion
-5. Responde SOLO en JSON valido
+INSTRUCCIONES:
+Analiza el debate y extrae las opciones viables que RESPONDEN DIRECTAMENTE a la pregunta.
 
-FORMATO:
+REGLAS CRÍTICAS:
+1. Las opciones deben ser RESPUESTAS DIRECTAS a la pregunta original
+2. NO extraigas temas o conceptos generales mencionados
+3. Identifica 2-4 opciones concretas y accionables
+4. Calcula % de éxito basado en los argumentos del debate
+5. Responde SOLO en JSON válido
+
+EJEMPLO:
+- Pregunta: "¿Qué es mejor ChatGPT o Perplexity para programar?"
+- Opciones: ["ChatGPT", "Perplexity", "Usar ambos según contexto"]
+- NO válido: ["OpenSource", "A/B Testing"] (estos no responden la pregunta)
+
+FORMATO JSON:
 {
   "options": [
     {
-      "option": "descripcion breve de la opcion",
+      "option": "respuesta directa a la pregunta",
       "successRate": 75,
       "pros": ["pro1", "pro2"],
       "cons": ["con1"],
@@ -96,8 +107,9 @@ FORMATO:
 
 DEBATE:
 `
+}
 
-export async function rankOptions(messages: DebateMessage[]): Promise<RankedOption[]> {
+export async function rankOptions(messages: DebateMessage[], question: string): Promise<RankedOption[]> {
   if (messages.length === 0) return []
 
   const client = getAIClient()
@@ -105,7 +117,9 @@ export async function rankOptions(messages: DebateMessage[]): Promise<RankedOpti
   // Build debate summary
   const debateSummary = messages.map((m) => `${getAgentName(m.agentKey)}: ${m.content}`).join('\n')
 
-  const response = await client.generate(RANKING_PROMPT + debateSummary, {
+  const prompt = buildRankingPrompt(question) + debateSummary
+
+  const response = await client.generate(prompt, {
     modelId: 'gpt-4o-mini', // Use cheap model for extraction
     temperature: 0.2,
     maxTokens: 500,

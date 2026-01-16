@@ -237,7 +237,7 @@ async function runStaticDebate(options: {
     }
 
     const allMessages = [...rounds.flatMap((r) => r.messages), ...roundMessages]
-    consensusResult = await checkConsensus(allMessages, roundNum, MAX_ROUNDS)
+    consensusResult = await checkConsensus(allMessages, roundNum, MAX_ROUNDS, question)
 
     const round: DebateRound = {
       round: roundNum,
@@ -374,7 +374,7 @@ async function runDynamicDebate(options: {
     }
 
     const allMessagesWithCurrent = [...allMessages, ...roundMessages]
-    consensusResult = await checkConsensus(allMessagesWithCurrent, roundNum, MAX_ROUNDS)
+    consensusResult = await checkConsensus(allMessagesWithCurrent, roundNum, MAX_ROUNDS, question)
 
     const round: DebateRound = {
       round: roundNum,
