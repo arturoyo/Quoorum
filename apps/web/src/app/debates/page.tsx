@@ -143,6 +143,18 @@ export default function DebatesPage() {
                       {debate.question}
                     </CardTitle>
                     <CardDescription className="flex items-center gap-2">
+                      {debate.status === "draft" && (
+                        <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/50">
+                          <Clock className="mr-1 h-3 w-3" />
+                          Borrador
+                        </Badge>
+                      )}
+                      {debate.status === "pending" && (
+                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50">
+                          <Clock className="mr-1 h-3 w-3" />
+                          Pendiente
+                        </Badge>
+                      )}
                       {debate.status === "completed" && (
                         <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
                           <CheckCircle className="mr-1 h-3 w-3" />

@@ -117,6 +117,9 @@ export default function NewDebatePage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Get tRPC utils for cache invalidation
+  const utils = api.useUtils()
+
   // tRPC mutations
   const createDraftMutation = api.debates.createDraft.useMutation({
     onSuccess: (data) => {
@@ -126,6 +129,8 @@ export default function NewDebatePage() {
         debateId: data.id,
         debateTitle: data.title,
       }))
+      // Invalidate debates list cache so draft appears immediately
+      void utils.debates.list.invalidate()
       // Now continue with context assessment
     },
     onError: (error) => {
