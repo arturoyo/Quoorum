@@ -875,7 +875,7 @@ async function runDebateAsync(
       sessionId: debateId,
       question,
       context: loadedContext,
-      forceMode: "dynamic",
+      forceMode: "static", // Use static mode: 4 base agents (Optimista, Crítico, Analista, Sintetizador) with Gemini 2.0 Flash
       onProgress: async (progress) => {
         // Clear messages when starting a new round
         if (progress.phase === 'deliberating') {
@@ -895,6 +895,15 @@ async function runDebateAsync(
         );
       },
       onMessageGenerated: async (message) => {
+        // Log message generation
+        logger.info(`[Debate ${debateId}] Message generated`, {
+          round: message.round,
+          agentKey: message.agentKey,
+          agentName: message.agentName,
+          model: message.modelId,
+          contentLength: message.content.length,
+        });
+
         // Add message to current round for real-time updates
         currentRoundMessages.push({
           agentKey: message.agentKey,
