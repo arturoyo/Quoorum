@@ -21,6 +21,52 @@
 
 ---
 
+## [2025-01-16] - VALIDACIÓN VISUAL Y MEJORAS UX DEBATES
+
+### [20:45] - FEEDBACK VISUAL PARA REQUISITO MÍNIMO DE CARACTERES
+
+**Solicitado por:** Usuario
+**Descripción:** Implementar feedback visual en tiempo real para el requisito de 20 caracteres mínimos en la pregunta inicial del debate
+
+**Contexto:**
+- Usuario completó fase de contexto pero recibió error de validación backend: "La pregunta debe tener al menos 20 caracteres"
+- Pregunta "¿React o Vue?" (15 caracteres) no cumplía el mínimo
+- Fix técnico aplicado (enriquecer pregunta con contexto), pero UX necesitaba mejora
+- Usuario solicitó: "si necesita un minimo de caracters tendriamos que poner algo visual que lo diga y que si no lo supera que no deje enviar el mensaje"
+
+**Acciones realizadas:**
+1. **Contador de caracteres en tiempo real** (líneas 775-807)
+   - Aparece solo para el primer mensaje (pregunta inicial)
+   - Indicador visual con círculo de color:
+     * 🔴 Rojo (< 20 chars): "Mínimo 20 caracteres requeridos (X/20)"
+     * 🟡 Amarillo (20-30 chars): "✓ Longitud válida (X caracteres)"
+     * 🟢 Verde (> 30 chars): "✓ Longitud válida (X caracteres)"
+
+2. **Borde condicional del input** (líneas 833-838)
+   - Borde rojo cuando primer mensaje < 20 caracteres
+   - Borde púrpura normal cuando es válido
+
+3. **Validación en botón Send** (líneas 841-850)
+   - Botón deshabilitado si primer mensaje < 20 caracteres
+   - Toast error si intenta click sin cumplir mínimo
+
+4. **Validación en tecla Enter** (líneas 814-823)
+   - Previene envío con Enter si no cumple mínimo
+   - Toast error: "La pregunta debe tener al menos 20 caracteres"
+
+**Archivos afectados:**
+- `/apps/web/src/app/debates/new/page.tsx` (añadido contador visual + validación preventiva)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+- Validación solo aplica al primer mensaje (pregunta inicial)
+- Mensajes subsecuentes (respuestas a preguntas/assumptions) no tienen requisito de longitud
+- Fix técnico anterior (enriquecer pregunta con contexto) sigue vigente como fallback
+- UX ahora guía proactivamente al usuario antes de error backend
+
+---
+
 ## [2025-01-15] - MIGRACIÓN POSTGRESQL LOCAL + SISTEMA ERRORES-COMETIDOS
 
 ### [15:19] - CREACIÓN SISTEMA DOCUMENTACIÓN DE ERRORES
