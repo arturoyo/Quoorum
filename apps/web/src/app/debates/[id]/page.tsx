@@ -223,17 +223,25 @@ export default function DebatePage({ params }: DebatePageProps) {
       {/* Messages Area */}
       <div className="flex-1 overflow-auto px-4 py-6">
         <div className="mx-auto max-w-4xl space-y-4">
-          {/* Context Card - Expandible/Colapsable */}
+          {/* Context Card - Always Visible at Start */}
           {debate.context && (
-            <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl overflow-hidden">
+            <Card className={cn(
+              "border-white/10 bg-slate-900/60 backdrop-blur-xl overflow-hidden",
+              debate.status === 'in_progress' && (!debate.rounds || debate.rounds.length === 0) && "border-purple-500/50 shadow-lg shadow-purple-500/20 ring-1 ring-purple-500/20"
+            )}>
               {/* Header - Clickeable */}
               <div
                 className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
                 onClick={() => setIsContextExpanded(!isContextExpanded)}
               >
-                <div className="flex items-center gap-2 text-sm font-medium text-purple-400">
-                  <span>📝</span>
-                  <span>Contexto del Debate</span>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 text-sm font-medium text-purple-400">
+                    <span>📝</span>
+                    <span>Información Proporcionada</span>
+                  </div>
+                  {debate.status === 'in_progress' && (!debate.rounds || debate.rounds.length === 0) && (
+                    <p className="text-xs text-gray-400">Los agentes están analizando este contexto...</p>
+                  )}
                 </div>
                 <Button
                   variant="ghost"

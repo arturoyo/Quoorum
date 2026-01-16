@@ -871,6 +871,9 @@ async function runDebateAsync(
       timestamp: string;
     }> = [];
 
+    // Track estimated total rounds (set by onProgress callback)
+    let estimatedTotalRounds = 20; // Default fallback
+
     const result = await runDynamicDebate({
       sessionId: debateId,
       question,
@@ -880,6 +883,11 @@ async function runDebateAsync(
         // Clear messages when starting a new round
         if (progress.phase === 'deliberating') {
           currentRoundMessages = [];
+        }
+
+        // Store estimated total rounds for use in onMessageGenerated
+        if (progress.totalRounds) {
+          estimatedTotalRounds = progress.totalRounds;
         }
 
         // Forward progress events to DB
@@ -920,9 +928,9 @@ async function runDebateAsync(
           'deliberating',
           `${message.agentName} está deliberando...`,
           // Calculate progress based on message position in round
-          30 + Math.floor((50 / 20) * (message.round || 1)), // Rough estimate
+          30 + Math.floor((50 / estimatedTotalRounds) * (message.round || 1)),
           message.round,
-          20, // MAX_ROUNDS
+          estimatedTotalRounds, // Use estimated rounds instead of hardcoded 20
           currentRoundMessages
         );
       },
@@ -946,7 +954,7 @@ async function runDebateAsync(
 
     const mappedRanking = result.finalRanking?.map((r) => ({
       option: r.option,
-      score: r.score ?? 0,
+      score: r.score ?? r.successRate ?? 0, // Use successRate if score is not set
       reasoning: r.reasoning,
     }));
 
