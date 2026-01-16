@@ -18,7 +18,8 @@ interface Message {
   role: 'ai' | 'user'
   content: string
   type?: 'question' | 'assumption' | 'info' | 'summary'
-  options?: string[] // Para assumptions (multiple choice)
+  questionType?: 'yes_no' | 'multiple_choice' | 'free_text' // AI decides optimal input type
+  options?: string[] // Only for multiple_choice questions
   timestamp: Date
 }
 
@@ -31,6 +32,8 @@ interface ContextState {
   readyToStart: boolean
   debateId?: string
   debateTitle?: string
+  optimizedPrompt?: string // Meta-prompt optimized by AI before deliberation
+  isGeneratingPrompt?: boolean // Generating meta-prompt
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -200,7 +203,8 @@ export default function NewDebatePage() {
             role: 'ai',
             content: firstAssumption.assumption,
             type: 'assumption',
-            options: firstAssumption.alternatives || ['Sí, es correcto', 'No, es incorrecto'],
+            questionType: firstAssumption.questionType || 'yes_no', // Default to yes/no
+            options: firstAssumption.questionType === 'multiple_choice' ? firstAssumption.alternatives : undefined,
             timestamp: new Date(),
           }
           setMessages((prev) => [...prev, newMsg])
@@ -214,6 +218,10 @@ export default function NewDebatePage() {
             role: 'ai',
             content: firstQuestion.question,
             type: 'question',
+            questionType: firstQuestion.questionType || 'free_text', // Default to free text
+            options: firstQuestion.questionType === 'multiple_choice' && firstQuestion.multipleChoice
+              ? firstQuestion.multipleChoice.options
+              : undefined,
             timestamp: new Date(),
           }
           setMessages((prev) => [...prev, newMsg])
@@ -264,7 +272,8 @@ export default function NewDebatePage() {
           role: 'ai',
           content: unansweredAssumption.assumption,
           type: 'assumption',
-          options: unansweredAssumption.alternatives || ['Sí, es correcto', 'No, es incorrecto'],
+          questionType: unansweredAssumption.questionType || 'yes_no',
+          options: unansweredAssumption.questionType === 'multiple_choice' ? unansweredAssumption.alternatives : undefined,
           timestamp: new Date(),
         }
         setMessages((prev) => [...prev, newMsg])
@@ -275,6 +284,10 @@ export default function NewDebatePage() {
           role: 'ai',
           content: unansweredQuestion.question,
           type: 'question',
+          questionType: unansweredQuestion.questionType || 'free_text',
+          options: unansweredQuestion.questionType === 'multiple_choice' && unansweredQuestion.multipleChoice
+            ? unansweredQuestion.multipleChoice.options
+            : undefined,
           timestamp: new Date(),
         }
         setMessages((prev) => [...prev, newMsg])
@@ -439,6 +452,32 @@ export default function NewDebatePage() {
           })
         }
       }
+    } else if (contextState.readyToStart && assessment) {
+      // User is adding additional context AFTER system said "ready to start"
+      console.log('[DEBUG] Adding additional context after readyToStart:', input)
+
+      // Separate assumptions (boolean) from questions (string)
+      const assumptionResponses: Record<string, boolean> = {}
+      const questionResponses: Record<string, string> = {}
+
+      Object.entries(contextState.responses).forEach(([id, value]) => {
+        if (typeof value === 'boolean') {
+          assumptionResponses[id] = value
+        } else {
+          questionResponses[id] = String(value)
+        }
+      })
+
+      // Call refine with additional context
+      refineMutation.mutate({
+        originalInput: contextState.question,
+        answers: {
+          assumptionResponses,
+          questionResponses,
+          additionalContext: input, // User's additional context
+        },
+        previousAssessment: assessment,
+      })
     }
   }
 
@@ -504,7 +543,7 @@ export default function NewDebatePage() {
     }
   }
 
-  const handleStartDeliberation = () => {
+  const handleStartDeliberation = async () => {
     console.log('[DEBUG] handleStartDeliberation called')
     console.log('[DEBUG] contextState:', contextState)
     console.log('[DEBUG] messages.length:', messages.length)
@@ -517,22 +556,23 @@ export default function NewDebatePage() {
       return
     }
 
-    console.log('[DEBUG] Validation passed, starting deliberation')
+    console.log('[DEBUG] Validation passed, starting meta-prompt generation')
     setIsLoading(true)
+    setContextState((prev) => ({ ...prev, isGeneratingPrompt: true }))
 
-    console.log('[DEBUG] Starting deliberation with question:', contextState.question)
+    console.log('[DEBUG] Generating optimized prompt with question:', contextState.question)
     console.log('[DEBUG] Context responses:', contextState.responses)
     console.log('[DEBUG] Assessment:', assessment)
 
-    // Add AI message explaining auto-configuration
-    const aiMsg: Message = {
+    // Add AI message explaining meta-prompt generation
+    const aiMetaMsg: Message = {
       id: `msg-${Date.now()}`,
       role: 'ai',
-      content: 'Perfecto! Voy a analizar tu pregunta para seleccionar los expertos más adecuados y determinar el número óptimo de rondas de deliberación. Esto tomará unos momentos...',
+      content: 'Perfecto! Ahora voy a crear un prompt optimizado para el debate basándome en toda la información que me has dado...',
       type: 'info',
       timestamp: new Date(),
     }
-    setMessages((prev) => [...prev, aiMsg])
+    setMessages((prev) => [...prev, aiMetaMsg])
 
     const enrichedContext = Object.entries(contextState.responses)
       .map(([id, value]) => {
@@ -545,21 +585,41 @@ export default function NewDebatePage() {
       .filter(Boolean)
       .join('\n')
 
-    // Enrich question with context if available to meet minimum length requirement
-    const finalQuestion = enrichedContext
+    // Build complete context for meta-prompt
+    const completeContext = enrichedContext
       ? `${contextState.question}\n\nContexto adicional:\n${enrichedContext}`
       : contextState.question
 
-    console.log('[DEBUG] Enriched context:', enrichedContext)
-    console.log('[DEBUG] Final question (with context):', finalQuestion)
-    console.log('[DEBUG] About to call createDebateMutation.mutate')
+    console.log('[DEBUG] Complete context for meta-prompt:', completeContext)
 
+    // STEP 1: Generate optimized meta-prompt
     try {
-      // NOTE: expertCount and maxRounds are NOT needed
-      // Backend auto-determines optimal values using analyzeQuestion() + matchExperts()
+      const metaPromptResult = await generateOptimizedPrompt(completeContext)
+      console.log('[DEBUG] Generated optimized prompt:', metaPromptResult)
+
+      // Show optimized prompt in chat
+      const aiOptimizedMsg: Message = {
+        id: `msg-${Date.now()}`,
+        role: 'ai',
+        content: `He generado este prompt optimizado para el debate:\n\n"${metaPromptResult}"\n\nIniciando la deliberación con los expertos...`,
+        type: 'info',
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, aiOptimizedMsg])
+
+      // Save optimized prompt
+      setContextState((prev) => ({
+        ...prev,
+        optimizedPrompt: metaPromptResult,
+        isGeneratingPrompt: false,
+      }))
+
+      // STEP 2: Start deliberation with optimized prompt
+      console.log('[DEBUG] About to call createDebateMutation.mutate with optimized prompt')
+
       createDebateMutation.mutate({
         draftId: contextState.debateId, // Use existing draft if available
-        question: finalQuestion,
+        question: metaPromptResult, // Use optimized prompt instead of original
         context: enrichedContext,
         category: 'general',
         expertCount: 6, // Metadata only - not used by deliberation system
@@ -567,9 +627,33 @@ export default function NewDebatePage() {
       })
       console.log('[DEBUG] createDebateMutation.mutate called successfully with draftId:', contextState.debateId)
     } catch (error) {
-      console.error('[DEBUG] Error calling createDebateMutation.mutate:', error)
-      toast.error(`Error al iniciar la deliberación: ${String(error)}`)
+      console.error('[DEBUG] Error generating optimized prompt or creating debate:', error)
+      toast.error(`Error al generar el prompt: ${String(error)}`)
       setIsLoading(false)
+      setContextState((prev) => ({ ...prev, isGeneratingPrompt: false }))
+    }
+  }
+
+  // Mutation for generating optimized meta-prompt
+  const generatePromptMutation = api.debates.generateOptimizedPrompt.useMutation()
+
+  // Generate optimized meta-prompt using AI
+  const generateOptimizedPrompt = async (contextInfo: string): Promise<string> => {
+    try {
+      console.log('[DEBUG] Calling debates.generateOptimizedPrompt')
+
+      // Call AI via tRPC to generate optimized prompt
+      const result = await generatePromptMutation.mutateAsync({
+        contextInfo,
+      })
+
+      console.log('[DEBUG] Meta-prompt generation result:', result)
+      return result || contextInfo // Fallback to original if AI fails
+    } catch (error) {
+      console.error('[DEBUG] Error calling AI for meta-prompt:', error)
+      toast.error('Error al generar prompt optimizado, usando pregunta original')
+      // Fallback to original context if AI fails
+      return contextInfo
     }
   }
 
@@ -731,42 +815,149 @@ export default function NewDebatePage() {
                   msg.id === '1' ? "text-base font-medium" : ""
                 )}>{msg.content}</p>
 
-                {/* Assumption Options */}
-                {msg.role === 'ai' && msg.type === 'assumption' && msg.options && msg === lastMessage && (
+                {/* Dynamic Question Inputs - AI decides optimal type */}
+                {msg.role === 'ai' && msg.type === 'assumption' && msg === lastMessage && (
                   <div className="mt-3 space-y-2">
-                    <div className="flex flex-wrap gap-2">
-                      {msg.options.map((option, index) => (
+                    {/* YES/NO questions - Simple binary choice */}
+                    {msg.questionType === 'yes_no' && (
+                      <div className="flex flex-wrap gap-2">
                         <Button
-                          key={index}
                           size="sm"
                           onClick={() => {
                             if (pendingQuestionId) {
-                              // If it's a simple yes/no option, send boolean
-                              if (option === 'Sí, es correcto') {
-                                void handleAssumptionResponse(pendingQuestionId, true)
-                              } else if (option === 'No, es incorrecto') {
-                                void handleAssumptionResponse(pendingQuestionId, false)
-                              } else {
-                                // Otherwise, send the selected alternative as string
-                                void handleAssumptionResponse(pendingQuestionId, option)
-                              }
+                              void handleAssumptionResponse(pendingQuestionId, true)
                             }
                           }}
-                          className={cn(
-                            'transition-all whitespace-normal text-left break-words h-auto min-h-[2rem] py-2',
-                            index === 0
-                              ? 'bg-purple-600 hover:bg-purple-500 text-white border-0 shadow-md'
-                              : 'border-blue-500/30 bg-blue-600/20 text-blue-200 hover:bg-blue-600/30 hover:text-blue-100'
-                          )}
+                          className="transition-all bg-green-600 hover:bg-green-500 text-white border-0 shadow-md"
                           disabled={isLoading}
                         >
-                          {option}
+                          ✓ Sí, correcto
                         </Button>
-                      ))}
-                    </div>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            if (pendingQuestionId) {
+                              void handleAssumptionResponse(pendingQuestionId, false)
+                            }
+                          }}
+                          className="transition-all border-red-500/30 bg-red-600/20 text-red-200 hover:bg-red-600/30 hover:text-red-100"
+                          disabled={isLoading}
+                        >
+                          ✗ No, incorrecto
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* MULTIPLE CHOICE questions - Select from alternatives */}
+                    {msg.questionType === 'multiple_choice' && msg.options && (
+                      <div className="flex flex-wrap gap-2">
+                        {msg.options.map((option, index) => (
+                          <Button
+                            key={index}
+                            size="sm"
+                            onClick={() => {
+                              if (pendingQuestionId) {
+                                void handleAssumptionResponse(pendingQuestionId, option)
+                              }
+                            }}
+                            className={cn(
+                              'transition-all whitespace-normal text-left break-words h-auto min-h-[2rem] py-2',
+                              index === 0
+                                ? 'bg-purple-600 hover:bg-purple-500 text-white border-0 shadow-md'
+                                : 'border-blue-500/30 bg-blue-600/20 text-blue-200 hover:bg-blue-600/30 hover:text-blue-100'
+                            )}
+                            disabled={isLoading}
+                          >
+                            {option}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* FREE TEXT questions - Open ended */}
+                    {msg.questionType === 'free_text' && (
+                      <p className="text-xs text-purple-300 italic flex items-center gap-1">
+                        <Sparkles className="h-3 w-3" />
+                        Escribe tu respuesta abajo para continuar
+                      </p>
+                    )}
+
                     <p className="text-xs text-gray-400 italic flex items-center gap-1">
                       <Sparkles className="h-3 w-3" />
                       También puedes dar más contexto escribiendo abajo antes de responder
+                    </p>
+                  </div>
+                )}
+
+                {/* Dynamic Question Inputs - Also for clarifying questions */}
+                {msg.role === 'ai' && msg.type === 'question' && msg === lastMessage && (
+                  <div className="mt-3 space-y-2">
+                    {/* YES/NO questions */}
+                    {msg.questionType === 'yes_no' && (
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            if (pendingQuestionId) {
+                              void handleQuestionResponse(pendingQuestionId, 'Sí')
+                            }
+                          }}
+                          className="transition-all bg-green-600 hover:bg-green-500 text-white border-0 shadow-md"
+                          disabled={isLoading}
+                        >
+                          ✓ Sí
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            if (pendingQuestionId) {
+                              void handleQuestionResponse(pendingQuestionId, 'No')
+                            }
+                          }}
+                          className="transition-all border-red-500/30 bg-red-600/20 text-red-200 hover:bg-red-600/30 hover:text-red-100"
+                          disabled={isLoading}
+                        >
+                          ✗ No
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* MULTIPLE CHOICE questions */}
+                    {msg.questionType === 'multiple_choice' && msg.options && (
+                      <div className="flex flex-wrap gap-2">
+                        {msg.options.map((option, index) => (
+                          <Button
+                            key={index}
+                            size="sm"
+                            onClick={() => {
+                              if (pendingQuestionId) {
+                                void handleQuestionResponse(pendingQuestionId, option)
+                              }
+                            }}
+                            className={cn(
+                              'transition-all whitespace-normal text-left break-words h-auto min-h-[2rem] py-2',
+                              index === 0
+                                ? 'bg-purple-600 hover:bg-purple-500 text-white border-0 shadow-md'
+                                : 'border-blue-500/30 bg-blue-600/20 text-blue-200 hover:bg-blue-600/30 hover:text-blue-100'
+                            )}
+                            disabled={isLoading}
+                          >
+                            {option}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* FREE TEXT questions */}
+                    {msg.questionType === 'free_text' && (
+                      <p className="text-xs text-purple-300 italic flex items-center gap-1">
+                        <Sparkles className="h-3 w-3" />
+                        Escribe tu respuesta abajo
+                      </p>
+                    )}
+
+                    <p className="text-xs text-gray-400 italic">
+                      O escribe una respuesta personalizada abajo
                     </p>
                   </div>
                 )}

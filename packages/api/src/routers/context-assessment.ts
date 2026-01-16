@@ -26,7 +26,8 @@ const contextAssumptionSchema = z.object({
   assumption: z.string(),
   confidence: z.number().min(0).max(1),
   confirmed: z.union([z.boolean(), z.string()]).nullable(), // Can be boolean (yes/no) or string (selected alternative)
-  alternatives: z.array(z.string()).min(2), // Always include at least 2 alternatives
+  alternatives: z.array(z.string()).min(0), // FLEXIBLE: 0 alternatives = yes/no question, 2+ = multiple choice
+  questionType: z.enum(["yes_no", "multiple_choice", "free_text"]).default("yes_no"), // AI decides best type
 });
 
 const clarifyingQuestionSchema = z.object({
@@ -34,13 +35,14 @@ const clarifyingQuestionSchema = z.object({
   question: z.string(),
   dimension: z.string(),
   priority: z.enum(["critical", "important", "nice-to-have"]),
+  questionType: z.enum(["yes_no", "multiple_choice", "free_text"]), // AI decides optimal type
   multipleChoice: z
     .object({
       options: z.array(z.string()),
       allowMultiple: z.boolean(),
     })
-    .optional(),
-  freeText: z.boolean().optional(),
+    .optional(), // Only if questionType = "multiple_choice"
+  freeText: z.boolean().optional(), // Only if questionType = "free_text"
   dependsOn: z.string().optional(),
 });
 
@@ -179,13 +181,15 @@ const aiAnalysisSchema = z.object({
     dimension: z.string(),
     assumption: z.string(),
     confidence: z.number().min(0).max(1),
-    alternatives: z.array(z.string()),
+    questionType: z.enum(["yes_no", "multiple_choice", "free_text"]).default("yes_no"),
+    alternatives: z.array(z.string()).default([]), // Empty array for yes/no questions
   })),
   questions: z.array(z.object({
     question: z.string(),
     dimension: z.string(),
     priority: z.enum(["critical", "important", "nice-to-have"]),
-    options: z.array(z.string()).optional(),
+    questionType: z.enum(["yes_no", "multiple_choice", "free_text"]).default("free_text"),
+    options: z.array(z.string()).optional(), // Only if questionType = "multiple_choice"
   })),
   summary: z.string(),
 });
@@ -201,10 +205,24 @@ async function analyzeWithAI(
   const systemPrompt = `Eres un experto en análisis de contexto para debates estratégicos.
 Tu trabajo es analizar el input del usuario y evaluar qué tan completo es el contexto proporcionado.
 
-PRINCIPIO CLAVE: Sé INTELIGENTE y CONTEXTUAL. No hagas preguntas genéricas.
+PRINCIPIO CLAVE: Sé INTELIGENTE y ADAPTATIVO. Elige el tipo de pregunta que maximice el contexto obtenido.
 - Si el usuario YA mencionó algo, reconócelo y profundiza en ello
 - Si falta algo, haz suposiciones razonables basadas en el contexto dado
 - Las preguntas deben ser específicas y relevantes al caso concreto
+- CRUCIAL: Varía el tipo de pregunta según lo que necesites saber
+
+TIPOS DE PREGUNTAS DISPONIBLES:
+1. "yes_no": Preguntas Sí/No (rápidas, para validar suposiciones directas)
+   - Ejemplo: "¿Tienes presupuesto aprobado?" → Sí/No
+   - Uso: Cuando solo necesitas confirmación binaria
+
+2. "multiple_choice": Opciones múltiples (útil cuando hay alternativas claras)
+   - Ejemplo: "¿Cuál es tu presupuesto?" → ["<50k", "50-200k", ">200k"]
+   - Uso: Cuando hay categorías o rangos definidos
+
+3. "free_text": Texto libre (para información única o compleja)
+   - Ejemplo: "Describe tu competencia principal"
+   - Uso: Cuando las opciones predefinidas limitarían la respuesta
 
 Debes responder SOLO con un JSON válido siguiendo exactamente este esquema:
 {
@@ -219,17 +237,19 @@ Debes responder SOLO con un JSON válido siguiendo exactamente este esquema:
   "assumptions": [
     {
       "dimension": "dimension_id",
-      "assumption": "suposición ESPECÍFICA basada en el contexto dado (globo sonda para validar)",
+      "assumption": "suposición ESPECÍFICA basada en el contexto dado",
       "confidence": 0.0-1.0,
-      "alternatives": ["alternativa plausible 1", "alternativa plausible 2", "alternativa plausible 3"]
+      "questionType": "yes_no|multiple_choice|free_text",
+      "alternatives": [] // VACÍO para yes_no, 2-4 opciones para multiple_choice, vacío para free_text
     }
   ],
   "questions": [
     {
-      "question": "pregunta ESPECÍFICA que complementa lo que ya mencionó (no genérica)",
+      "question": "pregunta ESPECÍFICA adaptada al tipo elegido",
       "dimension": "dimension_id",
       "priority": "critical|important|nice-to-have",
-      "options": ["opción 1", "opción 2", "opción 3"] // SIEMPRE incluir opciones concretas cuando sea posible
+      "questionType": "yes_no|multiple_choice|free_text",
+      "options": ["opción 1", "opción 2"] // SOLO si questionType = "multiple_choice"
     }
   ],
   "summary": "resumen del contexto mencionando EXPLÍCITAMENTE qué información útil dio y qué falta"
@@ -242,27 +262,34 @@ Criterios de puntuación (sé GENEROSO con contexto rico):
 - 61-80: Información buena y suficiente para empezar, algunos detalles faltan
 - 81-100: Información completa, exhaustiva y detallada
 
-REGLAS PARA ASSUMPTIONS (globos sonda):
-- Genera 3-5 assumptions SIEMPRE (no solo para score 30-60)
+REGLAS PARA ASSUMPTIONS (globos sonda inteligentes):
+- Genera 3-5 assumptions variando los tipos de pregunta
 - Deben ser suposiciones INTELIGENTES basadas en lo que el usuario escribió
 - Ejemplo: Si menciona "startup SaaS", asumir "modelo de suscripción mensual", no "tienes un negocio"
-- OBLIGATORIO: Cada assumption DEBE tener EXACTAMENTE 3 alternativas plausibles en el array "alternatives"
-- Las alternativas deben ser opciones específicas y mutuamente excluyentes
-- Ejemplo: alternatives: ["<50k USD", "50-200k USD", ">200k USD"] para presupuesto
+- Elige el tipo según la naturaleza de la suposición:
+  * yes_no: "Asumo que tienes equipo técnico interno" → ¿Correcto? Sí/No
+  * multiple_choice: "Asumo presupuesto <50k" → alternatives: ["<50k", "50-200k", ">200k"]
+  * free_text: "Asumo competidores locales" → ¿Quiénes son exactamente?
 
-REGLAS PARA QUESTIONS:
+REGLAS PARA QUESTIONS (varía el tipo inteligentemente):
 - Genera 3-5 preguntas máximo, priorizando las MÁS impactantes
-- NO preguntes lo obvio ("¿tienes un objetivo?"). Pregunta lo ESPECÍFICO ("¿Tu objetivo es aumentar ventas o reducir churn?")
-- SIEMPRE incluye opciones de múltiple elección cuando sea posible (más fácil para el usuario)
+- NO preguntes lo obvio. Pregunta lo ESPECÍFICO.
+- Elige el tipo que mejor capture la información:
+  * yes_no para validaciones rápidas ("¿Tienes clientes actualmente?")
+  * multiple_choice para rangos/categorías ("¿Cuántos clientes?" → ["0-10", "10-50", "50+"])
+  * free_text para información única ("¿Cuál es tu propuesta de valor única?")
 - Si el usuario ya mencionó algo, PROFUNDIZA en ello, no lo repitas
 - Las preguntas con weight > 0.15 son "critical", el resto "important"
 
-Ejemplo de MALO vs BUENO:
-❌ MALO: "¿Cuál es tu objetivo?" (genérico)
-✅ BUENO: "Mencionaste aumentar ventas. ¿Cuál es tu meta específica?" con opciones ["Crecer 20-50%", "Crecer 50-100%", "Más del 100%"]
+Ejemplos BUENOS de variedad:
+✅ ASSUMPTION yes_no: {"assumption": "Tienes equipo técnico interno", "questionType": "yes_no", "alternatives": []}
+✅ ASSUMPTION multiple_choice: {"assumption": "Presupuesto <50k USD", "questionType": "multiple_choice", "alternatives": ["<50k", "50-200k", ">200k"]}
+✅ QUESTION yes_no: {"question": "¿Ya tienes producto en el mercado?", "questionType": "yes_no"}
+✅ QUESTION multiple_choice: {"question": "¿Cuántos usuarios tienes?", "questionType": "multiple_choice", "options": ["0-100", "100-1000", ">1000"]}
+✅ QUESTION free_text: {"question": "Describe tu propuesta de valor única", "questionType": "free_text"}
 
-❌ MALO: Assumption "Tienes restricciones de presupuesto" (obvio)
-✅ BUENO: Assumption "Basado en que mencionas startup seed, asumo presupuesto <50k USD" con alternatives ["<50k", "50-200k", ">200k"]`;
+❌ MALO: Todas las preguntas son multiple_choice con 3 opciones (patrón rígido)
+✅ BUENO: Mezcla inteligente de yes_no, multiple_choice y free_text según lo que maximice contexto`;
 
   const userPrompt = `Tipo de debate: ${debateType}
 
@@ -390,12 +417,16 @@ function fallbackAnalysis(
   });
 
   const partialDims = analyzedDimensions.filter((d) => d.score >= 30 && d.score < 60);
-  const assumptions = partialDims.slice(0, 3).map((dim) => ({
-    dimension: dim.id,
-    assumption: ASSUMPTIONS[dim.id] || "Información general asumida",
-    confidence: 0.6,
-    alternatives: ALTERNATIVES[dim.id] || [],
-  }));
+  const assumptions = partialDims.slice(0, 3).map((dim) => {
+    const alternatives = ALTERNATIVES[dim.id] || [];
+    return {
+      dimension: dim.id,
+      assumption: ASSUMPTIONS[dim.id] || "Información general asumida",
+      confidence: 0.6,
+      questionType: (alternatives.length > 0 ? "multiple_choice" : "yes_no") as "yes_no" | "multiple_choice" | "free_text",
+      alternatives,
+    };
+  });
 
   const missingDims = analyzedDimensions.filter((d) => d.score < 50);
   const questions = missingDims.slice(0, 4).map((dim) => {
@@ -404,6 +435,7 @@ function fallbackAnalysis(
       question: QUESTIONS[dim.id] || `¿Puedes dar más detalle sobre ${template?.name.toLowerCase() || dim.id}?`,
       dimension: dim.id,
       priority: ((template?.weight || 0) > 0.15 ? "critical" : "important") as "critical" | "important" | "nice-to-have",
+      questionType: "free_text" as const, // Fallback uses free text since no AI to generate options
     };
   });
 
@@ -466,6 +498,7 @@ export const contextAssessmentRouter = router({
         assumption: a.assumption,
         confidence: a.confidence,
         confirmed: null,
+        questionType: a.questionType,
         alternatives: a.alternatives,
       }));
 
@@ -474,8 +507,11 @@ export const contextAssessmentRouter = router({
         question: q.question,
         dimension: q.dimension,
         priority: q.priority,
-        multipleChoice: q.options ? { options: q.options, allowMultiple: false } : undefined,
-        freeText: !q.options,
+        questionType: q.questionType,
+        multipleChoice: q.questionType === "multiple_choice" && q.options
+          ? { options: q.options, allowMultiple: false }
+          : undefined,
+        freeText: q.questionType === "free_text",
       }));
 
       // Calculate overall score (weighted average)
@@ -646,8 +682,11 @@ Responde SOLO con el JSON.`;
           question: q.question,
           dimension: q.dimension,
           priority: "nice-to-have" as const,
-          multipleChoice: q.options ? { options: q.options, allowMultiple: false } : undefined,
-          freeText: !q.options,
+          questionType: q.questionType,
+          multipleChoice: q.questionType === "multiple_choice" && q.options
+            ? { options: q.options, allowMultiple: false }
+            : undefined,
+          freeText: q.questionType === "free_text",
         }));
 
         return {
@@ -690,8 +729,11 @@ Responde SOLO con el JSON.`;
           question: q.question,
           dimension: q.dimension,
           priority: "nice-to-have" as const,
-          multipleChoice: q.options ? { options: q.options, allowMultiple: false } : undefined,
-          freeText: !q.options,
+          questionType: q.questionType,
+          multipleChoice: q.questionType === "multiple_choice" && q.options
+            ? { options: q.options, allowMultiple: false }
+            : undefined,
+          freeText: q.questionType === "free_text",
         }));
 
         return {

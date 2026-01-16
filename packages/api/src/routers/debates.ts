@@ -797,6 +797,54 @@ export const debatesRouter = router({
 
       return { success: true, message: "Se forzará consenso en la próxima ronda" };
     }),
+
+  /**
+   * Generate optimized meta-prompt for deliberation
+   * Takes user's question + context and creates an optimized prompt for agents
+   */
+  generateOptimizedPrompt: protectedProcedure
+    .input(
+      z.object({
+        contextInfo: z.string().min(10, "Context must be at least 10 characters"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      logger.info("[Meta-Prompt] Generating optimized prompt", {
+        contextLength: input.contextInfo.length,
+      });
+
+      try {
+        // Import AI client
+        const { getAIClient } = await import("@quoorum/ai");
+        const aiClient = getAIClient();
+
+        // Generate optimized prompt using AI
+        const response = await aiClient.generate(
+          `Imagina que tienes que crear un prompt para deliberar sobre lo siguiente:\n\n${input.contextInfo}\n\nCrea un prompt claro, conciso y bien estructurado que capture toda la información esencial para que los expertos puedan deliberar efectivamente. El prompt debe ser directo y enfocado en la pregunta principal y el contexto clave.`,
+          {
+            modelId: "gemini-2.0-flash-exp", // Free tier
+            temperature: 0.7,
+            maxTokens: 500,
+          }
+        );
+
+        const optimizedPrompt = response.text.trim();
+
+        logger.info("[Meta-Prompt] Generated successfully", {
+          originalLength: input.contextInfo.length,
+          optimizedLength: optimizedPrompt.length,
+        });
+
+        return optimizedPrompt;
+      } catch (error) {
+        logger.error("[Meta-Prompt] Generation failed", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        // Fallback to original context if AI fails
+        return input.contextInfo;
+      }
+    }),
 });
 
 /**
