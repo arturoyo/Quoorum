@@ -16,6 +16,7 @@ export type {
 export {
   anthropicProvider,
   createModel,
+  deepseekProvider,
   getAllProviders,
   getDefaultModel,
   getProvider,
@@ -26,3 +27,10 @@ export {
 } from "./providers/index.js";
 
 export { getAIClient, resetAIClient } from "./client.js";
+
+export {
+  getFallbackChain,
+  getNextFallback,
+  FALLBACK_ORDER,
+  type FallbackModel,
+} from "./lib/fallback-config.js";
