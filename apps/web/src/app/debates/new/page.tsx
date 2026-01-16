@@ -495,7 +495,13 @@ export default function NewDebatePage() {
       .filter(Boolean)
       .join('\n')
 
+    // Enrich question with context if available to meet minimum length requirement
+    const finalQuestion = enrichedContext
+      ? `${contextState.question}\n\nContexto adicional:\n${enrichedContext}`
+      : contextState.question
+
     console.log('[DEBUG] Enriched context:', enrichedContext)
+    console.log('[DEBUG] Final question (with context):', finalQuestion)
     console.log('[DEBUG] About to call createDebateMutation.mutate')
 
     try {
@@ -503,7 +509,7 @@ export default function NewDebatePage() {
       // Backend auto-determines optimal values using analyzeQuestion() + matchExperts()
       createDebateMutation.mutate({
         draftId: contextState.debateId, // Use existing draft if available
-        question: contextState.question,
+        question: finalQuestion,
         context: enrichedContext,
         category: 'general',
         expertCount: 6, // Metadata only - not used by deliberation system
@@ -766,6 +772,40 @@ export default function NewDebatePage() {
             </Button>
           )}
 
+          {/* Character counter and validation (only show for first message) */}
+          {messages.length === 0 && input.length > 0 && (
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    'h-2 w-2 rounded-full transition-colors',
+                    input.length < 20
+                      ? 'bg-red-500'
+                      : input.length < 30
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
+                  )}
+                />
+                <span
+                  className={cn(
+                    'text-xs font-medium transition-colors',
+                    input.length < 20
+                      ? 'text-red-400'
+                      : input.length < 30
+                      ? 'text-yellow-400'
+                      : 'text-green-400'
+                  )}
+                >
+                  {input.length < 20 ? (
+                    <>Mínimo 20 caracteres requeridos ({input.length}/20)</>
+                  ) : (
+                    <>✓ Longitud válida ({input.length} caracteres)</>
+                  )}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* ALWAYS show input so user can continue adding context */}
           <div className="flex gap-2">
             <Input
@@ -774,6 +814,11 @@ export default function NewDebatePage() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
+                  // Only allow submission if first message meets minimum length
+                  if (messages.length === 0 && input.trim().length < 20) {
+                    toast.error('La pregunta debe tener al menos 20 caracteres')
+                    return
+                  }
                   void handleSendMessage()
                 }
               }}
@@ -785,12 +830,24 @@ export default function NewDebatePage() {
                   : 'Escribe más contexto o responde la pregunta...'
               }
               disabled={isLoading}
-              className="flex-1 border-2 border-purple-500/30 bg-slate-900/60 backdrop-blur-sm text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+              className={cn(
+                "flex-1 border-2 bg-slate-900/60 backdrop-blur-sm text-white placeholder:text-gray-400 focus:ring-2 focus:ring-purple-500/20 transition-all",
+                messages.length === 0 && input.length > 0 && input.length < 20
+                  ? "border-red-500/50 focus:border-red-500"
+                  : "border-purple-500/30 focus:border-purple-500"
+              )}
               autoFocus
             />
             <Button
-              onClick={handleSendMessage}
-              disabled={isLoading || !input.trim()}
+              onClick={() => {
+                // Validate minimum length for first message
+                if (messages.length === 0 && input.trim().length < 20) {
+                  toast.error('La pregunta debe tener al menos 20 caracteres')
+                  return
+                }
+                void handleSendMessage()
+              }}
+              disabled={isLoading || !input.trim() || (messages.length === 0 && input.trim().length < 20)}
               className="bg-purple-600 hover:bg-purple-500 text-white border-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isLoading ? (
