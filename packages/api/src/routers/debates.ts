@@ -888,6 +888,12 @@ async function runDebateAsync(
         // Store estimated total rounds for use in onMessageGenerated
         if (progress.totalRounds) {
           estimatedTotalRounds = progress.totalRounds;
+
+          // Log estimated rounds for debugging
+          logger.info(`[Debate ${debateId}] Estimated rounds set to ${estimatedTotalRounds}`, {
+            phase: progress.phase,
+            currentRound: progress.currentRound,
+          });
         }
 
         // Forward progress events to DB

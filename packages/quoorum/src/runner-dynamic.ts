@@ -77,7 +77,13 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
   try {
     // 1. Determine debate mode (static vs dynamic)
     const debateMode = await determineDebateMode(question, forceMode)
-    quoorumLogger.info('Starting debate', { mode: debateMode.mode, sessionId })
+    quoorumLogger.info('🎯 Debate Mode Determined', {
+      mode: debateMode.mode,
+      estimatedRounds: debateMode.estimatedRounds,
+      reason: debateMode.reason,
+      agentCount: debateMode.agents.length,
+      sessionId
+    })
 
     // 2. Run debate with selected mode
     let result: DebateResult

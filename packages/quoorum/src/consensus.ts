@@ -21,6 +21,12 @@ export async function checkConsensus(
   // Extract options and analyze debate
   const options = await rankOptions(messages, question)
 
+  console.log(`[Consensus Check] Round ${round}/${maxRounds}:`, {
+    optionsFound: options.length,
+    topOption: options[0]?.option,
+    topSuccessRate: options[0]?.successRate,
+  })
+
   if (options.length === 0) {
     return {
       hasConsensus: false,
@@ -49,10 +55,22 @@ export async function checkConsensus(
   const hasStrongConsensus = topOption.successRate >= 70
   const hasLargeGap = secondOption ? topOption.successRate - secondOption.successRate >= 30 : true
   const reachedMaxRounds = round >= maxRounds
+  const hasMinimumRounds = round >= Math.min(3, maxRounds) // At least 3 rounds (or maxRounds if less)
 
-  const hasConsensus = hasStrongConsensus || hasLargeGap || reachedMaxRounds
+  // CRITICAL: Don't stop on first round unless maxRounds is 1
+  // Even if we have strong consensus or large gap, need minimum rounds for deliberation
+  const hasConsensus = (hasStrongConsensus || hasLargeGap) && hasMinimumRounds || reachedMaxRounds
 
   const consensusScore = calculateConsensusScore(options)
+
+  console.log(`[Consensus Decision] Round ${round}/${maxRounds}:`, {
+    hasStrongConsensus,
+    hasLargeGap,
+    hasMinimumRounds: `${hasMinimumRounds} (need >= ${Math.min(3, maxRounds)})`,
+    reachedMaxRounds,
+    hasConsensus,
+    decision: hasConsensus ? '🛑 STOP' : '➡️ CONTINUE',
+  })
 
   return {
     hasConsensus,
@@ -63,6 +81,7 @@ export async function checkConsensus(
       hasStrongConsensus,
       hasLargeGap,
       reachedMaxRounds,
+      hasMinimumRounds,
     }),
   }
 }
@@ -175,6 +194,7 @@ interface ConsensusFlags {
   hasStrongConsensus: boolean
   hasLargeGap: boolean
   reachedMaxRounds: boolean
+  hasMinimumRounds: boolean
 }
 
 function generateReasoning(
@@ -193,6 +213,10 @@ function generateReasoning(
   }
 
   if (!hasConsensus) {
+    // If no consensus yet because minimum rounds not reached
+    if ((flags.hasStrongConsensus || flags.hasLargeGap) && !flags.hasMinimumRounds) {
+      return `Round ${round}: ${topOption.option} lidera con ${topOption.successRate}% pero continuamos deliberando (mínimo 3 rondas).`
+    }
     return `Round ${round}: ${topOption.option} lidera con ${topOption.successRate}% pero el debate continua.`
   }
 
