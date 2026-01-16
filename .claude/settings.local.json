@@ -91,7 +91,29 @@
       "Bash(find:*)",
       "Bash(psql:*)",
       "Bash(pnpm tsx:*)",
-      "Bash(pnpm --filter @quoorum/db build:*)"
+      "Bash(pnpm --filter @quoorum/db build:*)",
+      "Bash(pnpm --filter @quoorum/quoorum build:*)",
+      "Bash(cmd /c start http://localhost:3000/debates/new)",
+      "Bash(cmd /c start http://localhost:3000/login)",
+      "Bash(cmd /c start file:///C:/Quoorum/crear-debate-automatico.html)",
+      "Bash(explorer \"C:\\\\Quoorum\\\\crear-debate-automatico.html\")",
+      "Bash(cmd /c start notepad C:QuoorumPREGUNTA-PARA-COPIAR.txt)",
+      "Bash(start http://localhost:3000/debates/new)",
+      "Bash(start notepad \"C:\\\\Quoorum\\\\PREGUNTA-PARA-COPIAR.txt\")",
+      "Bash(powershell \"Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, ProcessName | Format-Table -AutoSize\")",
+      "Bash(powershell \"Stop-Process -Name node -Force -ErrorAction SilentlyContinue\")",
+      "Bash(Get-Process)",
+      "Bash(Where-Object { $_ProcessName -like \"*node*\" -or $_ProcessName -like \"*next*\" })",
+      "Bash(Select-Object Id, ProcessName, StartTime, CPU)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(pnpm exec vitest:*)",
+      "Bash(pnpm vitest:*)",
+      "Bash(echo:*)",
+      "Bash(pnpm --filter @wallie/quoorum typecheck:*)",
+      "Bash(git revert:*)",
+      "Bash(pnpm --filter @wallie/quoorum test --reporter=verbose --run)",
+      "Bash(pnpm --filter @wallie/quoorum test:*)",
+      "Bash(npx vitest:*)"
     ]
   }
 }
