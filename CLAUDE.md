@@ -3224,25 +3224,30 @@ Si los tests E2E fallan, se sube automáticamente:
 
 **Acceso:** GitHub Actions → Run fallido → Artifacts
 
-### Estado Actual (16 Ene 2026 - CONFIGURADO)
+### Estado Actual (16 Ene 2026 - VERIFICADO)
 
 ```
-✅ GitHub Actions CONFIGURADO
-   - Directorio .github/workflows/ creado
-   - Pipeline ci.yml implementado (validate, test, e2e, security)
-   - 4 jobs configurados con concurrency control
-   - Artifacts para E2E reports
-   - Node 20, pnpm 8
+❌ GitHub Actions NO CONFIGURADO
+   - Directorio .github/workflows/ NO EXISTE
+   - Pipeline documentado arriba es ASPIRACIONAL, no implementado
+   - Configuración pendiente de crear
 
-✅ Validación multi-nivel:
+✅ Alternativas funcionando:
    - Validación local con Husky (.husky/pre-commit)
-   - GitHub Actions CI (4 jobs automáticos)
    - Vercel CI/CD operativo (builds automáticos)
+   - Validación manual con pnpm check, pnpm typecheck, pnpm lint
 ```
 
-**✅ CONFIGURACIÓN COMPLETA:** El pipeline está configurado y listo para uso.
-Para activar GitHub Actions en el repositorio, asegúrate de que Actions esté
-habilitado en Settings → Actions → General.
+**⚠️ IMPORTANTE:** La documentación anterior describe el pipeline IDEAL que debería
+configurarse, pero actualmente NO existe. Para crear el workflow:
+
+```bash
+# 1. Crear directorio
+mkdir -p .github/workflows
+
+# 2. Crear archivo ci.yml con la configuración descrita arriba
+# 3. Commit y push para activar GitHub Actions
+```
 
 **Sistema de validación local equivalente:**
 
@@ -3606,7 +3611,7 @@ git commit -m "refactor(ui): simplify button component"
 | Tests                   | ✅ 234 test cases   | 13 archivos, 3927 líneas, 92 suites (16 Ene 2026)    |
 | E2E Tests               | ⚠️ No verificado    | Requiere verificación manual                          |
 | Type errors             | ✅ Resueltos        | Build limpio                                          |
-| GitHub Actions          | ✅ Configurado      | Pipeline ci.yml con 4 jobs (validate, test, e2e, security) |
+| GitHub Actions          | ❌ No configurado   | Directorio .github/workflows/ no existe (16 Ene 2026) |
 | AI Hardcoding           | ✅ Refactorizado    | agents.ts usa config centralizada + env vars (16 Ene 2026) |
 
 ### Historial de Completados (Verificado 16 Ene 2026)
@@ -3640,23 +3645,6 @@ git commit -m "refactor(ui): simplify button component"
    - .env.agents.example con documentación completa
    - Zod validation para provider/model/temperature
    - Backwards compatible (defaults a free tier)
-
-✅ COMPLETADO: Expert Database Refactor (16 Ene 2026)
-   - 25 expertos refactorizados en expert-database.ts
-   - expert-config.ts con jerarquía de configuración (per-expert → per-category → global → hard default)
-   - Mapeo completo de categorías para todos los expertos
-   - .env.experts.example con documentación de 25 expertos
-   - Validación Zod para prevenir configuraciones inválidas
-   - 366 líneas modificadas/agregadas
-
-✅ COMPLETADO: GitHub Actions CI Pipeline (16 Ene 2026)
-   - Directorio .github/workflows/ creado
-   - Pipeline ci.yml con 4 jobs (validate, test, e2e, security)
-   - Concurrency control para cancelar runs redundantes
-   - Cache de pnpm store para builds rápidos
-   - Artifacts automáticos para reportes E2E fallidos
-   - Node 20, pnpm 8 configurados
-   - Timeout configurados (validate: 10min, test: 10min, e2e: 15min, security: 5min)
 
 ✅ VERIFICADO: Tests Unitarios (16 Ene 2026)
    - 13 archivos de tests verificados
