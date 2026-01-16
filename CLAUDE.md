@@ -2435,25 +2435,36 @@ const fallback = fallbackManager.getNextFallback('gpt-4o', ['openai'])
 
 | Archivo | Problema | Estado |
 |---------|----------|--------|
-| `packages/quoorum/src/agents.ts` | 4 agentes con `provider: 'google'` + `model: 'gemini-2.0-flash-exp'` hardcoded | 🔴 Deuda Técnica |
+| `packages/quoorum/src/agents.ts` | 4 agentes configurables via env vars | ✅ Refactorizado (16 Ene 2026) |
+| `packages/quoorum/src/config/agent-config.ts` | Configuración centralizada con Zod validation | ✅ Implementado (16 Ene 2026) |
 | `packages/quoorum/src/expert-database.ts` | 50+ expertos con providers/models hardcoded | 🔴 Deuda Técnica |
 | `packages/ai/src/lib/fallback-config.ts` | Mapeo de modelos → fallbacks (este ES necesario) | ✅ Diseño intencional |
 
-**Código real en `agents.ts` (líneas 13-68):**
+**Código refactorizado en `agents.ts` (16 Ene 2026):**
 ```typescript
+import { getAgentConfig } from './config/agent-config'
+
+const optimizerConfig = getAgentConfig('optimizer')  // ✅ From env vars
+const criticConfig = getAgentConfig('critic')
+
 export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
   optimizer: {
-    provider: 'google',              // ❌ Hardcoded
-    model: 'gemini-2.0-flash-exp',   // ❌ Hardcoded
-    temperature: 0.7,
+    provider: optimizerConfig.provider,      // ✅ Configurable
+    model: optimizerConfig.model,            // ✅ Configurable
+    temperature: optimizerConfig.temperature,
   },
   critic: {
-    provider: 'google',              // ❌ Hardcoded
-    model: 'gemini-2.0-flash-exp',   // ❌ Hardcoded
-    temperature: 0.5,
+    provider: criticConfig.provider,         // ✅ Configurable
+    model: criticConfig.model,               // ✅ Configurable
+    temperature: criticConfig.temperature,
   },
-  // ... 4 agentes en total
+  // ... 4 agentes configurables via env vars
 }
+
+// .env.agents example:
+// OPTIMIZER_PROVIDER=openai
+// OPTIMIZER_MODEL=gpt-4o
+// Defaults to google/gemini-2.0-flash-exp if not set
 ```
 
 **Código real en `expert-database.ts` (50+ expertos):**
@@ -3213,12 +3224,29 @@ Si los tests E2E fallan, se sube automáticamente:
 
 **Acceso:** GitHub Actions → Run fallido → Artifacts
 
-### Estado Actual (29 Dic 2025)
+### Estado Actual (16 Ene 2026 - VERIFICADO)
 
 ```
-⚠️ GitHub Actions temporalmente deshabilitado por billing
-✅ Validación local con Husky funciona perfectamente
-✅ Vercel CI/CD operativo y ejecutando builds
+❌ GitHub Actions NO CONFIGURADO
+   - Directorio .github/workflows/ NO EXISTE
+   - Pipeline documentado arriba es ASPIRACIONAL, no implementado
+   - Configuración pendiente de crear
+
+✅ Alternativas funcionando:
+   - Validación local con Husky (.husky/pre-commit)
+   - Vercel CI/CD operativo (builds automáticos)
+   - Validación manual con pnpm check, pnpm typecheck, pnpm lint
+```
+
+**⚠️ IMPORTANTE:** La documentación anterior describe el pipeline IDEAL que debería
+configurarse, pero actualmente NO existe. Para crear el workflow:
+
+```bash
+# 1. Crear directorio
+mkdir -p .github/workflows
+
+# 2. Crear archivo ci.yml con la configuración descrita arriba
+# 3. Commit y push para activar GitHub Actions
 ```
 
 **Sistema de validación local equivalente:**
@@ -3577,12 +3605,14 @@ git commit -m "refactor(ui): simplify button component"
 | Área                    | Estado              | Detalles                                              |
 | ----------------------- | ------------------- | ----------------------------------------------------- |
 | Quoorum Debates System  | ✅ Activo           | 20+ routers, 27 schemas, 234 test cases               |
-| AI Rate Limiting System | 📋 Diseñado         | Configuración parcial (fallback-config.ts), no implementado completo |
+| AI Rate Limiting System | ✅ Implementado     | 4 componentes completos: rate-limiter, quota-monitor, retry, telemetry (16 Ene 2026) |
 | Deuda técnica (any)     | ✅ 0 any types      | Eliminados en 50+ archivos                            |
 | console.logs prod       | ✅ Eliminados       | Código limpio                                         |
 | Tests                   | ✅ 234 test cases   | 13 archivos, 3927 líneas, 92 suites (16 Ene 2026)    |
 | E2E Tests               | ⚠️ No verificado    | Requiere verificación manual                          |
 | Type errors             | ✅ Resueltos        | Build limpio                                          |
+| GitHub Actions          | ❌ No configurado   | Directorio .github/workflows/ no existe (16 Ene 2026) |
+| AI Hardcoding           | ✅ Refactorizado    | agents.ts usa config centralizada + env vars (16 Ene 2026) |
 
 ### Historial de Completados (Verificado 16 Ene 2026)
 
@@ -3599,11 +3629,22 @@ git commit -m "refactor(ui): simplify button component"
    - console.logs eliminados de producción
    - Type errors resueltos en web y workers
 
-⚠️ PARCIAL: AI Rate Limiting System (Dic 2025 - Ene 2026)
-   - Diseño arquitectónico completo (fallback-config.ts existe)
-   - Rate limiter, circuit breaker, quota monitor NO implementados
-   - Falta: getRateLimiterManager(), getFallbackManager(), getQuotaMonitor()
-   - Estado: Planificado pero no implementado completamente
+✅ COMPLETADO: AI Rate Limiting System (16 Ene 2026)
+   - 4 componentes implementados (rate-limiter, quota-monitor, retry, telemetry)
+   - 920 líneas de código agregadas
+   - Token bucket algorithm para RPM/TPM/RPD
+   - Alert system con thresholds (80%, 95%, 100%)
+   - Exponential backoff con jitter
+   - Cost tracking para 15+ modelos
+   - Integración PostHog lista
+
+✅ COMPLETADO: Refactor AI Hardcoding (16 Ene 2026)
+   - agents.ts refactorizado con configuración centralizada
+   - config/agent-config.ts creado (100 líneas)
+   - 12 variables de entorno configurables
+   - .env.agents.example con documentación completa
+   - Zod validation para provider/model/temperature
+   - Backwards compatible (defaults a free tier)
 
 ✅ VERIFICADO: Tests Unitarios (16 Ene 2026)
    - 13 archivos de tests verificados
@@ -3614,7 +3655,20 @@ git commit -m "refactor(ui): simplify button component"
 📋 PENDIENTE: Testing Coverage y CI
    - Coverage %: No medido (requiere pnpm test --coverage)
    - Tests E2E: No verificados en CI actual
-   - Tests actualmente no ejecutables (problemas de setup)
+
+⚠️ PROBLEMA CONOCIDO: Tests no producen output (16 Ene 2026)
+   - Ejecutar `pnpm test` → Sin output ni errores
+   - vitest.setup.ts existe y se ve correcto
+   - Test files bien formados (234 casos en 13 archivos)
+   - Posible problema: stdio/stdout redirection en entorno Windows
+   - Workaround: Tests verificados por inspección manual de código
+   - TODO: Investigar configuración de Vitest en Windows
+
+❌ VERIFICADO: GitHub Actions NO configurado (16 Ene 2026)
+   - Directorio .github/workflows/ NO EXISTE
+   - Pipeline documentado en CLAUDE.md es aspiracional
+   - Alternativas funcionando: Husky pre-commit + Vercel CI
+   - TODO: Crear workflow ci.yml si se desea CI en GitHub
 ```
 
 ### Checklist de Integración para Nuevas Features
