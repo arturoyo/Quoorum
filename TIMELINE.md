@@ -21,7 +21,59 @@
 
 ---
 
-## [2025-01-16] - VALIDACIÓN VISUAL Y MEJORAS UX DEBATES
+## [2025-01-16] - VALIDACIÓN VISUAL Y SISTEMA DE FALLBACK AUTOMÁTICO
+
+### [21:15] - SISTEMA DE FALLBACK AUTOMÁTICO DE PROVEEDORES AI
+
+**Solicitado por:** Usuario
+**Descripción:** Implementar selección dinámica de proveedores AI con fallback automático cuando uno falla, ordenados de más barato a más caro para desarrollo/pruebas
+
+**Contexto:**
+- Debates seguían fallando con quota exceeded de OpenAI
+- Causa raíz: agentes usaban `deepseek-chat` pero cliente NO reconocía el prefijo
+- Cliente defaulteaba a OpenAI cuando no reconocía el modelo
+- Usuario solicitó: "cuando uno falla va al siguiente.. pero en orden de mas barato a menos"
+
+**Acciones realizadas:**
+1. **Creado sistema de configuración de fallback** (`packages/ai/src/lib/fallback-config.ts`)
+   - FALLBACK_ORDER ordenado por costo (FREE → caro):
+     * Gemini 2.0 Flash: $0.00 (FREE tier)
+     * DeepSeek Chat: $0.14/1M tokens
+     * Groq Llama 3.3 70B: $0.08/1M tokens
+     * GPT-4o Mini: $0.38/1M tokens
+     * Claude 3.5 Haiku: $0.75/1M tokens
+   - getFallbackChain() para obtener cadena desde un provider
+   - getNextFallback() para obtener siguiente provider
+
+2. **Modificado cliente AI** (`packages/ai/src/client.ts`)
+   - ✅ Añadido reconocimiento de prefijo `deepseek-` (antes defaulteaba a openai!)
+   - ✅ Implementado retry automático con cadena de fallback
+   - ✅ Detecta errores de quota/rate-limit específicamente
+   - ✅ Logging detallado de intentos y fallbacks
+   - ✅ Cambiado default de openai → google (free tier)
+   - Solo reintentar en quota errors, throw inmediato en otros errores
+
+3. **Actualizado exports** (`packages/ai/src/index.ts`)
+   - Exportado deepseekProvider (estaba importado pero no exportado)
+   - Exportado getFallbackChain, getNextFallback, FALLBACK_ORDER
+
+**Archivos afectados:**
+- `/packages/ai/src/lib/fallback-config.ts` (NUEVO)
+- `/packages/ai/src/client.ts` (fallback automático + deepseek recognition)
+- `/packages/ai/src/index.ts` (exports)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+- Sistema completamente transparente vía console logs:
+  * "[AI Client] Falling back to DeepSeek Chat (deepseek)"
+  * "[AI Client] ✓ Fallback successful with DeepSeek Chat"
+- Ideal para desarrollo: usa FREE tier primero, luego baratos
+- Producción: configurar con providers con cuotas pagadas
+- Elimina interrupciones por quota exceeded durante debates
+- Total: 5 proveedores en cadena de fallback
+
+---
 
 ### [20:45] - FEEDBACK VISUAL PARA REQUISITO MÍNIMO DE CARACTERES
 
