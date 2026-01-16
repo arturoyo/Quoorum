@@ -209,7 +209,7 @@ export function DebateProgressCascade({
           <div className="space-y-2">
             <Progress value={progress} className="h-2" />
             {currentPhase?.currentRound && currentPhase?.totalRounds && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-300 bg-slate-800/50 px-2 py-0.5 rounded">
                 Ronda {currentPhase.currentRound} de {currentPhase.totalRounds}
               </p>
             )}
@@ -271,16 +271,16 @@ export function DebateProgressCascade({
                           {phase.message}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-300">
                             {new Date(phase.timestamp).toLocaleTimeString("es-ES")}
                           </p>
                           {phase.currentRound && phase.totalRounds && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs text-white bg-slate-800/50">
                               Ronda {phase.currentRound}/{phase.totalRounds}
                             </Badge>
                           )}
                           {hasMessages && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs text-white bg-slate-800/50">
                               {phase.roundMessages.length} mensajes
                             </Badge>
                           )}
@@ -363,7 +363,7 @@ export function DebateProgressCascade({
                                   <span className="text-sm font-medium text-white">
                                     {msg.agentName}
                                   </span>
-                                  <Badge variant="outline" className="text-xs ml-auto">
+                                  <Badge variant="outline" className="text-xs ml-auto text-white bg-slate-800/50">
                                     {MODEL_NAMES[msg.model] || msg.model}
                                   </Badge>
                                 </div>
@@ -374,7 +374,7 @@ export function DebateProgressCascade({
                                 </p>
 
                                 {/* Timestamp */}
-                                <p className="text-xs text-gray-500 mt-2">
+                                <p className="text-xs text-gray-300 mt-2">
                                   {new Date(msg.timestamp).toLocaleTimeString("es-ES")}
                                 </p>
                               </motion.div>
