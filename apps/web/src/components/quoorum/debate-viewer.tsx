@@ -62,24 +62,25 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
   const [isPlaying, setIsPlaying] = useState(false)
 
   // Fetch debate data from tRPC
-  const { data: debate, isLoading: isLoadingDebate } = api.quoorum.get.useQuery(
+  const { data: debate, isLoading: isLoadingDebate } = api.debates.get.useQuery(
     { id: debateId }
   )
 
-  // Subscribe to real-time updates via WebSocket
-  const { subscribe } = useWebSocket()
-
-  useEffect(() => {
-    if (!realtime) return
-
-    const unsubscribe = subscribe(`debate:${debateId}`, (_update: DebateUpdate) => {
-      // WebSocket updates will trigger tRPC refetch
-      // This ensures UI is always in sync
-      // Debate update received via WebSocket
-    })
-
-    return () => unsubscribe()
-  }, [debateId, realtime, subscribe])
+  // TODO: Enable WebSocket when WebSocketProvider is added to layout
+  // For now, we skip WebSocket and rely on tRPC polling
+  // const { subscribe } = useWebSocket()
+  //
+  // useEffect(() => {
+  //   if (!realtime) return
+  //
+  //   const unsubscribe = subscribe(`debate:${debateId}`, (_update: DebateUpdate) => {
+  //     // WebSocket updates will trigger tRPC refetch
+  //     // This ensures UI is always in sync
+  //     // Debate update received via WebSocket
+  //   })
+  //
+  //   return () => unsubscribe()
+  // }, [debateId, realtime, subscribe])
 
   // Auto-play rounds
   useEffect(() => {

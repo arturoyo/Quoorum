@@ -25,3 +25,4 @@ export { debatesRouter } from "./debates.js";
 export { notificationSettingsRouter } from "./notification-settings.js";
 export { sessionsRouter } from "./sessions.js";
 export { apiKeysRouter } from "./api-keys.js";
+export { notificationsRouter } from "./notifications.js";

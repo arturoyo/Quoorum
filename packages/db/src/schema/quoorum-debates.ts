@@ -16,6 +16,7 @@ import { relations } from 'drizzle-orm'
 export const debateModeEnum = pgEnum('debate_mode', ['static', 'dynamic'])
 
 export const debateStatusEnum = pgEnum('debate_status', [
+  'draft',
   'pending',
   'in_progress',
   'completed',
@@ -128,11 +129,22 @@ export const quoorumDebates = pgTable('quoorum_debates', {
     [key: string]: unknown
   }>(),
 
+  // Real-time processing status (for UI cascade)
+  processingStatus: jsonb('processing_status').$type<{
+    phase: string // 'analyzing' | 'matching' | 'deliberating' | 'finalizing'
+    message: string // Human-readable message
+    progress: number // 0-100
+    currentRound?: number
+    totalRounds?: number
+    timestamp: string // ISO date
+  }>(),
+
   // Timestamps
   startedAt: timestamp('started_at', { withTimezone: true }),
   completedAt: timestamp('completed_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }), // Soft delete
 })
 
 // ============================================================
@@ -362,5 +374,5 @@ export type ForumDebateTemplate = typeof forumDebateTemplates.$inferSelect
 export type NewForumDebateTemplate = typeof forumDebateTemplates.$inferInsert
 
 export type DebateMode = 'static' | 'dynamic'
-export type DebateStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled'
+export type DebateStatus = 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled'
 export type DebateVisibility = 'private' | 'team' | 'public'

@@ -1,11 +1,8 @@
 'use client'
-// @ts-nocheck
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { api } from '@/lib/trpc/client'
 import { cn } from '@/lib/utils'
@@ -13,21 +10,14 @@ import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
   AlertCircle,
-  Archive,
   Bell,
   BellOff,
-  Calendar,
   CheckCheck,
   CheckCircle2,
   Clock,
   Loader2,
-  Mail,
   MessageCircle,
-  Settings,
-  Smartphone,
   Trash2,
-  TrendingUp,
-  Users,
 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -37,21 +27,17 @@ import { toast } from 'sonner'
 // ============================================================================
 
 interface NotificationsCenterProps {
-  showPreferences?: boolean
   onNotificationClick?: (notification: Notification) => void
 }
 
 interface Notification {
   id: string
-  type: string
+  type: 'debate_completed' | 'debate_failed' | 'debate_ready'
   title: string
   message: string
-  priority: 'low' | 'normal' | 'high' | 'urgent'
-  isRead: boolean
+  debateId?: string
+  read: boolean
   createdAt: Date
-  actionUrl?: string | null
-  actionLabel?: string | null
-  debateId?: string | null
 }
 
 // ============================================================================
@@ -61,32 +47,18 @@ interface Notification {
 const notificationIcons: Record<string, typeof MessageCircle> = {
   debate_completed: CheckCircle2,
   debate_failed: AlertCircle,
-  new_comment: MessageCircle,
-  comment_reply: MessageCircle,
-  debate_shared: Users,
-  consensus_reached: TrendingUp,
-  expert_recommendation: TrendingUp,
-  weekly_digest: Calendar,
-  debate_reminder: Clock,
-  team_action: Users,
-}
-
-const priorityColors: Record<string, string> = {
-  low: 'border-l-[#8696a0]',
-  normal: 'border-l-[#00a884]',
-  high: 'border-l-yellow-500',
-  urgent: 'border-l-red-500',
+  debate_ready: Clock,
 }
 
 function NotificationItem({
   notification,
   onMarkAsRead,
-  onArchive,
+  onDelete,
   onClick,
 }: {
   notification: Notification
   onMarkAsRead: () => void
-  onArchive: () => void
+  onDelete: () => void
   onClick?: () => void
 }) {
   const Icon = notificationIcons[notification.type] || Bell
@@ -100,21 +72,20 @@ function NotificationItem({
       onClick={onClick}
       className={cn(
         'flex items-start gap-3 rounded-lg border-l-4 p-4 transition-all',
-        priorityColors[notification.priority],
-        notification.isRead
-          ? 'bg-[#111b21]/50 opacity-70'
-          : 'cursor-pointer bg-[#111b21] hover:bg-[#111b21]/80',
+        notification.read
+          ? 'border-l-[#8696a0] bg-[#111b21]/50 opacity-70'
+          : 'border-l-[#00a884] cursor-pointer bg-[#111b21] hover:bg-[#111b21]/80',
         onClick && 'cursor-pointer'
       )}
     >
       <div
         className={cn(
           'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-          notification.isRead ? 'bg-[#2a3942]' : 'bg-[#00a884]/20'
+          notification.read ? 'bg-[#2a3942]' : 'bg-[#00a884]/20'
         )}
       >
         <Icon
-          className={cn('h-5 w-5', notification.isRead ? 'text-[#8696a0]' : 'text-[#00a884]')}
+          className={cn('h-5 w-5', notification.read ? 'text-[#8696a0]' : 'text-[#00a884]')}
         />
       </div>
 
@@ -123,7 +94,7 @@ function NotificationItem({
           <h4
             className={cn(
               'text-sm font-medium',
-              notification.isRead ? 'text-[#8696a0]' : 'text-[#e9edef]'
+              notification.read ? 'text-[#8696a0]' : 'text-[#e9edef]'
             )}
           >
             {notification.title}
@@ -132,7 +103,7 @@ function NotificationItem({
         </div>
         <p className="mt-1 text-sm text-[#8696a0]">{notification.message}</p>
 
-        {notification.actionLabel && (
+        {notification.debateId && (
           <Button
             variant="link"
             size="sm"
@@ -142,12 +113,12 @@ function NotificationItem({
               onClick?.()
             }}
           >
-            {notification.actionLabel} →
+            Ver debate →
           </Button>
         )}
 
         <div className="mt-2 flex items-center gap-2">
-          {!notification.isRead && (
+          {!notification.read && (
             <Button
               variant="ghost"
               size="sm"
@@ -166,134 +137,17 @@ function NotificationItem({
             size="sm"
             onClick={(e) => {
               e.stopPropagation()
-              onArchive()
+              onDelete()
             }}
             className="h-7 text-xs text-[#8696a0] hover:text-[#e9edef]"
           >
-            <Archive className="mr-1 h-3 w-3" />
-            Archivar
+            <Trash2 className="mr-1 h-3 w-3" />
+            Eliminar
           </Button>
         </div>
       </div>
 
-      {!notification.isRead && <div className="h-2 w-2 shrink-0 rounded-full bg-[#00a884]" />}
-    </div>
-  )
-}
-
-function PreferencesPanel() {
-  const { data: preferences, isLoading } = api.quoorumNotifications.getPreferences.useQuery()
-  const updatePreferences = api.quoorumNotifications.updatePreferences.useMutation({
-    onSuccess: () => {
-      toast.success('Preferencias actualizadas')
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-[#8696a0]" />
-      </div>
-    )
-  }
-
-  type PrefsKey = 'debateCompleted' | 'newComment' | 'debateShared' | 'weeklyDigest'
-  const prefs = preferences as Record<PrefsKey, { enabled: boolean }> | null
-
-  return (
-    <div className="space-y-6">
-      {/* Global toggles */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium text-[#e9edef]">Canales de Notificación</h3>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between rounded-lg bg-[#111b21] p-4">
-            <div className="flex items-center gap-3">
-              <Mail className="h-5 w-5 text-[#8696a0]" />
-              <div>
-                <Label className="text-[#e9edef]">Email</Label>
-                <p className="text-xs text-[#8696a0]">Recibir notificaciones por correo</p>
-              </div>
-            </div>
-            <Switch
-              checked={preferences?.emailEnabled ?? true}
-              onCheckedChange={(checked) => {
-                updatePreferences.mutate({ emailEnabled: checked })
-              }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between rounded-lg bg-[#111b21] p-4">
-            <div className="flex items-center gap-3">
-              <Smartphone className="h-5 w-5 text-[#8696a0]" />
-              <div>
-                <Label className="text-[#e9edef]">Push</Label>
-                <p className="text-xs text-[#8696a0]">Notificaciones push en el navegador</p>
-              </div>
-            </div>
-            <Switch
-              checked={preferences?.pushEnabled ?? true}
-              onCheckedChange={(checked) => {
-                updatePreferences.mutate({ pushEnabled: checked })
-              }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Notification types */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium text-[#e9edef]">Tipos de Notificación</h3>
-        <div className="space-y-3">
-          {[
-            { key: 'debateCompleted' as PrefsKey, label: 'Debate completado', icon: CheckCircle2 },
-            { key: 'newComment' as PrefsKey, label: 'Nuevos comentarios', icon: MessageCircle },
-            { key: 'debateShared' as PrefsKey, label: 'Debate compartido conmigo', icon: Users },
-            { key: 'weeklyDigest' as PrefsKey, label: 'Resumen semanal', icon: Calendar },
-          ].map((item) => (
-            <div
-              key={item.key}
-              className="flex items-center justify-between rounded-lg bg-[#111b21] p-4"
-            >
-              <div className="flex items-center gap-3">
-                <item.icon className="h-5 w-5 text-[#8696a0]" />
-                <Label className="text-[#e9edef]">{item.label}</Label>
-              </div>
-              <Switch
-                checked={prefs?.[item.key]?.enabled ?? true}
-                onCheckedChange={(checked) => {
-                  updatePreferences.mutate({
-                    [item.key]: {
-                      enabled: checked,
-                      channels: checked ? ['in_app', 'email'] : [],
-                    },
-                  })
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Quiet hours */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium text-[#e9edef]">Horas Silenciosas</h3>
-        <div className="rounded-lg bg-[#111b21] p-4">
-          <div className="flex items-center gap-3">
-            <Clock className="h-5 w-5 text-[#8696a0]" />
-            <div>
-              <Label className="text-[#e9edef]">No molestar</Label>
-              <p className="text-xs text-[#8696a0]">
-                {preferences?.quietHoursStart && preferences?.quietHoursEnd
-                  ? `De ${preferences.quietHoursStart} a ${preferences.quietHoursEnd}`
-                  : 'Sin configurar'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {!notification.read && <div className="h-2 w-2 shrink-0 rounded-full bg-[#00a884]" />}
     </div>
   )
 }
@@ -302,45 +156,42 @@ function PreferencesPanel() {
 // Main Component
 // ============================================================================
 
-export function NotificationsCenter({
-  showPreferences = true,
-  onNotificationClick,
-}: NotificationsCenterProps) {
-  const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'settings'>('all')
+export function NotificationsCenter({ onNotificationClick }: NotificationsCenterProps) {
+  const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all')
 
   const {
     data: notifications,
     isLoading,
     refetch,
-  } = api.quoorumNotifications.list.useQuery({
+  } = api.notifications.list.useQuery({
     limit: 50,
     unreadOnly: activeTab === 'unread',
   })
 
-  const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery()
+  const { data: unreadCount } = api.notifications.unreadCount.useQuery()
 
-  const markAsRead = api.quoorumNotifications.markAsRead.useMutation({
+  const markAsRead = api.notifications.markRead.useMutation({
     onSuccess: () => {
       void refetch()
     },
   })
 
-  const markAllAsRead = api.quoorumNotifications.markAllAsRead.useMutation({
+  const markAllAsRead = api.notifications.markAllRead.useMutation({
     onSuccess: () => {
       toast.success('Todas las notificaciones marcadas como leídas')
       void refetch()
     },
   })
 
-  const archive = api.quoorumNotifications.archive.useMutation({
+  const deleteNotification = api.notifications.delete.useMutation({
     onSuccess: () => {
       void refetch()
     },
   })
 
-  const archiveAllRead = api.quoorumNotifications.archiveAllRead.useMutation({
+  const clearAll = api.notifications.clearAll.useMutation({
     onSuccess: () => {
-      toast.success('Notificaciones leídas archivadas')
+      toast.success('Todas las notificaciones eliminadas')
       void refetch()
     },
   })
@@ -358,21 +209,35 @@ export function NotificationsCenter({
               )}
             </CardTitle>
             <CardDescription className="text-[#8696a0]">
-              Centro de notificaciones del Forum
+              Centro de notificaciones de debates
             </CardDescription>
           </div>
-          {(unreadCount ?? 0) > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => markAllAsRead.mutate()}
-              disabled={markAllAsRead.isPending}
-              className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
-            >
-              <CheckCheck className="mr-2 h-4 w-4" />
-              Marcar todo como leído
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {(unreadCount ?? 0) > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => markAllAsRead.mutate()}
+                disabled={markAllAsRead.isPending}
+                className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+              >
+                <CheckCheck className="mr-2 h-4 w-4" />
+                Marcar todo como leído
+              </Button>
+            )}
+            {notifications && notifications.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => clearAll.mutate()}
+                disabled={clearAll.isPending}
+                className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Limpiar todo
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
 
@@ -399,17 +264,6 @@ export function NotificationsCenter({
               </span>
             )}
           </TabsTrigger>
-          {showPreferences && (
-            <TabsTrigger
-              value="settings"
-              className={cn(
-                'rounded-none border-b-2 border-transparent px-4 py-3 text-[#8696a0] data-[state=active]:border-[#00a884] data-[state=active]:bg-transparent data-[state=active]:text-[#e9edef]'
-              )}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Preferencias
-            </TabsTrigger>
-          )}
         </TabsList>
 
         <CardContent className="p-4">
@@ -428,26 +282,12 @@ export function NotificationsCenter({
                 {notifications.map((notification) => (
                   <NotificationItem
                     key={notification.id}
-                    notification={notification as Notification}
+                    notification={notification}
                     onMarkAsRead={() => markAsRead.mutate({ id: notification.id })}
-                    onArchive={() => archive.mutate({ id: notification.id })}
-                    onClick={() => onNotificationClick?.(notification as Notification)}
+                    onDelete={() => deleteNotification.mutate({ id: notification.id })}
+                    onClick={() => onNotificationClick?.(notification)}
                   />
                 ))}
-                {notifications.some((n) => n.isRead) && (
-                  <div className="flex justify-center pt-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => archiveAllRead.mutate()}
-                      disabled={archiveAllRead.isPending}
-                      className="border-[#2a3942] bg-[#111b21] text-[#8696a0]"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Archivar leídas
-                    </Button>
-                  </div>
-                )}
               </>
             )}
           </TabsContent>
@@ -467,20 +307,14 @@ export function NotificationsCenter({
               notifications.map((notification) => (
                 <NotificationItem
                   key={notification.id}
-                  notification={notification as Notification}
+                  notification={notification}
                   onMarkAsRead={() => markAsRead.mutate({ id: notification.id })}
-                  onArchive={() => archive.mutate({ id: notification.id })}
-                  onClick={() => onNotificationClick?.(notification as Notification)}
+                  onDelete={() => deleteNotification.mutate({ id: notification.id })}
+                  onClick={() => onNotificationClick?.(notification)}
                 />
               ))
             )}
           </TabsContent>
-
-          {showPreferences && (
-            <TabsContent value="settings" className="m-0">
-              <PreferencesPanel />
-            </TabsContent>
-          )}
         </CardContent>
       </Tabs>
     </Card>
@@ -492,7 +326,7 @@ export function NotificationsCenter({
 // ============================================================================
 
 export function NotificationBell({ onClick }: { onClick?: () => void }) {
-  const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery()
+  const { data: unreadCount } = api.notifications.unreadCount.useQuery()
 
   return (
     <button

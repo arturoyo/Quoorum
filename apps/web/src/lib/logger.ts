@@ -41,8 +41,8 @@ async function flushBatch() {
   batchQueue = [];
 
   try {
-    // Enviar batch via fetch (no podemos usar tRPC hooks fuera de React components)
-    const response = await fetch("/api/trpc/systemLogs.createBatch", {
+    // Enviar batch via fetch usando formato tRPC batch HTTP
+    const response = await fetch("/api/trpc/systemLogs.createBatch?batch=1", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

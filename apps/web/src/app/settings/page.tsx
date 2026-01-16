@@ -23,7 +23,7 @@ import {
   Key,
   Bell,
   Shield,
-  ArrowLeft,
+  Plus,
   Loader2,
   Save,
 } from "lucide-react";
@@ -98,8 +98,15 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+      <div className="min-h-screen relative bg-slate-950 flex items-center justify-center">
+        <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        </div>
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full blur-2xl opacity-30 animate-pulse" />
+          <Loader2 className="relative w-8 h-8 text-blue-400 animate-spin" />
+        </div>
       </div>
     );
   }
@@ -113,28 +120,53 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen relative bg-slate-950">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+      </div>
+
       {/* Header */}
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="relative border-b border-white/10 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
         <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" className="text-gray-400 hover:text-white">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Dashboard
+          <div className="relative flex h-16 items-center justify-between">
+            <Link href="/dashboard" className="flex items-center gap-2 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
+                <div className="relative w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 text-white" />
+                </div>
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                Quoorum
+              </span>
+            </Link>
+
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/dashboard" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
+                Dashboard
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
+              </Link>
+              <Link href="/debates" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
+                Debates
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
+              </Link>
+              <Link href="/settings" className="text-sm font-medium text-blue-300 relative group">
+                Configuración
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500" />
+              </Link>
+            </nav>
+
+            <div className="flex items-center gap-3">
+              <Link href="/debates/new">
+                <Button className="bg-purple-600 hover:bg-purple-500 text-white border-0">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nuevo Debate
                 </Button>
               </Link>
             </div>
-
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white">Forum</span>
-            </Link>
-
-            <div className="w-32" /> {/* Spacer for centering */}
           </div>
         </div>
       </header>
@@ -142,7 +174,9 @@ export default function SettingsPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8">Configuración</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-8">
+            Configuración
+          </h1>
 
           <div className="grid md:grid-cols-4 gap-8">
             {/* Sidebar Nav */}
@@ -151,31 +185,37 @@ export default function SettingsPage() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ${
+                  className={`relative flex items-center gap-3 px-4 py-2 rounded-lg transition group ${
                     item.active
-                      ? "bg-purple-500/20 text-purple-400"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                      ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30"
+                      : "text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10"
                   }`}
                 >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
+                  {item.active && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                  )}
+                  <item.icon className="relative w-5 h-5" />
+                  <span className="relative">{item.label}</span>
                 </Link>
               ))}
             </div>
 
             {/* Content */}
             <div className="md:col-span-3 space-y-6">
-              <Card className="bg-white/5 border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-white">Información Personal</CardTitle>
-                  <CardDescription>
+              <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-xl border-purple-500/20">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
+                <CardHeader className="relative">
+                  <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                    Información Personal
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
                     Actualiza tu información de perfil
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="relative space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="fullName" className="text-gray-300">
+                      <Label htmlFor="fullName" className="text-blue-200">
                         Nombre completo
                       </Label>
                       <Input
@@ -184,24 +224,24 @@ export default function SettingsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, fullName: e.target.value })
                         }
-                        className="bg-white/5 border-white/10 text-white"
+                        className="bg-slate-900/60 backdrop-blur-sm border-purple-500/30 text-white focus:border-blue-500/50 focus:ring-blue-500/20"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-gray-300">
+                      <Label htmlFor="email" className="text-blue-200">
                         Email
                       </Label>
                       <Input
                         id="email"
                         value={formData.email}
                         disabled
-                        className="bg-white/5 border-white/10 text-gray-500"
+                        className="bg-slate-900/40 backdrop-blur-sm border-purple-500/20 text-gray-500"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="company" className="text-gray-300">
+                      <Label htmlFor="company" className="text-blue-200">
                         Empresa
                       </Label>
                       <Input
@@ -210,12 +250,12 @@ export default function SettingsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, company: e.target.value })
                         }
-                        className="bg-white/5 border-white/10 text-white"
+                        className="bg-slate-900/60 backdrop-blur-sm border-purple-500/30 text-white focus:border-blue-500/50 focus:ring-blue-500/20"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="role" className="text-gray-300">
+                      <Label htmlFor="role" className="text-blue-200">
                         Cargo
                       </Label>
                       <Input
@@ -224,7 +264,7 @@ export default function SettingsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, role: e.target.value })
                         }
-                        className="bg-white/5 border-white/10 text-white"
+                        className="bg-slate-900/60 backdrop-blur-sm border-purple-500/30 text-white focus:border-blue-500/50 focus:ring-blue-500/20"
                       />
                     </div>
                   </div>
@@ -232,33 +272,37 @@ export default function SettingsPage() {
                   <Button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="relative group overflow-hidden bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white border-0"
                   >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
                     {isSaving ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Guardando...
+                        <Loader2 className="relative mr-2 h-4 w-4 animate-spin" />
+                        <span className="relative">Guardando...</span>
                       </>
                     ) : (
                       <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Guardar Cambios
+                        <Save className="relative mr-2 h-4 w-4" />
+                        <span className="relative">Guardar Cambios</span>
                       </>
                     )}
                   </Button>
                 </CardContent>
               </Card>
 
-              <Separator className="bg-white/10" />
+              <Separator className="bg-gradient-to-r from-purple-500/20 via-white/10 to-blue-500/20" />
 
-              <Card className="bg-red-500/10 border-red-500/30">
-                <CardHeader>
-                  <CardTitle className="text-red-400">Zona de Peligro</CardTitle>
-                  <CardDescription>
+              <Card className="relative overflow-hidden bg-red-950/40 backdrop-blur-xl border-red-500/30">
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-red-900/5" />
+                <CardHeader className="relative">
+                  <CardTitle className="bg-gradient-to-r from-red-300 to-red-500 bg-clip-text text-transparent">
+                    Zona de Peligro
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
                     Acciones irreversibles para tu cuenta
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="relative space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white font-medium">Cerrar sesión</p>
@@ -269,13 +313,14 @@ export default function SettingsPage() {
                     <Button
                       variant="outline"
                       onClick={handleSignOut}
-                      className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+                      className="relative group overflow-hidden border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400/70 transition-all"
                     >
-                      Cerrar Sesión
+                      <div className="absolute inset-0 bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity blur" />
+                      <span className="relative">Cerrar Sesión</span>
                     </Button>
                   </div>
 
-                  <Separator className="bg-white/10" />
+                  <Separator className="bg-red-500/20" />
 
                   <div className="flex items-center justify-between">
                     <div>
@@ -286,9 +331,10 @@ export default function SettingsPage() {
                     </div>
                     <Button
                       variant="outline"
-                      className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+                      className="relative group overflow-hidden border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400/70 transition-all"
                     >
-                      Eliminar Cuenta
+                      <div className="absolute inset-0 bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity blur" />
+                      <span className="relative">Eliminar Cuenta</span>
                     </Button>
                   </div>
                 </CardContent>

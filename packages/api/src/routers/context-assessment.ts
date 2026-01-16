@@ -25,8 +25,8 @@ const contextAssumptionSchema = z.object({
   dimension: z.string(),
   assumption: z.string(),
   confidence: z.number().min(0).max(1),
-  confirmed: z.boolean().nullable(),
-  alternatives: z.array(z.string()).optional(),
+  confirmed: z.union([z.boolean(), z.string()]).nullable(), // Can be boolean (yes/no) or string (selected alternative)
+  alternatives: z.array(z.string()).min(2), // Always include at least 2 alternatives
 });
 
 const clarifyingQuestionSchema = z.object({
@@ -55,7 +55,7 @@ const contextAssessmentSchema = z.object({
 });
 
 const contextAnswersSchema = z.object({
-  assumptionResponses: z.record(z.string(), z.boolean()),
+  assumptionResponses: z.record(z.string(), z.union([z.boolean(), z.string()])), // Boolean for yes/no, string for selected alternative
   questionResponses: z.record(z.string(), z.union([z.string(), z.array(z.string())])),
   additionalContext: z.string().optional(),
 });
@@ -100,22 +100,54 @@ const DIMENSION_TEMPLATES: Record<string, { id: string; name: string; descriptio
 };
 
 // Helper functions
-function detectDebateType(input: string): "business_decision" | "strategy" | "product" | "general" {
+async function detectDebateType(input: string): Promise<"business_decision" | "strategy" | "product" | "general"> {
   const inputLower = input.toLowerCase();
 
+  // Palabras clave muy específicas (detección rápida)
   if (inputLower.includes("producto") || inputLower.includes("feature") ||
-      inputLower.includes("mvp") || inputLower.includes("lanzar")) {
+      inputLower.includes("mvp") || inputLower.includes("lanzar") ||
+      inputLower.includes("usuario") || inputLower.includes("problema que resuelve")) {
     return "product";
   }
 
   if (inputLower.includes("estrategia") || inputLower.includes("visión") ||
-      inputLower.includes("largo plazo") || inputLower.includes("competencia")) {
+      inputLower.includes("largo plazo") || inputLower.includes("competencia") ||
+      inputLower.includes("mercado") || inputLower.includes("posicionamiento")) {
     return "strategy";
   }
 
   if (inputLower.includes("decisión") || inputLower.includes("elegir") ||
-      inputLower.includes("opción") || inputLower.includes("alternativa")) {
+      inputLower.includes("opción") || inputLower.includes("alternativa") ||
+      inputLower.includes("evaluar") || inputLower.includes("comparar")) {
     return "business_decision";
+  }
+
+  // Si no hay palabras clave claras, usar IA para categorizar
+  try {
+    const aiClient = getAIClient();
+    const response = await aiClient.generate(
+      `Clasifica este texto en UNA de estas categorías:
+      - "product": Habla de crear/lanzar un producto, features, MVP, usuarios
+      - "strategy": Habla de estrategia, visión, mercado, competencia, largo plazo
+      - "business_decision": Habla de tomar una decisión entre opciones, evaluar alternativas
+      - "general": Ninguna de las anteriores
+
+      Texto: "${input.substring(0, 200)}"
+
+      Responde SOLO con una palabra: product, strategy, business_decision o general`,
+      {
+        modelId: "gemini-2.0-flash-exp",
+        temperature: 0.1,
+        maxTokens: 50,
+      }
+    );
+
+    const detected = response.text.trim().toLowerCase();
+    if (detected.includes("product")) return "product";
+    if (detected.includes("strategy")) return "strategy";
+    if (detected.includes("business_decision")) return "business_decision";
+  } catch (error) {
+    console.error("[Context Assessment] AI detection failed, using general:", error);
   }
 
   return "general";
@@ -169,45 +201,68 @@ async function analyzeWithAI(
   const systemPrompt = `Eres un experto en análisis de contexto para debates estratégicos.
 Tu trabajo es analizar el input del usuario y evaluar qué tan completo es el contexto proporcionado.
 
+PRINCIPIO CLAVE: Sé INTELIGENTE y CONTEXTUAL. No hagas preguntas genéricas.
+- Si el usuario YA mencionó algo, reconócelo y profundiza en ello
+- Si falta algo, haz suposiciones razonables basadas en el contexto dado
+- Las preguntas deben ser específicas y relevantes al caso concreto
+
 Debes responder SOLO con un JSON válido siguiendo exactamente este esquema:
 {
   "dimensions": [
     {
       "id": "dimension_id",
       "score": 0-100,
-      "extractedInfo": "información extraída o null",
-      "suggestions": ["sugerencia 1", "sugerencia 2"]
+      "extractedInfo": "cita textual o paráfrasis de lo que el usuario mencionó, o null si no mencionó nada",
+      "suggestions": ["sugerencia específica basada en lo que escribió", "otra sugerencia concreta"]
     }
   ],
   "assumptions": [
     {
       "dimension": "dimension_id",
-      "assumption": "asunción razonable basada en el contexto",
+      "assumption": "suposición ESPECÍFICA basada en el contexto dado (globo sonda para validar)",
       "confidence": 0.0-1.0,
-      "alternatives": ["alternativa 1", "alternativa 2"]
+      "alternatives": ["alternativa plausible 1", "alternativa plausible 2", "alternativa plausible 3"]
     }
   ],
   "questions": [
     {
-      "question": "pregunta clarificadora",
+      "question": "pregunta ESPECÍFICA que complementa lo que ya mencionó (no genérica)",
       "dimension": "dimension_id",
       "priority": "critical|important|nice-to-have",
-      "options": ["opción 1", "opción 2"] // opcional, solo para preguntas de opción múltiple
+      "options": ["opción 1", "opción 2", "opción 3"] // SIEMPRE incluir opciones concretas cuando sea posible
     }
   ],
-  "summary": "resumen breve del estado del contexto"
+  "summary": "resumen del contexto mencionando EXPLÍCITAMENTE qué información útil dio y qué falta"
 }
 
-Criterios de puntuación:
+Criterios de puntuación (sé GENEROSO con contexto rico):
 - 0-20: No se menciona nada sobre esta dimensión
-- 21-40: Se menciona brevemente pero falta detalle
-- 41-60: Información parcial, podría ampliarse
-- 61-80: Información buena pero no exhaustiva
-- 81-100: Información completa y detallada
+- 21-40: Se menciona brevemente pero falta detalle crítico
+- 41-60: Información parcial pero útil, podría ampliarse
+- 61-80: Información buena y suficiente para empezar, algunos detalles faltan
+- 81-100: Información completa, exhaustiva y detallada
 
-Genera asunciones SOLO para dimensiones con score 30-60 (máximo 3).
-Genera preguntas SOLO para dimensiones con score < 50 (máximo 4).
-Las preguntas con weight > 0.15 son "critical", el resto "important".`;
+REGLAS PARA ASSUMPTIONS (globos sonda):
+- Genera 3-5 assumptions SIEMPRE (no solo para score 30-60)
+- Deben ser suposiciones INTELIGENTES basadas en lo que el usuario escribió
+- Ejemplo: Si menciona "startup SaaS", asumir "modelo de suscripción mensual", no "tienes un negocio"
+- OBLIGATORIO: Cada assumption DEBE tener EXACTAMENTE 3 alternativas plausibles en el array "alternatives"
+- Las alternativas deben ser opciones específicas y mutuamente excluyentes
+- Ejemplo: alternatives: ["<50k USD", "50-200k USD", ">200k USD"] para presupuesto
+
+REGLAS PARA QUESTIONS:
+- Genera 3-5 preguntas máximo, priorizando las MÁS impactantes
+- NO preguntes lo obvio ("¿tienes un objetivo?"). Pregunta lo ESPECÍFICO ("¿Tu objetivo es aumentar ventas o reducir churn?")
+- SIEMPRE incluye opciones de múltiple elección cuando sea posible (más fácil para el usuario)
+- Si el usuario ya mencionó algo, PROFUNDIZA en ello, no lo repitas
+- Las preguntas con weight > 0.15 son "critical", el resto "important"
+
+Ejemplo de MALO vs BUENO:
+❌ MALO: "¿Cuál es tu objetivo?" (genérico)
+✅ BUENO: "Mencionaste aumentar ventas. ¿Cuál es tu meta específica?" con opciones ["Crecer 20-50%", "Crecer 50-100%", "Más del 100%"]
+
+❌ MALO: Assumption "Tienes restricciones de presupuesto" (obvio)
+✅ BUENO: Assumption "Basado en que mencionas startup seed, asumo presupuesto <50k USD" con alternatives ["<50k", "50-200k", ">200k"]`;
 
   const userPrompt = `Tipo de debate: ${debateType}
 
@@ -224,20 +279,32 @@ Analiza el contexto y devuelve el JSON con tu evaluación.`;
   try {
     const response = await aiClient.generate(userPrompt, {
       systemPrompt,
-      modelId: "gpt-4o-mini",
-      temperature: 0.3,
-      maxTokens: 2000,
+      modelId: "gemini-2.0-flash-exp", // Usar Gemini en lugar de OpenAI (sin cuota)
+      temperature: 0.5, // Más creativo para suposiciones inteligentes
+      maxTokens: 2500, // Más tokens para suposiciones detalladas
     });
+
+    console.log("[Context Assessment] AI response received, parsing JSON...");
 
     // Parse and validate the response
     const jsonMatch = response.text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
+      console.error("[Context Assessment] No JSON found in AI response, using fallback");
       throw new Error("No JSON found in AI response");
     }
 
     const parsed = JSON.parse(jsonMatch[0]);
-    return aiAnalysisSchema.parse(parsed);
+    const validated = aiAnalysisSchema.parse(parsed);
+
+    console.log("[Context Assessment] AI analysis successful:", {
+      dimensionsCount: validated.dimensions.length,
+      assumptionsCount: validated.assumptions.length,
+      questionsCount: validated.questions.length
+    });
+
+    return validated;
   } catch (error) {
+    console.error("[Context Assessment] AI analysis failed, using fallback:", error instanceof Error ? error.message : error);
     // Fallback to keyword-based analysis if AI fails
     return fallbackAnalysis(userInput, dimensions);
   }
@@ -370,8 +437,11 @@ export const contextAssessmentRouter = router({
     )
     .output(contextAssessmentSchema)
     .mutation(async ({ input }) => {
-      const debateType = input.debateType || detectDebateType(input.userInput);
+      // Auto-detectar categoría SIEMPRE (ignorar lo que mande el usuario)
+      const debateType = await detectDebateType(input.userInput);
       const dimensions = DIMENSION_TEMPLATES[debateType] ?? DIMENSION_TEMPLATES.general ?? [];
+
+      console.log("[Context Assessment] Auto-detected debate type:", debateType);
 
       // Use AI for analysis
       const aiResult = await analyzeWithAI(input.userInput, debateType, dimensions);
@@ -440,74 +510,199 @@ export const contextAssessmentRouter = router({
     )
     .output(contextAssessmentSchema)
     .mutation(async ({ input }) => {
-      // Build enhanced input with answers
-      let enhancedInput = input.originalInput;
+      // Build enhanced input with answers - formato estructurado para la IA
+      let enhancedInput = `CONTEXTO ORIGINAL:\n${input.originalInput}\n\n`;
+
+      enhancedInput += `INFORMACIÓN ADICIONAL PROPORCIONADA POR EL USUARIO:\n`;
 
       // Add confirmed assumptions
+      const confirmedAssumptions: string[] = [];
+      const rejectedAssumptions: string[] = [];
       for (const [id, confirmed] of Object.entries(input.answers.assumptionResponses)) {
         const assumption = input.previousAssessment.assumptions.find((a) => a.id === id);
-        if (assumption && confirmed) {
-          enhancedInput += `\n[Confirmado: ${assumption.assumption}]`;
+        if (assumption) {
+          if (confirmed) {
+            confirmedAssumptions.push(`✓ ${assumption.assumption}`);
+          } else {
+            rejectedAssumptions.push(`✗ ${assumption.assumption}`);
+          }
         }
       }
 
+      if (confirmedAssumptions.length > 0) {
+        enhancedInput += `\nSuposiciones confirmadas:\n${confirmedAssumptions.join("\n")}`;
+      }
+      if (rejectedAssumptions.length > 0) {
+        enhancedInput += `\nSuposiciones rechazadas:\n${rejectedAssumptions.join("\n")}`;
+      }
+
       // Add question responses
+      const responses: string[] = [];
       for (const [id, response] of Object.entries(input.answers.questionResponses)) {
         const question = input.previousAssessment.clarifyingQuestions.find((q) => q.id === id);
         if (question && response) {
           const responseStr = Array.isArray(response) ? response.join(", ") : response;
-          enhancedInput += `\n[${question.dimension}: ${responseStr}]`;
+          responses.push(`• ${question.question}\n  Respuesta: ${responseStr}`);
         }
+      }
+
+      if (responses.length > 0) {
+        enhancedInput += `\n\nRespuestas a preguntas:\n${responses.join("\n")}`;
       }
 
       // Add additional context
       if (input.answers.additionalContext) {
-        enhancedInput += `\n[Contexto adicional: ${input.answers.additionalContext}]`;
+        enhancedInput += `\n\nContexto adicional del usuario:\n${input.answers.additionalContext}`;
       }
 
-      const debateType = detectDebateType(enhancedInput);
+      const debateType = await detectDebateType(enhancedInput);
       const dimensions = DIMENSION_TEMPLATES[debateType] ?? DIMENSION_TEMPLATES.general ?? [];
 
-      // Use AI to re-analyze with enhanced input
-      const aiResult = await analyzeWithAI(enhancedInput, debateType, dimensions);
+      // En refinamiento, usar prompt DIFERENTE más generoso
+      const aiClient = getAIClient();
 
-      const analyzedDimensions = aiResult.dimensions.map((d) => {
-        const template = dimensions.find((t) => t.id === d.id);
+      const refinementPrompt = `Eres un experto evaluando contexto para debates. El usuario YA proporcionó información adicional.
+
+IMPORTANTE: Sé MUY GENEROSO con la puntuación. El usuario ha hecho el esfuerzo de dar más contexto.
+
+Evalúa este contexto MEJORADO y responde con JSON:
+{
+  "dimensions": [{"id": "...", "score": 0-100, "extractedInfo": "...", "suggestions": ["..."]}],
+  "assumptions": [], // NO generar más assumptions en refinamiento
+  "questions": [{"question": "...", "dimension": "...", "priority": "nice-to-have", "options": ["..."]}], // MÁXIMO 2 preguntas opcionales
+  "summary": "resumen positivo reconociendo la información proporcionada"
+}
+
+CRITERIOS DE PUNTUACIÓN (SÉ GENEROSO):
+- 50-70: Información suficiente para empezar (sube scores)
+- 71-85: Buena información, contexto útil
+- 86-95: Excelente contexto, muy completo
+- 96-100: Contexto excepcional y exhaustivo
+
+REGLAS:
+- El usuario YA respondió preguntas, reconoce esa información
+- NO generes assumptions (ya se validaron)
+- Máximo 2 preguntas OPCIONALES (priority: "nice-to-have")
+- Las preguntas deben ser MUY específicas y de bajo impacto
+- Si ya tiene buena información, NO preguntes más
+
+Contexto mejorado del usuario:
+"""
+${enhancedInput}
+"""
+
+Dimensiones a evaluar:
+${dimensions.map(d => `- ${d.id} (${d.name}): ${d.description} [peso: ${d.weight}]`).join("\n")}
+
+Responde SOLO con el JSON.`;
+
+      try {
+        const response = await aiClient.generate(refinementPrompt, {
+          modelId: "gemini-2.0-flash-exp",
+          temperature: 0.4, // Menos creativo, más directo en refinamiento
+          maxTokens: 2000,
+        });
+
+        console.log("[Context Assessment - Refine] AI response received, parsing JSON...");
+
+        const jsonMatch = response.text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          console.error("[Context Assessment - Refine] No JSON found, using fallback");
+          throw new Error("No JSON found in AI response");
+        }
+
+        const parsed = JSON.parse(jsonMatch[0]);
+        const aiResult = aiAnalysisSchema.parse(parsed);
+
+        console.log("[Context Assessment - Refine] AI analysis successful:", {
+          dimensionsCount: aiResult.dimensions.length,
+          assumptionsCount: aiResult.assumptions.length,
+          questionsCount: aiResult.questions.length
+        });
+
+        // Continuar con el mismo código que antes pero usando aiResult
+        const analyzedDimensions = aiResult.dimensions.map((d) => {
+          const template = dimensions.find((t) => t.id === d.id);
+          return {
+            id: d.id,
+            name: template?.name || d.id,
+            description: template?.description || "",
+            weight: template?.weight || 0.1,
+            score: d.score,
+            status: (d.score >= 70 ? "complete" : d.score >= 30 ? "partial" : "missing") as "complete" | "partial" | "missing",
+            suggestions: d.suggestions,
+          };
+        });
+
+        // Calculate new overall score
+        const totalWeight = analyzedDimensions.reduce((sum, d) => sum + d.weight, 0);
+        const overallScore = Math.round(
+          analyzedDimensions.reduce((sum, d) => sum + d.score * d.weight, 0) / totalWeight
+        );
+
+        // Muy pocas preguntas después de refinamiento (máximo 2)
+        const questions = aiResult.questions.slice(0, 2).map((q, i) => ({
+          id: `refined-question-${i}`,
+          question: q.question,
+          dimension: q.dimension,
+          priority: "nice-to-have" as const,
+          multipleChoice: q.options ? { options: q.options, allowMultiple: false } : undefined,
+          freeText: !q.options,
+        }));
+
         return {
-          id: d.id,
-          name: template?.name || d.id,
-          description: template?.description || "",
-          weight: template?.weight || 0.1,
-          score: d.score,
-          status: (d.score >= 70 ? "complete" : d.score >= 30 ? "partial" : "missing") as "complete" | "partial" | "missing",
-          suggestions: d.suggestions,
+          overallScore,
+          readinessLevel: getReadinessLevel(overallScore),
+          dimensions: analyzedDimensions,
+          assumptions: [], // No más assumptions en refinamiento
+          clarifyingQuestions: questions,
+          summary: aiResult.summary,
+          recommendedAction: getRecommendedAction(overallScore, false),
         };
-      });
+      } catch (error) {
+        console.error("[Context Assessment - Refine] AI failed, using fallback:", error);
+        // Fallback: usar analyze normal
+        const aiResult = await analyzeWithAI(enhancedInput, debateType, dimensions);
 
-      // Calculate new overall score
-      const totalWeight = analyzedDimensions.reduce((sum, d) => sum + d.weight, 0);
-      const overallScore = Math.round(
-        analyzedDimensions.reduce((sum, d) => sum + d.score * d.weight, 0) / totalWeight
-      );
+        const analyzedDimensions = aiResult.dimensions.map((d) => {
+          const template = dimensions.find((t) => t.id === d.id);
+          return {
+            id: d.id,
+            name: template?.name || d.id,
+            description: template?.description || "",
+            weight: template?.weight || 0.1,
+            score: d.score,
+            status: (d.score >= 70 ? "complete" : d.score >= 30 ? "partial" : "missing") as "complete" | "partial" | "missing",
+            suggestions: d.suggestions,
+          };
+        });
 
-      // Fewer questions after refinement
-      const stillMissing = aiResult.questions.filter((q) => q.priority !== "nice-to-have").slice(0, 2);
-      const questions = stillMissing.map((q, i) => ({
-        id: `refined-question-${i}`,
-        question: q.question,
-        dimension: q.dimension,
-        priority: "nice-to-have" as const,
-        freeText: true,
-      }));
+        // Calculate new overall score
+        const totalWeight = analyzedDimensions.reduce((sum, d) => sum + d.weight, 0);
+        const overallScore = Math.round(
+          analyzedDimensions.reduce((sum, d) => sum + d.score * d.weight, 0) / totalWeight
+        );
 
-      return {
-        overallScore,
-        readinessLevel: getReadinessLevel(overallScore),
-        dimensions: analyzedDimensions,
-        assumptions: [], // No more assumptions after refinement
-        clarifyingQuestions: questions,
-        summary: aiResult.summary,
-        recommendedAction: getRecommendedAction(overallScore, false),
-      };
+        // Fewer questions after refinement
+        const stillMissing = aiResult.questions.slice(0, 2);
+        const questions = stillMissing.map((q, i) => ({
+          id: `refined-question-${i}`,
+          question: q.question,
+          dimension: q.dimension,
+          priority: "nice-to-have" as const,
+          multipleChoice: q.options ? { options: q.options, allowMultiple: false } : undefined,
+          freeText: !q.options,
+        }));
+
+        return {
+          overallScore,
+          readinessLevel: getReadinessLevel(overallScore),
+          dimensions: analyzedDimensions,
+          assumptions: [], // No more assumptions after refinement
+          clarifyingQuestions: questions,
+          summary: aiResult.summary,
+          recommendedAction: getRecommendedAction(overallScore, false),
+        };
+      }
     }),
 });

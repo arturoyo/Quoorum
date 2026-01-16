@@ -15,6 +15,7 @@
     "db:migrate": "pnpm --filter @quoorum/db migrate",
     "db:push": "pnpm --filter @quoorum/db push",
     "validate:env": "tsx scripts/validate-env.ts",
+    "validate:schema": "tsx packages/db/scripts/validate-schema-sync.ts",
     "preflight": "bash scripts/pre-flight.sh",
     "backup": "bash scripts/backup-db.sh",
     "rollback": "bash scripts/rollback-db.sh",

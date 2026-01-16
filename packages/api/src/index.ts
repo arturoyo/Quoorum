@@ -25,6 +25,7 @@ import {
   notificationSettingsRouter,
   sessionsRouter,
   apiKeysRouter,
+  notificationsRouter,
 } from "./routers/index.js";
 
 export const appRouter = router({
@@ -53,9 +54,11 @@ export const appRouter = router({
   notificationSettings: notificationSettingsRouter,
   sessions: sessionsRouter,
   apiKeys: apiKeysRouter,
+  notifications: notificationsRouter,
 });
 
 export type AppRouter = typeof appRouter;
 
 export { router, publicProcedure, protectedProcedure, createContext } from "./trpc.js";
 export type { Context } from "./trpc.js";
+export { validateEnvironmentOrThrow, validateEnvironment, requireEnv, getEnvOrWarn } from "./lib/validate-env.js";

@@ -201,33 +201,48 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen relative bg-slate-950">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+      </div>
+
       {/* Header */}
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="relative border-b border-white/10 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
         <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
+          <div className="relative flex h-16 items-center justify-between">
+            <Link href="/dashboard" className="flex items-center gap-2 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
+                <div className="relative w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 text-white" />
+                </div>
               </div>
-              <span className="text-xl font-bold text-white">Quoorum</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                Quoorum
+              </span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link href="/dashboard" className="text-sm text-purple-400 font-medium">
+              <Link href="/dashboard" className="text-sm font-medium text-blue-300 relative group">
                 Dashboard
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500" />
               </Link>
-              <Link href="/debates" className="text-sm text-gray-400 hover:text-white">
+              <Link href="/debates" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
                 Debates
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
               </Link>
-              <Link href="/settings" className="text-sm text-gray-400 hover:text-white">
+              <Link href="/settings" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
                 Configuración
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
               </Link>
             </nav>
 
             <div className="flex items-center gap-3">
               <Link href="/debates/new">
-                <Button className="bg-purple-600 hover:bg-purple-700">
+                <Button className="bg-purple-600 hover:bg-purple-500 text-white border-0">
                   <Plus className="mr-2 h-4 w-4" />
                   Nuevo Debate
                 </Button>
@@ -241,7 +256,7 @@ export default function DashboardPage() {
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
             ¡Hola, {user.user_metadata?.full_name || user.email?.split("@")[0]}!
           </h1>
           <p className="text-gray-400 mt-1">
@@ -251,8 +266,9 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-6">
+          <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Total Debates</p>
@@ -265,8 +281,9 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-6">
+          <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Completados</p>
@@ -279,8 +296,9 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-6">
+          <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Consenso Promedio</p>
@@ -293,8 +311,9 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-6">
+          <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Este Mes</p>
@@ -311,14 +330,15 @@ export default function DashboardPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Recent Debates */}
           <div className="lg:col-span-2">
-            <Card className="bg-white/5 border-white/10">
-              <CardHeader className="flex flex-row items-center justify-between">
+            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <CardHeader className="relative flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-white">Debates Recientes</CardTitle>
-                  <CardDescription>Tus últimas deliberaciones</CardDescription>
+                  <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Debates Recientes</CardTitle>
+                  <CardDescription className="text-gray-400">Tus últimas deliberaciones</CardDescription>
                 </div>
                 <Link href="/debates">
-                  <Button variant="ghost" className="text-gray-400 hover:text-white">
+                  <Button variant="ghost" className="text-gray-400 hover:text-blue-300 transition-colors">
                     Ver todos
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -384,10 +404,11 @@ export default function DashboardPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Subscription Card */}
-            <Card className="bg-white/5 border-white/10">
-              <CardHeader>
+            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <CardHeader className="relative">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-white">Tu Plan</CardTitle>
+                  <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Tu Plan</CardTitle>
                   <Badge className="bg-purple-500/20 text-purple-400">
                     {data.subscription.plan}
                   </Badge>
@@ -419,9 +440,10 @@ export default function DashboardPage() {
             </Card>
 
             {/* Quick Actions */}
-            <Card className="bg-white/5 border-white/10">
-              <CardHeader>
-                <CardTitle className="text-white">Acciones Rápidas</CardTitle>
+            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <CardHeader className="relative">
+                <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Acciones Rápidas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Link href="/debates/new" className="block">
@@ -448,7 +470,7 @@ export default function DashboardPage() {
             {/* Upgrade Prompt (show if on free plan) */}
             {data.subscription.plan === "Free" && (
               <Card className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border-purple-500/30">
-                <CardContent className="p-6">
+                <CardContent className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2">
                     Desbloquea más poder
                   </h3>
@@ -472,44 +494,51 @@ export default function DashboardPage() {
 
 function DashboardSkeleton() {
   return (
-    <div className="min-h-screen bg-slate-900">
-      <header className="border-b border-white/10 bg-slate-900/80 h-16" />
+    <div className="min-h-screen relative bg-slate-950">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+      </div>
+
+      <header className="border-b border-white/10 bg-slate-900/60 backdrop-blur-xl h-16" />
       <main className="container mx-auto px-4 py-8">
-        <Skeleton className="h-10 w-64 mb-2 bg-white/10" />
-        <Skeleton className="h-5 w-96 mb-8 bg-white/10" />
+        <Skeleton className="h-10 w-64 mb-2 bg-slate-800/60" />
+        <Skeleton className="h-5 w-96 mb-8 bg-slate-800/40" />
 
         <div className="grid md:grid-cols-4 gap-4 mb-8">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="bg-white/5 border-white/10">
-              <CardContent className="p-6">
-                <Skeleton className="h-4 w-20 mb-2 bg-white/10" />
-                <Skeleton className="h-8 w-16 bg-white/10" />
+            <Card key={i} className="bg-slate-900/60 backdrop-blur-sm border-purple-500/20">
+              <CardContent className="relative p-6">
+                <Skeleton className="h-4 w-20 mb-2 bg-slate-800/60" />
+                <Skeleton className="h-8 w-16 bg-slate-800/60" />
               </CardContent>
             </Card>
           ))}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          <Card className="lg:col-span-2 bg-white/5 border-white/10">
+          <Card className="lg:col-span-2 bg-slate-900/60 backdrop-blur-sm border-purple-500/20">
             <CardHeader>
-              <Skeleton className="h-6 w-40 bg-white/10" />
+              <Skeleton className="h-6 w-40 bg-slate-800/60" />
             </CardHeader>
             <CardContent className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-20 w-full bg-white/10" />
+                <Skeleton key={i} className="h-20 w-full bg-slate-800/40" />
               ))}
             </CardContent>
           </Card>
 
           <div className="space-y-6">
-            <Card className="bg-white/5 border-white/10">
+            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <CardHeader>
-                <Skeleton className="h-6 w-24 bg-white/10" />
+                <Skeleton className="h-6 w-24 bg-slate-800/60" />
               </CardHeader>
               <CardContent className="space-y-4">
-                <Skeleton className="h-4 w-full bg-white/10" />
-                <Skeleton className="h-2 w-full bg-white/10" />
-                <Skeleton className="h-10 w-full bg-white/10" />
+                <Skeleton className="h-4 w-full bg-slate-800/40" />
+                <Skeleton className="h-2 w-full bg-slate-800/40" />
+                <Skeleton className="h-10 w-full bg-slate-800/60" />
               </CardContent>
             </Card>
           </div>

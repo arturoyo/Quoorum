@@ -143,9 +143,10 @@ export function validateEnv(): EnvValidationResult {
   // ============================================
   
   if (!env.pineconeApiKey) {
-    if (isDevelopment) {
-      warnings.push('PINECONE_API_KEY not set. Similarity search will use basic matching.');
-    }
+    // Silenced in development - not critical for basic functionality
+    // if (isDevelopment) {
+    //   warnings.push('PINECONE_API_KEY not set. Similarity search will use basic matching.');
+    // }
     missing.optional.push('PINECONE_API_KEY');
   }
 
@@ -157,9 +158,10 @@ export function validateEnv(): EnvValidationResult {
   }
 
   if (!env.serperApiKey) {
-    if (isDevelopment) {
-      warnings.push('SERPER_API_KEY not set. Context loading will use limited sources.');
-    }
+    // Silenced in development - not critical for basic functionality
+    // if (isDevelopment) {
+    //   warnings.push('SERPER_API_KEY not set. Context loading will use limited sources.');
+    // }
     missing.optional.push('SERPER_API_KEY');
   }
 

@@ -5,10 +5,16 @@ import { db } from "@quoorum/db";
 import type { Database } from "@quoorum/db";
 import type { User } from "@quoorum/db";
 
+// Type for Supabase client (avoid importing full package)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SupabaseClient = any;
+
 export interface Context {
   db: Database;
   user: User | null;
   userId: string | null;
+  supabase?: SupabaseClient | null;
+  authUserId?: string | null; // Supabase auth.uid() for RLS policies
 }
 
 export async function createContext(_opts?: FetchCreateContextFnOptions) {

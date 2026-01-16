@@ -484,6 +484,7 @@ export const debatesRouter = router({
           status: quoorumDebates.status,
           totalRounds: quoorumDebates.totalRounds,
           consensusScore: quoorumDebates.consensusScore,
+          processingStatus: quoorumDebates.processingStatus,
           updatedAt: quoorumDebates.updatedAt,
         })
         .from(quoorumDebates)
@@ -736,6 +737,24 @@ async function runDebateAsync(
       .set({ status: "in_progress", startedAt: new Date(), updatedAt: new Date() })
       .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
 
+    // Event 1: Validating and starting (5%)
+    await updateProcessingStatus(
+      debateId,
+      userId,
+      "validating",
+      "Validando pregunta e iniciando deliberación...",
+      5
+    );
+
+    // Event 2: Analyzing context (15%)
+    await updateProcessingStatus(
+      debateId,
+      userId,
+      "analyzing",
+      "Analizando contexto y complejidad de la pregunta...",
+      15
+    );
+
     // Map context to LoadedContext format
     type ContextSourceType = "manual" | "internet" | "repo";
     const loadedContext = {
@@ -746,13 +765,40 @@ async function runDebateAsync(
       combinedContext: context?.background ?? "",
     };
 
-    // Run debate
+    // Event 3: Selecting experts (25%)
+    await updateProcessingStatus(
+      debateId,
+      userId,
+      "matching",
+      "Seleccionando expertos especializados...",
+      25
+    );
+
+    // Event 4: Preparing rounds (30%)
+    await updateProcessingStatus(
+      debateId,
+      userId,
+      "preparing",
+      "Preparando rondas de deliberación...",
+      30
+    );
+
+    // Run debate (35-80% happens inside runDynamicDebate)
     const result = await runDynamicDebate({
       sessionId: debateId,
       question,
       context: loadedContext,
       forceMode: "dynamic",
     });
+
+    // Event 5: Calculating consensus (85%)
+    await updateProcessingStatus(
+      debateId,
+      userId,
+      "calculating",
+      "Calculando consenso y ranking final...",
+      85
+    );
 
     // Map result types
     const mappedExperts = result.experts?.map((e) => ({
@@ -766,6 +812,15 @@ async function runDebateAsync(
       score: r.score ?? 0,
       reasoning: r.reasoning,
     }));
+
+    // Event 6: Finalizing (95%)
+    await updateProcessingStatus(
+      debateId,
+      userId,
+      "finalizing",
+      "Finalizando y guardando resultados...",
+      95
+    );
 
     // Update debate with results
     // ⚠️ IMPORTANT: Respect result.status - could be 'failed' if execution failed
@@ -785,6 +840,17 @@ async function runDebateAsync(
         interventions: result.interventions,
       })
       .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
+
+    // Event 7: Completed (100%)
+    await updateProcessingStatus(
+      debateId,
+      userId,
+      "completed",
+      "Debate completado exitosamente",
+      100,
+      result.rounds.length,
+      result.rounds.length
+    );
 
     // Send notification to user
     try {
@@ -857,6 +923,34 @@ async function runDebateAsync(
       );
     }
   }
+}
+
+/**
+ * Helper: Update processing status for UI cascade
+ */
+async function updateProcessingStatus(
+  debateId: string,
+  userId: string,
+  phase: string,
+  message: string,
+  progress: number,
+  currentRound?: number,
+  totalRounds?: number
+): Promise<void> {
+  await db
+    .update(quoorumDebates)
+    .set({
+      processingStatus: {
+        phase,
+        message,
+        progress,
+        currentRound,
+        totalRounds,
+        timestamp: new Date().toISOString(),
+      },
+      updatedAt: new Date(),
+    })
+    .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
 }
 
 /**
