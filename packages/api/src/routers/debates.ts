@@ -861,12 +861,24 @@ async function runDebateAsync(
       30
     );
 
-    // Run debate (35-80% happens inside runDynamicDebate)
+    // Run debate (35-80% happens inside runDynamicDebate with onProgress callback)
     const result = await runDynamicDebate({
       sessionId: debateId,
       question,
       context: loadedContext,
       forceMode: "dynamic",
+      onProgress: async (progress) => {
+        // Forward progress events to DB
+        await updateProcessingStatus(
+          debateId,
+          userId,
+          progress.phase,
+          progress.message,
+          progress.progress,
+          progress.currentRound,
+          progress.totalRounds
+        );
+      },
     });
 
     // Event 5: Calculating consensus (85%)

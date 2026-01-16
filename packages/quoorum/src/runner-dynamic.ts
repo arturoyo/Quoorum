@@ -46,6 +46,7 @@ export interface RunDebateOptions {
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
   onQualityCheck?: (quality: { round: number; score: number; issues: string[] }) => Promise<void>
   onIntervention?: (intervention: { round: number; type: string; prompt: string }) => Promise<void>
+  onProgress?: (progress: { phase: string; message: string; progress: number; currentRound?: number; totalRounds?: number }) => Promise<void>
 }
 
 interface DebateMode {
@@ -69,6 +70,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
     onMessageGenerated,
     onQualityCheck,
     onIntervention,
+    onProgress,
   } = options
 
   try {
@@ -98,6 +100,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
         onMessageGenerated,
         onQualityCheck,
         onIntervention,
+        onProgress,
       })
     }
 
@@ -278,6 +281,7 @@ async function runDynamicDebate(options: {
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
   onQualityCheck?: (quality: { round: number; score: number; issues: string[] }) => Promise<void>
   onIntervention?: (intervention: { round: number; type: string; prompt: string }) => Promise<void>
+  onProgress?: (progress: { phase: string; message: string; progress: number; currentRound?: number; totalRounds?: number }) => Promise<void>
 }): Promise<DebateResult> {
   const {
     sessionId,
@@ -289,6 +293,7 @@ async function runDynamicDebate(options: {
     onMessageGenerated,
     onQualityCheck,
     onIntervention,
+    onProgress,
   } = options
 
   const rounds: DebateRound[] = []
@@ -300,6 +305,18 @@ async function runDynamicDebate(options: {
   const agentsMap = new Map(agents.map((a) => [a.key, a]))
 
   for (let roundNum = 1; roundNum <= MAX_ROUNDS; roundNum++) {
+    // Emit progress event at start of each round (30% to 80% range)
+    if (onProgress) {
+      const progressPercent = 30 + Math.floor((50 / MAX_ROUNDS) * roundNum)
+      await onProgress({
+        phase: 'deliberating',
+        message: `Ronda ${roundNum} de deliberación en progreso...`,
+        progress: progressPercent,
+        currentRound: roundNum,
+        totalRounds: MAX_ROUNDS,
+      })
+    }
+
     const roundMessages: DebateMessage[] = []
 
     // Check if meta-moderator should intervene
