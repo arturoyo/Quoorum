@@ -261,6 +261,159 @@ echo "✅ Perfil sincronizado"
 - Supabase se usa SOLO para autenticación (`ctx.user`)
 - TODOS los datos se guardan en PostgreSQL local
 
+### 🏗️ Arquitectura Híbrida Explicada
+
+Este proyecto usa una **arquitectura híbrida deliberada** que combina dos sistemas de base de datos:
+
+#### 1️⃣ Supabase Cloud (Auth ÚNICAMENTE)
+
+```
+📍 URL: https://ipcbpkbvrftchbmpemlg.supabase.co
+🔑 Tabla: auth.users (gestionada por Supabase Auth)
+```
+
+**Responsabilidades:**
+- ✅ Registro de usuarios (`signUp()`)
+- ✅ Login/Logout (`signIn()`, `signOut()`)
+- ✅ Gestión de sesiones (JWT tokens)
+- ✅ Recuperación de contraseña
+- ✅ OAuth providers (Google, GitHub, etc.)
+
+**NO almacena:**
+- ❌ Perfiles de usuario
+- ❌ Clientes, debates, mensajes
+- ❌ Ningún dato de aplicación
+
+#### 2️⃣ PostgreSQL Local (Docker - TODOS LOS DATOS)
+
+```
+📍 URL: postgresql://postgres:postgres@localhost:5433/quoorum
+🗄️ Tablas: 27 schemas (profiles, debates, clients, messages, etc.)
+```
+
+**Responsabilidades:**
+- ✅ Todos los datos de aplicación
+- ✅ Perfiles de usuario (tabla `profiles`)
+- ✅ Relaciones entre entidades
+- ✅ Queries con Drizzle ORM
+
+**Relación con Supabase Auth:**
+```typescript
+// profiles.user_id → REFERENCIA a auth.users.id (en Supabase)
+// Pero la validación ocurre a nivel de aplicación, NO foreign key real
+```
+
+#### 🔗 Flujo de Datos en Autenticación
+
+```
+1. Usuario se registra
+   ↓
+2. Supabase Auth crea registro en auth.users
+   ↓
+3. Supabase Auth retorna user.id (UUID)
+   ↓
+4. Aplicación DEBE crear perfil en PostgreSQL local:
+   INSERT INTO profiles (id, user_id, ...)
+   VALUES (uuid_generate_v4(), user.id, ...)
+   ↓
+5. Todas las entidades referencian profiles.id:
+   clients.user_id → profiles.id ✅
+   debates.creator_id → profiles.id ✅
+```
+
+#### ⚠️ Problema Común: Foreign Key Violations
+
+**Error típico:**
+```
+insert or update on table "clients" violates foreign key constraint "clients_user_id_profiles_id_fk"
+```
+
+**Causa raíz:**
+- Usuario existe en Supabase Auth (`auth.users`)
+- Perfil NO existe en PostgreSQL local (`profiles`)
+- Aplicación intenta crear cliente con `user_id` inexistente
+
+**Solución:**
+```sql
+-- Verificar si perfil existe
+SELECT id, user_id, email FROM profiles WHERE user_id = 'AUTH_USER_ID';
+
+-- Si NO existe, crear perfil
+INSERT INTO profiles (id, user_id, email, name, role, is_active)
+VALUES (
+  gen_random_uuid(),
+  'AUTH_USER_ID',  -- ID de Supabase Auth
+  'email@example.com',
+  'Nombre Usuario',
+  'user',
+  true
+)
+ON CONFLICT (user_id) DO NOTHING;
+```
+
+#### 🚨 Reglas de Oro
+
+1. **NUNCA queries a Supabase para datos de aplicación**
+   ```typescript
+   // ❌ MAL
+   const { data } = await supabase.from('clients').select('*')
+
+   // ✅ BIEN
+   const clients = await db.select().from(clientsTable)
+   ```
+
+2. **SIEMPRE verificar que el perfil existe antes de insertar entidades**
+   ```typescript
+   // En routers tRPC, ctx.userId viene de Supabase Auth
+   // Pero DEBE existir en profiles de PostgreSQL local
+   const profile = await db.query.profiles.findFirst({
+     where: eq(profiles.userId, ctx.userId)
+   })
+
+   if (!profile) {
+     throw new TRPCError({
+       code: 'PRECONDITION_FAILED',
+       message: 'Profile not found. Please complete onboarding.'
+     })
+   }
+   ```
+
+3. **Sincronización de perfiles es responsabilidad de la aplicación**
+   - NO hay trigger automático Supabase → PostgreSQL
+   - El endpoint de registro DEBE crear el perfil
+   - El script `scripts/sync-profiles.sh` es para casos excepcionales
+
+4. **En desarrollo, PostgreSQL local puede resetearse**
+   ```bash
+   docker-compose down -v  # ⚠️ Borra TODO PostgreSQL local
+   docker-compose up -d    # Recrear contenedor
+   pnpm db:push            # Aplicar schemas
+   pnpm db:seed            # Seed data inicial
+
+   # Resultado: auth.users en Supabase siguen existiendo
+   #            profiles en PostgreSQL local NO
+   # Solución: Re-crear perfiles con sync-profiles.sh
+   ```
+
+#### 📋 Checklist de Debugging
+
+Si ves errores de foreign key:
+
+- [ ] ¿El usuario está autenticado? (`ctx.userId` existe)
+- [ ] ¿El perfil existe en PostgreSQL local? (query a `profiles`)
+- [ ] ¿PostgreSQL local se reseteó recientemente? (contenedor Docker)
+- [ ] ¿El endpoint de registro crea el perfil correctamente?
+- [ ] ¿Hay otros perfiles huérfanos? (auth.users sin profiles)
+
+**Comando de auditoría:**
+```bash
+# Ver cuántos perfiles hay
+docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT COUNT(*) FROM profiles;"
+
+# Ver todos los perfiles
+docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT id, user_id, email, name FROM profiles;"
+```
+
 ---
 
 ## 🔴 REGLAS INVIOLABLES
@@ -1646,9 +1799,14 @@ export async function deleteClient(id: string): Promise<ActionResult> {
 
 ## 🤖 AI RATE LIMITING & FALLBACK SYSTEM
 
-### Arquitectura Multi-Proveedor
+> **⚠️ ESTADO:** 📋 Diseñado - Implementación Parcial
+> **Especificación Completa:** Ver [AI-RATE-LIMITING-SPEC.md](./AI-RATE-LIMITING-SPEC.md)
+> **Implementado:** `packages/ai/src/lib/fallback-config.ts`
+> **Pendiente:** rate-limiter.ts, quota-monitor.ts, retry.ts, telemetry.ts
 
-Wallie utiliza un sistema robusto de gestión de APIs de IA con:
+### Resumen del Sistema Planificado
+
+Sistema diseñado para gestionar múltiples proveedores de IA con:
 
 - ✅ **5 proveedores** configurados (OpenAI, Anthropic, Gemini, Groq, DeepSeek)
 - ✅ **Rate limiting local** (evita hit de límites de API)
@@ -2269,6 +2427,121 @@ const fallback = fallbackManager.getNextFallback('gpt-4o', ['openai'])
 //  NO lo hardcodees. Usa configuración centralizada."
 ```
 
+### ⚠️ ADVERTENCIA: Código Existente Viola Esta Regla
+
+**IMPORTANTE:** A pesar de la regla anterior, el código actual del proyecto **CONTIENE hardcodeo de providers/modelos** en varios archivos. Esto es **deuda técnica reconocida** que debe corregirse gradualmente.
+
+#### 📋 Archivos con Hardcodeo (Verificado 16 Ene 2026)
+
+| Archivo | Problema | Estado |
+|---------|----------|--------|
+| `packages/quoorum/src/agents.ts` | 4 agentes con `provider: 'google'` + `model: 'gemini-2.0-flash-exp'` hardcoded | 🔴 Deuda Técnica |
+| `packages/quoorum/src/expert-database.ts` | 50+ expertos con providers/models hardcoded | 🔴 Deuda Técnica |
+| `packages/ai/src/lib/fallback-config.ts` | Mapeo de modelos → fallbacks (este ES necesario) | ✅ Diseño intencional |
+
+**Código real en `agents.ts` (líneas 13-68):**
+```typescript
+export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
+  optimizer: {
+    provider: 'google',              // ❌ Hardcoded
+    model: 'gemini-2.0-flash-exp',   // ❌ Hardcoded
+    temperature: 0.7,
+  },
+  critic: {
+    provider: 'google',              // ❌ Hardcoded
+    model: 'gemini-2.0-flash-exp',   // ❌ Hardcoded
+    temperature: 0.5,
+  },
+  // ... 4 agentes en total
+}
+```
+
+**Código real en `expert-database.ts` (50+ expertos):**
+```typescript
+export const EXPERT_DATABASE: Record<string, ExpertProfile> = {
+  'april-dunford': {
+    provider: 'google',              // ❌ Hardcoded
+    modelId: 'gemini-2.0-flash-exp', // ❌ Hardcoded
+    // ...
+  },
+  // ... 50+ expertos más
+}
+```
+
+#### 🚨 Reglas para Nuevos Desarrollos
+
+1. **NO añadas MÁS hardcodeo** en estos archivos o similares
+2. **SI necesitas configurar un modelo:**
+   ```typescript
+   // ✅ Opción A: Variable de entorno
+   const provider = process.env.DEFAULT_AI_PROVIDER || 'google'
+   const model = process.env.DEFAULT_AI_MODEL || 'gemini-2.0-flash-exp'
+
+   // ✅ Opción B: Configuración centralizada
+   import { DEFAULT_AGENT_CONFIG } from '@/config/ai'
+
+   // ✅ Opción C: Fallback system
+   import { getFallbackManager } from '@wallie/ai/lib/fallback'
+   const config = fallbackManager.getNextFallback(preferredModel)
+   ```
+
+3. **SI modificas `agents.ts` o `expert-database.ts`:**
+   - Considera refactorizar a variables de entorno
+   - Documenta por qué no se pudo refactorizar (si aplica)
+   - Añade TODO comment con ticket de seguimiento
+
+#### 🛠️ Plan de Refactor (Futuro)
+
+```typescript
+// IDEAL: agents.ts con configuración de entorno
+import { z } from 'zod'
+
+const AgentProviderConfig = z.object({
+  optimizer: z.object({
+    provider: z.enum(['google', 'openai', 'anthropic']),
+    model: z.string(),
+  }),
+  // ...
+})
+
+export const QUOORUM_AGENTS = AgentProviderConfig.parse({
+  optimizer: {
+    provider: process.env.OPTIMIZER_PROVIDER,
+    model: process.env.OPTIMIZER_MODEL,
+  },
+  // Defaults configurables vía .env
+})
+```
+
+#### 💡 Por Qué Esto es Importante
+
+**Experiencia real del proyecto (Dic 2025 - Ene 2026):**
+- OpenAI quota exceeded → Debates dejaron de funcionar
+- Cambiar 50+ archivos manualmente → Propenso a errores
+- No se pudo usar sistema de fallback → Downtime innecesario
+
+**Si ves este patrón en código nuevo:**
+```typescript
+// ❌ RECHAZAR en code review
+function createDebate() {
+  const agent = {
+    provider: 'openai',  // ← HARDCODED
+    model: 'gpt-4o',     // ← HARDCODED
+  }
+}
+```
+
+**Solicitar refactor a:**
+```typescript
+// ✅ APROBAR
+import { getDefaultAgentConfig } from '@/config/ai'
+
+function createDebate() {
+  const agent = getDefaultAgentConfig('optimizer')
+  // Config centralizada, fácil de cambiar
+}
+```
+
 ---
 
 ## 🔐 SEGURIDAD
@@ -2845,9 +3118,15 @@ Wallie utiliza GitHub Actions para CI/CD automático en cada push y pull request
 
 - Tests de validación de schemas (Zod)
 - Tests unitarios de routers tRPC
-- Tests de componentes React (691 tests)
+- Tests de componentes (234 test cases en 92 suites)
 
-**Coverage esperado:** 80% mínimo
+**Números reales verificados (16 Ene 2026):**
+- 13 archivos de test (.test.ts/.test.tsx)
+- 3927 líneas de código de tests
+- 92 describe blocks (test suites)
+- 234 test cases individuales (it/test)
+
+**Coverage esperado:** 80% mínimo (coverage real no medido, requiere `pnpm test --coverage`)
 
 **Si falla:** El merge está bloqueado
 
@@ -3297,11 +3576,11 @@ git commit -m "refactor(ui): simplify button component"
 
 | Área                    | Estado              | Detalles                                              |
 | ----------------------- | ------------------- | ----------------------------------------------------- |
-| Quoorum Debates System  | ✅ Activo           | 20+ routers, 27 schemas, 12 tests                     |
+| Quoorum Debates System  | ✅ Activo           | 20+ routers, 27 schemas, 234 test cases               |
 | AI Rate Limiting System | 📋 Diseñado         | Configuración parcial (fallback-config.ts), no implementado completo |
 | Deuda técnica (any)     | ✅ 0 any types      | Eliminados en 50+ archivos                            |
 | console.logs prod       | ✅ Eliminados       | Código limpio                                         |
-| Tests                   | ⚠️ 13 archivos test | ~3927 líneas de tests verificadas (16 Ene 2026)      |
+| Tests                   | ✅ 234 test cases   | 13 archivos, 3927 líneas, 92 suites (16 Ene 2026)    |
 | E2E Tests               | ⚠️ No verificado    | Requiere verificación manual                          |
 | Type errors             | ✅ Resueltos        | Build limpio                                          |
 
@@ -3326,10 +3605,16 @@ git commit -m "refactor(ui): simplify button component"
    - Falta: getRateLimiterManager(), getFallbackManager(), getQuotaMonitor()
    - Estado: Planificado pero no implementado completamente
 
-📋 PENDIENTE: Testing Coverage Completo
-   - 13 archivos de tests verificados (~3927 líneas)
-   - Coverage real: no medido (requiere pnpm test --coverage)
-   - Tests E2E: no verificados en CI actual
+✅ VERIFICADO: Tests Unitarios (16 Ene 2026)
+   - 13 archivos de tests verificados
+   - 3927 líneas de código de tests
+   - 92 suites (describe blocks)
+   - 234 test cases individuales (it/test)
+
+📋 PENDIENTE: Testing Coverage y CI
+   - Coverage %: No medido (requiere pnpm test --coverage)
+   - Tests E2E: No verificados en CI actual
+   - Tests actualmente no ejecutables (problemas de setup)
 ```
 
 ### Checklist de Integración para Nuevas Features
