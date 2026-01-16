@@ -441,6 +441,7 @@ async function generateAgentResponse(input: GenerateAgentResponseInput): Promise
       isCompressed: true,
       tokensUsed,
       costUsd,
+      modelId: agent.model,
       createdAt: new Date(),
     }
   } catch (error) {
@@ -458,6 +459,7 @@ async function generateAgentResponse(input: GenerateAgentResponseInput): Promise
       isCompressed: true,
       tokensUsed: 0,
       costUsd: 0,
+      modelId: agent.model,
       createdAt: new Date(),
     }
   }

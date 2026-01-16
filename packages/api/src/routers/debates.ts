@@ -862,12 +862,26 @@ async function runDebateAsync(
     );
 
     // Run debate (35-80% happens inside runDynamicDebate with onProgress callback)
+    // Track messages for the current round (for real-time UI updates)
+    let currentRoundMessages: Array<{
+      agentKey: string;
+      agentName: string;
+      model: string;
+      content: string;
+      timestamp: string;
+    }> = [];
+
     const result = await runDynamicDebate({
       sessionId: debateId,
       question,
       context: loadedContext,
       forceMode: "dynamic",
       onProgress: async (progress) => {
+        // Clear messages when starting a new round
+        if (progress.phase === 'deliberating') {
+          currentRoundMessages = [];
+        }
+
         // Forward progress events to DB
         await updateProcessingStatus(
           debateId,
@@ -876,7 +890,31 @@ async function runDebateAsync(
           progress.message,
           progress.progress,
           progress.currentRound,
-          progress.totalRounds
+          progress.totalRounds,
+          currentRoundMessages
+        );
+      },
+      onMessageGenerated: async (message) => {
+        // Add message to current round for real-time updates
+        currentRoundMessages.push({
+          agentKey: message.agentKey,
+          agentName: message.agentName,
+          model: message.modelId ?? 'unknown',
+          content: message.content,
+          timestamp: message.createdAt.toISOString(),
+        });
+
+        // Update processingStatus with new message
+        await updateProcessingStatus(
+          debateId,
+          userId,
+          'deliberating',
+          `${message.agentName} está deliberando...`,
+          // Calculate progress based on message position in round
+          30 + Math.floor((50 / 20) * (message.round || 1)), // Rough estimate
+          message.round,
+          20, // MAX_ROUNDS
+          currentRoundMessages
         );
       },
     });
@@ -1025,7 +1063,14 @@ async function updateProcessingStatus(
   message: string,
   progress: number,
   currentRound?: number,
-  totalRounds?: number
+  totalRounds?: number,
+  roundMessages?: Array<{
+    agentKey: string;
+    agentName: string;
+    model: string;
+    content: string;
+    timestamp: string;
+  }>
 ): Promise<void> {
   await db
     .update(quoorumDebates)
@@ -1037,6 +1082,7 @@ async function updateProcessingStatus(
         currentRound,
         totalRounds,
         timestamp: new Date().toISOString(),
+        roundMessages: roundMessages ?? [],
       },
       updatedAt: new Date(),
     })
