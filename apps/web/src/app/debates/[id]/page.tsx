@@ -211,15 +211,6 @@ export default function DebatePage({ params }: DebatePageProps) {
           )}
         </div>
 
-        {/* Progress Bar */}
-        {debate.status === 'in_progress' && (
-          <div className="pb-2">
-            <div className="h-1 w-full overflow-hidden rounded-full bg-white/5">
-              <div className="h-full bg-gradient-to-r from-purple-600 to-blue-600 animate-pulse" style={{ width: '100%' }} />
-            </div>
-          </div>
-        )}
-
         {/* Interactive Controls */}
         <InteractiveControls
           debateId={id}
