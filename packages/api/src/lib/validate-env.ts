@@ -93,7 +93,11 @@ export function validateEnvironment(): EnvValidationResult {
 
   // Check required vars
   for (const [key, config] of Object.entries(REQUIRED_ENV_VARS)) {
-    const value = process.env[key]
+    // For Supabase vars, also check NEXT_PUBLIC_ prefixed versions
+    let value = process.env[key]
+    if (!value && (key === 'SUPABASE_URL' || key === 'SUPABASE_ANON_KEY')) {
+      value = process.env[`NEXT_PUBLIC_${key}`]
+    }
 
     if (!value) {
       errors.push(

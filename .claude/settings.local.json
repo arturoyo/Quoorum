@@ -89,7 +89,9 @@
       "Bash(pnpm --filter @quoorum/api add:*)",
       "Bash(pnpm turbo build:*)",
       "Bash(find:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(pnpm tsx:*)",
+      "Bash(pnpm --filter @quoorum/db build:*)"
     ]
   }
 }
