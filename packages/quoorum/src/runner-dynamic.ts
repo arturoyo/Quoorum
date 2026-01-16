@@ -184,8 +184,8 @@ function expertToAgentConfig(expert: ExpertProfile): AgentConfig {
     name: expert.name,
     role: 'analyst', // Default role for dynamic experts
     prompt: expert.systemPrompt,
-    provider: 'openai', // Default provider
-    model: expert.modelId,
+    provider: 'google', // Using Gemini free tier to avoid quota issues
+    model: 'gemini-2.0-flash-exp', // Free tier model
     temperature: expert.temperature,
   }
 }

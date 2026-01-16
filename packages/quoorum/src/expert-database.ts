@@ -28,7 +28,7 @@ export interface ExpertProfile {
   /** Temperatura recomendada (0-1) */
   temperature: number
   /** Provider recomendado */
-  provider: 'openai' | 'anthropic' | 'deepseek'
+  provider: 'openai' | 'anthropic' | 'deepseek' | 'google'
   /** Modelo recomendado */
   modelId: string
 }
@@ -72,8 +72,8 @@ Enfócate en:
 
 Sé específica, práctica y basada en ejemplos reales.`,
     temperature: 0.6,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   peep_laja: {
@@ -99,8 +99,8 @@ Enfócate en:
 
 Sé práctico, cuantitativo y escéptico de "best practices" genéricas.`,
     temperature: 0.4,
-    provider: 'openai',
-    modelId: 'gpt-4o',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   steli_efti: {
@@ -155,8 +155,8 @@ Enfócate en:
 
 Sé cuantitativo, basado en datos y orientado a experimentación.`,
     temperature: 0.5,
-    provider: 'openai',
-    modelId: 'gpt-4o',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   alex_hormozi: {
@@ -210,8 +210,8 @@ Enfócate en:
 
 Sé cuantitativo, riguroso y orientado a métricas que importan.`,
     temperature: 0.3,
-    provider: 'openai',
-    modelId: 'gpt-4o',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== PRODUCT & PMF ==========
@@ -239,8 +239,8 @@ Enfócate en:
 
 Sé riguroso, basado en datos y enfocado en usuarios que aman el producto.`,
     temperature: 0.5,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   sean_ellis: {
@@ -267,8 +267,8 @@ Enfócate en:
 
 Sé práctico, orientado a experimentación y enfocado en métricas clave.`,
     temperature: 0.6,
-    provider: 'openai',
-    modelId: 'gpt-4o-mini',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   lenny_rachitsky: {
@@ -294,8 +294,8 @@ Enfócate en:
 
 Sé práctico, basado en casos reales y enfocado en lo que funciona.`,
     temperature: 0.6,
-    provider: 'openai',
-    modelId: 'gpt-4o',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== GROWTH & ACQUISITION ==========
@@ -323,8 +323,8 @@ Enfócate en:
 
 Sé sistemático, riguroso y enfocado en loops sostenibles.`,
     temperature: 0.5,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   julian_shapiro: {
@@ -350,8 +350,8 @@ Enfócate en:
 
 Sé práctico, orientado a testing y enfocado en ROI.`,
     temperature: 0.6,
-    provider: 'openai',
-    modelId: 'gpt-4o-mini',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   rand_fishkin: {
@@ -378,8 +378,8 @@ Enfócate en:
 
 Sé estratégico, orientado a long-term y enfocado en valor real.`,
     temperature: 0.5,
-    provider: 'openai',
-    modelId: 'gpt-4o',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== OPERATIONS & SUPPORT ==========
@@ -407,8 +407,8 @@ Enfócate en:
 
 Sé orientado a outcomes, proactivo y enfocado en valor del cliente.`,
     temperature: 0.5,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   des_traynor: {
@@ -434,8 +434,8 @@ Enfócate en:
 
 Sé pragmático, enfocado en simplicidad y orientado a experiencia del usuario.`,
     temperature: 0.6,
-    provider: 'openai',
-    modelId: 'gpt-4o',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   jason_lemkin: {
@@ -490,8 +490,8 @@ Enfócate en:
 
 Sé técnico, riguroso y pragmático.`,
     temperature: 0.4,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   simon_willison: {
@@ -518,8 +518,8 @@ Enfócate en:
 
 Sé práctico, orientado a implementación y enfocado en lo que funciona.`,
     temperature: 0.5,
-    provider: 'openai',
-    modelId: 'gpt-4o',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   shreya_shankar: {
@@ -546,8 +546,8 @@ Enfócate en:
 
 Sé técnica, orientada a producción y enfocada en reliability.`,
     temperature: 0.4,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== FINANCE & ECONOMICS ==========
@@ -575,8 +575,8 @@ Enfócate en:
 
 Sé cuantitativo, riguroso y enfocado en sostenibilidad financiera.`,
     temperature: 0.3,
-    provider: 'openai',
-    modelId: 'gpt-4.1-mini',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== OPERATIONS & CUSTOMER SUCCESS ==========
@@ -604,8 +604,8 @@ Enfócate en:
 
 Sé práctico, orientado a procesos y enfocado en retención.`,
     temperature: 0.5,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   david_skok: {
@@ -632,8 +632,8 @@ Enfócate en:
 
 Sé analítico, basado en datos y enfocado en eficiencia operacional.`,
     temperature: 0.3,
-    provider: 'openai',
-    modelId: 'gpt-4.1-mini',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== SALES & GTM EXECUTION ==========
@@ -661,8 +661,8 @@ Enfócate en:
 
 Sé sistemático, orientado a procesos y enfocado en predictibilidad.`,
     temperature: 0.4,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== CONTENT & COMMUNITY ==========
@@ -690,8 +690,8 @@ Enfócate en:
 
 Sé auténtico, orientado a creators y enfocado en simplicidad.`,
     temperature: 0.7,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== INTERNATIONAL EXPANSION ==========
@@ -719,8 +719,8 @@ Enfócate en:
 
 Sé estratégico, paciente y enfocado en defensibilidad.`,
     temperature: 0.5,
-    provider: 'openai',
-    modelId: 'gpt-4.1-mini',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 
   // ========== CRITICAL THINKING ==========
@@ -748,8 +748,8 @@ Enfócate en:
 
 Sé escéptico, riguroso y enfocado en encontrar fallas antes de que sean problemas reales.`,
     temperature: 0.3,
-    provider: 'anthropic',
-    modelId: 'claude-3-5-sonnet-20241022',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash-exp',
   },
 }
 

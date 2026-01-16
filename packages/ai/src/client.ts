@@ -6,7 +6,7 @@ import { generateText } from "ai";
 import { createModel } from "./providers/index.js";
 import type { AIClient, AIResponse, GenerateOptions } from "./types.js";
 
-const DEFAULT_MODEL_ID = "gpt-4o-mini";
+const DEFAULT_MODEL_ID = "gemini-2.0-flash-exp"; // Using Gemini free tier to avoid OpenAI quota issues
 
 class ForumAIClient implements AIClient {
   async generate(prompt: string, options?: GenerateOptions): Promise<AIResponse> {

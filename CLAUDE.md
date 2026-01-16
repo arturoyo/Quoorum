@@ -9,13 +9,16 @@
 
 **ANTES de escribir una sola línea de código, LEE estos archivos EN ORDEN:**
 
-| Orden | Archivo            | Propósito                | Tiempo |
-| ----- | ------------------ | ------------------------ | ------ |
-| 1     | `CLAUDE.md` (este) | Reglas inviolables       | 5 min  |
-| 2     | `SYSTEM.md`        | Arquitectura completa    | 10 min |
-| 3     | `PHASES.md`        | Fase actual del proyecto | 3 min  |
-| 4     | `STACK.md`         | Tecnologías permitidas   | 5 min  |
-| 5     | `STANDARDS.md`     | Estándares de código     | 15 min |
+| Orden | Archivo                       | Propósito                           | Tiempo |
+| ----- | ----------------------------- | ----------------------------------- | ------ |
+| 0     | 🚨 `ERRORES-COMETIDOS.md` 🚨 | **ERRORES HISTÓRICOS - NO REPETIR** | 10 min |
+| 1     | `CLAUDE.md` (este)            | Reglas inviolables                  | 5 min  |
+| 2     | `SYSTEM.md`                   | Arquitectura completa               | 10 min |
+| 3     | `PHASES.md`                   | Fase actual del proyecto            | 3 min  |
+| 4     | `STACK.md`                    | Tecnologías permitidas              | 5 min  |
+| 5     | `STANDARDS.md`                | Estándares de código                | 15 min |
+
+**⚠️ CRÍTICO:** El archivo `ERRORES-COMETIDOS.md` documenta TODOS los errores que se han cometido y cómo prevenirlos. **DEBES leerlo ANTES de hacer cualquier cambio** para NO repetir los mismos errores.
 
 **⚠️ Si no lees estos archivos primero, tu código será rechazado.**
 
@@ -87,11 +90,14 @@ grep -r "pattern" src/
 
 | 🎯 Acción que vas a hacer      | 📖 Sección a consultar                                                    | 🔍 Qué verificar                                                 |
 | ------------------------------ | ------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **ANTES de empezar el día**    | 🎯 **`pnpm preflight`** 🎯                                                 | ⚡ Ejecutar PRE-FLIGHT CHECKS (2 min)                            |
+| **ANTES de cualquier cambio**  | 🎯 **`pnpm preflight`** 🎯                                                 | ⚡ Verificar sistema está OK                                      |
+| **CUALQUIER cambio de código** | 🚨 **ERRORES-COMETIDOS.md** 🚨                                            | ⚠️ ¿Ya cometimos este error antes? ¿Cómo prevenirlo?             |
 | **Usar herramienta `Bash`**    | [Regla #0](#-regla-0-herramientas-dedicadas--bash)                        | ¿Contiene grep/sed/awk/cat/find? → Usar herramienta dedicada     |
 | **Modificar landing page**     | [Regla #9: Landing Page](#9--landing-page-componentes-oficiales-únicos)   | ⚠️ Solo componentes oficiales - NO usar \_archived/              |
 | **Modificar dashboard webapp** | [Regla #10: Dashboard](#10--dashboard-webapp-estructura-oficial-única)    | ⚠️ ÚNICO archivo - PointsWidget OBLIGATORIO                      |
 | **Restaurar desde producción** | [Git: Restaurar Producción](#git-restaurar-desde-producción)              | ⚠️ SIEMPRE `git checkout main --` NO copiar de otras ubicaciones |
-| **Crear nuevo archivo**        | [Estructura de Archivos](#-estructura-de-archivos)                        | ¿Está en la ubicación correcta? ¿Ya existe?                      |
+| **Crear nuevo archivo .tsx**   | [INDEX.md](#️-antes-de-crear-archivos-tsx---consultar-indexmd)            | ⚠️ CONSULTAR INDEX.md primero - ¿Ya existe? ¿Duplicado?          |
 | **Escribir componente**        | [Estructura de Componentes](#estructura-de-componentes)                   | Orden: hooks → state → handlers → effects → render               |
 | **Editar archivo existente**   | [Reglas Inviolables #1](#1--siempre-leer-documentación-primero)           | ¿Lo leí con `Read` primero?                                      |
 | **Crear tRPC router**          | [tRPC Router Pattern](#1-trpc-router-pattern)                             | Validación Zod + filtro userId + error handling                  |
@@ -146,20 +152,113 @@ Ejecuto: Creo el router siguiendo el patrón exacto
 
 ## 📋 ÍNDICE DE SECCIONES
 
-0. [⚡ Regla #0: Herramientas Dedicadas](#-regla-0-herramientas-dedicadas--bash)
-1. [🛑 Checkpoint Protocol](#-checkpoint-protocol)
-2. [Reglas Inviolables](#-reglas-inviolables)
-3. [Stack Tecnológico](#-stack-tecnológico)
-4. [Estructura de Archivos](#-estructura-de-archivos)
-5. [Convenciones de Código](#-convenciones-de-código)
-6. [Patrones Obligatorios](#-patrones-obligatorios)
-7. [Prohibiciones Absolutas](#-prohibiciones-absolutas)
-8. [Seguridad](#-seguridad)
-9. [Testing](#-testing)
-10. [CI/CD - GitHub Actions](#-cicd---github-actions)
-11. [Checklist Pre-Commit](#-checklist-pre-commit)
-12. [FAQ](#-faq)
-13. [Comandos Útiles](#-comandos-útiles)
+0. [🚨 ERRORES-COMETIDOS.md - Leer SIEMPRE antes de hacer cambios](./ERRORES-COMETIDOS.md)
+0.5. [🎯 FLUJO-PROACTIVO.md - Sistema de Prevención de Errores](./FLUJO-PROACTIVO.md)
+1. [⚡ Regla #0: Herramientas Dedicadas](#-regla-0-herramientas-dedicadas--bash)
+2. [🛑 Checkpoint Protocol](#-checkpoint-protocol)
+3. [🗄️ Base de Datos: PostgreSQL Local](#-base-de-datos-postgresql-local-únicamente)
+4. [Reglas Inviolables](#-reglas-inviolables)
+5. [Stack Tecnológico](#-stack-tecnológico)
+6. [Estructura de Archivos](#-estructura-de-archivos)
+7. [Convenciones de Código](#-convenciones-de-código)
+8. [Patrones Obligatorios](#-patrones-obligatorios)
+9. [Prohibiciones Absolutas](#-prohibiciones-absolutas)
+10. [Seguridad](#-seguridad)
+11. [Testing](#-testing)
+12. [CI/CD - GitHub Actions](#-cicd---github-actions)
+13. [Checklist Pre-Commit](#-checklist-pre-commit)
+14. [FAQ](#-faq)
+15. [Comandos Útiles](#-comandos-útiles)
+
+---
+
+## 🗄️ BASE DE DATOS: PostgreSQL Local ÚNICAMENTE
+
+**⚠️ REGLA CRÍTICA:** Este proyecto usa **PostgreSQL local** (Docker) EXCLUSIVAMENTE. **NUNCA** uses Supabase cloud para operaciones de datos.
+
+### 🚨 Problema Común y Solución
+
+**Error típico:**
+```
+insert or update on table "X" violates foreign key constraint "Y_user_id_profiles_id_fk"
+```
+
+**Causa:** El usuario autenticado existe en Supabase Auth, pero su perfil NO existe en PostgreSQL local.
+
+**Solución INMEDIATA:**
+```bash
+# 1. Verificar si el perfil existe en PostgreSQL local
+docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT id, user_id, email FROM profiles WHERE user_id = 'AUTH_USER_ID';"
+
+# 2. Si NO existe, crear el perfil:
+docker exec quoorum-postgres psql -U postgres -d quoorum -c "
+  INSERT INTO profiles (id, user_id, email, name, role, is_active)
+  VALUES ('PROFILE_ID', 'AUTH_USER_ID', 'email@example.com', 'Nombre Usuario', 'user', true)
+  ON CONFLICT (id) DO NOTHING;
+"
+```
+
+**Donde obtener los IDs:**
+- `AUTH_USER_ID`: Logs del servidor → `[tRPC Context] Authenticated user: XXXX`
+- `PROFILE_ID`: Logs del servidor → `[tRPC Context] Profile found: XXXX`
+
+### ✅ Checklist ANTES de Cambiar Routers a PostgreSQL Local
+
+**Cuando migres un router de Supabase REST API (`ctx.supabase`) a Drizzle ORM (`db`), SIEMPRE:**
+
+1. ✅ **Verificar que el usuario tiene perfil en PostgreSQL local**
+   ```bash
+   docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT COUNT(*) FROM profiles;"
+   ```
+   - Si retorna `0` → **CREAR PERFIL PRIMERO**
+
+2. ✅ **Verificar foreign keys necesarias**
+   - Revisa qué tablas referencia la tabla que vas a insertar
+   - Asegúrate de que esas filas existen en PostgreSQL local
+
+3. ✅ **Usar Drizzle ORM, NO Supabase client**
+   ```typescript
+   // ❌ INCORRECTO
+   const { data } = await ctx.supabase.from('table').select('*')
+
+   // ✅ CORRECTO
+   const data = await db.select().from(table)
+   ```
+
+### 🔧 Script de Sincronización de Perfiles
+
+**Guardar como:** `scripts/sync-profiles.sh`
+
+```bash
+#!/bin/bash
+# Sincroniza perfiles de Supabase Auth a PostgreSQL local
+
+echo "🔄 Sincronizando perfiles..."
+
+# Obtener USER_ID del contexto de autenticación
+# (Puedes sacar esto de los logs del servidor)
+AUTH_USER_ID="b88193ab-1c38-49a0-a86b-cf12a96f66a9"
+PROFILE_ID="f198d53b-9524-45b9-87cf-a810a857a616"
+
+docker exec quoorum-postgres psql -U postgres -d quoorum -c "
+  INSERT INTO profiles (id, user_id, email, name, role, is_active)
+  VALUES ('${PROFILE_ID}', '${AUTH_USER_ID}', 'usuario@quoorum.com', 'Usuario Quoorum', 'user', true)
+  ON CONFLICT (id) DO NOTHING;
+"
+
+echo "✅ Perfil sincronizado"
+```
+
+### 📌 Configuración Actual
+
+| Variable                  | Valor                                          | Propósito                  |
+| ------------------------- | ---------------------------------------------- | -------------------------- |
+| `DATABASE_URL`            | `postgresql://postgres:postgres@localhost:5433/quoorum` | **PostgreSQL LOCAL** (Drizzle) |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://ipcbpkbvrftchbmpemlg.supabase.co`     | Solo para Auth (Supabase)  |
+
+**⚠️ IMPORTANTE:**
+- Supabase se usa SOLO para autenticación (`ctx.user`)
+- TODOS los datos se guardan en PostgreSQL local
 
 ---
 
@@ -1046,6 +1145,60 @@ PUSHER_USE_TLS=true
 | Test E2E              | `apps/web/tests/`                    | `clients.spec.ts`              |
 | Prompt IA             | `packages/ai/src/prompts/`           | `sales-assistant.ts`           |
 | Email template        | `packages/email/src/templates/`      | `welcome.tsx`                  |
+
+---
+
+### ⚠️ ANTES DE CREAR ARCHIVOS .TSX - CONSULTAR INDEX.MD
+
+**📍 Ubicación:** `apps/web/src/app/INDEX.md`
+
+**REGLA CRÍTICA:** Antes de crear CUALQUIER archivo `.tsx` en la aplicación web, **DEBES** consultar el INDEX.md primero.
+
+#### Por qué existe INDEX.md
+
+- 📋 **Inventario completo** de todos los archivos principales .tsx de la app
+- 🚫 **Previene duplicaciones** (eliminamos 14 archivos backup duplicados el 15 Ene 2026)
+- ✅ **Una sola versión** de cada funcionalidad
+- 📖 **Documentación** de propósito y estado de cada archivo
+
+#### Proceso Obligatorio ANTES de crear archivo .tsx:
+
+```bash
+# 1. Consultar INDEX.md
+cat apps/web/src/app/INDEX.md | grep "nombre-funcionalidad"
+
+# 2. Verificar si ya existe
+find apps/web/src/app -name "*nombre*.tsx"
+
+# 3. Si NO existe y es necesario crearlo:
+#    - Crear el archivo
+#    - Añadirlo a INDEX.md con su propósito
+#    - Marcar como ✅ Activo
+
+# 4. Si YA existe:
+#    - Editar el existente
+#    - NO crear page-backup.tsx, page-v2.tsx, etc.
+#    - Git ya tiene el historial completo
+```
+
+#### Archivos PROHIBIDOS (❌ NUNCA CREAR):
+
+- `page-backup.tsx` - Git ya tiene el historial
+- `page-old.tsx` - Git ya tiene el historial
+- `page-v2.tsx` - Usa ramas de git
+- `ComponentName-backup.tsx` - Git ya tiene el historial
+- Cualquier variante de backup manual
+
+#### Mantra:
+
+> **"Un archivo, una funcionalidad, una ubicación."**
+> **"Git guarda el historial, no yo."**
+
+#### Ver INDEX.md completo:
+
+```bash
+cat apps/web/src/app/INDEX.md
+```
 
 ---
 
@@ -2041,6 +2194,8 @@ fallbackManager.resetAllHealth()
 | Queries sin `userId`           | SIEMPRE filtrar por `userId`                |
 | Secrets hardcodeados           | Variables de entorno                        |
 | `.env` en git                  | `.env.example` sin valores reales           |
+| Providers IA hardcodeados      | Configuración centralizada o env vars       |
+| Modelos IA hardcodeados        | Constantes configurables o sistema de fallback |
 | `useEffect` para fetch         | tRPC/React Query o Server Components        |
 | CSS inline                     | Tailwind classes                            |
 | `!important`                   | Especificidad correcta                      |
@@ -2205,6 +2360,76 @@ const trend = emotionalData?.trend as
 // ✅ IDEAL - Definir tipos en packages/types y reusar
 import type { EmotionalTrend } from '@wallie/types'
 const trend: EmotionalTrend = emotionalData?.trend
+
+// ═══════════════════════════════════════════════════════════
+// HARDCODEO DE PROVIDERS/MODELOS IA (15 Ene 2026)
+// ═══════════════════════════════════════════════════════════
+// ❌ MAL - Provider hardcodeado (causa quota exceeded)
+function expertToAgentConfig(expert: ExpertProfile): AgentConfig {
+  return {
+    provider: 'openai', // ❌ NUNCA hardcodear
+    model: 'gpt-4o',    // ❌ NUNCA hardcodear
+    ...
+  }
+}
+
+// ❌ MAL - Modelos hardcodeados en base de datos
+export const EXPERT_DATABASE = {
+  'april-dunford': {
+    provider: 'openai',           // ❌ Causa problemas de quota
+    modelId: 'gpt-4o',            // ❌ No configurable
+    ...
+  }
+}
+
+// ✅ BIEN - Configuración centralizada con fallback
+import { QUOORUM_AGENTS } from './agents'
+
+function expertToAgentConfig(expert: ExpertProfile): AgentConfig {
+  return {
+    provider: 'google',              // ✅ Free tier por defecto
+    model: 'gemini-2.0-flash-exp',   // ✅ Sin quota
+    temperature: expert.temperature,
+  }
+}
+
+// ✅ MEJOR - Constantes configurables en un solo lugar
+// packages/quoorum/src/agents.ts
+export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
+  optimizer: {
+    provider: 'deepseek',
+    model: 'deepseek-chat',
+    temperature: 0.7,
+  },
+  critic: {
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-20250514',
+    temperature: 0.5,
+  },
+  synthesizer: {
+    provider: 'google',               // ✅ Free tier
+    model: 'gemini-2.0-flash-exp',    // ✅ Sin quota
+    temperature: 0.3,
+  },
+}
+
+// ✅ IDEAL - Sistema de fallback automático
+import { getFallbackManager } from '@wallie/ai/lib/fallback'
+
+const fallbackManager = getFallbackManager()
+const fallback = fallbackManager.getNextFallback('gpt-4o', ['openai'])
+// Returns: { provider: 'anthropic', modelId: 'claude-3-5-sonnet', ... }
+
+// 🚨 CONSECUENCIAS DE HARDCODEAR:
+// 1. ❌ Quota exceeded cuando OpenAI se queda sin créditos
+// 2. ❌ Imposible cambiar de proveedor sin modificar 50+ archivos
+// 3. ❌ No se puede usar sistema de fallback automático
+// 4. ❌ Dificulta testing (no puedes mockear fácilmente)
+// 5. ❌ Costos inesperados (no puedes cambiar a free tier)
+
+// 🎯 REGLA DE ORO:
+// "Si un valor puede cambiar entre entornos o con el tiempo,
+//  NO lo hardcodees. Usa configuración centralizada."
 ```
 
 ---

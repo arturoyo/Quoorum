@@ -7,11 +7,12 @@
 
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { router, protectedProcedure, expensiveRateLimitedProcedure } from "../trpc.js";
 import { db } from "@quoorum/db";
-import { quoorumDebates, profiles } from "@quoorum/db/schema";
-import { runDynamicDebate } from "@quoorum/quoorum";
+import { quoorumDebates, users } from "@quoorum/db/schema";
+import { runDynamicDebate, notifyDebateComplete } from "@quoorum/quoorum";
+import type { ExpertProfile } from "@quoorum/quoorum";
 import { logger } from "../lib/logger.js";
 import { inngest } from "../lib/inngest-client.js";
 
@@ -43,12 +44,71 @@ const debateRateLimitedProcedure = expensiveRateLimitedProcedure;
 
 export const debatesRouter = router({
   /**
-   * Create a new debate
+   * Create a draft debate (when user sends first message)
+   * Creates the debate in the database immediately for better UX
+   */
+  createDraft: protectedProcedure
+    .input(
+      z.object({
+        question: z.string().min(1, "La pregunta no puede estar vacía").max(1000),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      logger.info("Creating draft debate", {
+        userId: ctx.user.id,
+        question: input.question.substring(0, 50)
+      });
+
+      // Generate title from question (first 60 chars or until punctuation)
+      let title = input.question.substring(0, 60);
+      const punctuationMatch = title.match(/[.!?]/);
+      if (punctuationMatch && punctuationMatch.index) {
+        title = title.substring(0, punctuationMatch.index);
+      }
+      if (input.question.length > 60) {
+        title += "...";
+      }
+
+      // Use Drizzle ORM to create debate in local PostgreSQL
+      const [debate] = await db
+        .insert(quoorumDebates)
+        .values({
+          userId: ctx.user.id,
+          question: input.question,
+          context: { background: "" },
+          mode: "dynamic",
+          status: "draft", // Draft state - not yet executed
+          visibility: "private",
+          metadata: {
+            title: title,
+            createdViaContextAssessment: true,
+          },
+        })
+        .returning();
+
+      if (!debate) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al crear el debate",
+        });
+      }
+
+      return {
+        id: debate.id,
+        title: title,
+        question: debate.question,
+        status: debate.status,
+      };
+    }),
+
+  /**
+   * Create a new debate or update existing draft
    * Integrates with context assessment for better debate quality
    */
   create: debateRateLimitedProcedure
     .input(
       z.object({
+        draftId: z.string().uuid().optional(), // If provided, update existing draft instead of creating new
         question: z.string().min(20, "La pregunta debe tener al menos 20 caracteres").max(1000),
         context: z.string().optional(),
         category: z.string().optional(),
@@ -64,18 +124,14 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Verify user exists in profiles
-      const [profile] = await db
-        .select()
-        .from(profiles)
-        .where(eq(profiles.id, ctx.user.id));
+      // User is already verified in protectedProcedure middleware
+      // Skip profile check to avoid Postgres connection issues
 
-      if (!profile) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Perfil de usuario no encontrado",
-        });
-      }
+      logger.info(input.draftId ? "Updating draft debate" : "Creating debate", {
+        userId: ctx.user.id,
+        question: input.question.substring(0, 50),
+        draftId: input.draftId
+      });
 
       // Build context object
       const debateContext: DebateContext = {
@@ -91,29 +147,90 @@ export const debatesRouter = router({
         debateContext.sources = [{ type: "category", content: input.category }];
       }
 
-      // Create debate record
-      const [debate] = await db
-        .insert(quoorumDebates)
-        .values({
-          userId: ctx.user.id,
-          question: input.question,
-          context: debateContext,
-          mode: "dynamic",
-          status: "pending",
-          visibility: "private",
-          metadata: {
-            expertCount: input.expertCount,
-            maxRounds: input.maxRounds,
-            category: input.category,
-          },
-        })
-        .returning();
+      let debate: any;
 
-      if (!debate) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error al crear el debate",
-        });
+      // If draftId provided, update existing draft
+      if (input.draftId) {
+        // First, get existing debate to preserve title
+        const [existingDebate] = await db
+          .select({ metadata: quoorumDebates.metadata })
+          .from(quoorumDebates)
+          .where(
+            and(
+              eq(quoorumDebates.id, input.draftId),
+              eq(quoorumDebates.userId, ctx.user.id)
+            )
+          );
+
+        if (!existingDebate) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Debate borrador no encontrado",
+          });
+        }
+
+        const existingTitle = existingDebate?.metadata?.title;
+
+        // Now update the debate
+        const [updatedDebate] = await db
+          .update(quoorumDebates)
+          .set({
+            context: debateContext,
+            status: "pending",
+            metadata: {
+              expertCount: input.expertCount,
+              maxRounds: input.maxRounds,
+              category: input.category,
+              title: existingTitle, // Preserve existing title
+              createdViaContextAssessment: true,
+            },
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(quoorumDebates.id, input.draftId),
+              eq(quoorumDebates.userId, ctx.user.id)
+            )
+          )
+          .returning();
+
+        if (!updatedDebate) {
+          logger.error("Database error updating draft debate");
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Error al actualizar el debate. Por favor, intenta de nuevo.",
+          });
+        }
+
+        debate = updatedDebate;
+      } else {
+        // Create new debate
+        const [newDebate] = await db
+          .insert(quoorumDebates)
+          .values({
+            userId: ctx.user.id,
+            question: input.question,
+            context: debateContext,
+            mode: "dynamic",
+            status: "pending",
+            visibility: "private",
+            metadata: {
+              expertCount: input.expertCount,
+              maxRounds: input.maxRounds,
+              category: input.category,
+            },
+          })
+          .returning();
+
+        if (!newDebate) {
+          logger.error("Database error creating debate");
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Error al crear el debate. Por favor, intenta de nuevo.",
+          });
+        }
+
+        debate = newDebate;
       }
 
       // Trigger debate execution asynchronously via Inngest
@@ -153,6 +270,7 @@ export const debatesRouter = router({
   get: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
+      // Use Drizzle ORM for local PostgreSQL
       const [debate] = await db
         .select()
         .from(quoorumDebates)
@@ -181,12 +299,15 @@ export const debatesRouter = router({
       z.object({
         limit: z.number().min(1).max(50).default(10),
         offset: z.number().min(0).default(0),
-        status: z.enum(["pending", "in_progress", "completed", "failed", "cancelled"]).optional(),
+        status: z.enum(["draft", "pending", "in_progress", "completed", "failed", "cancelled"]).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
-      // Build conditions array
-      const conditions = [eq(quoorumDebates.userId, ctx.user.id)];
+      // Use Drizzle ORM directly for local PostgreSQL
+      const conditions = [
+        eq(quoorumDebates.userId, ctx.user.id),
+        isNull(quoorumDebates.deletedAt), // Exclude soft-deleted debates
+      ];
 
       if (input.status) {
         conditions.push(eq(quoorumDebates.status, input.status));
@@ -251,6 +372,107 @@ export const debatesRouter = router({
     }),
 
   /**
+   * Update debate metadata (title, etc.)
+   */
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        metadata: z.record(z.unknown()).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Use Drizzle ORM directly for local PostgreSQL
+      // First, get existing debate to verify ownership and merge metadata
+      const [existingDebate] = await db
+        .select()
+        .from(quoorumDebates)
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      if (!existingDebate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Debate no encontrado",
+        });
+      }
+
+      // Update debate
+      const [updatedDebate] = await db
+        .update(quoorumDebates)
+        .set({
+          metadata: {
+            ...existingDebate.metadata,
+            ...input.metadata,
+          },
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        )
+        .returning();
+
+      if (!updatedDebate) {
+        logger.error("Database error updating debate");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al actualizar el debate.",
+        });
+      }
+
+      return updatedDebate;
+    }),
+
+  /**
+   * Delete a debate (soft delete)
+   */
+  delete: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      // Use Drizzle ORM directly for local PostgreSQL
+      // Verify ownership first
+      const [existingDebate] = await db
+        .select({ id: quoorumDebates.id })
+        .from(quoorumDebates)
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      if (!existingDebate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Debate no encontrado",
+        });
+      }
+
+      // Soft delete
+      await db
+        .update(quoorumDebates)
+        .set({
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      return { success: true };
+    }),
+
+  /**
    * Get debate status (lightweight query for polling)
    */
   status: protectedProcedure
@@ -280,6 +502,221 @@ export const debatesRouter = router({
       }
 
       return debate;
+    }),
+
+  // ═══════════════════════════════════════════════════════════
+  // INTERACTIVE CONTROLS
+  // ═══════════════════════════════════════════════════════════
+
+  /**
+   * Pause a debate in progress
+   */
+  pause: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const [debate] = await db
+        .select({ status: quoorumDebates.status })
+        .from(quoorumDebates)
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      if (!debate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Debate no encontrado",
+        });
+      }
+
+      if (debate.status !== "in_progress") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Solo se pueden pausar debates en progreso",
+        });
+      }
+
+      await db
+        .update(quoorumDebates)
+        .set({
+          metadata: sql`jsonb_set(metadata, '{paused}', 'true'::jsonb)`,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      logger.info("Debate paused", { debateId: input.id, userId: ctx.user.id });
+
+      return { success: true, message: "Debate pausado" };
+    }),
+
+  /**
+   * Resume a paused debate
+   */
+  resume: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const [debate] = await db
+        .select({ status: quoorumDebates.status, metadata: quoorumDebates.metadata })
+        .from(quoorumDebates)
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      if (!debate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Debate no encontrado",
+        });
+      }
+
+      if (debate.status !== "in_progress") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Solo se pueden reanudar debates en progreso",
+        });
+      }
+
+      await db
+        .update(quoorumDebates)
+        .set({
+          metadata: sql`jsonb_set(metadata, '{paused}', 'false'::jsonb)`,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      logger.info("Debate resumed", { debateId: input.id, userId: ctx.user.id });
+
+      return { success: true, message: "Debate reanudado" };
+    }),
+
+  /**
+   * Add context during a debate
+   */
+  addContext: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        context: z.string().min(10, "El contexto debe tener al menos 10 caracteres").max(1000),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [debate] = await db
+        .select({ status: quoorumDebates.status, context: quoorumDebates.context })
+        .from(quoorumDebates)
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      if (!debate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Debate no encontrado",
+        });
+      }
+
+      if (debate.status !== "in_progress") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Solo se puede añadir contexto a debates en progreso",
+        });
+      }
+
+      const currentContext = (debate.context as any) || {};
+      const additionalContext = currentContext.additional || [];
+      additionalContext.push({
+        content: input.context,
+        addedAt: new Date().toISOString(),
+      });
+
+      await db
+        .update(quoorumDebates)
+        .set({
+          context: {
+            ...currentContext,
+            additional: additionalContext,
+          },
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      logger.info("Context added to debate", {
+        debateId: input.id,
+        userId: ctx.user.id,
+        contextLength: input.context.length
+      });
+
+      return { success: true, message: "Contexto añadido al debate" };
+    }),
+
+  /**
+   * Force consensus on a debate (end early)
+   */
+  forceConsensus: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const [debate] = await db
+        .select({ status: quoorumDebates.status })
+        .from(quoorumDebates)
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      if (!debate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Debate no encontrado",
+        });
+      }
+
+      if (debate.status !== "in_progress") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Solo se puede forzar consenso en debates en progreso",
+        });
+      }
+
+      await db
+        .update(quoorumDebates)
+        .set({
+          metadata: sql`jsonb_set(metadata, '{forceConsensus}', 'true'::jsonb)`,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(quoorumDebates.id, input.id),
+            eq(quoorumDebates.userId, ctx.user.id)
+          )
+        );
+
+      logger.info("Consensus forced on debate", { debateId: input.id, userId: ctx.user.id });
+
+      return { success: true, message: "Se forzará consenso en la próxima ronda" };
     }),
 });
 
@@ -331,10 +768,11 @@ async function runDebateAsync(
     }));
 
     // Update debate with results
+    // ⚠️ IMPORTANT: Respect result.status - could be 'failed' if execution failed
     await db
       .update(quoorumDebates)
       .set({
-        status: "completed",
+        status: result.status === "failed" ? "failed" : "completed",
         completedAt: new Date(),
         updatedAt: new Date(),
         consensusScore: result.consensusScore,
@@ -347,6 +785,49 @@ async function runDebateAsync(
         interventions: result.interventions,
       })
       .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
+
+    // Send notification to user
+    try {
+      // Get user email
+      const [user] = await db
+        .select({ email: users.email })
+        .from(users)
+        .where(eq(users.id, userId));
+
+      if (user?.email && mappedExperts) {
+        // Convert experts to ExpertProfile format for notification
+        const expertProfiles: ExpertProfile[] = mappedExperts.map((e) => ({
+          id: e.id,
+          name: e.name,
+          title: e.expertise?.[0] || "Expert",
+          role: e.expertise?.[0],
+          expertise: e.expertise ?? [],
+          topics: [],
+          perspective: "",
+          systemPrompt: "",
+          temperature: 0.7,
+          provider: "google" as const,
+          modelId: "gemini-2.0-flash-exp",
+        }));
+
+        await notifyDebateComplete(
+          userId,
+          user.email,
+          result,
+          expertProfiles,
+          { email: true, inApp: true, push: false } // Push notifications disabled for now
+        );
+
+        logger.info("Notification sent for completed debate", { debateId, userId });
+      }
+    } catch (notificationError) {
+      // Don't fail the debate if notification fails
+      logger.error(
+        "Failed to send debate completion notification",
+        notificationError instanceof Error ? notificationError : new Error(String(notificationError)),
+        { debateId, userId }
+      );
+    }
   } catch (error) {
     logger.error(
       "Debate execution failed",
@@ -362,6 +843,19 @@ async function runDebateAsync(
         updatedAt: new Date(),
       })
       .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
+
+    // Send failure notification
+    try {
+      const { notifyDebateFailed } = await import("./notifications.js");
+      await notifyDebateFailed(userId, debateId);
+      logger.info("Failure notification sent", { debateId, userId });
+    } catch (notificationError) {
+      logger.error(
+        "Failed to send debate failure notification",
+        notificationError instanceof Error ? notificationError : new Error(String(notificationError)),
+        { debateId, userId }
+      );
+    }
   }
 }
 

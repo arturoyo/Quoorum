@@ -34,8 +34,8 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
 - Cuestiona TODOS los supuestos
 - Devil's advocate brutal pero constructivo
 - Identifica puntos ciegos y riesgos ocultos`,
-    provider: 'anthropic',
-    model: 'claude-sonnet-4-20250514',
+    provider: 'google',
+    model: 'gemini-2.0-flash-exp',
     temperature: 0.5,
   },
 
@@ -62,8 +62,8 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
 - Extrae opciones viables del ruido
 - Calcula % de exito realista
 - Genera ranking final con pros/cons`,
-    provider: 'openai',
-    model: 'gpt-4o',
+    provider: 'google',
+    model: 'gemini-2.0-flash-exp',
     temperature: 0.3,
   },
 }
@@ -105,6 +105,9 @@ const COST_PER_MILLION_TOKENS: Record<string, number> = {
   'claude-sonnet-4-20250514': 3.0,
   'gpt-4o': 2.5,
   'gpt-4o-mini': 0.15,
+  'gemini-2.0-flash-exp': 0.0, // Free tier
+  'gemini-1.5-flash': 0.075,
+  'gemini-1.5-pro': 1.25,
 }
 
 export function estimateAgentCost(agent: AgentConfig, tokens: number): number {
