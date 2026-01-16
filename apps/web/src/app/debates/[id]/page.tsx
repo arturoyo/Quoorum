@@ -162,14 +162,6 @@ export default function DebatePage({ params }: DebatePageProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
         <div className="relative flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/debates')}
-              className="text-gray-400 hover:text-white"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
             <div>
               <h1 className="text-lg font-semibold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent line-clamp-1">
                 {debate.question}
