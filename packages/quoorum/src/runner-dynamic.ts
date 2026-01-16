@@ -54,6 +54,7 @@ interface DebateMode {
   reason: string
   agents: AgentConfig[]
   agentOrder: string[]
+  estimatedRounds: number // Number of rounds estimated based on complexity
 }
 
 // ============================================================================
@@ -86,6 +87,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
         sessionId,
         question,
         context,
+        maxRounds: debateMode.estimatedRounds,
         onRoundComplete,
         onMessageGenerated,
       })
@@ -96,6 +98,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
         context,
         agents: debateMode.agents,
         agentOrder: debateMode.agentOrder,
+        maxRounds: debateMode.estimatedRounds,
         onRoundComplete,
         onMessageGenerated,
         onQualityCheck,
@@ -129,6 +132,37 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
 }
 
 // ============================================================================
+// ROUND ESTIMATION
+// ============================================================================
+
+/**
+ * Estimate number of rounds needed based on question complexity
+ * Returns a dynamic limit instead of always using MAX_ROUNDS
+ */
+function estimateRoundsNeeded(complexity: number, areasCount: number): number {
+  // Base rounds: 3-5 for simple, 6-10 for moderate, 11-15 for complex
+  let baseRounds = 5
+
+  if (complexity <= 3) {
+    baseRounds = 3
+  } else if (complexity <= 5) {
+    baseRounds = 5
+  } else if (complexity <= 7) {
+    baseRounds = 8
+  } else {
+    baseRounds = 12
+  }
+
+  // Add extra rounds for multi-area questions (max +3)
+  const areaBonus = Math.min(areasCount - 1, 3)
+
+  const estimated = baseRounds + areaBonus
+
+  // Clamp between 3 and MAX_ROUNDS
+  return Math.max(3, Math.min(estimated, MAX_ROUNDS))
+}
+
+// ============================================================================
 // MODE DETECTION
 // ============================================================================
 
@@ -138,11 +172,14 @@ async function determineDebateMode(
 ): Promise<DebateMode> {
   // Force mode if specified
   if (forceMode === 'static') {
+    // Still analyze question to estimate rounds
+    const analysis = await analyzeQuestion(question)
     return {
       mode: 'static',
       reason: 'Forced static mode',
       agents: Object.values(QUOORUM_AGENTS),
       agentOrder: AGENT_ORDER,
+      estimatedRounds: estimateRoundsNeeded(analysis.complexity, analysis.areas.length),
     }
   }
 
@@ -154,11 +191,13 @@ async function determineDebateMode(
       reason: 'Forced dynamic mode',
       agents: matches.map((m) => expertToAgentConfig(m.expert)),
       agentOrder: matches.map((m) => m.expert.id),
+      estimatedRounds: estimateRoundsNeeded(analysis.complexity, analysis.areas.length),
     }
   }
 
   // Auto-detect based on question complexity
   const analysis = await analyzeQuestion(question)
+  const estimatedRounds = estimateRoundsNeeded(analysis.complexity, analysis.areas.length)
 
   // Use static mode for simple questions
   if (analysis.complexity < COMPLEXITY_THRESHOLD && analysis.areas.length <= MAX_AREAS_STATIC) {
@@ -167,6 +206,7 @@ async function determineDebateMode(
       reason: `Simple question (complexity: ${analysis.complexity}, areas: ${analysis.areas.length})`,
       agents: Object.values(QUOORUM_AGENTS),
       agentOrder: AGENT_ORDER,
+      estimatedRounds,
     }
   }
 
@@ -180,6 +220,7 @@ async function determineDebateMode(
       reason: `Complex question but insufficient expert matches (${matches.length} < 4), using static agents`,
       agents: Object.values(QUOORUM_AGENTS),
       agentOrder: AGENT_ORDER,
+      estimatedRounds,
     }
   }
 
@@ -188,6 +229,7 @@ async function determineDebateMode(
     reason: `Complex question (complexity: ${analysis.complexity}, areas: ${analysis.areas.length}, ${matches.length} experts)`,
     agents: matches.map((m) => expertToAgentConfig(m.expert)),
     agentOrder: matches.map((m) => m.expert.id),
+    estimatedRounds,
   }
 }
 
@@ -211,10 +253,11 @@ async function runStaticDebate(options: {
   sessionId: string
   question: string
   context: LoadedContext
+  maxRounds: number
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
 }): Promise<DebateResult> {
-  const { sessionId, question, context, onRoundComplete, onMessageGenerated } = options
+  const { sessionId, question, context, maxRounds, onRoundComplete, onMessageGenerated } = options
 
   const rounds: DebateRound[] = []
   let totalCost = 0
@@ -222,7 +265,9 @@ async function runStaticDebate(options: {
 
   const contextPrompt = buildContextPrompt(question, context)
 
-  for (let roundNum = 1; roundNum <= MAX_ROUNDS; roundNum++) {
+  quoorumLogger.info(`Starting static debate with ${maxRounds} estimated rounds`, { sessionId })
+
+  for (let roundNum = 1; roundNum <= maxRounds; roundNum++) {
     const roundMessages: DebateMessage[] = []
 
     for (const agentKey of AGENT_ORDER) {
@@ -247,7 +292,7 @@ async function runStaticDebate(options: {
     }
 
     const allMessages = [...rounds.flatMap((r) => r.messages), ...roundMessages]
-    consensusResult = await checkConsensus(allMessages, roundNum, MAX_ROUNDS, question)
+    consensusResult = await checkConsensus(allMessages, roundNum, maxRounds, question)
 
     const round: DebateRound = {
       round: roundNum,
@@ -287,6 +332,7 @@ async function runDynamicDebate(options: {
   context: LoadedContext
   agents: AgentConfig[]
   agentOrder: string[]
+  maxRounds: number
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
   onQualityCheck?: (quality: { round: number; score: number; issues: string[] }) => Promise<void>
@@ -299,6 +345,7 @@ async function runDynamicDebate(options: {
     context,
     agents,
     agentOrder,
+    maxRounds,
     onRoundComplete,
     onMessageGenerated,
     onQualityCheck,
@@ -314,16 +361,18 @@ async function runDynamicDebate(options: {
   let contextPrompt = buildContextPrompt(question, context)
   const agentsMap = new Map(agents.map((a) => [a.key, a]))
 
-  for (let roundNum = 1; roundNum <= MAX_ROUNDS; roundNum++) {
+  quoorumLogger.info(`Starting dynamic debate with ${maxRounds} estimated rounds`, { sessionId, agentCount: agents.length })
+
+  for (let roundNum = 1; roundNum <= maxRounds; roundNum++) {
     // Emit progress event at start of each round (30% to 80% range)
     if (onProgress) {
-      const progressPercent = 30 + Math.floor((50 / MAX_ROUNDS) * roundNum)
+      const progressPercent = 30 + Math.floor((50 / maxRounds) * roundNum)
       await onProgress({
         phase: 'deliberating',
         message: `Ronda ${roundNum} de deliberación en progreso...`,
         progress: progressPercent,
         currentRound: roundNum,
-        totalRounds: MAX_ROUNDS,
+        totalRounds: maxRounds,
       })
     }
 
@@ -384,7 +433,7 @@ async function runDynamicDebate(options: {
     }
 
     const allMessagesWithCurrent = [...allMessages, ...roundMessages]
-    consensusResult = await checkConsensus(allMessagesWithCurrent, roundNum, MAX_ROUNDS, question)
+    consensusResult = await checkConsensus(allMessagesWithCurrent, roundNum, maxRounds, question)
 
     const round: DebateRound = {
       round: roundNum,
