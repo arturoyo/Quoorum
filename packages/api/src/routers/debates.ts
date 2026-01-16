@@ -473,6 +473,84 @@ export const debatesRouter = router({
     }),
 
   /**
+   * Get dashboard stats for debates
+   */
+  stats: protectedProcedure.query(async ({ ctx }) => {
+    // Total debates
+    const allDebates = await db
+      .select({ id: quoorumDebates.id })
+      .from(quoorumDebates)
+      .where(
+        and(
+          eq(quoorumDebates.userId, ctx.user.id),
+          isNull(quoorumDebates.deletedAt)
+        )
+      );
+
+    const totalDebates = allDebates.length;
+
+    // Completed debates
+    const completedDebates = await db
+      .select({ id: quoorumDebates.id })
+      .from(quoorumDebates)
+      .where(
+        and(
+          eq(quoorumDebates.userId, ctx.user.id),
+          eq(quoorumDebates.status, "completed"),
+          isNull(quoorumDebates.deletedAt)
+        )
+      );
+
+    const completedCount = completedDebates.length;
+
+    // Average consensus
+    const debatesWithConsensus = await db
+      .select({ consensusScore: quoorumDebates.consensusScore })
+      .from(quoorumDebates)
+      .where(
+        and(
+          eq(quoorumDebates.userId, ctx.user.id),
+          eq(quoorumDebates.status, "completed"),
+          isNull(quoorumDebates.deletedAt),
+          sql`${quoorumDebates.consensusScore} IS NOT NULL`
+        )
+      );
+
+    const avgConsensus =
+      debatesWithConsensus.length > 0
+        ? Math.round(
+            debatesWithConsensus.reduce((sum, d) => sum + (d.consensusScore || 0), 0) /
+              debatesWithConsensus.length * 100
+          )
+        : 0;
+
+    // This month count
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const thisMonthDebates = await db
+      .select({ id: quoorumDebates.id })
+      .from(quoorumDebates)
+      .where(
+        and(
+          eq(quoorumDebates.userId, ctx.user.id),
+          sql`${quoorumDebates.createdAt} >= ${startOfMonth.toISOString()}`,
+          isNull(quoorumDebates.deletedAt)
+        )
+      );
+
+    const thisMonthCount = thisMonthDebates.length;
+
+    return {
+      totalDebates,
+      completedDebates: completedCount,
+      avgConsensus,
+      thisMonth: thisMonthCount,
+    };
+  }),
+
+  /**
    * Get debate status (lightweight query for polling)
    */
   status: protectedProcedure

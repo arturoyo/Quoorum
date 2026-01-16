@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { api } from "@/lib/trpc/client";
 import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,13 +58,13 @@ interface DashboardData {
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   const supabase = createClient();
 
+  // Check auth
   useEffect(() => {
-    async function loadDashboard() {
+    async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
@@ -72,133 +73,42 @@ export default function DashboardPage() {
       }
 
       setUser(user);
-
-      try {
-        // Fetch real data from database
-        const { data: debates, error: debatesError } = await supabase
-          .from("quoorum_debates")
-          .select("id, question, status, consensus_score, created_at")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(5);
-
-        if (debatesError) {
-          logger.error("Error fetching debates", debatesError);
-        }
-
-        // Fetch subscription data (default to Free for now)
-        const { data: subscription, error: subscriptionError } = await supabase
-          .from("subscriptions")
-          .select("*")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        
-        if (subscriptionError && subscriptionError.code !== 'PGRST116') {
-          // PGRST116 is "not found" which is expected if no subscription exists
-          logger.error("Error fetching subscription", subscriptionError);
-        }
-
-        // Calculate stats
-        const { count: totalCount } = await supabase
-          .from("quoorum_debates")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id);
-
-        const { count: completedCount } = await supabase
-          .from("quoorum_debates")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("status", "completed");
-
-        const { data: avgData } = await supabase
-          .from("quoorum_debates")
-          .select("consensus_score")
-          .eq("user_id", user.id)
-          .eq("status", "completed")
-          .not("consensus_score", "is", null);
-
-        const avgConsensus =
-          avgData && avgData.length > 0
-            ? Math.round(
-                avgData.reduce((sum, d) => sum + (d.consensus_score || 0), 0) /
-                  avgData.length
-              )
-            : 0;
-
-        const startOfMonth = new Date();
-        startOfMonth.setDate(1);
-        startOfMonth.setHours(0, 0, 0, 0);
-
-        const { count: thisMonthCount } = await supabase
-          .from("quoorum_debates")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .gte("created_at", startOfMonth.toISOString());
-
-        setData({
-          subscription: {
-            plan: subscription?.plan_id || "Free",
-            status: subscription?.status || "active",
-            debatesUsed: totalCount || 0,
-            debatesLimit: subscription?.plan_id === "Pro" ? 50 : 10,
-            currentPeriodEnd:
-              subscription?.current_period_end ||
-              new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          recentDebates:
-            debates?.map((d) => ({
-              id: d.id,
-              question: d.question,
-              status: d.status,
-              consensusScore: d.consensus_score,
-              createdAt: d.created_at,
-            })) || [],
-          stats: {
-            totalDebates: totalCount || 0,
-            completedDebates: completedCount || 0,
-            avgConsensus,
-            thisMonth: thisMonthCount || 0,
-          },
-        });
-      } catch (error) {
-        logger.error("Error loading dashboard", error as Error);
-        // Set empty data on error
-        setData({
-          subscription: {
-            plan: "Free",
-            status: "active",
-            debatesUsed: 0,
-            debatesLimit: 10,
-            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          recentDebates: [],
-          stats: {
-            totalDebates: 0,
-            completedDebates: 0,
-            avgConsensus: 0,
-            thisMonth: 0,
-          },
-        });
-      }
-
-      setIsLoading(false);
+      setIsAuthChecking(false);
     }
 
-    loadDashboard();
+    checkAuth();
   }, [router, supabase.auth]);
+
+  // Fetch stats via tRPC
+  const { data: stats, isLoading: statsLoading } = api.debates.stats.useQuery(
+    undefined,
+    { enabled: !isAuthChecking && !!user }
+  );
+
+  // Fetch recent debates via tRPC
+  const { data: recentDebates = [], isLoading: debatesLoading } = api.debates.list.useQuery(
+    { limit: 5, offset: 0 },
+    { enabled: !isAuthChecking && !!user }
+  );
+
+  const isLoading = isAuthChecking || statsLoading || debatesLoading;
 
   if (isLoading) {
     return <DashboardSkeleton />;
   }
 
-  if (!user || !data) {
+  if (!user || !stats) {
     return null;
   }
 
-  const usagePercentage = (data.subscription.debatesUsed / data.subscription.debatesLimit) * 100;
-  const daysUntilRenewal = Math.ceil(
-    (new Date(data.subscription.currentPeriodEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-  );
+  // Default subscription data (TODO: implement real subscription system)
+  const subscription = {
+    plan: "Free",
+    debatesUsed: stats.totalDebates,
+    debatesLimit: 10,
+  };
+
+  const usagePercentage = (subscription.debatesUsed / subscription.debatesLimit) * 100;
 
   return (
     <div className="min-h-screen relative bg-slate-950">
@@ -272,7 +182,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Total Debates</p>
-                  <p className="text-3xl font-bold text-white mt-1">{data.stats.totalDebates}</p>
+                  <p className="text-3xl font-bold text-white mt-1">{stats.totalDebates}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
                   <MessageCircle className="w-6 h-6 text-purple-400" />
@@ -287,7 +197,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Completados</p>
-                  <p className="text-3xl font-bold text-white mt-1">{data.stats.completedDebates}</p>
+                  <p className="text-3xl font-bold text-white mt-1">{stats.completedDebates}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
                   <CheckCircle className="w-6 h-6 text-green-400" />
@@ -302,7 +212,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Consenso Promedio</p>
-                  <p className="text-3xl font-bold text-white mt-1">{data.stats.avgConsensus}%</p>
+                  <p className="text-3xl font-bold text-white mt-1">{stats.avgConsensus}%</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
                   <TrendingUp className="w-6 h-6 text-blue-400" />
@@ -317,7 +227,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Este Mes</p>
-                  <p className="text-3xl font-bold text-white mt-1">{data.stats.thisMonth}</p>
+                  <p className="text-3xl font-bold text-white mt-1">{stats.thisMonth}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
                   <Zap className="w-6 h-6 text-orange-400" />
@@ -346,7 +256,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {data.recentDebates.map((debate) => (
+                  {recentDebates.map((debate) => (
                     <Link
                       key={debate.id}
                       href={`/debates/${debate.id}`}
@@ -366,7 +276,7 @@ export default function DashboardPage() {
                             {debate.consensusScore !== null && (
                               <span className="flex items-center gap-1">
                                 <Users className="w-4 h-4" />
-                                {debate.consensusScore}% consenso
+                                {Math.round(debate.consensusScore * 100)}% consenso
                               </span>
                             )}
                           </div>
@@ -386,7 +296,7 @@ export default function DashboardPage() {
                   ))}
                 </div>
 
-                {data.recentDebates.length === 0 && (
+                {recentDebates.length === 0 && (
                   <div className="text-center py-8">
                     <MessageCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                     <p className="text-gray-400">No tienes debates aún</p>
