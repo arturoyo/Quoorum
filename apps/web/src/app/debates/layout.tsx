@@ -18,7 +18,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'pending' | 'in_progress' | 'completed'>('all')
   const [showFilters, setShowFilters] = useState(false)
 
   // Resizable columns
@@ -91,11 +91,11 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
       )
     }
 
-    // Sort: in_progress > pending > completed
+    // Sort: draft > in_progress > pending > completed
     filtered.sort((a, b) => {
-      const statusOrder = { in_progress: 0, pending: 1, completed: 2 }
-      const orderA = statusOrder[a.status as keyof typeof statusOrder] ?? 3
-      const orderB = statusOrder[b.status as keyof typeof statusOrder] ?? 3
+      const statusOrder = { draft: 0, in_progress: 1, pending: 2, completed: 3 }
+      const orderA = statusOrder[a.status as keyof typeof statusOrder] ?? 4
+      const orderB = statusOrder[b.status as keyof typeof statusOrder] ?? 4
 
       if (orderA !== orderB) return orderA - orderB
 
@@ -107,8 +107,13 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
   }, [debates, search])
 
   const handleDebateClick = useCallback(
-    (id: string) => {
-      router.push(`/debates/${id}`)
+    (debate: any) => {
+      // If it's a draft, open in /debates/new with draft ID
+      if (debate.status === 'draft') {
+        router.push(`/debates/new?draft=${debate.id}`)
+      } else {
+        router.push(`/debates/${debate.id}`)
+      }
     },
     [router]
   )
@@ -223,8 +228,8 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
         {/* Filters */}
         {showFilters && (
           <div className="border-b border-[#2a3942] bg-[#202c33] p-3">
-            <div className="flex gap-2">
-              {(['all', 'pending', 'in_progress', 'completed'] as const).map((status) => (
+            <div className="flex flex-wrap gap-2">
+              {(['all', 'draft', 'pending', 'in_progress', 'completed'] as const).map((status) => (
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
@@ -236,6 +241,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
                   )}
                 >
                   {status === 'all' ? 'Todos' :
+                   status === 'draft' ? 'Borradores' :
                    status === 'pending' ? 'Pendientes' :
                    status === 'in_progress' ? 'En curso' : 'Completados'}
                 </button>
@@ -303,7 +309,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
                   key={debate.id}
                   debate={debate}
                   isSelected={debate.id === selectedDebateId}
-                  onClick={() => handleDebateClick(debate.id)}
+                  onClick={() => handleDebateClick(debate)}
                 />
               ))}
             </div>

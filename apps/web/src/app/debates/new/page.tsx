@@ -40,6 +40,7 @@ export default function NewDebatePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const retryDebateId = searchParams.get('retry')
+  const draftId = searchParams.get('draft')
   const supabase = createClient()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -81,6 +82,12 @@ export default function NewDebatePage() {
     { enabled: !!actualRetryId }
   )
 
+  // Load draft debate if coming from sidebar
+  const { data: draftDebate, isLoading: isLoadingDraft } = api.debates.get.useQuery(
+    { id: draftId! },
+    { enabled: !!draftId }
+  )
+
   // Pre-fill with retry debate context
   useEffect(() => {
     if (retryDebate && retryDebate.context) {
@@ -98,6 +105,21 @@ export default function NewDebatePage() {
       toast.info('📝 Debate anterior cargado. Presiona Enter para continuar o modifica la pregunta.')
     }
   }, [retryDebate])
+
+  // Pre-fill with draft debate
+  useEffect(() => {
+    if (draftDebate && draftDebate.status === 'draft') {
+      setInput(draftDebate.question)
+      setContextState((prev) => ({
+        ...prev,
+        debateId: draftDebate.id,
+        debateTitle: draftDebate.metadata?.title || draftDebate.question,
+        question: draftDebate.question,
+      }))
+
+      toast.info('📝 Borrador cargado. Continúa escribiendo o presiona Enter.')
+    }
+  }, [draftDebate])
 
   // Auth check
   useEffect(() => {
@@ -131,14 +153,37 @@ export default function NewDebatePage() {
       }))
       // Invalidate debates list cache so draft appears immediately
       void utils.debates.list.invalidate()
-      // Now continue with context assessment
+      // Show subtle toast notification
+      toast.success('✅ Draft guardado', { duration: 2000 })
     },
     onError: (error) => {
       console.error('[DEBUG] createDraftMutation.onError', error)
-      toast.error(`Error al crear debate: ${error.message}`)
-      setIsLoading(false)
+      // Don't show error toast for draft auto-save to avoid annoying user
     },
   })
+
+  // ═══════════════════════════════════════════════════════════
+  // AUTO-SAVE DRAFT when user starts typing
+  // ═══════════════════════════════════════════════════════════
+  useEffect(() => {
+    // Only auto-save for the initial question (not responses to AI)
+    if (messages.length > 0) return
+
+    // Don't save if input is too short (minimum 20 chars required)
+    if (input.trim().length < 20) return
+
+    // Don't create duplicate draft
+    if (contextState.debateId) return
+
+    // Debounce: wait 2 seconds after user stops typing
+    const timeoutId = setTimeout(() => {
+      console.log('[AUTO-SAVE] Creating draft with question:', input)
+      createDraftMutation.mutate({ question: input })
+    }, 2000)
+
+    // Cleanup timeout if user keeps typing
+    return () => clearTimeout(timeoutId)
+  }, [input, messages.length, contextState.debateId])
 
   const analyzeMutation = api.contextAssessment.analyze.useMutation({
     onSuccess: (data) => {
