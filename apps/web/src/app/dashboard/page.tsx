@@ -109,6 +109,7 @@ export default function DashboardPage() {
   };
 
   const usagePercentage = (subscription.debatesUsed / subscription.debatesLimit) * 100;
+  const daysUntilRenewal = 30; // TODO: Calculate from subscription.currentPeriodEnd
 
   return (
     <div className="min-h-screen relative bg-slate-950">
@@ -320,7 +321,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Tu Plan</CardTitle>
                   <Badge className="bg-purple-500/20 text-purple-400">
-                    {data.subscription.plan}
+                    {subscription.plan}
                   </Badge>
                 </div>
               </CardHeader>
@@ -329,7 +330,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-gray-400">Debates este mes</span>
                     <span className="text-white">
-                      {data.subscription.debatesUsed} / {data.subscription.debatesLimit}
+                      {subscription.debatesUsed} / {subscription.debatesLimit}
                     </span>
                   </div>
                   <Progress value={usagePercentage} className="h-2" />
@@ -378,7 +379,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* Upgrade Prompt (show if on free plan) */}
-            {data.subscription.plan === "Free" && (
+            {subscription.plan === "Free" && (
               <Card className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border-purple-500/30">
                 <CardContent className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2">
