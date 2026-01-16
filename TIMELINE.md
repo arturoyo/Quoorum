@@ -23,6 +23,41 @@
 
 ## [2025-01-16] - VALIDACIÓN VISUAL Y SISTEMA DE FALLBACK AUTOMÁTICO
 
+### [21:35] - MOSTRAR DRAFTS EN LISTA DE DEBATES
+
+**Solicitado por:** Usuario
+**Descripción:** Los drafts creados en `/debates/new` no aparecían en la lista de debates aunque el backend los devolvía
+
+**Contexto:**
+- Usuario reportó: "cuando se cree el draft deberia de añadirse en la visualización de la lista la conversacion y ahora no se muestra"
+- Backend SÍ incluía drafts en debates.list (línea 306-324 de debates.ts)
+- Problema 1: UI NO tenía badge para status 'draft'
+- Problema 2: Cache no se invalidaba al crear draft
+
+**Acciones realizadas:**
+1. **Añadido badge para draft/pending** (`apps/web/src/app/debates/page.tsx`)
+   - Badge gris "Borrador" para status 'draft' (con icono Clock)
+   - Badge amarillo "Pendiente" para status 'pending' (con icono Clock)
+   - Ahora muestra todos los status: draft, pending, in_progress, completed, failed
+
+2. **Invalidar cache al crear draft** (`apps/web/src/app/debates/new/page.tsx`)
+   - Añadido `utils.debates.list.invalidate()` en onSuccess de createDraftMutation
+   - Lista se refresca automáticamente cuando se crea draft
+   - Usuario ve el draft aparecer instantáneamente
+
+**Archivos afectados:**
+- `/apps/web/src/app/debates/page.tsx` (badges + status rendering)
+- `/apps/web/src/app/debates/new/page.tsx` (cache invalidation)
+
+**Resultado:** ✅ Éxito
+
+**Notas:**
+- Los drafts ahora son visibles inmediatamente con badge "Borrador"
+- El usuario puede hacer click en el draft para continuar editando
+- Cache invalidation asegura que la lista siempre esté actualizada
+
+---
+
 ### [21:15] - SISTEMA DE FALLBACK AUTOMÁTICO DE PROVEEDORES AI
 
 **Solicitado por:** Usuario
