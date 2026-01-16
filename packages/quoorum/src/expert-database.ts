@@ -3,7 +3,16 @@
  *
  * Base de datos de expertos con sus especialidades, áreas de conocimiento y perfiles.
  * Cada experto tiene un perfil único que define su perspectiva y expertise.
+ *
+ * NOTA: Los providers/models pueden configurarse via environment variables.
+ * Ver config/expert-config.ts para detalles.
  */
+
+import {
+  getExpertProviderConfig,
+  EXPERT_CATEGORIES,
+  type getExpertFreeTierConfig,
+} from './config/expert-config'
 
 /**
  * Perfil de un experto
@@ -72,8 +81,7 @@ Enfócate en:
 
 Sé específica, práctica y basada en ejemplos reales.`,
     temperature: 0.6,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('april_dunford', EXPERT_CATEGORIES.april_dunford),
   },
 
   peep_laja: {
@@ -99,8 +107,7 @@ Enfócate en:
 
 Sé práctico, cuantitativo y escéptico de "best practices" genéricas.`,
     temperature: 0.4,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('peep_laja', EXPERT_CATEGORIES.peep_laja),
   },
 
   steli_efti: {
@@ -126,8 +133,7 @@ Enfócate en:
 
 Sé directo, práctico y orientado a la acción.`,
     temperature: 0.7,
-    provider: 'deepseek',
-    modelId: 'deepseek-chat',
+    ...getExpertProviderConfig('steli_efti', EXPERT_CATEGORIES.steli_efti),
   },
 
   // ========== PRICING & MONETIZATION ==========
@@ -155,8 +161,7 @@ Enfócate en:
 
 Sé cuantitativo, basado en datos y orientado a experimentación.`,
     temperature: 0.5,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('patrick_campbell', EXPERT_CATEGORIES.patrick_campbell),
   },
 
   alex_hormozi: {
@@ -183,8 +188,7 @@ Enfócate en:
 
 Sé persuasivo, orientado a valor y enfocado en psicología del comprador.`,
     temperature: 0.8,
-    provider: 'deepseek',
-    modelId: 'deepseek-chat',
+    ...getExpertProviderConfig('alex_hormozi', EXPERT_CATEGORIES.alex_hormozi),
   },
 
   tomasz_tunguz: {
@@ -210,8 +214,7 @@ Enfócate en:
 
 Sé cuantitativo, riguroso y orientado a métricas que importan.`,
     temperature: 0.3,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('tomasz_tunguz', EXPERT_CATEGORIES.tomasz_tunguz),
   },
 
   // ========== PRODUCT & PMF ==========
@@ -239,8 +242,7 @@ Enfócate en:
 
 Sé riguroso, basado en datos y enfocado en usuarios que aman el producto.`,
     temperature: 0.5,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('rahul_vohra', EXPERT_CATEGORIES.rahul_vohra),
   },
 
   sean_ellis: {
@@ -267,8 +269,7 @@ Enfócate en:
 
 Sé práctico, orientado a experimentación y enfocado en métricas clave.`,
     temperature: 0.6,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('sean_ellis', EXPERT_CATEGORIES.sean_ellis),
   },
 
   lenny_rachitsky: {
@@ -294,8 +295,7 @@ Enfócate en:
 
 Sé práctico, basado en casos reales y enfocado en lo que funciona.`,
     temperature: 0.6,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('lenny_rachitsky', EXPERT_CATEGORIES.lenny_rachitsky),
   },
 
   // ========== GROWTH & ACQUISITION ==========
@@ -323,8 +323,7 @@ Enfócate en:
 
 Sé sistemático, riguroso y enfocado en loops sostenibles.`,
     temperature: 0.5,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('brian_balfour', EXPERT_CATEGORIES.brian_balfour),
   },
 
   julian_shapiro: {
@@ -350,8 +349,7 @@ Enfócate en:
 
 Sé práctico, orientado a testing y enfocado en ROI.`,
     temperature: 0.6,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('julian_shapiro', EXPERT_CATEGORIES.julian_shapiro),
   },
 
   rand_fishkin: {
@@ -378,8 +376,7 @@ Enfócate en:
 
 Sé estratégico, orientado a long-term y enfocado en valor real.`,
     temperature: 0.5,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('rand_fishkin', EXPERT_CATEGORIES.rand_fishkin),
   },
 
   // ========== OPERATIONS & SUPPORT ==========
@@ -407,8 +404,7 @@ Enfócate en:
 
 Sé orientado a outcomes, proactivo y enfocado en valor del cliente.`,
     temperature: 0.5,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('lincoln_murphy', EXPERT_CATEGORIES.lincoln_murphy),
   },
 
   des_traynor: {
@@ -434,8 +430,7 @@ Enfócate en:
 
 Sé pragmático, enfocado en simplicidad y orientado a experiencia del usuario.`,
     temperature: 0.6,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('des_traynor', EXPERT_CATEGORIES.des_traynor),
   },
 
   jason_lemkin: {
@@ -462,8 +457,7 @@ Enfócate en:
 
 Sé práctico, basado en experiencia real y enfocado en ARR.`,
     temperature: 0.6,
-    provider: 'deepseek',
-    modelId: 'deepseek-chat',
+    ...getExpertProviderConfig('jason_lemkin', EXPERT_CATEGORIES.jason_lemkin),
   },
 
   // ========== AI & TECHNICAL ==========
@@ -490,8 +484,7 @@ Enfócate en:
 
 Sé técnico, riguroso y pragmático.`,
     temperature: 0.4,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('andrej_karpathy', EXPERT_CATEGORIES.andrej_karpathy),
   },
 
   simon_willison: {
@@ -518,8 +511,7 @@ Enfócate en:
 
 Sé práctico, orientado a implementación y enfocado en lo que funciona.`,
     temperature: 0.5,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('simon_willison', EXPERT_CATEGORIES.simon_willison),
   },
 
   shreya_shankar: {
@@ -546,8 +538,7 @@ Enfócate en:
 
 Sé técnica, orientada a producción y enfocada en reliability.`,
     temperature: 0.4,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('shreya_shankar', EXPERT_CATEGORIES.shreya_shankar),
   },
 
   // ========== FINANCE & ECONOMICS ==========
@@ -575,8 +566,7 @@ Enfócate en:
 
 Sé cuantitativo, riguroso y enfocado en sostenibilidad financiera.`,
     temperature: 0.3,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('christoph_janz', EXPERT_CATEGORIES.christoph_janz),
   },
 
   // ========== OPERATIONS & CUSTOMER SUCCESS ==========
@@ -604,8 +594,7 @@ Enfócate en:
 
 Sé práctico, orientado a procesos y enfocado en retención.`,
     temperature: 0.5,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('nick_mehta', EXPERT_CATEGORIES.nick_mehta),
   },
 
   david_skok: {
@@ -632,8 +621,7 @@ Enfócate en:
 
 Sé analítico, basado en datos y enfocado en eficiencia operacional.`,
     temperature: 0.3,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('david_skok', EXPERT_CATEGORIES.david_skok),
   },
 
   // ========== SALES & GTM EXECUTION ==========
@@ -661,8 +649,7 @@ Enfócate en:
 
 Sé sistemático, orientado a procesos y enfocado en predictibilidad.`,
     temperature: 0.4,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('aaron_ross', EXPERT_CATEGORIES.aaron_ross),
   },
 
   // ========== CONTENT & COMMUNITY ==========
@@ -690,8 +677,7 @@ Enfócate en:
 
 Sé auténtico, orientado a creators y enfocado en simplicidad.`,
     temperature: 0.7,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('sahil_lavingia', EXPERT_CATEGORIES.sahil_lavingia),
   },
 
   // ========== INTERNATIONAL EXPANSION ==========
@@ -719,8 +705,7 @@ Enfócate en:
 
 Sé estratégico, paciente y enfocado en defensibilidad.`,
     temperature: 0.5,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('boris_wertz', EXPERT_CATEGORIES.boris_wertz),
   },
 
   // ========== CRITICAL THINKING ==========
@@ -748,8 +733,7 @@ Enfócate en:
 
 Sé escéptico, riguroso y enfocado en encontrar fallas antes de que sean problemas reales.`,
     temperature: 0.3,
-    provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    ...getExpertProviderConfig('critic', EXPERT_CATEGORIES.critic),
   },
 }
 
