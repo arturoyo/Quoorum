@@ -21,6 +21,79 @@
 
 ---
 
+## [2025-01-16] - AUTO-SAVE DRAFTS Y MEJORAS UX
+
+### [22:15] - AUTO-SAVE DE DRAFTS AL ESCRIBIR
+**Solicitado por:** Usuario
+**Descripción:**
+Usuario identificó problema de UX: "estoy en un debate nuevo y por lo tanto en http://localhost:3000/debates/new pero me he cansado y quiero otro nuevo, el boton de nuevo debate me lleva a http://localhost:3000/debates/new pero esta el inicio del contexto anterior.. esto no pasaria si cuando se escribe la primera frase en una conversacion se guardara ya el draft!"
+
+**Problema:**
+- Usuario escribe pregunta de debate
+- Se cansa o se distrae
+- Click en "Nuevo Debate" → pierde todo su trabajo
+- Draft NO se guardaba hasta enviar el formulario
+
+**Solución Implementada:**
+1. **Auto-save con debounce (2 segundos)**
+   - Detecta cuando usuario escribe 20+ caracteres (mínimo requerido)
+   - useEffect con cleanup timeout
+   - Previene duplicados (verifica si ya existe debateId)
+   - Solo auto-save para primera pregunta (no respuestas a IA)
+
+2. **Feedback visual sutil**
+   - Toast verde: "✅ Draft guardado" (2s duration)
+   - No muestra errores para evitar molestar al usuario
+   - Invalidates debates.list cache → draft aparece instantáneamente en sidebar
+
+3. **Sidebar mejoras**
+   - Drafts ahora ordenados primero: `draft > in_progress > pending > completed`
+   - Añadido filtro "Borradores" (entre "Todos" y "Pendientes")
+   - Click en draft → abre en `/debates/new?draft=<id>` en lugar de `/debates/<id>`
+
+4. **Carga de drafts desde sidebar**
+   - Detecta `?draft=<id>` en URL params
+   - Fetches draft via tRPC: `api.debates.get.useQuery({ id: draftId! })`
+   - Pre-llena input con pregunta
+   - Pre-llena contextState con debateId y debateTitle
+   - Toast: "📝 Borrador cargado. Continúa escribiendo o presiona Enter."
+
+**Flujo de usuario mejorado:**
+```
+1. Usuario va a /debates/new
+2. Escribe: "Should we invest in..."
+3. Espera 2s → Draft auto-saved → Aparece en sidebar con título truncado
+4. Se distrae, click en otro draft
+5. Regresa, click en su draft → Carga en /debates/new con contexto completo
+6. Continúa escribiendo donde lo dejó
+```
+
+**Archivos afectados:**
+- `/apps/web/src/app/debates/new/page.tsx`
+  * Añadido useEffect con debounce para auto-save (líneas 146-164)
+  * Añadido draftId detection (línea 43)
+  * Añadido draft loading query (líneas 86-89)
+  * Añadido draft pre-fill effect (líneas 110-122)
+- `/apps/web/src/app/debates/layout.tsx`
+  * Updated statusFilter type: añadido 'draft' (línea 21)
+  * Updated sort order: draft primero (líneas 96-98)
+  * Añadido 'Borradores' filter button (línea 239)
+  * Modified handleDebateClick: detecta status 'draft' → redirect a /debates/new?draft=<id> (líneas 112-116)
+  * Updated onClick prop: pasa debate completo en lugar de solo ID (línea 312)
+
+**Resultado:** ✅ Éxito
+- Auto-save funciona correctamente con debounce de 2s
+- Drafts aparecen inmediatamente en sidebar
+- Click en draft carga contexto completo
+- Usuario nunca pierde su trabajo
+
+**Notas:**
+- Debounce de 2s balance perfecto entre responsiveness y evitar spam de requests
+- Toast sutil no interrumpe flow de escritura
+- Fallback automático a static mode (commit anterior) garantiza que debates creados desde drafts siempre tengan múltiples agentes
+
+---
+
 ## [2025-01-16] - VALIDACIÓN VISUAL Y SISTEMA DE FALLBACK AUTOMÁTICO
 
 ### [21:35] - MOSTRAR DRAFTS EN LISTA DE DEBATES
