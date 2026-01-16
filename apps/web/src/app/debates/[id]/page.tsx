@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   Clock,
   Users,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { InteractiveControls } from '@/components/quoorum/interactive-controls'
@@ -64,6 +66,7 @@ export default function DebatePage({ params }: DebatePageProps) {
   const router = useRouter()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [expertColors, setExpertColors] = useState<Record<string, string>>({})
+  const [isContextExpanded, setIsContextExpanded] = useState(true)
 
   // Fetch debate with refetch interval for real-time updates
   const { data: debate, isLoading } = api.debates.get.useQuery(
@@ -201,13 +204,8 @@ export default function DebatePage({ params }: DebatePageProps) {
 
           {/* Consensus Score */}
           {debate.consensusScore !== null && debate.consensusScore !== undefined && (
-            <div className="flex items-center gap-2">
-              <div className="text-right">
-                <div className="text-xs text-gray-400">Consenso</div>
-                <div className="text-lg font-bold text-white">
-                  {Math.round(debate.consensusScore * 100)}%
-                </div>
-              </div>
+            <div className="flex flex-col items-center gap-1">
+              <div className="text-xs text-gray-400">Consenso</div>
               <div className="h-12 w-12 rounded-full border-4 border-white/10 bg-slate-950 flex items-center justify-center">
                 {debate.consensusScore >= 0.7 ? (
                   <CheckCircle2 className="h-6 w-6 text-purple-400" />
@@ -242,55 +240,79 @@ export default function DebatePage({ params }: DebatePageProps) {
       {/* Messages Area */}
       <div className="flex-1 overflow-auto px-4 py-6">
         <div className="mx-auto max-w-4xl space-y-4">
-          {/* Context Card - Always show if context exists */}
+          {/* Context Card - Expandible/Colapsable */}
           {debate.context && (
-            <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl p-6">
-              <div className="space-y-3">
+            <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl overflow-hidden">
+              {/* Header - Clickeable */}
+              <div
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
+                onClick={() => setIsContextExpanded(!isContextExpanded)}
+              >
                 <div className="flex items-center gap-2 text-sm font-medium text-purple-400">
                   <span>📝</span>
                   <span>Contexto del Debate</span>
                 </div>
-
-                {/* Background/Context */}
-                {debate.context.background && (
-                  <div>
-                    <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
-                      Información proporcionada:
-                    </div>
-                    <p className="text-sm text-white whitespace-pre-wrap">
-                      {debate.context.background}
-                    </p>
-                  </div>
-                )}
-
-                {/* Category */}
-                {debate.context.sources && debate.context.sources.length > 0 && (
-                  <div>
-                    <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
-                      Categoría:
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {debate.context.sources.map((source: any, idx: number) => (
-                        <Badge key={idx} className="bg-purple-600/20 text-purple-300">
-                          {source.content || source.type}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Assessment Summary if available */}
-                {debate.context.assessment && (
-                  <div>
-                    <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
-                      Análisis de Contexto:
-                    </div>
-                    <p className="text-sm text-gray-400">
-                      {debate.context.assessment.summary}
-                    </p>
-                  </div>
-                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setIsContextExpanded(!isContextExpanded)
+                  }}
+                >
+                  {isContextExpanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
+
+              {/* Content - Colapsable */}
+              {isContextExpanded && (
+                <div className="px-4 pb-4 space-y-3 border-t border-white/10 pt-3">
+                  {/* Background/Context */}
+                  {debate.context.background && (
+                    <div>
+                      <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
+                        Información proporcionada:
+                      </div>
+                      <p className="text-sm text-white whitespace-pre-wrap">
+                        {debate.context.background}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Category */}
+                  {debate.context.sources && debate.context.sources.length > 0 && (
+                    <div>
+                      <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
+                        Categoría:
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {debate.context.sources.map((source: any, idx: number) => (
+                          <Badge key={idx} className="bg-purple-600/20 text-purple-300">
+                            {source.content || source.type}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Assessment Summary if available */}
+                  {debate.context.assessment && (
+                    <div>
+                      <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
+                        Análisis de Contexto:
+                      </div>
+                      <p className="text-sm text-gray-400">
+                        {debate.context.assessment.summary}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </Card>
           )}
 
