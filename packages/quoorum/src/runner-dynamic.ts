@@ -173,9 +173,19 @@ async function determineDebateMode(
   // Use dynamic mode for complex questions
   const matches = matchExperts(analysis, { minExperts: 5, maxExperts: 7 })
 
+  // Fallback to static mode if not enough experts found
+  if (matches.length < 4) {
+    return {
+      mode: 'static',
+      reason: `Complex question but insufficient expert matches (${matches.length} < 4), using static agents`,
+      agents: Object.values(QUOORUM_AGENTS),
+      agentOrder: AGENT_ORDER,
+    }
+  }
+
   return {
     mode: 'dynamic',
-    reason: `Complex question (complexity: ${analysis.complexity}, areas: ${analysis.areas.length})`,
+    reason: `Complex question (complexity: ${analysis.complexity}, areas: ${analysis.areas.length}, ${matches.length} experts)`,
     agents: matches.map((m) => expertToAgentConfig(m.expert)),
     agentOrder: matches.map((m) => m.expert.id),
   }
