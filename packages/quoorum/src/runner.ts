@@ -77,7 +77,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
 
     // Check consensus after synthesizer responds
     const allMessages = [...rounds.flatMap((r) => r.messages), ...roundMessages]
-    consensusResult = await checkConsensus(allMessages, roundNum, MAX_ROUNDS)
+    consensusResult = await checkConsensus(allMessages, roundNum, MAX_ROUNDS, question)
 
     const round: DebateRound = {
       round: roundNum,
