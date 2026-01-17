@@ -345,3 +345,27 @@ export {
 export type { CreditDeductionResult, CreditRefundResult } from './billing/credit-transactions'
 
 export { convertUsdToCredits, trackCredits, CREDIT_MULTIPLIER, USD_PER_CREDIT } from './analytics/cost'
+
+// ============================================================================
+// NARRATIVE SYSTEM (Theme Engine & Dynamic Identities)
+// ============================================================================
+
+export {
+  // Theme Engine - Dynamic narrative identity assignment
+  selectTheme,
+  assignIdentity,
+  assignDebateIdentities,
+  // Theme Registry
+  AVAILABLE_THEMES,
+  getCharacterByRole,
+  getCharacter,
+  getThemeCharacters,
+  isValidTheme,
+} from './narrative/theme-engine'
+
+export type {
+  ThemeSelection,
+  AssignedIdentity,
+  NarrativeCharacter,
+  NarrativeTheme,
+} from './narrative/theme-engine'
