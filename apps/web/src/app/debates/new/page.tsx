@@ -543,6 +543,60 @@ export default function NewDebatePage() {
     }
   }
 
+  const handleQuestionResponse = async (questionId: string, response: string) => {
+    const userMsg: Message = {
+      id: `msg-${Date.now()}`,
+      role: 'user',
+      content: response,
+      timestamp: new Date(),
+    }
+
+    setMessages((prev) => [...prev, userMsg])
+    setIsLoading(true)
+
+    const updatedResponses = { ...contextState.responses, [questionId]: response }
+
+    setContextState((prev) => ({
+      ...prev,
+      responses: updatedResponses,
+    }))
+
+    setPendingQuestionId(null)
+
+    console.log('[DEBUG] Answering question:', questionId, 'with:', response)
+    console.log('[DEBUG] Updated responses:', updatedResponses)
+
+    // Refine with question response
+    if (assessment) {
+      // Separate assumptions (boolean or string) from questions (string)
+      const assumptionResponses: Record<string, boolean | string> = {}
+      const questionResponses: Record<string, string> = {}
+
+      Object.entries(updatedResponses).forEach(([id, value]) => {
+        // Check if this is an assumption or a question
+        const isAssumption = assessment.assumptions.some((a: any) => a.id === id)
+
+        if (isAssumption) {
+          assumptionResponses[id] = value as boolean | string
+        } else {
+          questionResponses[id] = String(value)
+        }
+      })
+
+      console.log('[DEBUG] Calling refine with:', { assumptionResponses, questionResponses })
+
+      refineMutation.mutate({
+        originalInput: contextState.question,
+        answers: {
+          assumptionResponses,
+          questionResponses,
+          additionalContext: '',
+        },
+        previousAssessment: assessment,
+      })
+    }
+  }
+
   const handleStartDeliberation = async () => {
     console.log('[DEBUG] handleStartDeliberation called')
     console.log('[DEBUG] contextState:', contextState)
