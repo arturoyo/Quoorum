@@ -23,6 +23,7 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
     key: 'optimizer',
     name: 'Optimista',
     role: 'optimizer',
+    narrativeId: 'hermes', // Hermes - Dios de las Oportunidades
     prompt: `Eres un optimista estrategico. Tu rol:
 - Maximiza upside, identifica oportunidades ocultas
 - Defiende la accion sobre la paralisis
@@ -37,6 +38,7 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
     key: 'critic',
     name: 'Critico',
     role: 'critic',
+    narrativeId: 'ares', // Ares - Dios de la Guerra
     prompt: `Eres un critico implacable. Tu rol:
 - Pre-mortem: Por que fallara esto?
 - Cuestiona TODOS los supuestos
@@ -51,6 +53,7 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
     key: 'analyst',
     name: 'Analista',
     role: 'analyst',
+    narrativeId: 'apolo', // Apolo - Dios de la Verdad
     prompt: `Eres un analista pragmatico. Tu rol:
 - Evalua factibilidad real, no teorica
 - Estima esfuerzo, recursos, tiempo
@@ -65,6 +68,7 @@ export const QUOORUM_AGENTS: Record<string, AgentConfig> = {
     key: 'synthesizer',
     name: 'Sintetizador',
     role: 'synthesizer',
+    narrativeId: 'atenea', // Atenea - Diosa de la Sabiduría
     prompt: `Eres un sintetizador experto. Tu rol:
 - Identifica patrones en el debate
 - Extrae opciones viables del ruido

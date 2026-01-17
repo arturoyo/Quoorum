@@ -113,7 +113,9 @@
       "Bash(git revert:*)",
       "Bash(pnpm --filter @wallie/quoorum test --reporter=verbose --run)",
       "Bash(pnpm --filter @wallie/quoorum test:*)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(pnpm drizzle-kit generate:*)",
+      "Bash(pnpm drizzle-kit push:*)"
     ]
   }
 }

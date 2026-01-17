@@ -331,3 +331,17 @@ export type {
   BranchCondition,
   SequenceStatus,
 } from './orchestration'
+
+// ============================================================================
+// BILLING & CREDIT SYSTEM
+// ============================================================================
+
+export {
+  deductCredits,
+  refundCredits,
+  getCreditBalance,
+  hasSufficientCredits,
+} from './billing/credit-transactions'
+export type { CreditDeductionResult, CreditRefundResult } from './billing/credit-transactions'
+
+export { convertUsdToCredits, trackCredits, CREDIT_MULTIPLIER, USD_PER_CREDIT } from './analytics/cost'

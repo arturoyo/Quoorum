@@ -1,4 +1,7 @@
-import { pgTable, text, timestamp, uuid, varchar, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, varchar, boolean, integer, pgEnum } from "drizzle-orm/pg-core";
+
+// User tier enum for credit system and AI orchestration
+export const userTierEnum = pgEnum("user_tier", ["free", "starter", "pro", "business"]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -7,6 +10,11 @@ export const users = pgTable("users", {
   avatarUrl: text("avatar_url"),
   role: varchar("role", { length: 50 }).notNull().default("member"),
   isActive: boolean("is_active").notNull().default(true),
+
+  // Credit system (1 credit = $0.005 USD)
+  credits: integer("credits").notNull().default(1000),
+  tier: userTierEnum("tier").notNull().default("free"),
+
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

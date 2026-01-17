@@ -10,6 +10,10 @@ const TOKENS_PER_MILLION = 1_000_000
 const DEFAULT_MODEL = 'gpt-4o-mini'
 const DEFAULT_USER = 'user-1'
 
+// Credit system constants
+export const CREDIT_MULTIPLIER = 1.75 // Service margin (75% markup)
+export const USD_PER_CREDIT = 0.005 // 1 credit = $0.005 USD (200 credits = $1 USD)
+
 // Pricing per 1M tokens (as of 2024)
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'gpt-4o': { input: 2.5, output: 10.0 },
@@ -74,4 +78,50 @@ export function calculateCostBreakdown(debates: DebateResult[]): CostBreakdown {
   }
 
   return breakdown
+}
+
+// ============================================================================
+// CREDIT SYSTEM
+// ============================================================================
+
+/**
+ * Convert USD cost to credits
+ * Formula: credits = (costUsd * CREDIT_MULTIPLIER) / USD_PER_CREDIT
+ *
+ * @example
+ * convertUsdToCredits(0.10) // $0.10 → 35 credits
+ * convertUsdToCredits(1.00) // $1.00 → 350 credits
+ */
+export function convertUsdToCredits(costUsd: number): number {
+  return Math.ceil((costUsd * CREDIT_MULTIPLIER) / USD_PER_CREDIT)
+}
+
+/**
+ * Track cost in credits instead of USD
+ * Same logic as trackCost() but returns credits
+ *
+ * @returns Credits consumed (integer)
+ */
+export function trackCredits(
+  operation: string,
+  model: string,
+  tokens: number,
+  userId: string
+): number {
+  // Calculate USD cost first
+  const costUsd = trackCost(operation, model, tokens, userId)
+
+  // Convert to credits
+  const credits = convertUsdToCredits(costUsd)
+
+  quoorumLogger.info('Credits tracked', {
+    operation,
+    model,
+    tokens,
+    costUsd,
+    credits,
+    userId,
+  })
+
+  return credits
 }

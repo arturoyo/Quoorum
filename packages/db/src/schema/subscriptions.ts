@@ -95,6 +95,9 @@ export const subscriptions = pgTable("subscriptions", {
   canceledAt: timestamp("canceled_at", { withTimezone: true }),
   cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
 
+  // Credit allocation (resets each billing cycle)
+  monthlyCredits: integer("monthly_credits").notNull().default(1000), // Credits allocated per month based on plan
+
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -118,6 +121,11 @@ export const usage = pgTable("usage", {
 
   // Cost tracking
   totalCostUsd: integer("total_cost_usd").notNull().default(0), // in cents
+  creditsDeducted: integer("credits_deducted").notNull().default(0), // Credits consumed in period
+
+  // AI orchestration tracking (for audit logs)
+  modelUsed: varchar("model_used", { length: 100 }), // Last model used (e.g. 'gpt-4o', 'claude-sonnet-4')
+  phase: varchar("phase", { length: 50 }), // Last debate phase ('initial', 'debate', 'synthesis')
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

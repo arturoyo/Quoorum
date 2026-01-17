@@ -56,6 +56,8 @@ export const quoorumDebates = pgTable('quoorum_debates', {
   consensusScore: real('consensus_score'), // 0-1
   totalRounds: integer('total_rounds'),
   totalCostUsd: real('total_cost_usd'),
+  totalCreditsUsed: integer('total_credits_used'), // Credits consumed (formula: costUsd * 1.75 / 0.005)
+  themeId: varchar('theme_id', { length: 50 }), // Narrative theme applied (e.g., 'greek-mythology')
 
   // Final ranking
   finalRanking: jsonb('final_ranking').$type<

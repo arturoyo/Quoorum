@@ -21,6 +21,7 @@ export interface AgentConfig {
   provider: AIProviderType
   model: string
   temperature: number
+  narrativeId?: string // Narrative character ID (e.g., 'atenea', 'apolo', 'ares', 'hermes')
 }
 
 // ============================================================================
@@ -114,6 +115,7 @@ export interface DebateResult {
   finalRanking: RankedOption[]
   ranking?: RankedOption[] // Alias for finalRanking
   totalCostUsd: number
+  totalCreditsUsed?: number // Credits consumed (formula: costUsd * 1.75 / 0.005)
   totalRounds: number
   consensusScore: number
   consensus?: number // Alias for consensusScore

@@ -26,6 +26,8 @@ import {
   sessionsRouter,
   apiKeysRouter,
   notificationsRouter,
+  // Billing router
+  billingRouter,
 } from "./routers/index.js";
 
 export const appRouter = router({
@@ -55,6 +57,8 @@ export const appRouter = router({
   sessions: sessionsRouter,
   apiKeys: apiKeysRouter,
   notifications: notificationsRouter,
+  // Billing
+  billing: billingRouter,
 });
 
 export type AppRouter = typeof appRouter;

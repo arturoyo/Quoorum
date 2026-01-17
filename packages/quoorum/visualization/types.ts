@@ -115,6 +115,7 @@ export interface DebateMessage {
   id: string
   expertId: string
   expertName: string
+  narrativeId?: string // Narrative character ID (e.g., 'atenea', 'apolo', 'ares', 'hermes')
   content: string
   timestamp: Date
   round: number

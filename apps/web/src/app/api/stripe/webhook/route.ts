@@ -4,8 +4,13 @@ import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/client";
 import { logError, logWarning } from "@/lib/monitoring";
 import { db } from "@quoorum/db";
-import { subscriptions, plans, usage } from "@quoorum/db/schema";
-import { eq } from "drizzle-orm";
+import { subscriptions, plans, usage, webhookEvents, users } from "@quoorum/db/schema";
+import { eq, sql } from "drizzle-orm";
+import {
+  checkWebhookRateLimit,
+  getRateLimitHeaders,
+  getClientIp,
+} from "@/lib/rate-limit/webhook-limiter";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -73,8 +78,30 @@ async function getOrCreatePlan(planId: string) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.text();
   const headersList = await headers();
+
+  // ============================================================================
+  // RATE LIMITING (First defense - before expensive operations)
+  // ============================================================================
+
+  const clientIp = getClientIp(headersList);
+  const rateLimitResult = await checkWebhookRateLimit(clientIp);
+
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: getRateLimitHeaders(rateLimitResult),
+      }
+    );
+  }
+
+  // ============================================================================
+  // SIGNATURE VERIFICATION
+  // ============================================================================
+
+  const body = await request.text();
   const signature = headersList.get("stripe-signature");
 
   if (!signature) {
@@ -97,19 +124,112 @@ export async function POST(request: Request) {
     );
   }
 
+  // ============================================================================
+  // IDEMPOTENCY CHECK
+  // ============================================================================
+
+  const eventId = event.id;
+
+  // Check if event was already processed
+  const [existingEvent] = await db
+    .select()
+    .from(webhookEvents)
+    .where(eq(webhookEvents.stripeEventId, eventId));
+
+  if (existingEvent) {
+    if (existingEvent.processed) {
+      // Already processed - return success
+      return NextResponse.json({
+        received: true,
+        message: "Event already processed"
+      });
+    }
+
+    // Event exists but not processed (retry scenario)
+    // Update retry count
+    await db
+      .update(webhookEvents)
+      .set({
+        retryCount: String(Number(existingEvent.retryCount) + 1),
+        processingStartedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(webhookEvents.id, existingEvent.id));
+  } else {
+    // Create new webhook event record
+    await db.insert(webhookEvents).values({
+      stripeEventId: eventId,
+      eventType: event.type,
+      processed: false,
+      processingStartedAt: new Date(),
+      payload: event.data.object as Record<string, unknown>,
+    });
+  }
+
+  // ============================================================================
+  // PROCESS EVENT
+  // ============================================================================
+
   try {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
-        const planId = session.metadata?.planId || "pro";
+        const purchaseType = session.metadata?.type; // 'credit_purchase' or undefined (subscription)
 
         if (!userId) {
           logWarning("No userId in session metadata", { sessionId: session.id });
           break;
         }
 
+        // ========================================================================
+        // CASE 1: ONE-TIME CREDIT PURCHASE
+        // ========================================================================
+
+        if (purchaseType === 'credit_purchase') {
+          const creditsToAdd = Number(session.metadata?.credits || 0);
+
+          if (creditsToAdd > 0) {
+            // Add credits atomically to user balance
+            await db
+              .update(users)
+              .set({
+                credits: sql`${users.credits} + ${creditsToAdd}`,
+                updatedAt: new Date(),
+              })
+              .where(eq(users.id, userId));
+
+            logWarning(`Added ${creditsToAdd} credits to user ${userId} (one-time purchase)`);
+          }
+
+          break;
+        }
+
+        // ========================================================================
+        // CASE 2: SUBSCRIPTION CHECKOUT
+        // ========================================================================
+
+        const planId = session.metadata?.planId || "pro";
         const plan = await getOrCreatePlan(planId);
+
+        // Get plan-specific monthly credits allocation
+        const monthlyCreditsMap: Record<string, number> = {
+          free: 1000,
+          starter: 5000,
+          pro: 10000,
+          business: 25000,
+        };
+        const monthlyCredits = monthlyCreditsMap[planId] || 1000;
+
+        // Update user tier and add monthly credits
+        await db
+          .update(users)
+          .set({
+            tier: planId as "free" | "starter" | "pro" | "business",
+            credits: sql`${users.credits} + ${monthlyCredits}`, // Add monthly allocation
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, userId));
 
         // Create or update subscription
         const [existingSubscription] = await db
@@ -126,6 +246,7 @@ export async function POST(request: Request) {
               status: "active",
               currentPeriodStart: new Date(),
               currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+              monthlyCredits, // Store monthly credit allocation
               updatedAt: new Date(),
             })
             .where(eq(subscriptions.id, existingSubscription.id));
@@ -138,6 +259,7 @@ export async function POST(request: Request) {
             status: "active",
             currentPeriodStart: new Date(),
             currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            monthlyCredits, // Store monthly credit allocation
           });
 
           // Initialize usage record
@@ -181,6 +303,24 @@ export async function POST(request: Request) {
         // Get free plan
         const freePlan = await getOrCreatePlan("free");
 
+        // Get subscription to find userId
+        const [sub] = await db
+          .select()
+          .from(subscriptions)
+          .where(eq(subscriptions.stripeCustomerId, customerId));
+
+        if (sub) {
+          // Downgrade user to free tier
+          await db
+            .update(users)
+            .set({
+              tier: "free",
+              updatedAt: new Date(),
+            })
+            .where(eq(users.id, sub.userId));
+        }
+
+        // Cancel subscription
         await db.update(subscriptions)
           .set({
             status: "canceled",
@@ -196,13 +336,28 @@ export async function POST(request: Request) {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
 
-        // Reset usage for new billing period
+        // Get subscription to find userId and monthlyCredits
         const [sub] = await db
           .select()
           .from(subscriptions)
           .where(eq(subscriptions.stripeCustomerId, customerId));
 
         if (sub) {
+          // Add monthly credits to user balance (renewal)
+          // Only add credits if this is NOT the first invoice (billing_reason !== 'subscription_create')
+          if (invoice.billing_reason !== 'subscription_create') {
+            await db
+              .update(users)
+              .set({
+                credits: sql`${users.credits} + ${sub.monthlyCredits}`,
+                updatedAt: new Date(),
+              })
+              .where(eq(users.id, sub.userId));
+
+            logWarning(`Renewed ${sub.monthlyCredits} credits for user ${sub.userId} (monthly renewal)`);
+          }
+
+          // Reset usage for new billing period
           const now = new Date();
           await db.update(usage)
             .set({
@@ -234,8 +389,33 @@ export async function POST(request: Request) {
         logWarning(`Unhandled event type: ${event.type}`);
     }
 
+    // ============================================================================
+    // MARK AS PROCESSED
+    // ============================================================================
+
+    await db
+      .update(webhookEvents)
+      .set({
+        processed: true,
+        processedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(webhookEvents.stripeEventId, eventId));
+
     return NextResponse.json({ received: true });
   } catch (error) {
+    // ============================================================================
+    // RECORD ERROR
+    // ============================================================================
+
+    await db
+      .update(webhookEvents)
+      .set({
+        error: error instanceof Error ? error.message : String(error),
+        updatedAt: new Date(),
+      })
+      .where(eq(webhookEvents.stripeEventId, eventId));
+
     logError(error instanceof Error ? error : new Error(String(error)), { context: "Webhook handler" });
     return NextResponse.json(
       { error: "Webhook handler failed" },

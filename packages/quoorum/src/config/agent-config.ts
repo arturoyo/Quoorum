@@ -93,12 +93,55 @@ export function getFreeTierConfig(): typeof ENV_CONFIG {
 
 /**
  * Get paid tier configuration (better quality, higher cost)
+ * Optimizes model selection per role for cost/quality balance
+ *
+ * @param role - Agent role (optional, returns config for specific role)
+ * @returns Model configuration optimized for the role
  */
-export function getPaidTierConfig(): typeof ENV_CONFIG {
-  return {
-    optimizer: { provider: 'openai', model: 'gpt-4o', temperature: 0.7 },
-    critic: { provider: 'anthropic', model: 'claude-sonnet-4-20250514', temperature: 0.5 },
-    analyst: { provider: 'deepseek', model: 'deepseek-chat', temperature: 0.3 },
-    synthesizer: { provider: 'openai', model: 'gpt-4o', temperature: 0.3 },
+export function getPaidTierConfig(
+  role?: 'optimizer' | 'critic' | 'analyst' | 'synthesizer'
+): typeof ENV_CONFIG | ReturnType<typeof getAgentConfig> {
+  // Full config for all agents
+  const fullConfig = {
+    // Optimizer: Fast iteration, creative options (medium cost)
+    optimizer: { provider: 'openai' as const, model: 'gpt-4o-mini', temperature: 0.7 },
+
+    // Critic: Deep analysis of risks (medium cost)
+    critic: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.5 },
+
+    // Analyst: Data-driven insights (medium-high cost)
+    analyst: { provider: 'openai' as const, model: 'gpt-4o', temperature: 0.3 },
+
+    // Synthesizer: Strategic synthesis (PREMIUM - highest cost)
+    synthesizer: { provider: 'anthropic' as const, model: 'claude-sonnet-4-20250514', temperature: 0.3 },
   }
+
+  // Return specific role config if requested
+  if (role) {
+    return fullConfig[role]
+  }
+
+  return fullConfig
+}
+
+/**
+ * Get configuration based on user tier
+ * Free/Starter → Cost-optimized models (all Gemini free tier)
+ * Pro/Business → Quality-optimized models (premium for synthesis)
+ *
+ * @param userTier - User subscription tier
+ * @param role - Agent role
+ * @returns Optimized configuration for tier and role
+ */
+export function getConfigByUserTier(
+  userTier: 'free' | 'starter' | 'pro' | 'business',
+  role: 'optimizer' | 'critic' | 'analyst' | 'synthesizer'
+): ReturnType<typeof getAgentConfig> {
+  // Free/Starter users get free tier across all agents
+  if (userTier === 'free' || userTier === 'starter') {
+    return getFreeTierConfig()[role]
+  }
+
+  // Pro/Business users get optimized paid tier per role
+  return getPaidTierConfig(role)
 }

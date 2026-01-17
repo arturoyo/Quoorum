@@ -87,10 +87,10 @@ function DebateChatHeader({ debate }: { debate: DebateView }) {
           </div>
         </div>
 
-        {/* Cost */}
+        {/* Cost (in credits) */}
         <div className="flex items-center gap-1 text-gray-600">
-          <span>💰</span>
-          <span>${summary.cost.toFixed(3)}</span>
+          <span>🪙</span>
+          <span>{Math.ceil(summary.cost * 1.75 / 0.005)} créditos</span>
         </div>
 
         {/* Rounds */}
@@ -139,7 +139,9 @@ function ExpertMessage({ message }: { message: DebateMessage }) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span style={{ color: color.color }}>{color.emoji}</span>
-          <span className="font-semibold text-gray-900">{message.expertName}</span>
+          <span className="font-semibold text-gray-900">
+            {message.narrativeId ? message.narrativeId.charAt(0).toUpperCase() + message.narrativeId.slice(1) : message.expertName}
+          </span>
           <span className="text-xs text-gray-500">({color.label})</span>
         </div>
         <div className="flex items-center gap-2 text-xs text-gray-400">

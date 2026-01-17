@@ -68,3 +68,7 @@ export type { Session, NewSession } from "./sessions.js";
 // API Keys
 export { apiKeys, apiKeysRelations } from "./api-keys.js";
 export type { ApiKey, NewApiKey } from "./api-keys.js";
+
+// Webhook Events (Idempotency)
+export { webhookEvents } from "./webhook-events.js";
+export type { WebhookEvent, NewWebhookEvent } from "./webhook-events.js";
