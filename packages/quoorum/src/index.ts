@@ -358,9 +358,6 @@ export {
   // Theme Registry
   AVAILABLE_THEMES,
   getCharacterByRole,
-  getCharacter,
-  getThemeCharacters,
-  isValidTheme,
 } from './narrative/theme-engine'
 
 export type {
