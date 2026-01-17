@@ -59,6 +59,19 @@ export const quoorumDebates = pgTable('quoorum_debates', {
   totalCreditsUsed: integer('total_credits_used'), // Credits consumed (formula: costUsd * 1.75 / 0.005)
   themeId: varchar('theme_id', { length: 50 }), // Narrative theme applied (e.g., 'greek-mythology')
 
+  // Cost breakdown by AI provider (denormalized for analytics)
+  costsByProvider: jsonb('costs_by_provider').$type<
+    Record<
+      string, // provider: 'openai' | 'anthropic' | 'google' | 'deepseek' | 'groq'
+      {
+        costUsd: number
+        creditsUsed: number
+        tokensUsed: number
+        messagesCount: number
+      }
+    >
+  >()
+
   // Final ranking
   finalRanking: jsonb('final_ranking').$type<
     Array<{
@@ -74,8 +87,14 @@ export const quoorumDebates = pgTable('quoorum_debates', {
       round: number
       messages: Array<{
         agentKey: string
+        agentName?: string
         content: string
         timestamp?: string
+        // AI provider tracking (denormalized for analytics)
+        provider?: string // 'openai' | 'anthropic' | 'google' | 'deepseek' | 'groq'
+        modelId?: string // e.g., 'gpt-4o', 'claude-3-5-sonnet', 'gemini-2.0-flash'
+        tokensUsed?: number
+        costUsd?: number
       }>
     }>
   >(),

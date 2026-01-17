@@ -66,6 +66,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       finalRanking: [],
       totalCostUsd: 0,
       totalCreditsUsed: 0,
+      costsByProvider: undefined,
       totalRounds: 0,
       consensusScore: 0,
     }
@@ -85,6 +86,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       finalRanking: [],
       totalCostUsd: 0,
       totalCreditsUsed: 0,
+      costsByProvider: undefined,
       totalRounds: 0,
       consensusScore: 0,
     }
@@ -173,6 +175,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       finalRanking: consensusResult?.topOptions ?? [],
       totalCostUsd: totalCost,
       totalCreditsUsed: actualCreditsUsed,
+      costsByProvider: calculateCostsByProvider(rounds), // Denormalized analytics
       totalRounds: rounds.length,
       consensusScore: consensusResult?.consensusScore ?? 0,
     }
@@ -201,6 +204,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       finalRanking: [],
       totalCostUsd: totalCost,
       totalCreditsUsed: convertUsdToCredits(totalCost),
+      costsByProvider: rounds.length > 0 ? calculateCostsByProvider(rounds) : undefined,
       totalRounds: rounds.length,
       consensusScore: 0,
     }
@@ -279,6 +283,8 @@ export async function generateAgentResponse(
     isCompressed: true,
     tokensUsed,
     costUsd,
+    provider: agent.provider, // Denormalized for analytics
+    modelId: agent.model, // Denormalized for analytics
     createdAt: new Date(),
   }
 }
@@ -339,4 +345,63 @@ function buildAgentPrompt(
   parts.push('\n--- TU RESPUESTA (max 15 tokens, ultra-comprimida) ---')
 
   return parts.join('\n')
+}
+
+// ============================================================================
+// ANALYTICS HELPERS
+// ============================================================================
+
+/**
+ * Calculate cost breakdown by AI provider
+ * Aggregates costs, tokens, and message counts per provider
+ */
+function calculateCostsByProvider(
+  rounds: DebateRound[]
+): Record<
+  string,
+  {
+    costUsd: number
+    creditsUsed: number
+    tokensUsed: number
+    messagesCount: number
+  }
+> {
+  const breakdown: Record<
+    string,
+    {
+      costUsd: number
+      creditsUsed: number
+      tokensUsed: number
+      messagesCount: number
+    }
+  > = {}
+
+  for (const round of rounds) {
+    for (const message of round.messages) {
+      const provider = message.provider ?? 'unknown'
+
+      if (!breakdown[provider]) {
+        breakdown[provider] = {
+          costUsd: 0,
+          creditsUsed: 0,
+          tokensUsed: 0,
+          messagesCount: 0,
+        }
+      }
+
+      breakdown[provider]!.costUsd += message.costUsd
+      breakdown[provider]!.tokensUsed += message.tokensUsed
+      breakdown[provider]!.messagesCount += 1
+    }
+  }
+
+  // Calculate credits for each provider
+  for (const provider in breakdown) {
+    const data = breakdown[provider]
+    if (data) {
+      data.creditsUsed = convertUsdToCredits(data.costUsd)
+    }
+  }
+
+  return breakdown
 }

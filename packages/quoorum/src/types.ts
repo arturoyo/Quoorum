@@ -53,6 +53,7 @@ export interface DebateMessage {
   tokensUsed: number
   costUsd: number
   createdAt: Date
+  provider?: AIProviderType // AI provider used (denormalized for analytics)
   modelId?: string // AI model used (e.g., "gpt-4o", "claude-3-5-sonnet", "gemini-2.0-flash")
   translation?: string
   expert?: string // Expert ID for dynamic mode
@@ -116,6 +117,15 @@ export interface DebateResult {
   ranking?: RankedOption[] // Alias for finalRanking
   totalCostUsd: number
   totalCreditsUsed?: number // Credits consumed (formula: costUsd * 1.75 / 0.005)
+  costsByProvider?: Record<
+    AIProviderType,
+    {
+      costUsd: number
+      creditsUsed: number
+      tokensUsed: number
+      messagesCount: number
+    }
+  > // Cost breakdown by AI provider (denormalized for analytics)
   totalRounds: number
   consensusScore: number
   consensus?: number // Alias for consensusScore
