@@ -3503,7 +3503,19 @@ pnpm dev --filter web
 
 # Iniciar solo un package
 pnpm dev --filter @proyecto/api
+
+# Iniciar Quoorum (sistema de debates multi-agente)
+# ⚠️ IMPORTANTE: Quoorum SIEMPRE corre en el puerto 3000
+cd packages/quoorum
+pnpm dev
+# Disponible en: http://localhost:3000
 ```
+
+**⚠️ NOTA CRÍTICA - Puerto de Quoorum:**
+- Quoorum **SIEMPRE** debe ejecutarse en el puerto **3000**
+- Si el puerto 3000 está ocupado, eliminar el proceso antes de iniciar Quoorum
+- Verificar puerto disponible: `lsof -ti:3000` (macOS/Linux) o `netstat -ano | findstr :3000` (Windows)
+- Eliminar proceso: `kill -9 $(lsof -ti:3000)` (macOS/Linux) o buscar PID y `taskkill /PID <pid> /F` (Windows)
 
 ### Base de Datos
 
