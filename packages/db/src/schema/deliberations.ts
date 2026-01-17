@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, uuid, varchar, integer, jsonb } from "drizzle-orm/pg-core";
-import { users } from "./users.js";
+import { users } from "./users";
 
 export type DeliberationStatus = "draft" | "active" | "paused" | "completed" | "cancelled";
 

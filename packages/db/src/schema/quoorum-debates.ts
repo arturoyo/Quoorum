@@ -71,7 +71,7 @@ export const quoorumDebates = pgTable('quoorum_debates', {
         messagesCount: number
       }
     >
-  >()
+  >(),
 
   // Final ranking
   finalRanking: jsonb('final_ranking').$type<

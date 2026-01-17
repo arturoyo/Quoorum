@@ -3,8 +3,8 @@
  * Deal records for Quoorum system
  */
 import { pgTable, uuid, varchar, text, timestamp, jsonb, real, pgEnum } from "drizzle-orm/pg-core";
-import { clients } from "./clients.js";
-import { profiles } from "./profiles.js";
+import { clients } from "./clients";
+import { profiles } from "./profiles";
 
 export const dealStageEnum = pgEnum("deal_stage", [
   "lead",

@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, uuid, integer, real, jsonb } from "drizzle-orm/pg-core";
-import { experts } from "./experts.js";
-import { rounds } from "./rounds.js";
+import { experts } from "./experts";
+import { rounds } from "./rounds";
 
 export interface OpinionMetadata {
   tokensUsed?: number;

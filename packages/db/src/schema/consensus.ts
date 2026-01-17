@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, uuid, real, boolean, jsonb } from "drizzle-orm/pg-core";
-import { deliberations } from "./deliberations.js";
-import { rounds } from "./rounds.js";
+import { deliberations } from "./deliberations";
+import { rounds } from "./rounds";
 
 export interface DissentingExpert {
   expertId: string;

@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp, uuid, integer, real } from "drizzle-orm/pg-core";
-import { experts } from "./experts.js";
-import { opinions } from "./opinions.js";
-import { rounds } from "./rounds.js";
+import { experts } from "./experts";
+import { opinions } from "./opinions";
+import { rounds } from "./rounds";
 
 export const votes = pgTable("votes", {
   id: uuid("id").primaryKey().defaultRandom(),

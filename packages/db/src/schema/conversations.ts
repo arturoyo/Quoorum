@@ -3,7 +3,7 @@
  * Conversation records for Quoorum system
  */
 import { pgTable, uuid, varchar, text, timestamp, jsonb } from "drizzle-orm/pg-core";
-import { clients } from "./clients.js";
+import { clients } from "./clients";
 
 export const conversations = pgTable("conversations", {
   id: uuid("id").primaryKey().defaultRandom(),

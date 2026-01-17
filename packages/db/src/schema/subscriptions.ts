@@ -4,7 +4,7 @@
  */
 import { pgTable, uuid, varchar, text, timestamp, integer, boolean, jsonb, pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "./users.js";
+import { users } from "./users";
 
 // ============================================================================
 // ENUMS

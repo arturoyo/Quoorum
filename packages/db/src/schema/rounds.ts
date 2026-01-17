@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, uuid, integer, varchar } from "drizzle-orm/pg-core";
-import { deliberations } from "./deliberations.js";
+import { deliberations } from "./deliberations";
 
 export type RoundStatus = "pending" | "in_progress" | "completed";
 
