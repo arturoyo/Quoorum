@@ -26,10 +26,13 @@ import { useWebSocket } from './websocket-provider'
 
 interface RoundMessage {
   agentKey?: string
-  expert?: string
+  agentName?: string // Narrative name (e.g., "Atenea", "Montessori", "Perspectiva A")
+  expert?: string // Legacy field (dynamic mode)
   role?: 'moderator' | 'expert'
   content: string
   timestamp?: string
+  provider?: string // AI provider (e.g., "anthropic", "openai")
+  modelId?: string // AI model (e.g., "claude-3-5-sonnet", "gpt-4o")
 }
 
 // Note: DebateRound type defined but used dynamically via API response
@@ -113,8 +116,41 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
   const currentRoundData = debate.rounds?.[currentRound]
   const progress = debate.rounds ? ((currentRound + 1) / debate.rounds.length) * 100 : 0
 
+  // Theme name mapping
+  const getThemeName = (themeId?: string) => {
+    if (!themeId) return null
+    const themeNames: Record<string, string> = {
+      'greek-mythology': 'Mitología Griega 🏛️',
+      'arthurian-legend': 'Leyendas Artúricas ⚔️',
+      'norse-mythology': 'Mitología Nórdica 🔨',
+      education: 'Educación 📚',
+      finance: 'Finanzas 💰',
+      health: 'Salud ⚕️',
+      law: 'Derecho ⚖️',
+      science: 'Ciencia 🔬',
+      generic: 'Análisis Neutral 🔍',
+    }
+    return themeNames[themeId] ?? themeId
+  }
+
+  const themeName = getThemeName((debate as { themeId?: string }).themeId)
+
   return (
     <div className="space-y-4">
+      {/* Theme Indicator */}
+      {themeName && (
+        <Card className="border-[#2a3942] bg-[#202c33]">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-[#8696a0]">Tema narrativo:</span>
+              <Badge variant="outline" className="border-[#00a884] text-[#00a884]">
+                {themeName}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Progress Bar */}
       <Card className="border-[#2a3942] bg-[#202c33]">
         <CardContent className="p-4">
@@ -215,16 +251,26 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                 )}
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <Badge
-                    variant={message.role === 'moderator' ? 'default' : 'outline'}
-                    className={cn(
-                      message.role === 'moderator'
-                        ? 'bg-[#00a884] text-white'
-                        : 'border-[#8696a0] text-[#8696a0]'
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={message.role === 'moderator' ? 'default' : 'outline'}
+                      className={cn(
+                        message.role === 'moderator'
+                          ? 'bg-[#00a884] text-white'
+                          : 'border-[#8696a0] text-[#8696a0]'
+                      )}
+                    >
+                      {/* Show narrative name (anonymized) for all users */}
+                      {message.agentName ?? message.expert ?? 'Moderador'}
+                    </Badge>
+                    {/* TODO: Add admin mode to show model info
+                    {isAdmin && message.modelId && (
+                      <span className="text-xs text-[#8696a0]">
+                        ({message.modelId})
+                      </span>
                     )}
-                  >
-                    {message.expert ?? 'Moderador'}
-                  </Badge>
+                    */}
+                  </div>
                   {message.role === 'moderator' && (
                     <AlertTriangle className="h-4 w-4 text-[#00a884]" />
                   )}
