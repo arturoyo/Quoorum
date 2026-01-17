@@ -1054,6 +1054,8 @@ async function runDebateAsync(
         totalCostUsd: calculateDebateCost(result as unknown as DebateResult),
         totalCreditsUsed: result.totalCreditsUsed, // Credits consumed
         costsByProvider: result.costsByProvider, // Cost breakdown by provider
+        themeId: result.themeId, // Narrative theme used (e.g., 'greek-mythology', 'education', 'generic')
+        themeConfidence: result.themeConfidence, // Theme selection confidence score (0-1)
         finalRanking: mappedRanking,
         rounds: result.rounds,
         experts: mappedExperts,
