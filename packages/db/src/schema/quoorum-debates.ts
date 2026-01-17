@@ -57,7 +57,8 @@ export const quoorumDebates = pgTable('quoorum_debates', {
   totalRounds: integer('total_rounds'),
   totalCostUsd: real('total_cost_usd'),
   totalCreditsUsed: integer('total_credits_used'), // Credits consumed (formula: costUsd * 1.75 / 0.005)
-  themeId: varchar('theme_id', { length: 50 }), // Narrative theme applied (e.g., 'greek-mythology')
+  themeId: varchar('theme_id', { length: 50 }), // Narrative theme applied (e.g., 'greek-mythology', 'education', 'generic')
+  themeConfidence: real('theme_confidence'), // Confidence score of theme selection (0-1)
 
   // Cost breakdown by AI provider (denormalized for analytics)
   costsByProvider: jsonb('costs_by_provider').$type<
