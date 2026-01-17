@@ -15,26 +15,31 @@ const AgentProviderConfigSchema = z.object({
   temperature: z.number().min(0).max(1),
 })
 
-// Environment variable configuration with defaults (Free Tiers)
+// Environment variable configuration with optimized multi-provider defaults
+// Mitología Griega: Cada dios usa el modelo IA más eficiente para su rol
 const ENV_CONFIG = {
   optimizer: {
-    provider: (process.env.OPTIMIZER_PROVIDER || 'google') as AgentConfig['provider'],
-    model: process.env.OPTIMIZER_MODEL || 'gemini-2.0-flash-exp',
+    // Hermes (Dios de las Oportunidades) - Rápido y técnico
+    provider: (process.env.OPTIMIZER_PROVIDER || 'openai') as AgentConfig['provider'],
+    model: process.env.OPTIMIZER_MODEL || 'gpt-4o-mini',
     temperature: parseFloat(process.env.OPTIMIZER_TEMPERATURE || '0.7'),
   },
   critic: {
-    provider: (process.env.CRITIC_PROVIDER || 'google') as AgentConfig['provider'],
-    model: process.env.CRITIC_MODEL || 'gemini-2.0-flash-exp',
+    // Ares (Dios de la Guerra) - Confrontacional y veloz
+    provider: (process.env.CRITIC_PROVIDER || 'groq') as AgentConfig['provider'],
+    model: process.env.CRITIC_MODEL || 'llama3-70b-8192',
     temperature: parseFloat(process.env.CRITIC_TEMPERATURE || '0.5'),
   },
   analyst: {
-    provider: (process.env.ANALYST_PROVIDER || 'google') as AgentConfig['provider'],
-    model: process.env.ANALYST_MODEL || 'gemini-2.0-flash-exp',
+    // Apolo (Dios de la Verdad) - Lógico y basado en datos
+    provider: (process.env.ANALYST_PROVIDER || 'deepseek') as AgentConfig['provider'],
+    model: process.env.ANALYST_MODEL || 'deepseek-chat',
     temperature: parseFloat(process.env.ANALYST_TEMPERATURE || '0.3'),
   },
   synthesizer: {
-    provider: (process.env.SYNTHESIZER_PROVIDER || 'google') as AgentConfig['provider'],
-    model: process.env.SYNTHESIZER_MODEL || 'gemini-2.0-flash-exp',
+    // Atenea (Diosa de la Sabiduría) - Sabio y conclusivo
+    provider: (process.env.SYNTHESIZER_PROVIDER || 'anthropic') as AgentConfig['provider'],
+    model: process.env.SYNTHESIZER_MODEL || 'claude-3-5-sonnet-20241022',
     temperature: parseFloat(process.env.SYNTHESIZER_TEMPERATURE || '0.3'),
   },
 }
@@ -80,14 +85,14 @@ export function getAllAgentConfigs(): Record<
 
 /**
  * Get recommended free tier configuration
- * (Useful for documentation and testing)
+ * Uses optimized multi-provider setup with free/cheap models
  */
 export function getFreeTierConfig(): typeof ENV_CONFIG {
   return {
-    optimizer: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.7 },
-    critic: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.5 },
-    analyst: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.3 },
-    synthesizer: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.3 },
+    optimizer: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.7 }, // Free
+    critic: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.5 }, // Free
+    analyst: { provider: 'deepseek', model: 'deepseek-chat', temperature: 0.3 }, // Cheapest paid
+    synthesizer: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.3 }, // Free
   }
 }
 

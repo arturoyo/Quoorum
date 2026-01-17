@@ -14,12 +14,30 @@ const DEFAULT_USER = 'user-1'
 export const CREDIT_MULTIPLIER = 1.75 // Service margin (75% markup)
 export const USD_PER_CREDIT = 0.005 // 1 credit = $0.005 USD (200 credits = $1 USD)
 
-// Pricing per 1M tokens (as of 2024)
+// Pricing per 1M tokens (as of January 2026)
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+  // OpenAI
   'gpt-4o': { input: 2.5, output: 10.0 },
   'gpt-4o-mini': { input: 0.15, output: 0.6 },
   'gpt-4-turbo': { input: 10.0, output: 30.0 },
   'gpt-3.5-turbo': { input: 0.5, output: 1.5 },
+
+  // Anthropic
+  'claude-3-5-sonnet-20241022': { input: 3.0, output: 15.0 },
+  'claude-sonnet-4-20250514': { input: 3.0, output: 15.0 },
+  'claude-3-5-haiku-20241022': { input: 1.0, output: 5.0 },
+
+  // Google Gemini
+  'gemini-2.0-flash-exp': { input: 0, output: 0 }, // Free Tier
+  'gemini-1.5-flash': { input: 0.075, output: 0.3 },
+  'gemini-1.5-pro': { input: 1.25, output: 5.0 },
+
+  // DeepSeek
+  'deepseek-chat': { input: 0.14, output: 0.28 },
+
+  // Groq (Llama models)
+  'llama3-70b-8192': { input: 0.59, output: 0.79 },
+  'llama-3.3-70b-versatile': { input: 0.59, output: 0.79 },
 }
 
 export function trackCost(
