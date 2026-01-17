@@ -1052,6 +1052,8 @@ async function runDebateAsync(
         consensusScore: result.consensusScore,
         totalRounds: result.rounds.length,
         totalCostUsd: calculateDebateCost(result as unknown as DebateResult),
+        totalCreditsUsed: result.totalCreditsUsed, // Credits consumed
+        costsByProvider: result.costsByProvider, // Cost breakdown by provider
         finalRanking: mappedRanking,
         rounds: result.rounds,
         experts: mappedExperts,
