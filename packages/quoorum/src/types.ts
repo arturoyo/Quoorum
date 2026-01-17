@@ -141,6 +141,8 @@ export interface DebateResult {
     round: number
     prompt: string
   }>
+  themeId?: string // Narrative theme used for this debate (e.g., 'greek-mythology', 'education', 'generic')
+  themeConfidence?: number // Confidence score of theme selection (0-1)
   error?: string // Error message if status is 'failed'
 }
 

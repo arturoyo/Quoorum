@@ -10,6 +10,7 @@ import { ULTRA_OPTIMIZED_PROMPT, estimateTokens, getRoleEmoji } from './ultra-la
 import { checkConsensus } from './consensus'
 import { deductCredits, refundCredits, hasSufficientCredits } from './billing/credit-transactions'
 import { convertUsdToCredits } from './analytics/cost'
+import { selectTheme, assignDebateIdentities, type AssignedIdentity, type ThemeSelection } from './narrative/theme-engine'
 import type {
   DebateMessage,
   DebateRound,
@@ -47,6 +48,34 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
   let consensusResult: ConsensusResult | undefined
 
   // ============================================================================
+  // THEME SELECTION & IDENTITY ASSIGNMENT
+  // ============================================================================
+
+  // Select narrative theme based on question
+  const themeSelection = selectTheme(question, context.combinedContext)
+
+  // Assign identities to all agents
+  const agentConfigs = AGENT_ORDER.map((agentKey) => {
+    const agent = QUOORUM_AGENTS[agentKey]!
+    return {
+      role: agent.role,
+      provider: agent.provider,
+      modelId: agent.model,
+    }
+  })
+
+  const { identities } = assignDebateIdentities(agentConfigs, question, context.combinedContext)
+
+  // Create identity map for easy lookup
+  const identityMap = new Map<string, AssignedIdentity>()
+  identities.forEach((identity) => {
+    const agentKey = AGENT_ORDER.find((key) => QUOORUM_AGENTS[key]?.role === identity.role)
+    if (agentKey) {
+      identityMap.set(agentKey, identity)
+    }
+  })
+
+  // ============================================================================
   // CREDIT PRE-FLIGHT CHECK
   // ============================================================================
 
@@ -69,6 +98,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       costsByProvider: undefined,
       totalRounds: 0,
       consensusScore: 0,
+      themeId: themeSelection.themeId,
+      themeConfidence: themeSelection.confidence,
     }
   }
 
@@ -89,6 +120,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       costsByProvider: undefined,
       totalRounds: 0,
       consensusScore: 0,
+      themeId: themeSelection.themeId,
+      themeConfidence: themeSelection.confidence,
     }
   }
 
@@ -108,15 +141,19 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
         const agent = QUOORUM_AGENTS[agentKey]
         if (!agent) continue
 
+        // Get assigned identity for this agent
+        const identity = identityMap.get(agentKey)
+
         // Build prompt with debate history
         const prompt = buildAgentPrompt(agent, question, contextPrompt, rounds, roundMessages)
 
-        // Generate response
+        // Generate response with identity
         const message = await generateAgentResponse({
           sessionId,
           round: roundNum,
           agent,
           prompt,
+          identity, // Pass narrative identity
         })
 
         roundMessages.push(message)
@@ -178,6 +215,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       costsByProvider: calculateCostsByProvider(rounds), // Denormalized analytics
       totalRounds: rounds.length,
       consensusScore: consensusResult?.consensusScore ?? 0,
+      themeId: themeSelection.themeId,
+      themeConfidence: themeSelection.confidence,
     }
   } catch (error) {
     // ============================================================================
@@ -207,6 +246,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       costsByProvider: rounds.length > 0 ? calculateCostsByProvider(rounds) : undefined,
       totalRounds: rounds.length,
       consensusScore: 0,
+      themeId: themeSelection.themeId,
+      themeConfidence: themeSelection.confidence,
     }
   }
 }
@@ -255,12 +296,13 @@ interface GenerateAgentResponseInput {
   round: number
   agent: AgentConfig
   prompt: string
+  identity?: AssignedIdentity // Narrative identity for this agent
 }
 
 export async function generateAgentResponse(
   input: GenerateAgentResponseInput
 ): Promise<DebateMessage> {
-  const { sessionId, round, agent, prompt } = input
+  const { sessionId, round, agent, prompt, identity } = input
   const client = getAIClient()
 
   const response = await client.generate(prompt, {
@@ -278,7 +320,7 @@ export async function generateAgentResponse(
     sessionId,
     round,
     agentKey: agent.key,
-    agentName: agent.name,
+    agentName: identity?.displayNameUser ?? agent.name, // Use narrative name or fallback to technical name
     content,
     isCompressed: true,
     tokensUsed,
