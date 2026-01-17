@@ -21,6 +21,71 @@
 
 ---
 
+## [2026-01-18] - FIX CRITICAL: COLUMN "costs_by_provider" MISSING
+
+### [00:30] - AÑADIR COLUMNA FALTANTE costs_by_provider
+**Solicitado por:** Usuario
+**Descripción:** Error crítico reportado: `TRPCClientError: column "costs_by_provider" does not exist` al llamar endpoint debates.list
+
+**Contexto:**
+- Usuario reportó error 500 en debates.list con error de columna faltante
+- La columna `costs_by_provider` estaba definida en schema (`packages/db/src/schema/quoorum-debates.ts` líneas 64-74)
+- Migración 0020_credits_narrative_system.sql NO incluía la creación de esta columna
+- Esto bloqueaba completamente el funcionamiento de debates.list
+
+**Acciones realizadas:**
+1. **Verificar columna faltante en DB**
+   ```sql
+   SELECT column_name FROM information_schema.columns
+   WHERE table_name = 'quoorum_debates' AND column_name = 'costs_by_provider';
+   -- Resultado: 0 filas (columna NO existe)
+   ```
+
+2. **Revisar migración 0020**
+   - Confirmado: solo añade `total_credits_used` y `theme_id`
+   - Falta `costs_by_provider`
+
+3. **Crear migración 0024_add_costs_by_provider.sql**
+   - Añade columna JSONB: `costs_by_provider`
+   - Añade índice GIN para queries JSON: `idx_quoorum_debates_costs_by_provider`
+   - Añade comentario SQL documentando estructura del JSONB
+
+4. **Aplicar migración a PostgreSQL**
+   ```bash
+   PGPASSWORD=postgres psql -h localhost -p 5433 -U postgres -d quoorum \
+     -f packages/db/drizzle/0024_add_costs_by_provider.sql
+   ```
+   Resultado: `ALTER TABLE`, `COMMENT`, `CREATE INDEX` ✅
+
+5. **Verificar columna creada**
+   ```sql
+   SELECT column_name, data_type FROM information_schema.columns
+   WHERE table_name = 'quoorum_debates' AND column_name = 'costs_by_provider';
+   -- Resultado: costs_by_provider | jsonb ✅
+   ```
+
+6. **Verificar schema completo**
+   - Verificadas todas las 31 columnas de quoorum_debates
+   - Todas las columnas del schema TypeScript existen en la DB
+
+**Archivos afectados:**
+- `/packages/db/drizzle/0024_add_costs_by_provider.sql` (creado)
+- Base de datos PostgreSQL local (localhost:5433/quoorum)
+
+**Resultado:** ✅ Éxito
+- Columna `costs_by_provider` creada como JSONB
+- Índice GIN añadido para performance en queries JSON
+- Schema DB sincronizado al 100% con schema TypeScript
+- Error de debates.list debería estar resuelto
+
+**Notas:**
+- Esta columna es crítica para analytics de costos por proveedor AI
+- Estructura JSONB: `{ provider: { costUsd, creditsUsed, tokensUsed, messagesCount } }`
+- Proveedores soportados: openai, anthropic, google, deepseek, groq
+- Migración 0020 estaba incompleta (faltaban algunas columnas del diseño original)
+
+---
+
 ## [2025-01-16] - AUTO-SAVE DRAFTS Y MEJORAS UX
 
 ### [22:15] - AUTO-SAVE DE DRAFTS AL ESCRIBIR
