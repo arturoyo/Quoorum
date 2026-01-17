@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { db } from '@wallie/db'
-import { users } from '@wallie/db/schema'
+import { db } from '@quoorum/db'
+import { users } from '@quoorum/db/schema'
 import { eq } from 'drizzle-orm'
 import {
   deductCredits,

@@ -4,10 +4,10 @@
  * Previene race conditions en deducción de créditos usando PostgreSQL atomic operations
  */
 
-import { db } from '@wallie/db'
-import { users } from '@wallie/db/schema'
+import { db } from '@quoorum/db'
+import { users } from '@quoorum/db/schema'
 import { eq, and, gte, sql } from 'drizzle-orm'
-import { quoorumLogger } from '../utils/logger'
+import { quoorumLogger } from '../logger'
 
 export interface CreditDeductionResult {
   success: boolean
