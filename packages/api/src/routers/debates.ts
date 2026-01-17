@@ -303,25 +303,42 @@ export const debatesRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      // Use Drizzle ORM directly for local PostgreSQL
-      const conditions = [
-        eq(quoorumDebates.userId, ctx.user.id),
-        isNull(quoorumDebates.deletedAt), // Exclude soft-deleted debates
-      ];
+      try {
+        console.log('[debates.list] Starting query', { userId: ctx.user.id, input });
 
-      if (input.status) {
-        conditions.push(eq(quoorumDebates.status, input.status));
+        // Use Drizzle ORM directly for local PostgreSQL
+        const conditions = [
+          eq(quoorumDebates.userId, ctx.user.id),
+          isNull(quoorumDebates.deletedAt), // Exclude soft-deleted debates
+        ];
+
+        if (input.status) {
+          conditions.push(eq(quoorumDebates.status, input.status));
+        }
+
+        console.log('[debates.list] Executing database query');
+        const debates = await db
+          .select()
+          .from(quoorumDebates)
+          .where(and(...conditions))
+          .orderBy(desc(quoorumDebates.createdAt))
+          .limit(input.limit)
+          .offset(input.offset);
+
+        console.log('[debates.list] Query successful', { count: debates.length });
+        return debates;
+      } catch (error) {
+        console.error('[debates.list] Error:', error);
+        console.error('[debates.list] Error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined,
+          userId: ctx.user.id,
+        });
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `Failed to fetch debates: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        });
       }
-
-      const debates = await db
-        .select()
-        .from(quoorumDebates)
-        .where(and(...conditions))
-        .orderBy(desc(quoorumDebates.createdAt))
-        .limit(input.limit)
-        .offset(input.offset);
-
-      return debates;
     }),
 
   /**
