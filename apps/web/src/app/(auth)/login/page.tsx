@@ -16,7 +16,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Mail, Lock, AlertCircle, Github, Chrome } from "lucide-react";
+import {
+  AlertCircle,
+  Chrome,
+  Github,
+  Link,
+  Loader2,
+  Lock,
+  Mail,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 function LoginContent() {

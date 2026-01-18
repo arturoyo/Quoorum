@@ -1,5 +1,5 @@
 /**
- * Keyboard Shortcuts for Forum
+ * Keyboard Shortcuts for Quoorum
  * 
  * Quick bonus: Keyboard shortcuts for power users
  */
@@ -7,6 +7,11 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import {
+  Key,
+  Keyboard,
+} from "lucide-react";
+
 
 // ============================================================================
 // KEYBOARD SHORTCUTS HOOK

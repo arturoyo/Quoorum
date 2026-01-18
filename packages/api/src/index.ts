@@ -21,11 +21,14 @@ import {
   adminQuoorumRouter,
   contextAssessmentRouter,
   debatesRouter,
+  debateStrategyRouter,
   // Settings routers
   notificationSettingsRouter,
   sessionsRouter,
   apiKeysRouter,
   notificationsRouter,
+  dealsRouter,
+  contextFilesRouter,
   // Billing router
   billingRouter,
 } from "./routers/index.js";
@@ -52,11 +55,14 @@ export const appRouter = router({
   adminQuoorum: adminQuoorumRouter,
   contextAssessment: contextAssessmentRouter,
   debates: debatesRouter,
+  debateStrategy: debateStrategyRouter,
   // Settings routers
   notificationSettings: notificationSettingsRouter,
   sessions: sessionsRouter,
   apiKeys: apiKeysRouter,
   notifications: notificationsRouter,
+  deals: dealsRouter,
+  contextFiles: contextFilesRouter,
   // Billing
   billing: billingRouter,
 });

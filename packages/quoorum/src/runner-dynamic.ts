@@ -42,11 +42,19 @@ export interface RunDebateOptions {
   question: string
   context: LoadedContext
   forceMode?: 'static' | 'dynamic' // Forzar modo específico
+  executionStrategy?: 'sequential' | 'parallel' // Estrategia de ejecución de agentes dentro de una ronda
+  selectedExpertIds?: string[] // IDs de expertos personalizados seleccionados por el usuario
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
   onQualityCheck?: (quality: { round: number; score: number; issues: string[] }) => Promise<void>
   onIntervention?: (intervention: { round: number; type: string; prompt: string }) => Promise<void>
   onProgress?: (progress: { phase: string; message: string; progress: number; currentRound?: number; totalRounds?: number }) => Promise<void>
+  // Callbacks to check debate state (paused, forceConsensus, additional context)
+  checkDebateState?: () => Promise<{
+    isPaused?: boolean
+    forceConsensus?: boolean
+    additionalContext?: string[]
+  }>
 }
 
 interface DebateMode {
@@ -76,7 +84,11 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
 
   try {
     // 1. Determine debate mode (static vs dynamic)
-    const debateMode = await determineDebateMode(question, forceMode)
+    const debateMode = await determineDebateMode(
+      question,
+      forceMode,
+      options.selectedExpertIds
+    )
     quoorumLogger.info('🎯 Debate Mode Determined', {
       mode: debateMode.mode,
       estimatedRounds: debateMode.estimatedRounds,
@@ -86,32 +98,22 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
     })
 
     // 2. Run debate with selected mode
-    let result: DebateResult
-
-    if (debateMode.mode === 'static') {
-      result = await runStaticDebate({
-        sessionId,
-        question,
-        context,
-        maxRounds: debateMode.estimatedRounds,
-        onRoundComplete,
-        onMessageGenerated,
-      })
-    } else {
-      result = await runDynamicDebate({
-        sessionId,
-        question,
-        context,
-        agents: debateMode.agents,
-        agentOrder: debateMode.agentOrder,
-        maxRounds: debateMode.estimatedRounds,
-        onRoundComplete,
-        onMessageGenerated,
-        onQualityCheck,
-        onIntervention,
-        onProgress,
-      })
-    }
+    // Note: Now all debates use dynamic mode structure (combines core agents + experts)
+    const result = await runDynamicDebate({
+      sessionId,
+      question,
+      context,
+      agents: debateMode.agents,
+      agentOrder: debateMode.agentOrder,
+      maxRounds: debateMode.estimatedRounds,
+      executionStrategy: options.executionStrategy || 'sequential', // Default to sequential (debate behavior)
+      onRoundComplete,
+      onMessageGenerated,
+      onQualityCheck,
+      onIntervention,
+      onProgress,
+      checkDebateState: options.checkDebateState,
+    })
 
     quoorumLogger.info('Debate completed', {
       sessionId,
@@ -174,67 +176,122 @@ function estimateRoundsNeeded(complexity: number, areasCount: number): number {
 
 async function determineDebateMode(
   question: string,
-  forceMode?: 'static' | 'dynamic'
+  forceMode?: 'static' | 'dynamic',
+  selectedExpertIds?: string[]
 ): Promise<DebateMode> {
-  // Force mode if specified
-  if (forceMode === 'static') {
-    // Still analyze question to estimate rounds
-    const analysis = await analyzeQuestion(question)
-    return {
-      mode: 'static',
-      reason: 'Forced static mode',
-      agents: Object.values(QUOORUM_AGENTS),
-      agentOrder: AGENT_ORDER,
-      estimatedRounds: estimateRoundsNeeded(analysis.complexity, analysis.areas.length),
-    }
-  }
-
-  if (forceMode === 'dynamic') {
-    const analysis = await analyzeQuestion(question)
-    const matches = matchExperts(analysis, { minExperts: 5, maxExperts: 7 })
-    return {
-      mode: 'dynamic',
-      reason: 'Forced dynamic mode',
-      agents: matches.map((m) => expertToAgentConfig(m.expert)),
-      agentOrder: matches.map((m) => m.expert.id),
-      estimatedRounds: estimateRoundsNeeded(analysis.complexity, analysis.areas.length),
-    }
-  }
-
-  // Auto-detect based on question complexity
+  // Always analyze question to get expert matches
   const analysis = await analyzeQuestion(question)
   const estimatedRounds = estimateRoundsNeeded(analysis.complexity, analysis.areas.length)
 
-  // Use static mode for simple questions
-  if (analysis.complexity < COMPLEXITY_THRESHOLD && analysis.areas.length <= MAX_AREAS_STATIC) {
-    return {
-      mode: 'static',
-      reason: `Simple question (complexity: ${analysis.complexity}, areas: ${analysis.areas.length})`,
-      agents: Object.values(QUOORUM_AGENTS),
-      agentOrder: AGENT_ORDER,
-      estimatedRounds,
+  // If user selected custom experts, use those instead of automatic matching
+  let expertMatches: Array<{ expert: ExpertProfile; score: number; reasons: string[]; suggestedRole: 'primary' | 'secondary' | 'critic' }> = []
+
+  if (selectedExpertIds && selectedExpertIds.length > 0) {
+    // Load custom experts from database
+    // NOTE: This requires DB access, so we'll need to pass a callback or load them in the API layer
+    // For now, we'll load them here but this might need to be refactored
+    try {
+      const { db } = await import('@quoorum/db')
+      const { experts } = await import('@quoorum/db/schema')
+      const { inArray } = await import('drizzle-orm')
+
+      const customExperts = await db
+        .select()
+        .from(experts)
+        .where(inArray(experts.id, selectedExpertIds))
+
+      // Convert DB experts to ExpertProfile format
+      expertMatches = customExperts.map((expert) => {
+        // Parse expertise: can be comma-separated string or single string
+        const expertiseList = expert.expertise
+          ? (expert.expertise.includes(',') ? expert.expertise.split(',').map(e => e.trim()) : [expert.expertise])
+          : []
+
+        const expertProfile: ExpertProfile = {
+          id: expert.id,
+          name: expert.name,
+          title: expert.expertise || expert.name,
+          expertise: expertiseList,
+          topics: [],
+          perspective: expert.description || expert.expertise || '',
+          systemPrompt: expert.systemPrompt,
+          temperature: expert.aiConfig.temperature ?? 0.7,
+          provider: expert.aiConfig.provider,
+          modelId: expert.aiConfig.model,
+        }
+
+        return {
+          expert: expertProfile,
+          score: 100, // High score for user-selected experts
+          reasons: ['Seleccionado por el usuario'],
+          suggestedRole: 'primary' as const,
+        }
+      })
+    } catch (error) {
+      quoorumLogger.warn('Failed to load custom experts, falling back to automatic matching', {
+        error: error instanceof Error ? error.message : String(error),
+        selectedExpertIds,
+      })
+      // Fall back to automatic matching on error
     }
   }
 
-  // Use dynamic mode for complex questions
-  const matches = matchExperts(analysis, { minExperts: 5, maxExperts: 7 })
-
-  // Fallback to static mode if not enough experts found
-  if (matches.length < 4) {
-    return {
-      mode: 'static',
-      reason: `Complex question but insufficient expert matches (${matches.length} < 4), using static agents`,
-      agents: Object.values(QUOORUM_AGENTS),
-      agentOrder: AGENT_ORDER,
-      estimatedRounds,
-    }
+  // If no custom experts selected or loading failed, use automatic matching
+  if (expertMatches.length === 0) {
+    // Get expert matches (try to get 3-5 top experts)
+    // Note: forceMode is ignored now - we always combine core agents + experts
+    expertMatches = matchExperts(analysis, { 
+      minExperts: 0, // Don't require minimum - we always have the 4 core agents
+      maxExperts: 5, // Limit to 5 to avoid too many agents per round
+      minScore: 30, // Only include experts with decent match score
+      alwaysIncludeCritic: false, // We already have core critic agent
+    })
   }
+
+  // Combine: Always include 4 core agents + add relevant experts
+  // Order: Optimista → Expertos especializados → Crítico → Analista → Sintetizador
+  const expertAgents = expertMatches
+    .slice(0, 5) // Limit to top 5 experts
+    .map((m) => expertToAgentConfig(m.expert))
+
+  // Combine agents: core + experts
+  // We'll place experts between optimizer and critic to give them early voice
+  const combinedAgents: AgentConfig[] = []
+  const combinedOrder: string[] = []
+
+  // Start with Optimista (fixed)
+  combinedAgents.push(QUOORUM_AGENTS.optimizer)
+  combinedOrder.push('optimizer')
+
+  // Add expert specialists (inserted after optimizer)
+  expertAgents.forEach((expertAgent) => {
+    // Avoid duplicates (e.g., if "critic" expert matches, skip it as we have core critic)
+    const isDuplicate = ['optimizer', 'critic', 'analyst', 'synthesizer'].includes(expertAgent.key)
+    if (!isDuplicate) {
+      combinedAgents.push(expertAgent)
+      combinedOrder.push(expertAgent.key)
+    }
+  })
+
+  // Continue with core agents (skip optimizer as we already added it)
+  combinedAgents.push(QUOORUM_AGENTS.critic)
+  combinedOrder.push('critic')
+
+  combinedAgents.push(QUOORUM_AGENTS.analyst)
+  combinedOrder.push('analyst')
+
+  // Always end with Synthesizer (fixed at the end)
+  combinedAgents.push(QUOORUM_AGENTS.synthesizer)
+  combinedOrder.push('synthesizer')
+
+  const totalAgents = combinedAgents.length
+  const expertCount = expertAgents.filter(a => !['optimizer', 'critic', 'analyst', 'synthesizer'].includes(a.key)).length
 
   return {
-    mode: 'dynamic',
-    reason: `Complex question (complexity: ${analysis.complexity}, areas: ${analysis.areas.length}, ${matches.length} experts)`,
-    agents: matches.map((m) => expertToAgentConfig(m.expert)),
-    agentOrder: matches.map((m) => m.expert.id),
+    mode: 'dynamic', // Always use dynamic mode structure now (combines core + experts)
+    reason: `Hybrid mode: ${totalAgents} agents (4 core + ${expertCount} specialists). Complexity: ${analysis.complexity}, areas: ${analysis.areas.length}`,
+    agents: combinedAgents,
+    agentOrder: combinedOrder,
     estimatedRounds,
   }
 }
@@ -245,8 +302,8 @@ function expertToAgentConfig(expert: ExpertProfile): AgentConfig {
     name: expert.name,
     role: 'analyst', // Default role for dynamic experts
     prompt: expert.systemPrompt,
-    provider: 'google', // Using Gemini free tier to avoid quota issues
-    model: 'gemini-2.0-flash-exp', // Free tier model
+    provider: expert.provider, // Use expert's configured provider
+    model: expert.modelId, // Use expert's configured model
     temperature: expert.temperature,
   }
 }
@@ -288,6 +345,12 @@ async function runStaticDebate(options: {
         agent,
         prompt,
       })
+
+      // Skip agent if it failed (null means it was skipped due to quota/balance issues)
+      if (!message) {
+        quoorumLogger.warn(`Agent ${agentKey} skipped in round ${roundNum} (static mode)`, { sessionId, round: roundNum })
+        continue
+      }
 
       roundMessages.push(message)
       totalCost += message.costUsd
@@ -339,11 +402,13 @@ async function runDynamicDebate(options: {
   agents: AgentConfig[]
   agentOrder: string[]
   maxRounds: number
+  executionStrategy?: 'sequential' | 'parallel' // Estrategia de ejecución dentro de una ronda
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
   onQualityCheck?: (quality: { round: number; score: number; issues: string[] }) => Promise<void>
   onIntervention?: (intervention: { round: number; type: string; prompt: string }) => Promise<void>
   onProgress?: (progress: { phase: string; message: string; progress: number; currentRound?: number; totalRounds?: number }) => Promise<void>
+  checkDebateState?: () => Promise<{ isPaused?: boolean; forceConsensus?: boolean; additionalContext?: string[] }>
 }): Promise<DebateResult> {
   const {
     sessionId,
@@ -352,17 +417,20 @@ async function runDynamicDebate(options: {
     agents,
     agentOrder,
     maxRounds,
+    executionStrategy = 'sequential', // Default: debate behavior (agents see each other's responses)
     onRoundComplete,
     onMessageGenerated,
     onQualityCheck,
     onIntervention,
     onProgress,
+    checkDebateState,
   } = options
 
   const rounds: DebateRound[] = []
   let totalCost = 0
   let consensusResult: ConsensusResult | undefined
   let interventionFrequency = 5
+  let shouldForceConsensus = false
 
   let contextPrompt = buildContextPrompt(question, context)
   const agentsMap = new Map(agents.map((a) => [a.key, a]))
@@ -370,6 +438,41 @@ async function runDynamicDebate(options: {
   quoorumLogger.info(`Starting dynamic debate with ${maxRounds} estimated rounds`, { sessionId, agentCount: agents.length })
 
   for (let roundNum = 1; roundNum <= maxRounds; roundNum++) {
+    // Check debate state (paused, forceConsensus, additional context) before each round
+    if (checkDebateState) {
+      const state = await checkDebateState()
+      
+      // If paused, stop debate execution (it will remain in_progress status)
+      if (state.isPaused === true) {
+        quoorumLogger.info(`Debate paused at round ${roundNum}`, { sessionId })
+        return {
+          sessionId,
+          status: 'in_progress', // Keep in progress (paused state is in metadata)
+          rounds,
+          finalRanking: consensusResult?.topOptions ?? [],
+          totalCostUsd: totalCost,
+          totalRounds: rounds.length,
+          consensusScore: consensusResult?.consensusScore ?? 0,
+        }
+      }
+
+      // If forceConsensus is true, mark to finish after this round
+      if (state.forceConsensus === true && !shouldForceConsensus) {
+        quoorumLogger.info(`Force consensus requested at round ${roundNum}`, { sessionId })
+        shouldForceConsensus = true
+      }
+
+      // Add additional context if provided
+      if (state.additionalContext && state.additionalContext.length > 0) {
+        const newContext = state.additionalContext.join('\n\n')
+        contextPrompt += `\n\n[Contexto adicional añadido por el usuario]\n${newContext}`
+        quoorumLogger.info(`Additional context added at round ${roundNum}`, { 
+          sessionId, 
+          contextLength: newContext.length 
+        })
+      }
+    }
+
     // Emit progress event at start of each round (30% to 80% range)
     if (onProgress) {
       const progressPercent = 30 + Math.floor((50 / maxRounds) * roundNum)
@@ -416,26 +519,103 @@ async function runDynamicDebate(options: {
       }
     }
 
-    // Execute round with selected experts
-    for (const agentKey of agentOrder) {
-      const agent = agentsMap.get(agentKey)
-      if (!agent) continue
+    // Execute round with selected experts (sequential or parallel)
+    let criticalAgentFailures = 0
+    const criticalAgents = ['analyst', 'synthesizer']
+    
+    if (executionStrategy === 'parallel') {
+      // PARALLEL: Execute all agents simultaneously (faster but agents don't see each other's responses in same round)
+      const agentPromises = agentOrder.map(async (agentKey) => {
+        const agent = agentsMap.get(agentKey)
+        if (!agent) return null
 
-      const prompt = buildAgentPrompt(agent, question, contextPrompt, rounds, roundMessages)
+        const prompt = buildAgentPrompt(agent, question, contextPrompt, rounds, []) // Empty currentRoundMessages for parallel
 
-      const message = await generateAgentResponse({
-        sessionId,
-        round: roundNum,
-        agent,
-        prompt,
+        const message = await generateAgentResponse({
+          sessionId,
+          round: roundNum,
+          agent,
+          prompt,
+        })
+
+        return { agentKey, message }
       })
 
-      roundMessages.push(message)
-      totalCost += message.costUsd
+      const results = await Promise.all(agentPromises)
 
-      if (onMessageGenerated) {
-        await onMessageGenerated(message)
+      for (const result of results) {
+        if (!result) continue
+
+        const { agentKey, message } = result
+
+        // Skip agent if it failed
+        if (!message) {
+          if (criticalAgents.includes(agentKey)) {
+            criticalAgentFailures++
+          }
+          quoorumLogger.warn(`Agent ${agentKey} skipped in round ${roundNum}`, { sessionId, round: roundNum })
+          continue
+        }
+
+        roundMessages.push(message)
+        totalCost += message.costUsd
+
+        // Track critical agent failures
+        if (message.isError && criticalAgents.includes(agentKey)) {
+          criticalAgentFailures++
+        }
+
+        if (onMessageGenerated) {
+          await onMessageGenerated(message)
+        }
       }
+    } else {
+      // SEQUENTIAL: Execute agents in order (agents can see previous agents' responses in same round)
+      for (const agentKey of agentOrder) {
+        const agent = agentsMap.get(agentKey)
+        if (!agent) continue
+
+        const prompt = buildAgentPrompt(agent, question, contextPrompt, rounds, roundMessages)
+
+        const message = await generateAgentResponse({
+          sessionId,
+          round: roundNum,
+          agent,
+          prompt,
+        })
+
+        // Skip agent if it failed (null means it was skipped due to quota/balance issues)
+        if (!message) {
+          if (criticalAgents.includes(agentKey)) {
+            criticalAgentFailures++
+          }
+          quoorumLogger.warn(`Agent ${agentKey} skipped in round ${roundNum}`, { sessionId, round: roundNum })
+          continue // Don't add message to round, agent is silently skipped
+        }
+
+        roundMessages.push(message)
+        totalCost += message.costUsd
+
+        // Track critical agent failures (only for actual errors, not skipped)
+        if (message.isError && criticalAgents.includes(agentKey)) {
+          criticalAgentFailures++
+        }
+
+        if (onMessageGenerated) {
+          await onMessageGenerated(message)
+        }
+      }
+    }
+
+    // If critical agents are consistently failing, log warning but continue
+    // (The debate can still provide value with remaining agents)
+    if (criticalAgentFailures > 0) {
+      quoorumLogger.warn(`Critical agent failures in round ${roundNum}`, {
+        sessionId,
+        round: roundNum,
+        failures: criticalAgentFailures,
+        totalAgents: agentOrder.length
+      })
     }
 
     const allMessagesWithCurrent = [...allMessages, ...roundMessages]
@@ -453,7 +633,10 @@ async function runDynamicDebate(options: {
       await onRoundComplete(round)
     }
 
-    if (consensusResult.hasConsensus) {
+    if (consensusResult.hasConsensus || shouldForceConsensus) {
+      if (shouldForceConsensus) {
+        quoorumLogger.info(`Force consensus triggered at round ${roundNum}`, { sessionId })
+      }
       break
     }
   }
@@ -480,7 +663,7 @@ interface GenerateAgentResponseInput {
   prompt: string
 }
 
-async function generateAgentResponse(input: GenerateAgentResponseInput): Promise<DebateMessage> {
+async function generateAgentResponse(input: GenerateAgentResponseInput): Promise<DebateMessage | null> {
   const { sessionId, round, agent, prompt } = input
 
   try {
@@ -511,22 +694,39 @@ async function generateAgentResponse(input: GenerateAgentResponseInput): Promise
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    quoorumLogger.error(`Agent ${agent.name} failed`, new Error(errorMessage), { sessionId, agentName: agent.name })
+    
+    // Check if it's a recoverable error (quota/balance) - AI client already tried all fallbacks
+    const isQuotaError = 
+      errorMessage.includes("quota") ||
+      errorMessage.includes("rate limit") ||
+      errorMessage.includes("429") ||
+      errorMessage.includes("insufficient balance") ||
+      errorMessage.includes("Insufficient Balance") ||
+      errorMessage.includes("insufficient funds") ||
+      errorMessage.includes("balance") ||
+      errorMessage.includes("All AI providers failed");
 
-    // Return error message as content instead of throwing
-    return {
-      id: crypto.randomUUID(),
-      sessionId,
-      round,
-      agentKey: agent.key,
-      agentName: agent.name,
-      content: `[Error: ${errorMessage}]`,
-      isCompressed: true,
-      tokensUsed: 0,
-      costUsd: 0,
-      modelId: agent.model,
-      createdAt: new Date(),
+    if (isQuotaError) {
+      // Silently skip this agent - don't add it to the round
+      // The AI client already tried all fallbacks, so we can't recover
+      quoorumLogger.warn(`Agent ${agent.name} skipped due to quota/balance issues (all fallbacks exhausted)`, {
+        sessionId,
+        agentName: agent.name,
+        provider: agent.provider,
+        model: agent.model,
+      })
+      return null // Return null to indicate agent should be skipped
     }
+
+    // For non-quota errors, log but still skip to avoid breaking debate flow
+    quoorumLogger.error(`Agent ${agent.name} failed with non-quota error`, new Error(errorMessage), {
+      sessionId,
+      agentName: agent.name,
+      provider: agent.provider,
+      model: agent.model,
+    })
+    
+    return null // Skip agent to avoid showing error messages to user
   }
 }
 

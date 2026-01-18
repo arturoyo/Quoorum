@@ -9,6 +9,13 @@
 'use client'
 
 import {
+import {
+  BarChart,
+  LineChart,
+  PieChart,
+  X,
+} from "lucide-react";
+
   Area,
   AreaChart,
   Bar,

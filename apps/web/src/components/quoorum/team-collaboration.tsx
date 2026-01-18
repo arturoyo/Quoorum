@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { api } from '@/lib/trpc/client'
-import { AtSign, MessageCircle, Send, Users } from 'lucide-react'
+import {
+  AtSign,
+  MessageCircle,
+  Send,
+  User,
+  Users,
+} from "lucide-react";
 import { useState } from 'react'
 
 interface TeamMember {

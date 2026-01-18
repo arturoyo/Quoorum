@@ -5,7 +5,7 @@
  */
 import { generateText } from "ai";
 import { createModel } from "./providers/index.js";
-import { getFallbackChain, type FallbackModel } from "./lib/fallback-config.js";
+import { getFallbackChain } from "./lib/fallback-config.js";
 import type { AIClient, AIResponse, GenerateOptions } from "./types.js";
 
 const DEFAULT_MODEL_ID = "gemini-2.0-flash-exp"; // Using Gemini free tier to avoid OpenAI quota issues
@@ -72,10 +72,14 @@ class ForumAIClient implements AIClient {
         lastError = error instanceof Error ? error : new Error(String(error));
         const errorMessage = lastError.message;
 
-        // Check if it's a quota/rate limit error
+        // Check if it's a quota/rate limit/balance error
         const isQuotaError = errorMessage.includes("quota") ||
           errorMessage.includes("rate limit") ||
-          errorMessage.includes("429");
+          errorMessage.includes("429") ||
+          errorMessage.includes("insufficient balance") ||
+          errorMessage.includes("Insufficient Balance") ||
+          errorMessage.includes("insufficient funds") ||
+          errorMessage.includes("balance");
 
         if (isQuotaError) {
           console.warn(`[AI Client] ⚠️  ${fallbackModel.displayName} quota exceeded, trying next fallback...`)

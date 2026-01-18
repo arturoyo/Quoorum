@@ -16,13 +16,29 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  MessageCircle,
   Plus,
   Clock,
   CheckCircle,
   XCircle,
   Loader2,
 } from "lucide-react";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+
+// Pattern labels in Spanish
+function getPatternLabel(pattern: string): string {
+  const labels: Record<string, string> = {
+    simple: 'Simple',
+    sequential: 'Secuencial',
+    parallel: 'Paralelo',
+    conditional: 'Condicional',
+    iterative: 'Iterativo',
+    tournament: 'Torneo',
+    adversarial: 'Adversarial',
+    ensemble: 'Ensemble',
+    hierarchical: 'Jerárquico',
+  }
+  return labels[pattern] || pattern
+}
 
 export default function DebatesPage() {
   const router = useRouter();
@@ -50,6 +66,12 @@ export default function DebatesPage() {
     },
     {
       enabled: isAuthenticated, // Only run when user is authenticated
+      // Poll every 5 seconds if there are any debates in progress
+      refetchInterval: (data) => {
+        const hasInProgress = data?.some((debate) => debate.status === 'in_progress' || debate.status === 'pending')
+        return hasInProgress ? 5000 : false
+      },
+      refetchIntervalInBackground: true,
     }
   );
 
@@ -59,11 +81,14 @@ export default function DebatesPage() {
       <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
+            <Link href="/dashboard" className="flex items-center gap-2 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
+                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
+                  <QuoorumLogo size={24} showGradient={true} />
+                </div>
               </div>
-              <span className="text-xl font-bold text-white">Quoorum</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
@@ -115,7 +140,7 @@ export default function DebatesPage() {
           ) : debates.length === 0 ? (
             <Card className="bg-white/5 border-white/10">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <MessageCircle className="h-12 w-12 text-gray-500 mb-4" />
+                <QuoorumLogo size={48} showGradient={true} className="mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-white mb-2">
                   No tienes debates todavía
                 </h3>
@@ -176,16 +201,28 @@ export default function DebatesPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">
-                        {debate.consensusScore
-                          ? `Consenso: ${Math.round(debate.consensusScore * 100)}%`
-                          : "Sin consenso aún"}
-                      </span>
-                      <span className="text-gray-500 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {new Date(debate.createdAt).toLocaleDateString()}
-                      </span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {debate.metadata?.pattern && (
+                          <Badge
+                            variant="outline"
+                            className="border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs"
+                          >
+                            {getPatternLabel(debate.metadata.pattern as string)}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">
+                          {debate.consensusScore
+                            ? `Consenso: ${Math.round(debate.consensusScore * 100)}%`
+                            : "Sin consenso aún"}
+                        </span>
+                        <span className="text-gray-500 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {new Date(debate.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

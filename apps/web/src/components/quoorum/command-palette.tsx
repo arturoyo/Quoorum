@@ -195,7 +195,7 @@ export function CommandPalette() {
       {
         id: 'go-settings',
         title: 'Settings',
-        description: 'Configure Forum settings',
+        description: 'Configure Quoorum settings',
         icon: '⚙️',
         category: 'navigation',
         keywords: ['settings', 'config', 'preferences'],

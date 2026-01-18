@@ -37,7 +37,7 @@ function generateId(size = 21): string {
 // ============================================================================
 
 const createDebateSchema = z.object({
-  question: z.string().min(10).max(1000),
+  question: z.string().min(10).max(5000, "La pregunta no puede exceder 5000 caracteres"),
   context: z.string().max(5000).optional(),
   category: z.string().max(50).optional(),
   priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),

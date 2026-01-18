@@ -14,7 +14,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Lock, AlertCircle, CheckCircle } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  CheckCircle,
+  Loader2,
+  Lock,
+} from "lucide-react";
 
 export default function ResetPasswordPage() {
   const router = useRouter();

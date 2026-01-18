@@ -1,156 +1,165 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { ExpertPanel, type ExpertInfo } from "@quoorum/ui";
-import { useState } from "react";
-
-const mockExperts: ExpertInfo[] = [
-  {
-    id: "1",
-    name: "Strategic Analyst",
-    expertise: "Business Strategy and Market Analysis",
-    category: "Strategy",
-    isActive: true,
-  },
-  {
-    id: "2",
-    name: "Technical Architect",
-    expertise: "Systems Architecture and Technology",
-    category: "Technology",
-    isActive: true,
-  },
-  {
-    id: "3",
-    name: "Risk Manager",
-    expertise: "Risk Assessment and Mitigation",
-    category: "Risk",
-    isActive: true,
-  },
-  {
-    id: "4",
-    name: "Financial Advisor",
-    expertise: "Financial Analysis and Investment",
-    category: "Finance",
-    isActive: true,
-  },
-  {
-    id: "5",
-    name: "User Advocate",
-    expertise: "User Experience and Customer Needs",
-    category: "Product",
-    isActive: true,
-  },
-  {
-    id: "6",
-    name: "Ethics Advisor",
-    expertise: "Ethics and Social Responsibility",
-    category: "Governance",
-    isActive: true,
-  },
-  {
-    id: "7",
-    name: "Legal Counsel",
-    expertise: "Legal and Regulatory Compliance",
-    category: "Governance",
-    isActive: true,
-  },
-  {
-    id: "8",
-    name: "Innovation Catalyst",
-    expertise: "Innovation and Emerging Technologies",
-    category: "Technology",
-    isActive: true,
-  },
-];
+import { api } from '@/lib/trpc/client'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import {
+  Award,
+  Loader2,
+  Star,
+  TrendingUp,
+  User,
+  Users,
+} from "lucide-react";
+import { cn } from '@/lib/utils'
 
 export default function ExpertsPage() {
-  const [selectedExpertId, setSelectedExpertId] = useState<string>();
-  const selectedExpert = mockExperts.find((e) => e.id === selectedExpertId);
+  const { data: topExperts, isLoading } = api.quoorumFeedback.getTopExperts.useQuery({ limit: 50 })
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-950">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-          <Link href="/" className="text-xl font-bold text-gray-900">
-            Forum
-          </Link>
-          <nav className="flex items-center gap-4">
-            <Link
-              href="/deliberations"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              Deliberations
-            </Link>
-            <Link href="/experts" className="text-sm font-medium text-blue-600">
-              Experts
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">AI Experts</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            View and manage the AI experts available for deliberations
+    <div className="min-h-screen bg-slate-950 px-4 py-8">
+      <div className="mx-auto max-w-6xl space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Top Expertos</h1>
+          <p className="mt-2 text-gray-400">
+            Ranking de expertos basado en valoraciones de usuarios
           </p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
-            <h2 className="mb-4 font-semibold text-gray-900">Expert Panel</h2>
-            <ExpertPanel
-              experts={mockExperts}
-              selectedExpertId={selectedExpertId}
-              onSelectExpert={setSelectedExpertId}
-            />
-          </div>
+        {!topExperts || topExperts.length === 0 ? (
+          <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Users className="h-12 w-12 text-gray-500" />
+              <p className="mt-4 text-gray-400">Aún no hay expertos valorados</p>
+              <p className="text-sm text-gray-500">
+                Los expertos aparecerán aquí después de recibir feedback de los usuarios
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {topExperts.map((expert, idx) => {
+              const avgRating = expert.avgRating ? expert.avgRating / 100 : 0
+              const ratingPercent = Math.round(avgRating * 100)
 
-          <div className="lg:col-span-2">
-            {selectedExpert ? (
-              <div className="rounded-xl border border-gray-200 bg-white p-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {selectedExpert.name}
-                </h2>
-                <p className="mt-1 text-sm text-blue-600">
-                  {selectedExpert.expertise}
-                </p>
-                <div className="mt-6">
-                  <h3 className="font-medium text-gray-900">About</h3>
-                  <p className="mt-2 text-sm text-gray-600">
-                    This AI expert specializes in {selectedExpert.expertise.toLowerCase()}.
-                    They provide valuable insights during deliberation sessions,
-                    contributing unique perspectives based on their domain expertise.
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <h3 className="font-medium text-gray-900">Category</h3>
-                  <p className="mt-2 text-sm text-gray-600">
-                    {selectedExpert.category ?? "General"}
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      selectedExpert.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {selectedExpert.isActive ? "Active" : "Inactive"}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white p-12">
-                <p className="text-sm text-gray-500">
-                  Select an expert to view details
-                </p>
-              </div>
-            )}
+              return (
+                <Card
+                  key={expert.expertId}
+                  className={cn(
+                    'border-white/10 bg-slate-900/60 backdrop-blur-xl transition-all hover:border-purple-500/50',
+                    idx === 0 && 'border-purple-500/50 ring-2 ring-purple-500/20'
+                  )}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            'flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white',
+                            idx === 0
+                              ? 'bg-gradient-to-br from-yellow-500 to-orange-500'
+                              : idx === 1
+                                ? 'bg-gradient-to-br from-gray-400 to-gray-500'
+                                : idx === 2
+                                  ? 'bg-gradient-to-br from-amber-600 to-amber-700'
+                                  : 'bg-gradient-to-br from-purple-500 to-blue-500'
+                          )}
+                        >
+                          {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg text-white">
+                            {expert.expertId.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                          </CardTitle>
+                          <CardDescription className="text-xs text-gray-400">
+                            {expert.totalRatings} valoraciones
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Overall Rating */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-400">Valoración Promedio</span>
+                        <span className="text-2xl font-bold text-white">{ratingPercent}%</span>
+                      </div>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={cn(
+                              'h-5 w-5',
+                              star <= Math.round(avgRating)
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-gray-600'
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Detailed Metrics */}
+                    {expert.avgInsightfulness && (
+                      <div className="space-y-2 rounded-lg bg-slate-800/50 p-3">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">Perspicacia</span>
+                          <span className="text-white">
+                            {expert.avgInsightfulness ? Math.round(expert.avgInsightfulness / 100) : 0}/5
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">Relevancia</span>
+                          <span className="text-white">
+                            {expert.avgRelevance ? Math.round(expert.avgRelevance / 100) : 0}/5
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">Claridad</span>
+                          <span className="text-white">
+                            {expert.avgClarity ? Math.round(expert.avgClarity / 100) : 0}/5
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">Accionabilidad</span>
+                          <span className="text-white">
+                            {expert.avgActionability ? Math.round(expert.avgActionability / 100) : 0}/5
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Sentiment Stats */}
+                    <div className="flex items-center gap-4 text-xs">
+                      {expert.helpfulCount > 0 && (
+                        <div className="flex items-center gap-1 text-green-400">
+                          <TrendingUp className="h-3 w-3" />
+                          <span>{expert.helpfulCount} útiles</span>
+                        </div>
+                      )}
+                      {expert.followedCount > 0 && (
+                        <div className="flex items-center gap-1 text-purple-400">
+                          <Award className="h-3 w-3" />
+                          <span>{expert.followedCount} seguidos</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
-        </div>
-      </main>
+        )}
+      </div>
     </div>
-  );
+  )
 }

@@ -7,8 +7,18 @@ import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
-import { Send, Loader2, Sparkles, MessageSquare, CheckCircle2 } from 'lucide-react'
+import {
+  Check,
+  CheckCircle,
+  CheckCircle2,
+  Loader2,
+  MessageSquare,
+  Send,
+  Sparkles,
+} from "lucide-react";
 import { cn } from '@/lib/utils'
+import { StrategySelector } from '@/components/quoorum/strategy-selector'
+import { ExpertSelector } from '@/components/quoorum/expert-selector'
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -68,6 +78,8 @@ export default function NewDebatePage() {
 
   const [pendingQuestionId, setPendingQuestionId] = useState<string | null>(null)
   const [assessment, setAssessment] = useState<any>(null)
+  const [selectedStrategy, setSelectedStrategy] = useState<string>('')
+  const [selectedExpertIds, setSelectedExpertIds] = useState<string[]>([])
 
   // Validate retry param from actual URL (not cached searchParams)
   const [actualRetryId, setActualRetryId] = useState<string | null>(null)
@@ -194,14 +206,36 @@ export default function NewDebatePage() {
       setAssessment(data)
       setContextState((prev) => ({ ...prev, currentScore: data.overallScore }))
 
-      // AI sends next question or assumption
+      // Only show assumptions/questions if context score is insufficient (< 70%)
+      // If score is high enough, skip to ready state directly
+      if (data.overallScore >= 70) {
+        // Context is sufficient, ready to start
+        setContextState((prev) => ({ ...prev, readyToStart: true }))
+        const newMsg: Message = {
+          id: `msg-${Date.now()}`,
+          role: 'ai',
+          content: `¡Perfecto! Tengo suficiente contexto (${data.overallScore}% de calidad). ¿Quieres que empiece la deliberación con los expertos?`,
+          type: 'summary',
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, newMsg])
+        setIsLoading(false)
+        return
+      }
+
+      // Context insufficient - show assumptions/questions
       if (data.assumptions.length > 0) {
         const firstAssumption = data.assumptions[0]
         if (firstAssumption) {
+          // Ensure content is always a string
+          const assumptionContent = typeof firstAssumption.assumption === 'string' 
+            ? firstAssumption.assumption 
+            : JSON.stringify(firstAssumption.assumption)
+          
           const newMsg: Message = {
             id: `msg-${Date.now()}`,
             role: 'ai',
-            content: firstAssumption.assumption,
+            content: assumptionContent,
             type: 'assumption',
             questionType: firstAssumption.questionType || 'yes_no', // Default to yes/no
             options: firstAssumption.questionType === 'multiple_choice' ? firstAssumption.alternatives : undefined,
@@ -213,10 +247,15 @@ export default function NewDebatePage() {
       } else if (data.clarifyingQuestions.length > 0) {
         const firstQuestion = data.clarifyingQuestions[0]
         if (firstQuestion) {
+          // Ensure content is always a string
+          const questionContent = typeof firstQuestion.question === 'string'
+            ? firstQuestion.question
+            : JSON.stringify(firstQuestion.question)
+          
           const newMsg: Message = {
             id: `msg-${Date.now()}`,
             role: 'ai',
-            content: firstQuestion.question,
+            content: questionContent,
             type: 'question',
             questionType: firstQuestion.questionType || 'free_text', // Default to free text
             options: firstQuestion.questionType === 'multiple_choice' && firstQuestion.multipleChoice
@@ -255,6 +294,22 @@ export default function NewDebatePage() {
       setAssessment(data)
       setContextState((prev) => ({ ...prev, currentScore: data.overallScore }))
 
+      // If score is sufficient (>= 70%), mark as ready without showing more questions
+      if (data.overallScore >= 70) {
+        setContextState((prev) => ({ ...prev, readyToStart: true }))
+        const newMsg: Message = {
+          id: `msg-${Date.now()}`,
+          role: 'ai',
+          content: `¡Excelente! Tengo toda la información necesaria (${data.overallScore}% de calidad). Puedes iniciar la deliberación ahora, o si prefieres, añadir más contexto escribiendo abajo.`,
+          type: 'summary',
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, newMsg])
+        setIsLoading(false)
+        return
+      }
+
+      // Score insufficient - continue with questions/assumptions
       // Find next unanswered question/assumption
       const unansweredAssumption = data.assumptions.find(
         (a) => !contextState.responses[a.id]
@@ -267,10 +322,15 @@ export default function NewDebatePage() {
       console.log('[DEBUG] Unanswered question:', unansweredQuestion)
 
       if (unansweredAssumption) {
+        // Ensure content is always a string
+        const assumptionContent = typeof unansweredAssumption.assumption === 'string'
+          ? unansweredAssumption.assumption
+          : JSON.stringify(unansweredAssumption.assumption)
+        
         const newMsg: Message = {
           id: `msg-${Date.now()}`,
           role: 'ai',
-          content: unansweredAssumption.assumption,
+          content: assumptionContent,
           type: 'assumption',
           questionType: unansweredAssumption.questionType || 'yes_no',
           options: unansweredAssumption.questionType === 'multiple_choice' ? unansweredAssumption.alternatives : undefined,
@@ -279,10 +339,15 @@ export default function NewDebatePage() {
         setMessages((prev) => [...prev, newMsg])
         setPendingQuestionId(unansweredAssumption.id)
       } else if (unansweredQuestion) {
+        // Ensure content is always a string
+        const questionContent = typeof unansweredQuestion.question === 'string'
+          ? unansweredQuestion.question
+          : JSON.stringify(unansweredQuestion.question)
+        
         const newMsg: Message = {
           id: `msg-${Date.now()}`,
           role: 'ai',
-          content: unansweredQuestion.question,
+          content: questionContent,
           type: 'question',
           questionType: unansweredQuestion.questionType || 'free_text',
           options: unansweredQuestion.questionType === 'multiple_choice' && unansweredQuestion.multipleChoice
@@ -341,10 +406,13 @@ export default function NewDebatePage() {
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return
 
+    // Ensure content is always a string
+    const inputContent = typeof input === 'string' ? input : String(input)
+
     const userMsg: Message = {
       id: `msg-${Date.now()}`,
       role: 'user',
-      content: input,
+      content: inputContent,
       timestamp: new Date(),
     }
 
@@ -618,16 +686,7 @@ export default function NewDebatePage() {
     console.log('[DEBUG] Context responses:', contextState.responses)
     console.log('[DEBUG] Assessment:', assessment)
 
-    // Add AI message explaining meta-prompt generation
-    const aiMetaMsg: Message = {
-      id: `msg-${Date.now()}`,
-      role: 'ai',
-      content: 'Perfecto! Ahora voy a crear un prompt optimizado para el debate basándome en toda la información que me has dado...',
-      type: 'info',
-      timestamp: new Date(),
-    }
-    setMessages((prev) => [...prev, aiMetaMsg])
-
+    // Generate meta-prompt silently (no intermediate messages shown to user)
     const enrichedContext = Object.entries(contextState.responses)
       .map(([id, value]) => {
         const assumption = assessment?.assumptions.find((a: any) => a.id === id)
@@ -651,17 +710,7 @@ export default function NewDebatePage() {
       const metaPromptResult = await generateOptimizedPrompt(completeContext)
       console.log('[DEBUG] Generated optimized prompt:', metaPromptResult)
 
-      // Show optimized prompt in chat
-      const aiOptimizedMsg: Message = {
-        id: `msg-${Date.now()}`,
-        role: 'ai',
-        content: `He generado este prompt optimizado para el debate:\n\n"${metaPromptResult}"\n\nIniciando la deliberación con los expertos...`,
-        type: 'info',
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, aiOptimizedMsg])
-
-      // Save optimized prompt
+      // Save optimized prompt (silently, no message shown)
       setContextState((prev) => ({
         ...prev,
         optimizedPrompt: metaPromptResult,
@@ -671,6 +720,14 @@ export default function NewDebatePage() {
       // STEP 2: Start deliberation with optimized prompt
       console.log('[DEBUG] About to call createDebateMutation.mutate with optimized prompt')
 
+      // Map strategy pattern to execution strategy (for simple pattern)
+      // Patterns that benefit from parallel: 'parallel', 'ensemble'
+      // Others use sequential (agents see each other's responses)
+      const executionStrategy: 'sequential' | 'parallel' = 
+        selectedStrategy === 'parallel' || selectedStrategy === 'ensemble' 
+          ? 'parallel' 
+          : 'sequential'
+
       createDebateMutation.mutate({
         draftId: contextState.debateId, // Use existing draft if available
         question: metaPromptResult, // Use optimized prompt instead of original
@@ -678,6 +735,8 @@ export default function NewDebatePage() {
         category: 'general',
         expertCount: 6, // Metadata only - not used by deliberation system
         maxRounds: 5, // Metadata only - not used by deliberation system
+        executionStrategy, // Pass execution strategy (for simple pattern)
+        pattern: selectedStrategy || undefined, // Pass orchestration pattern (if different from simple)
       })
       console.log('[DEBUG] createDebateMutation.mutate called successfully with draftId:', contextState.debateId)
     } catch (error) {
@@ -867,7 +926,11 @@ export default function NewDebatePage() {
                 <p className={cn(
                   "whitespace-pre-wrap",
                   msg.id === '1' ? "text-base font-medium" : ""
-                )}>{msg.content}</p>
+                )}>
+                  {typeof msg.content === 'string' 
+                    ? msg.content 
+                    : JSON.stringify(msg.content, null, 2)}
+                </p>
 
                 {/* Dynamic Question Inputs - AI decides optimal type */}
                 {msg.role === 'ai' && msg.type === 'assumption' && msg === lastMessage && (
@@ -1098,6 +1161,28 @@ export default function NewDebatePage() {
                   )}
                 </span>
               </div>
+            </div>
+          )}
+
+          {/* Expert Selector - Show always (user can select experts from the start) */}
+          {contextState.question && (
+            <div className="mb-4">
+              <ExpertSelector
+                selectedExpertIds={selectedExpertIds}
+                onSelectionChange={setSelectedExpertIds}
+                question={contextState.question}
+              />
+            </div>
+          )}
+
+          {/* Strategy Selector - Show when ready to start */}
+          {contextState.readyToStart && contextState.question && (
+            <div className="mb-4">
+              <StrategySelector
+                question={contextState.question}
+                onStrategySelect={setSelectedStrategy}
+                selectedPattern={selectedStrategy}
+              />
             </div>
           )}
 

@@ -7,7 +7,20 @@ import { api } from '@/lib/trpc/client'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { MessageSquarePlus, Search, Filter, X, MessageCircle, Sparkles, ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  MessageSquare,
+  MessageSquarePlus,
+  Pencil,
+  Search,
+  Sparkles,
+  Trash,
+  Trash2,
+  X,
+} from "lucide-react";
+import { QuoorumLogo } from '@/components/ui/quoorum-logo'
 
 interface DebatesLayoutProps {
   children: React.ReactNode
@@ -71,11 +84,18 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
     }
   }, [isResizing, leftColumnWidth])
 
-  // Fetch debates
+  // Fetch debates with polling for in-progress debates
   const { data: debates, isLoading, error } = api.debates.list.useQuery({
     limit: 50,
     offset: 0,
     status: statusFilter !== 'all' ? statusFilter : undefined,
+  }, {
+    // Poll every 5 seconds if there are any debates in progress
+    refetchInterval: (data) => {
+      const hasInProgress = data?.some((debate) => debate.status === 'in_progress' || debate.status === 'pending')
+      return hasInProgress ? 5000 : false
+    },
+    refetchIntervalInBackground: true,
   })
 
   // Filter and sort debates
@@ -143,7 +163,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
                 <div className="relative w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-white" />
+                  <QuoorumLogo size={24} showGradient={true} />
                 </div>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
@@ -264,28 +284,6 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
             e.currentTarget.style.scrollbarColor = 'transparent transparent'
           }}
         >
-          {/* Temporary "New Debate" item when creating */}
-          {isNewDebate && (
-            <button
-              className="relative w-full border-b border-white/10 p-4 text-left bg-gradient-to-r from-purple-900/30 to-blue-900/30 backdrop-blur-sm group overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <h3 className="truncate text-sm font-medium flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-blue-400 animate-pulse" />
-                    <span className="bg-gradient-to-r from-purple-200 to-blue-200 bg-clip-text text-transparent">
-                      Nuevo debate
-                    </span>
-                  </h3>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 animate-pulse shadow-lg shadow-purple-500/50" />
-                    <span className="text-xs text-blue-300">Configurando contexto...</span>
-                  </div>
-                </div>
-              </div>
-            </button>
-          )}
 
           {error ? (
             <div className="p-8 text-center">
@@ -443,8 +441,10 @@ function DebateListItem({
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       className={cn(
-        'relative w-full border-b border-[#2a3942] p-4 transition-colors hover:bg-[#2a3942] cursor-pointer',
-        isSelected && 'bg-[#2a3942]'
+        'relative w-full border-b border-[#2a3942] p-4 transition-all cursor-pointer',
+        isSelected
+          ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-l-4 border-l-purple-500 shadow-lg shadow-purple-500/10'
+          : 'hover:bg-[#2a3942]'
       )}
     >
       <div className="flex items-start justify-between gap-3">
@@ -464,7 +464,10 @@ function DebateListItem({
               />
             </form>
           ) : (
-            <h3 className="truncate text-sm font-medium text-white">
+            <h3 className={cn(
+              'truncate text-sm font-medium',
+              isSelected ? 'text-white font-semibold' : 'text-white'
+            )}>
               {debate.metadata?.title || debate.question}
             </h3>
           )}

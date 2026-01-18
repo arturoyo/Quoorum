@@ -1,5 +1,5 @@
 /**
- * Shared types for Forum web app
+ * Shared types for Quoorum web app
  */
 
 // Cache time constants

@@ -20,12 +20,15 @@ export { quoorumPublicApiRouter } from "./quoorum-public-api.js";
 export { adminQuoorumRouter } from "./admin-quoorum.js";
 export { contextAssessmentRouter } from "./context-assessment.js";
 export { debatesRouter } from "./debates.js";
+export { debateStrategyRouter } from "./debate-strategy.js";
 
 // Settings routers
 export { notificationSettingsRouter } from "./notification-settings.js";
 export { sessionsRouter } from "./sessions.js";
 export { apiKeysRouter } from "./api-keys.js";
 export { notificationsRouter } from "./notifications.js";
+export { dealsRouter } from "./deals.js";
+export { contextFilesRouter } from "./context-files.js";
 
 // Billing router
 export { billingRouter } from "./billing.js";

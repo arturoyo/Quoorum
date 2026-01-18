@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 /**
- * Forum React Hooks
+ * Quoorum React Hooks
  *
- * Quick bonus hooks for easier forum integration
+ * Quick bonus hooks for easier Quoorum integration
  */
 
 import { captureException } from '@/lib/monitoring'

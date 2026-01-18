@@ -416,4 +416,33 @@ export const quoorumDealsRouter = router({
             : 'Crear debate sobre cierre de venta',
       }))
     }),
+
+  /**
+   * List all user's deals (for linking from debate UI)
+   */
+  listDeals: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const allDeals = await db
+        .select({
+          id: deals.id,
+          name: deals.name,
+          title: deals.name, // Alias for compatibility
+          stage: deals.stage,
+          value: deals.value,
+          clientId: deals.clientId,
+        })
+        .from(deals)
+        .where(eq(deals.userId, ctx.user.id))
+        .orderBy(desc(deals.createdAt))
+        .limit(input.limit)
+        .offset(input.offset)
+
+      return allDeals
+    }),
 })

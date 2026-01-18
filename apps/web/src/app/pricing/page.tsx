@@ -5,12 +5,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-  MessageCircle,
   CheckCircle,
   X,
   ArrowRight,
   Zap,
 } from "lucide-react";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
 import { AnimatedBackground } from "@/components/layout/animated-background";
 import {
   Accordion,
@@ -148,11 +148,14 @@ export default function PricingPage() {
       <header className="border-b border-white/5 backdrop-blur-2xl bg-black/50">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
+                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
+                  <QuoorumLogo size={24} showGradient={true} />
+                </div>
               </div>
-              <span className="text-xl font-bold text-white">Forum</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
             </Link>
 
             <div className="flex items-center gap-3">
@@ -431,7 +434,7 @@ export default function PricingPage() {
       {/* Footer */}
       <footer className="border-t border-white/10 py-8 px-4">
         <div className="container mx-auto text-center text-gray-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} Forum. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Quoorum. Todos los derechos reservados.</p>
           <div className="flex items-center justify-center gap-4 mt-4">
             <Link href="/privacy" className="hover:text-white">Privacidad</Link>
             <Link href="/terms" className="hover:text-white">Términos</Link>

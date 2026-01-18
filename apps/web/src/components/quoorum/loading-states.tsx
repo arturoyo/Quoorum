@@ -1,5 +1,5 @@
 /**
- * Loading States for Forum
+ * Loading States for Quoorum
  * 
  * Quick bonus: Beautiful loading states and skeletons
  */
@@ -134,14 +134,14 @@ export function DebateProgress({ current, total }: { current: number; total: num
 }
 
 export function ConsensusProgress({ score }: { score: number }) {
-  const percentage = Math.round(score * 100)
+  const percentage = score * 100 // Keep decimal precision
   const color = percentage >= 70 ? 'bg-green-600' : percentage >= 50 ? 'bg-yellow-600' : 'bg-red-600'
   
   return (
     <div className="space-y-2">
       <div className="flex justify-between text-sm text-gray-600">
         <span>Consenso</span>
-        <span>{percentage}%</span>
+        <span>{percentage.toFixed(1)}%</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div 

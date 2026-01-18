@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 /**
- * Forum Onboarding
+ * Quoorum Onboarding
  *
  * Interactive onboarding for new users
  */
@@ -33,9 +33,9 @@ interface OnboardingStep {
 const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'welcome',
-    title: '¡Bienvenido al Forum!',
+    title: '¡Bienvenido al Quoorum!',
     description:
-      'El Forum es tu asistente de decisiones estratégicas. Crea debates con expertos de IA que te ayudarán a tomar mejores decisiones de negocio.',
+      'El Quoorum es tu asistente de decisiones estratégicas. Crea debates con expertos de IA que te ayudarán a tomar mejores decisiones de negocio.',
     image: '🎯',
   },
   {
@@ -185,7 +185,7 @@ export function QuickStartGuide() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-8">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Guía Rápida del Forum</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Guía Rápida del Quoorum</h2>
               <button
                 onClick={() => setIsOpen(false)}
                 className="text-2xl text-gray-400 transition-colors hover:text-gray-600"

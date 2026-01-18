@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CreateDeliberationForm } from "@quoorum/ui";
+import {
+  Link,
+} from "lucide-react";
+
 
 export default function NewDeliberationPage() {
   const router = useRouter();
@@ -12,7 +16,7 @@ export default function NewDeliberationPage() {
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           <Link href="/" className="text-xl font-bold text-gray-900">
-            Forum
+            Quoorum
           </Link>
           <nav className="flex items-center gap-4">
             <Link

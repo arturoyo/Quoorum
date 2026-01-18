@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { MessageCircle, ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
 
 export const metadata = {
-  title: "Política de Privacidad - Forum",
-  description: "Política de privacidad de Forum",
+  title: "Política de Privacidad - Quoorum",
+  description: "Política de privacidad de Quoorum",
 };
 
 export default function PrivacyPage() {
@@ -14,11 +17,14 @@ export default function PrivacyPage() {
       <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
+                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
+                  <QuoorumLogo size={24} showGradient={true} />
+                </div>
               </div>
-              <span className="text-xl font-bold text-white">Forum</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
             </Link>
 
             <Link href="/">
@@ -47,7 +53,7 @@ export default function PrivacyPage() {
               <h2 className="text-2xl font-semibold text-white mb-4">1. Información que Recopilamos</h2>
               <div className="text-gray-300 space-y-4">
                 <p>
-                  En Forum, recopilamos información que nos proporcionas directamente:
+                  En Quoorum, recopilamos información que nos proporcionas directamente:
                 </p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Información de cuenta: nombre, email, contraseña</li>
@@ -166,7 +172,7 @@ export default function PrivacyPage() {
                 </p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Email: <a href="mailto:privacy@forum.ai" className="text-purple-400 hover:text-purple-300">privacy@forum.ai</a></li>
-                  <li>Dirección: Forum AI, Madrid, España</li>
+                  <li>Dirección: Quoorum AI, Madrid, España</li>
                 </ul>
               </div>
             </section>
@@ -177,7 +183,7 @@ export default function PrivacyPage() {
       {/* Footer */}
       <footer className="border-t border-white/10 py-8 px-4">
         <div className="container mx-auto text-center text-gray-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} Forum. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Quoorum. Todos los derechos reservados.</p>
           <div className="flex items-center justify-center gap-4 mt-4">
             <Link href="/privacy" className="text-purple-400">Privacidad</Link>
             <Link href="/terms" className="hover:text-white">Términos</Link>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { api } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
@@ -27,12 +27,6 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
-  MessageCircle,
-  User,
-  CreditCard,
-  Key,
-  Bell,
-  Shield,
   ArrowLeft,
   Loader2,
   Plus,
@@ -42,9 +36,11 @@ import {
   EyeOff,
   AlertTriangle,
 } from "lucide-react";
+import { getSettingsNav } from "@/lib/settings-nav";
 
 export default function ApiKeysPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
@@ -128,13 +124,7 @@ export default function ApiKeysPage() {
     );
   }
 
-  const settingsNav = [
-    { href: "/settings", label: "Perfil", icon: User, active: false },
-    { href: "/settings/billing", label: "Facturación", icon: CreditCard, active: false },
-    { href: "/settings/api-keys", label: "API Keys", icon: Key, active: true },
-    { href: "/settings/notifications", label: "Notificaciones", icon: Bell, active: false },
-    { href: "/settings/security", label: "Seguridad", icon: Shield, active: false },
-  ];
+  const settingsNav = getSettingsNav(pathname || '/settings/api-keys');
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -151,11 +141,14 @@ export default function ApiKeysPage() {
               </Link>
             </div>
 
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
+                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
+                  <QuoorumLogo size={24} showGradient={true} />
+                </div>
               </div>
-              <span className="text-xl font-bold text-white">Forum</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
             </Link>
 
             <div className="w-32" />
@@ -165,36 +158,71 @@ export default function ApiKeysPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8">Configuración</h1>
-
-          <div className="grid md:grid-cols-4 gap-8">
-            {/* Sidebar Nav */}
-            <div className="space-y-1">
-              {settingsNav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ${
-                    item.active
-                      ? "bg-purple-500/20 text-purple-400"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar Nav */}
+          <aside className="lg:col-span-1">
+            <div className="sticky top-24 space-y-1">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 px-4">
+                Configuración
+              </h2>
+              <nav className="space-y-1">
+                {settingsNav.map((item) => {
+                  const Icon = item.icon;
+                  const hasSubItems = item.subItems && item.subItems.length > 0;
+                  const isExpanded = hasSubItems && (item.active || item.subItems?.some(sub => sub.active));
+                  
+                  return (
+                    <div key={item.href} className="space-y-1">
+                      <Link
+                        href={item.href}
+                        className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition group ${
+                          item.active && !hasSubItems
+                            ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30"
+                            : "text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10"
+                        }`}
+                      >
+                        {(item.active && !hasSubItems) && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                        )}
+                        <Icon className="relative w-5 h-5" />
+                        <span className="relative text-sm font-medium">{item.label}</span>
+                      </Link>
+                      
+                      {hasSubItems && isExpanded && (
+                        <div className="ml-4 space-y-1 pl-4 border-l border-white/10">
+                          {item.subItems?.map((subItem) => (
+                            <Link
+                              key={subItem.href}
+                              href={subItem.href}
+                              className={`relative flex items-center gap-3 px-4 py-2 rounded-lg transition group text-sm ${
+                                subItem.active
+                                  ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30"
+                                  : "text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10"
+                              }`}
+                            >
+                              {subItem.active && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                              )}
+                              <span className="relative">{subItem.label}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </nav>
             </div>
+          </aside>
 
-            {/* Content */}
-            <div className="md:col-span-3 space-y-6">
-              <Card className="bg-white/5 border-white/10">
+          {/* Content */}
+          <div className="lg:col-span-3 space-y-6">
+            <Card className="bg-white/5 border-white/10">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-white">API Keys</CardTitle>
                     <CardDescription>
-                      Gestiona tus claves de acceso a la API de Forum
+                      Gestiona tus claves de acceso a la API de Quoorum
                     </CardDescription>
                   </div>
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -314,7 +342,7 @@ export default function ApiKeysPage() {
                       <Key className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                       <p className="text-gray-400">No tienes API keys aún</p>
                       <p className="text-gray-500 text-sm mt-1">
-                        Crea una para empezar a usar la API de Forum
+                        Crea una para empezar a usar la API de Quoorum
                       </p>
                     </div>
                   ) : (
@@ -358,20 +386,20 @@ export default function ApiKeysPage() {
                     </div>
                   )}
                 </CardContent>
-              </Card>
+            </Card>
 
-              <Card className="bg-white/5 border-white/10">
+            <Card className="bg-white/5 border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white">Documentación API</CardTitle>
                   <CardDescription>
-                    Aprende a usar la API de Forum
+                    Aprende a usar la API de Quoorum
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="p-4 rounded-lg bg-slate-800/50 font-mono text-sm">
                     <p className="text-gray-400"># Ejemplo de uso</p>
                     <p className="text-purple-400 mt-2">
-                      curl https://api.forum.ai/v1/debates \
+                      curl https://api.quoorum.ai/v1/debates \
                     </p>
                     <p className="text-gray-300 pl-4">
                       -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
@@ -393,8 +421,7 @@ export default function ApiKeysPage() {
                     </Button>
                   </Link>
                 </CardContent>
-              </Card>
-            </div>
+            </Card>
           </div>
         </div>
       </main>

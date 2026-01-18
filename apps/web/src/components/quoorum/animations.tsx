@@ -1,7 +1,7 @@
 /**
- * Forum Animations & Transitions
+ * Quoorum Animations & Transitions
  * 
- * WOW-factor animations for Forum UI
+ * WOW-factor animations for Quoorum UI
  */
 
 'use client'

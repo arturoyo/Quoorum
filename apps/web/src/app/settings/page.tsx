@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +17,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
-  MessageCircle,
   User,
   CreditCard,
   Key,
@@ -26,11 +25,15 @@ import {
   Plus,
   Loader2,
   Save,
+  Sparkles,
 } from "lucide-react";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { getSettingsNav } from "@/lib/settings-nav";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const [_user, setUser] = useState<SupabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -111,13 +114,7 @@ export default function SettingsPage() {
     );
   }
 
-  const settingsNav = [
-    { href: "/settings", label: "Perfil", icon: User, active: true },
-    { href: "/settings/billing", label: "Facturación", icon: CreditCard, active: false },
-    { href: "/settings/api-keys", label: "API Keys", icon: Key, active: false },
-    { href: "/settings/notifications", label: "Notificaciones", icon: Bell, active: false },
-    { href: "/settings/security", label: "Seguridad", icon: Shield, active: false },
-  ];
+  const settingsNav = getSettingsNav(pathname || '/settings');
 
   return (
     <div className="min-h-screen relative bg-slate-950">
@@ -134,9 +131,9 @@ export default function SettingsPage() {
           <div className="relative flex h-16 items-center justify-between">
             <Link href="/dashboard" className="flex items-center gap-2 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
+                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
+                  <QuoorumLogo size={24} showGradient={true} />
                 </div>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
@@ -173,36 +170,66 @@ export default function SettingsPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-8">
-            Configuración
-          </h1>
-
-          <div className="grid md:grid-cols-4 gap-8">
-            {/* Sidebar Nav */}
-            <div className="space-y-1">
-              {settingsNav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`relative flex items-center gap-3 px-4 py-2 rounded-lg transition group ${
-                    item.active
-                      ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30"
-                      : "text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10"
-                  }`}
-                >
-                  {item.active && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
-                  )}
-                  <item.icon className="relative w-5 h-5" />
-                  <span className="relative">{item.label}</span>
-                </Link>
-              ))}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar Nav */}
+          <aside className="lg:col-span-1">
+            <div className="sticky top-24 space-y-1">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 px-4">
+                Configuración
+              </h2>
+              <nav className="space-y-1">
+                {settingsNav.map((item) => {
+                  const Icon = item.icon;
+                  const hasSubItems = item.subItems && item.subItems.length > 0;
+                  const isExpanded = hasSubItems && (item.active || item.subItems?.some(sub => sub.active));
+                  
+                  return (
+                    <div key={item.href} className="space-y-1">
+                      <Link
+                        href={item.href}
+                        className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition group ${
+                          item.active && !hasSubItems
+                            ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30"
+                            : "text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10"
+                        }`}
+                      >
+                        {(item.active && !hasSubItems) && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                        )}
+                        <Icon className="relative w-5 h-5" />
+                        <span className="relative text-sm font-medium">{item.label}</span>
+                      </Link>
+                      
+                      {hasSubItems && isExpanded && (
+                        <div className="ml-4 space-y-1 pl-4 border-l border-white/10">
+                          {item.subItems?.map((subItem) => (
+                            <Link
+                              key={subItem.href}
+                              href={subItem.href}
+                              className={`relative flex items-center gap-3 px-4 py-2 rounded-lg transition group text-sm ${
+                                subItem.active
+                                  ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30"
+                                  : "text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10"
+                              }`}
+                            >
+                              {subItem.active && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                              )}
+                              <span className="relative">{subItem.label}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </nav>
             </div>
+          </aside>
 
-            {/* Content */}
-            <div className="md:col-span-3 space-y-6">
-              <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-xl border-purple-500/20">
+          {/* Content */}
+          <div className="lg:col-span-3 space-y-6">
+            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-xl border-purple-500/20">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
                 <CardHeader className="relative">
                   <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
@@ -288,11 +315,11 @@ export default function SettingsPage() {
                     )}
                   </Button>
                 </CardContent>
-              </Card>
+            </Card>
 
-              <Separator className="bg-gradient-to-r from-purple-500/20 via-white/10 to-blue-500/20" />
+            <Separator className="bg-gradient-to-r from-purple-500/20 via-white/10 to-blue-500/20" />
 
-              <Card className="relative overflow-hidden bg-red-950/40 backdrop-blur-xl border-red-500/30">
+            <Card className="relative overflow-hidden bg-red-950/40 backdrop-blur-xl border-red-500/30">
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-red-900/5" />
                 <CardHeader className="relative">
                   <CardTitle className="bg-gradient-to-r from-red-300 to-red-500 bg-clip-text text-transparent">
@@ -338,8 +365,7 @@ export default function SettingsPage() {
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
-            </div>
+            </Card>
           </div>
         </div>
       </main>

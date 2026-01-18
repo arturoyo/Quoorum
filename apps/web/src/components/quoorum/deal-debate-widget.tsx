@@ -244,6 +244,149 @@ function DealLinkCard({ linked, onUnlink }: { linked: LinkedDeal; onUnlink: () =
   )
 }
 
+function LinkDealDialog({ debateId, onSuccess }: { debateId: string; onSuccess: () => void }) {
+  const [open, setOpen] = useState(false)
+  const [selectedDealId, setSelectedDealId] = useState('')
+  const [context, setContext] = useState<ContextType>('general')
+  const [notes, setNotes] = useState('')
+
+  const { data: deals, isLoading } = api.quoorumDeals.listDeals.useQuery({ limit: 50 })
+
+  const linkDebate = api.quoorumDeals.linkDebate.useMutation({
+    onSuccess: () => {
+      toast.success('Debate vinculado correctamente')
+      setOpen(false)
+      setSelectedDealId('')
+      setContext('general')
+      setNotes('')
+      onSuccess()
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const handleLink = () => {
+    if (!selectedDealId) return
+    linkDebate.mutate({
+      debateId,
+      dealId: selectedDealId,
+      context,
+      notes: notes || undefined,
+    })
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Vincular Oportunidad
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="border-[#2a3942] bg-[#202c33] text-[#e9edef]">
+        <DialogHeader>
+          <DialogTitle>Vincular Debate a Oportunidad</DialogTitle>
+          <DialogDescription className="text-[#8696a0]">
+            Selecciona una oportunidad de venta para vincular con este debate
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label>Oportunidad</Label>
+            <Select value={selectedDealId} onValueChange={setSelectedDealId}>
+              <SelectTrigger className="border-[#2a3942] bg-[#111b21]">
+                <SelectValue placeholder="Seleccionar oportunidad..." />
+              </SelectTrigger>
+              <SelectContent>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                ) : (
+                  deals?.map((deal) => (
+                    <SelectItem key={deal.id} value={deal.id}>
+                      <div className="flex items-center gap-2">
+                        <span className="truncate">{deal.name || deal.title}</span>
+                        {deal.stage && (
+                          <Badge variant="outline" className="border-[#2a3942] text-xs text-[#8696a0]">
+                            {deal.stage}
+                          </Badge>
+                        )}
+                        {deal.value && (
+                          <Badge className="bg-green-500/20 text-xs text-green-400">
+                            {Number(deal.value).toLocaleString('es-ES', {
+                              style: 'currency',
+                              currency: 'EUR',
+                            })}
+                          </Badge>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Contexto</Label>
+            <Select value={context} onValueChange={(v) => setContext(v as ContextType)}>
+              <SelectTrigger className="border-[#2a3942] bg-[#111b21]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(contextLabels).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Notas (opcional)</Label>
+            <Textarea
+              placeholder="¿Por qué vinculas este debate?"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="border-[#2a3942] bg-[#111b21]"
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="border-[#2a3942] bg-[#111b21]"
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleLink}
+            disabled={!selectedDealId || linkDebate.isPending}
+            className="bg-[#00a884] hover:bg-[#00a884]/90"
+          >
+            {linkDebate.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Link2 className="mr-2 h-4 w-4" />
+            )}
+            Vincular
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 function LinkDebateDialog({ dealId, onSuccess }: { dealId: string; onSuccess: () => void }) {
   const [open, setOpen] = useState(false)
   const [selectedDebateId, setSelectedDebateId] = useState('')
@@ -294,7 +437,7 @@ function LinkDebateDialog({ dealId, onSuccess }: { dealId: string; onSuccess: ()
         <DialogHeader>
           <DialogTitle>Vincular Debate a Oportunidad</DialogTitle>
           <DialogDescription className="text-[#8696a0]">
-            Selecciona un debate del Forum para vincular con esta oportunidad
+            Selecciona un debate de Quoorum para vincular con esta oportunidad
           </DialogDescription>
         </DialogHeader>
 
@@ -588,11 +731,15 @@ export function DealDebateWidget({
             </CardTitle>
             <CardDescription className="text-[#8696a0]">
               {mode === 'deal'
-                ? 'Debates del Forum relacionados con esta oportunidad'
+                ? 'Debates de Quoorum relacionados con esta oportunidad'
                 : 'Oportunidades de venta relacionadas con este debate'}
             </CardDescription>
           </div>
-          {mode === 'deal' && <LinkDebateDialog dealId={entityId} onSuccess={handleLinkCreated} />}
+          {mode === 'deal' ? (
+            <LinkDebateDialog dealId={entityId} onSuccess={handleLinkCreated} />
+          ) : (
+            <LinkDealDialog debateId={entityId} onSuccess={handleLinkCreated} />
+          )}
         </div>
       </CardHeader>
 
@@ -651,7 +798,7 @@ export function DealDebateWidget({
           <div className="space-y-3">
             <h3 className="flex items-center gap-2 text-sm font-medium text-[#e9edef]">
               <Sparkles className="h-4 w-4 text-purple-400" />
-              Recomendaciones basadas en Forum
+              Recomendaciones basadas en Quoorum
             </h3>
             <RecommendationsSection dealId={entityId} />
           </div>
@@ -662,7 +809,7 @@ export function DealDebateWidget({
 }
 
 // ============================================================================
-// Suggested Deals Section (for Forum page)
+// Suggested Deals Section (for Quoorum page)
 // ============================================================================
 
 export function SuggestedDealsForForum() {

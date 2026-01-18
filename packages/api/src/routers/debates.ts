@@ -10,11 +10,12 @@ import { z } from "zod";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { router, protectedProcedure, expensiveRateLimitedProcedure } from "../trpc.js";
 import { db } from "@quoorum/db";
-import { quoorumDebates, users } from "@quoorum/db/schema";
-import { runDynamicDebate, notifyDebateComplete } from "@quoorum/quoorum";
-import type { ExpertProfile } from "@quoorum/quoorum";
+import { quoorumDebates, users, userContextFiles as userContextFilesTable } from "@quoorum/db/schema";
+import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator } from "@quoorum/quoorum";
+import type { ExpertProfile, PatternType } from "@quoorum/quoorum";
 import { logger } from "../lib/logger.js";
 import { inngest } from "../lib/inngest-client.js";
+import { debateSequenceToResult } from "../lib/debate-orchestration-adapter.js";
 
 // ============================================
 // TYPES
@@ -47,10 +48,10 @@ export const debatesRouter = router({
    * Create a draft debate (when user sends first message)
    * Creates the debate in the database immediately for better UX
    */
-  createDraft: protectedProcedure
+      createDraft: protectedProcedure
     .input(
       z.object({
-        question: z.string().min(1, "La pregunta no puede estar vacía").max(1000),
+        question: z.string().min(1, "La pregunta no puede estar vacía").max(5000, "La pregunta no puede exceder 5000 caracteres"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -109,11 +110,14 @@ export const debatesRouter = router({
     .input(
       z.object({
         draftId: z.string().uuid().optional(), // If provided, update existing draft instead of creating new
-        question: z.string().min(20, "La pregunta debe tener al menos 20 caracteres").max(1000),
+        question: z.string().min(20, "La pregunta debe tener al menos 20 caracteres").max(5000, "La pregunta no puede exceder 5000 caracteres"),
         context: z.string().optional(),
         category: z.string().optional(),
         expertCount: z.number().min(4).max(10).default(6),
         maxRounds: z.number().min(3).max(10).default(5),
+        executionStrategy: z.enum(['sequential', 'parallel']).optional(), // Estrategia de ejecución de agentes dentro de una ronda
+        pattern: z.enum(['simple', 'sequential', 'parallel', 'conditional', 'iterative', 'tournament', 'adversarial', 'ensemble', 'hierarchical']).optional(), // Patrón de orquestación (si no se proporciona, se determina automáticamente)
+        selectedExpertIds: z.array(z.string().uuid()).optional(), // IDs de expertos personalizados seleccionados por el usuario
         assessment: z
           .object({
             overallScore: z.number(),
@@ -133,9 +137,37 @@ export const debatesRouter = router({
         draftId: input.draftId
       });
 
+      // Get user's active context files
+      const userContextFilesList = await db
+        .select({
+          name: userContextFilesTable.name,
+          content: userContextFilesTable.content,
+          order: userContextFilesTable.order,
+        })
+        .from(userContextFilesTable)
+        .where(
+          and(
+            eq(userContextFilesTable.userId, ctx.user.id),
+            eq(userContextFilesTable.isActive, true)
+          )
+        )
+        .orderBy(userContextFilesTable.order, userContextFilesTable.createdAt);
+
+      // Combine user context files into a single string
+      const userContextContent = userContextFilesList
+        .map((file) => `## ${file.name}\n\n${file.content}`)
+        .join('\n\n---\n\n');
+
+      // Combine user context with provided context
+      const combinedContext = userContextContent 
+        ? (input.context 
+          ? `${userContextContent}\n\n---\n\n## Contexto Adicional del Usuario\n\n${input.context}`
+          : userContextContent)
+        : input.context || undefined;
+
       // Build context object
       const debateContext: DebateContext = {
-        background: input.context,
+        background: combinedContext,
         constraints: [],
       };
 
@@ -183,6 +215,7 @@ export const debatesRouter = router({
               category: input.category,
               title: existingTitle, // Preserve existing title
               createdViaContextAssessment: true,
+              pattern: input.pattern || 'simple', // Save selected pattern
             },
             updatedAt: new Date(),
           })
@@ -247,7 +280,7 @@ export const debatesRouter = router({
       });
 
       // Also start debate inline (fallback if Inngest not configured)
-      runDebateAsync(debate.id, ctx.user.id, input.question, debateContext).catch(
+      runDebateAsync(debate.id, ctx.user.id, input.question, debateContext, input.executionStrategy, (input.pattern as PatternType | undefined), input.selectedExpertIds).catch(
         (error: unknown) => {
           logger.error(
             "Error starting debate",
@@ -871,7 +904,10 @@ async function runDebateAsync(
   debateId: string,
   userId: string,
   question: string,
-  context?: DebateContext
+  context?: DebateContext,
+  executionStrategy?: 'sequential' | 'parallel', // Estrategia de ejecución de agentes dentro de una ronda
+  pattern?: PatternType, // Patrón de orquestación (simple, tournament, adversarial, etc.)
+  selectedExpertIds?: string[] // IDs de expertos personalizados seleccionados por el usuario
 ): Promise<void> {
   try {
     // Update status to in_progress
@@ -939,11 +975,71 @@ async function runDebateAsync(
     // Track estimated total rounds (set by onProgress callback)
     let estimatedTotalRounds = 20; // Default fallback
 
-    const result = await runDynamicDebate({
+    // Determine orchestration pattern (if not provided, auto-determine using selectStrategy)
+    let finalPattern: PatternType = pattern || 'simple'
+    
+    if (!pattern) {
+      // Auto-determine pattern using selectStrategy if not provided by user
+      try {
+        const strategyAnalysis = await selectStrategy(question, { patternMode: 'auto' })
+        finalPattern = strategyAnalysis.recommendedPattern
+
+        logger.info(`[Debate ${debateId}] Pattern auto-determined`, {
+          recommendedPattern: finalPattern,
+          confidence: strategyAnalysis.confidence,
+          reasoning: strategyAnalysis.reasoning,
+        })
+      } catch (error) {
+        logger.warn(`[Debate ${debateId}] Failed to determine pattern, using simple`, {
+          error: error instanceof Error ? error.message : String(error)
+        })
+        // Default to simple on error
+        finalPattern = 'simple'
+      }
+    } else {
+      logger.info(`[Debate ${debateId}] Using user-selected pattern`, {
+        pattern: finalPattern,
+      })
+    }
+
+    // Determine execution strategy for agents within rounds
+    let finalExecutionStrategy: 'sequential' | 'parallel' = executionStrategy || 'sequential'
+
+    // Use orchestrated debate for complex patterns (tournament, adversarial, ensemble, etc.)
+    // Simple pattern uses direct runner (core + experts in one debate)
+    let result: any // DebateResult | DebateSequence
+
+    if (finalPattern === 'simple') {
+      // SIMPLE PATTERN: Use runDynamicDebate directly (core + experts in single debate)
+      result = await runDynamicDebate({
       sessionId: debateId,
       question,
       context: loadedContext,
-      forceMode: "static", // Use static mode: 4 base agents (Optimista, Crítico, Analista, Sintetizador) with Gemini 2.0 Flash
+      executionStrategy: finalExecutionStrategy, // Pass execution strategy (sequential: agents see each other, parallel: faster but no same-round responses)
+      selectedExpertIds: selectedExpertIds, // Pass selected custom experts if provided
+      checkDebateState: async () => {
+        // Check debate state from DB before each round
+        const [debate] = await db
+          .select({ 
+            metadata: quoorumDebates.metadata,
+            context: quoorumDebates.context,
+          })
+          .from(quoorumDebates)
+          .where(eq(quoorumDebates.id, debateId))
+        
+        if (!debate) {
+          return { isPaused: false, forceConsensus: false, additionalContext: [] }
+        }
+
+        const metadata = (debate.metadata as any) || {}
+        const context = (debate.context as any) || {}
+        
+        return {
+          isPaused: metadata.paused === true,
+          forceConsensus: metadata.forceConsensus === true,
+          additionalContext: (context.additional || []).map((item: { content: string; addedAt: string }) => item.content),
+        }
+      },
       onProgress: async (progress) => {
         // Clear messages when starting a new round
         if (progress.phase === 'deliberating') {
@@ -1005,7 +1101,39 @@ async function runDebateAsync(
           currentRoundMessages
         );
       },
-    });
+    })
+    } else {
+      // COMPLEX PATTERNS: Use DebateOrchestrator (tournament, adversarial, ensemble, etc.)
+      // Each SubDebate in the orchestration uses runDynamicDebate internally (core + experts)
+      const orchestrator = new DebateOrchestrator({
+        patternMode: 'manual',
+        preferredPattern: finalPattern,
+        requireApproval: false, // Skip approval for API calls
+        maxTotalCost: 10.0, // Max $10 per debate
+        warnAtCost: 5.0,
+        parallelLimit: 5, // Max 5 concurrent sub-debates
+      })
+
+      logger.info(`[Debate ${debateId}] Using orchestrated pattern: ${finalPattern}`, {
+        pattern: finalPattern,
+      })
+
+      // Execute orchestrated sequence
+      const sequence = await orchestrator.run(question, userId, {
+        pattern: finalPattern,
+        skipApproval: true,
+      })
+
+      // Adapt DebateSequence to DebateResult format for UI compatibility
+      result = debateSequenceToResult(sequence, debateId)
+
+      logger.info(`[Debate ${debateId}] Orchestrated debate completed`, {
+        pattern: finalPattern,
+        phases: sequence.results.length,
+        totalCost: sequence.totalCost,
+        status: sequence.status,
+      })
+    }
 
     // Event 5: Calculating consensus (85%)
     await updateProcessingStatus(
@@ -1040,6 +1168,13 @@ async function runDebateAsync(
 
     // Update debate with results
     // ⚠️ IMPORTANT: Respect result.status - could be 'failed' if execution failed
+    const [currentDebate] = await db
+      .select({ metadata: quoorumDebates.metadata })
+      .from(quoorumDebates)
+      .where(eq(quoorumDebates.id, debateId))
+    
+    const currentMetadata = (currentDebate?.metadata as any) || {}
+    
     await db
       .update(quoorumDebates)
       .set({
@@ -1054,6 +1189,10 @@ async function runDebateAsync(
         experts: mappedExperts,
         qualityMetrics: result.qualityMetrics,
         interventions: result.interventions,
+        metadata: {
+          ...currentMetadata,
+          pattern: finalPattern, // Save pattern used for execution
+        },
       })
       .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));
 

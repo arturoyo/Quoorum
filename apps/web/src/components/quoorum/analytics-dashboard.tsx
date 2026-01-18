@@ -301,7 +301,7 @@ export function AnalyticsDashboard() {
             <CardHeader>
               <CardTitle className="text-[#e9edef]">Oportunidades Sugeridas</CardTitle>
               <CardDescription className="text-[#8696a0]">
-                Deals que podrían beneficiarse de un debate en Forum
+                Deals que podrían beneficiarse de un debate en Quoorum
               </CardDescription>
             </CardHeader>
             <CardContent>

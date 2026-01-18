@@ -20,6 +20,8 @@ import {
 import { cn } from '@/lib/utils'
 import { InteractiveControls } from '@/components/quoorum/interactive-controls'
 import { DebateProgressCascade } from '@/components/debates/debate-progress-cascade'
+import { DealDebateWidget } from '@/components/quoorum/deal-debate-widget'
+import { DebateComments } from '@/components/quoorum/debate-comments'
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -58,6 +60,22 @@ const EXPERT_COLORS = [
   'bg-purple-500',
 ]
 
+// Pattern labels in Spanish
+function getPatternLabel(pattern: string): string {
+  const labels: Record<string, string> = {
+    simple: 'Simple',
+    sequential: 'Secuencial',
+    parallel: 'Paralelo',
+    conditional: 'Condicional',
+    iterative: 'Iterativo',
+    tournament: 'Torneo',
+    adversarial: 'Adversarial',
+    ensemble: 'Ensemble',
+    hierarchical: 'Jerárquico',
+  }
+  return labels[pattern] || pattern
+}
+
 // ═══════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════
@@ -66,7 +84,7 @@ export default function DebatePage({ params }: DebatePageProps) {
   const router = useRouter()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [expertColors, setExpertColors] = useState<Record<string, string>>({})
-  const [isContextExpanded, setIsContextExpanded] = useState(true)
+  const [isContextExpanded, setIsContextExpanded] = useState(false) // Colapsado por defecto
 
   // Fetch debate with refetch interval for real-time updates
   const { data: debate, isLoading } = api.debates.get.useQuery(
@@ -118,7 +136,7 @@ export default function DebatePage({ params }: DebatePageProps) {
   const statusConfig = {
     draft: { label: 'Borrador', color: 'bg-gray-500', icon: Clock },
     pending: { label: 'Pendiente', color: 'bg-yellow-500', icon: Clock },
-    in_progress: { label: 'En curso', color: 'bg-blue-500', icon: Loader2 },
+    in_progress: { label: 'En progreso', color: 'bg-blue-500', icon: Loader2 },
     completed: { label: 'Completado', color: 'bg-green-500', icon: CheckCircle2 },
     failed: { label: 'Fallido', color: 'bg-red-500', icon: AlertTriangle },
   }
@@ -177,6 +195,18 @@ export default function DebatePage({ params }: DebatePageProps) {
                   {StatusIcon && <StatusIcon className="h-3 w-3" />}
                   {statusConfig[status]?.label}
                 </Badge>
+                {debate.metadata?.pattern && (
+                  <>
+                    <span>•</span>
+                    <Badge
+                      variant="outline"
+                      className="border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs"
+                      title={`Estrategia: ${getPatternLabel(debate.metadata.pattern as string)}`}
+                    >
+                      {getPatternLabel(debate.metadata.pattern as string)}
+                    </Badge>
+                  </>
+                )}
                 {debate.rounds && debate.rounds.length > 0 && (
                   <>
                     <span>•</span>
@@ -203,7 +233,7 @@ export default function DebatePage({ params }: DebatePageProps) {
                   <CheckCircle2 className="h-6 w-6 text-purple-400" />
                 ) : (
                   <span className="text-sm font-bold text-white">
-                    {Math.round(debate.consensusScore * 100)}%
+                    {(debate.consensusScore * 100).toFixed(1)}%
                   </span>
                 )}
               </div>
@@ -234,19 +264,31 @@ export default function DebatePage({ params }: DebatePageProps) {
                 className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
                 onClick={() => setIsContextExpanded(!isContextExpanded)}
               >
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 flex-1">
                   <div className="flex items-center gap-2 text-sm font-medium text-purple-400">
                     <span>📝</span>
                     <span>Información Proporcionada</span>
                   </div>
-                  {debate.status === 'in_progress' && (!debate.rounds || debate.rounds.length === 0) && (
-                    <p className="text-xs text-gray-400">Los agentes están analizando este contexto...</p>
+                  {/* Síntesis cuando está colapsado */}
+                  {!isContextExpanded && (
+                    <p className="text-xs text-gray-300 mt-1 line-clamp-1">
+                      {debate.context.assessment?.summary || 
+                       (debate.context.background 
+                         ? (debate.context.background.length > 120 
+                            ? `${debate.context.background.substring(0, 120)}...` 
+                            : debate.context.background)
+                         : 'Ver contexto completo')}
+                    </p>
+                  )}
+                  {/* Mensaje cuando está en progreso y colapsado */}
+                  {!isContextExpanded && debate.status === 'in_progress' && (!debate.rounds || debate.rounds.length === 0) && (
+                    <p className="text-xs text-gray-400 mt-1">Los agentes están analizando este contexto...</p>
                   )}
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 ml-2 flex-shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     setIsContextExpanded(!isContextExpanded)
@@ -368,8 +410,14 @@ export default function DebatePage({ params }: DebatePageProps) {
                   <span className="text-lg font-bold text-white">
                     {debate.rounds?.length || 0}
                   </span>
-                  <span>/</span>
-                  <span className="text-gray-400">{debate.metadata?.maxRounds || 5}</span>
+                  {debate.rounds && debate.rounds.length > 0 && (
+                    <>
+                      <span>/</span>
+                      <span className="text-gray-400">
+                        {(debate as { totalRounds?: number }).totalRounds ?? debate.rounds.length}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </Card>
@@ -489,49 +537,116 @@ export default function DebatePage({ params }: DebatePageProps) {
       </div>
 
       {/* Final Ranking (Bottom Sheet) */}
+      {/* Linked Deals Section */}
+      {debate.status === 'completed' && (
+        <div className="border-t border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 py-4">
+          <div className="mx-auto max-w-4xl">
+            <DealDebateWidget mode="debate" entityId={id} />
+          </div>
+        </div>
+      )}
+
       {debate.status === 'completed' && debate.finalRanking && (
         <div className="border-t border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 py-4">
           <div className="mx-auto max-w-4xl">
-            <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
-              <TrendingUp className="h-5 w-5" />
-              Ranking Final de Opciones
-            </h3>
-            <div className="space-y-2">
-              {(debate.finalRanking as RankingOption[]).map((option: RankingOption, idx: number) => (
-                <div
-                  key={idx}
-                  className={cn(
-                    'flex items-center justify-between rounded-lg p-3',
-                    idx === 0 ? 'bg-purple-600/20 border border-purple-400/30' : 'bg-slate-900/40'
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        'flex h-8 w-8 items-center justify-center rounded-full font-bold',
-                        idx === 0
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-slate-600/30 text-white'
-                      )}
-                    >
-                      {idx + 1}
-                    </div>
-                    <div>
-                      <div className="font-medium text-white">{option.option}</div>
-                      {option.reasoning && (
-                        <div className="text-xs text-gray-400">{option.reasoning}</div>
-                      )}
-                    </div>
+            {(() => {
+              const firstOption = (debate.finalRanking as RankingOption[])[0]
+              const isGeneration = firstOption && firstOption.option.length > 200
+              
+              return (
+                <>
+                  <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
+                    <TrendingUp className="h-5 w-5" />
+                    {isGeneration ? 'Contenido Generado' : 'Ranking Final de Opciones'}
+                  </h3>
+                  <div className="space-y-2">
+                    {(debate.finalRanking as RankingOption[]).map((option: RankingOption, idx: number) => {
+                      const isLongContent = option.option.length > 200
+                      const isGenerationItem = isGeneration && idx === 0
+                      
+                      return (
+                        <div
+                          key={idx}
+                          className={cn(
+                            'rounded-lg p-4',
+                            idx === 0 ? 'bg-purple-600/20 border border-purple-400/30' : 'bg-slate-900/40'
+                          )}
+                        >
+                          {isGenerationItem ? (
+                            // Generation mode: Show full content in a text area format
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle2 className="h-5 w-5 text-purple-400" />
+                                  <span className="text-sm font-medium text-purple-300">
+                                    Contenido listo para usar
+                                  </span>
+                                </div>
+                                <span className="text-sm text-gray-400">
+                                  {option.score.toFixed(1)}% de confianza
+                                </span>
+                              </div>
+                              <div className="rounded-md bg-slate-900/60 border border-slate-700/50 p-4">
+                                <pre className="whitespace-pre-wrap font-sans text-white text-sm leading-relaxed">
+                                  {option.option}
+                                </pre>
+                              </div>
+                              {option.reasoning && (
+                                <div className="text-xs text-gray-400 italic">
+                                  💡 {option.reasoning}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            // Decision mode: Show ranked options
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={cn(
+                                    'flex h-8 w-8 items-center justify-center rounded-full font-bold',
+                                    idx === 0
+                                      ? 'bg-purple-600 text-white'
+                                      : 'bg-slate-600/30 text-white'
+                                  )}
+                                >
+                                  {idx + 1}
+                                </div>
+                                <div>
+                                  <div className={cn(
+                                    'font-medium text-white',
+                                    isLongContent && 'max-w-2xl'
+                                  )}>
+                                    {option.option}
+                                  </div>
+                                  {option.reasoning && (
+                                    <div className="text-xs text-gray-400">{option.reasoning}</div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg font-bold text-white">
+                                  {option.score.toFixed(1)}%
+                                </span>
+                                {idx === 0 && <CheckCircle2 className="h-5 w-5 text-purple-400" />}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-white">
-                      {option.score.toFixed(1)}%
-                    </span>
-                    {idx === 0 && <CheckCircle2 className="h-5 w-5 text-purple-400" />}
-                  </div>
-                </div>
-              ))}
-            </div>
+                </>
+              )
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* Comments Section */}
+      {debate.status === 'completed' && (
+        <div className="border-t border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 py-4">
+          <div className="mx-auto max-w-4xl">
+            <DebateComments debateId={id} />
           </div>
         </div>
       )}

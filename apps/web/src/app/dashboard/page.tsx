@@ -18,7 +18,6 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  MessageCircle,
   Plus,
   History,
   Settings,
@@ -29,7 +28,13 @@ import {
   Clock,
   CheckCircle,
   CreditCard,
+  MessageCircle,
+  Bell,
+  DollarSign,
+  Link2,
 } from "lucide-react";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { QuoorumInsightsWidget } from "@/components/dashboard/quoorum-insights-widget";
 import type { User } from "@supabase/supabase-js";
 
 interface DashboardData {
@@ -91,6 +96,23 @@ export default function DashboardPage() {
     { enabled: !isAuthChecking && !!user }
   );
 
+  // Fetch notifications for widget
+  const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery(
+    undefined,
+    { enabled: !isAuthChecking && !!user }
+  );
+
+  const { data: recentNotifications } = api.quoorumNotifications.list.useQuery(
+    { limit: 3 },
+    { enabled: !isAuthChecking && !!user }
+  );
+
+  // Fetch suggested deals for widget
+  const { data: suggestedDeals, isLoading: dealsLoading } = api.quoorumDeals.getSuggestedDeals.useQuery(
+    { limit: 3 },
+    { enabled: !isAuthChecking && !!user }
+  );
+
   const isLoading = isAuthChecking || statsLoading || debatesLoading;
 
   if (isLoading) {
@@ -126,9 +148,9 @@ export default function DashboardPage() {
           <div className="relative flex h-16 items-center justify-between">
             <Link href="/dashboard" className="flex items-center gap-2 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
+                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
+                  <QuoorumLogo size={24} showGradient={true} />
                 </div>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
@@ -237,6 +259,13 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Insights Widget */}
+        {!isAuthChecking && user && (
+          <div className="mb-8">
+            <QuoorumInsightsWidget compact={false} />
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Recent Debates */}
@@ -377,6 +406,114 @@ export default function DashboardPage() {
                 </Link>
               </CardContent>
             </Card>
+
+            {/* Notifications Widget */}
+            {!isAuthChecking && user && (
+              <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CardHeader className="relative">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                      Notificaciones
+                    </CardTitle>
+                    {(unreadCount ?? 0) > 0 && (
+                      <Badge className="bg-red-500/20 text-red-400">
+                        {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {!recentNotifications || recentNotifications.length === 0 ? (
+                    <div className="text-center py-4">
+                      <Bell className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-400">No hay notificaciones</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {recentNotifications.slice(0, 3).map((notification) => (
+                        <Link
+                          key={notification.id}
+                          href={notification.debateId ? `/debates/${notification.debateId}` : '/debates'}
+                          className="block p-2 rounded-lg bg-white/5 hover:bg-white/10 transition text-sm"
+                        >
+                          <p className="text-white font-medium truncate">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(notification.createdAt).toLocaleDateString('es-ES', {
+                              day: 'numeric',
+                              month: 'short',
+                            })}
+                          </p>
+                        </Link>
+                      ))}
+                      <Link href="/debates" className="block mt-3">
+                        <Button variant="ghost" className="w-full text-gray-400 hover:text-white hover:bg-white/10 text-xs">
+                          Ver todas
+                          <ArrowRight className="ml-2 h-3 w-3" />
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Suggested Deals Widget */}
+            {!isAuthChecking && user && (
+              <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CardHeader className="relative">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                      Deals Sugeridos
+                    </CardTitle>
+                    <DollarSign className="w-5 h-5 text-green-400" />
+                  </div>
+                  <CardDescription className="text-gray-400 text-xs">
+                    Oportunidades que podrían beneficiarse de Forum
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {dealsLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-16 w-full bg-slate-800/60" />
+                      <Skeleton className="h-16 w-full bg-slate-800/60" />
+                    </div>
+                  ) : !suggestedDeals || suggestedDeals.length === 0 ? (
+                    <div className="text-center py-4">
+                      <Link2 className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-400">No hay deals sugeridos</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {suggestedDeals.slice(0, 3).map((deal) => (
+                        <div
+                          key={deal.id}
+                          className="p-2 rounded-lg bg-white/5 border border-white/5"
+                        >
+                          <p className="text-white font-medium truncate text-sm">
+                            {deal.name || deal.title || 'Oportunidad sin nombre'}
+                          </p>
+                          {deal.value && (
+                            <p className="text-xs text-green-400 mt-1">
+                              {Number(deal.value).toLocaleString('es-ES', {
+                                style: 'currency',
+                                currency: 'EUR',
+                              })}
+                            </p>
+                          )}
+                          {deal.suggestion && (
+                            <p className="text-xs text-gray-400 mt-1">{deal.suggestion}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Upgrade Prompt (show if on free plan) */}
             {subscription.plan === "Free" && (

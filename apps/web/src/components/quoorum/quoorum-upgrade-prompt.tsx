@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-interface ForumUpgradePromptProps {
+interface QuoorumUpgradePromptProps {
   addonInfo: {
     id?: string
     name?: string
@@ -27,14 +27,14 @@ interface ForumUpgradePromptProps {
   }
 }
 
-export function ForumUpgradePrompt({ addonInfo }: ForumUpgradePromptProps) {
+export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
   const [isSubscribing, setIsSubscribing] = useState(false)
 
   const handleSubscribe = async () => {
     setIsSubscribing(true)
     // TODO: Integrate with payment provider
     setTimeout(() => {
-      toast.success('¡Forum Estratégico activado!')
+      toast.success('¡Quoorum Estratégico activado!')
       setIsSubscribing(false)
     }, 1500)
   }
@@ -68,7 +68,7 @@ export function ForumUpgradePrompt({ addonInfo }: ForumUpgradePromptProps) {
     {
       icon: Sparkles,
       title: 'Asesoría Automática',
-      description: 'Forum asesora automáticamente en conversaciones complejas',
+      description: 'Quoorum asesora automáticamente en conversaciones complejas',
     },
   ]
 
@@ -86,7 +86,7 @@ export function ForumUpgradePrompt({ addonInfo }: ForumUpgradePromptProps) {
       <div className="border-b border-[#2a3942] bg-[#202c33] px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#e9edef]">Forum Estratégico</h1>
+            <h1 className="text-2xl font-bold text-[#e9edef]">Quoorum Estratégico</h1>
             <p className="text-sm text-[#8696a0]">
               Panel de expertos IA para decisiones estratégicas
             </p>
@@ -107,7 +107,7 @@ export function ForumUpgradePrompt({ addonInfo }: ForumUpgradePromptProps) {
                 <Users className="h-8 w-8 text-purple-400" />
               </div>
               <CardTitle className="text-2xl text-[#e9edef]">
-                {addonInfo.name || 'Forum Estratégico'}
+                {addonInfo.name || 'Quoorum Estratégico'}
               </CardTitle>
               <CardDescription className="text-base text-[#8696a0]">
                 {addonInfo.description ||
@@ -136,7 +136,7 @@ export function ForumUpgradePrompt({ addonInfo }: ForumUpgradePromptProps) {
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Activar Forum Estratégico
+                    Activar Quoorum Estratégico
                   </>
                 )}
               </Button>
@@ -227,7 +227,7 @@ export function ForumUpgradePrompt({ addonInfo }: ForumUpgradePromptProps) {
               size="lg"
               className="bg-purple-500 px-8 hover:bg-purple-600"
             >
-              {isSubscribing ? 'Activando...' : 'Activar Forum Estratégico'}
+              {isSubscribing ? 'Activando...' : 'Activar Quoorum Estratégico'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
 

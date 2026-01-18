@@ -6,7 +6,16 @@ import { logger } from "@/lib/logger";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, XCircle, Loader2, ExternalLink } from "lucide-react";
+import {
+  Check,
+  CheckCircle,
+  CheckCircle2,
+  ExternalLink,
+  Link,
+  Loader2,
+  X,
+  XCircle,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function TestLoggingPage() {

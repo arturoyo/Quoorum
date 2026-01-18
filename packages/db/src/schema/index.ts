@@ -72,3 +72,7 @@ export type { ApiKey, NewApiKey } from "./api-keys";
 // Webhook Events (Idempotency)
 export { webhookEvents } from "./webhook-events";
 export type { WebhookEvent, NewWebhookEvent } from "./webhook-events";
+
+// User Context Files
+export { userContextFiles } from "./user-context-files";
+export type { UserContextFile, NewUserContextFile } from "./user-context-files";

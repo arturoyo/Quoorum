@@ -216,7 +216,7 @@ export const quoorumRouter = router({
   create: adminWithRateLimitProcedure
     .input(
       z.object({
-        question: z.string().min(10).max(1000),
+        question: z.string().min(10).max(5000, "La pregunta no puede exceder 5000 caracteres"),
         context: z
           .object({
             sources: z.array(z.object({ type: z.string(), content: z.string() })).optional(),
@@ -329,7 +329,7 @@ export const quoorumRouter = router({
   /**
    * Add comment to debate
    */
-  addComment: adminProcedure
+  addComment: protectedProcedure
     .input(
       z.object({
         debateId: z.string().uuid(),
@@ -360,7 +360,7 @@ export const quoorumRouter = router({
   /**
    * Get comments for debate
    */
-  getComments: adminProcedure
+  getComments: protectedProcedure
     .input(z.object({ debateId: z.string().uuid() }))
     .query(async ({ input }) => {
       const comments = await db
@@ -968,7 +968,38 @@ async function runDebateAsync(
   mode?: 'static' | 'dynamic'
 ) {
   try {
-    // Update status to in_progress
+    // Pre-flight check: Verify user has sufficient credits before starting
+    // Estimate max credits needed (worst case: 20 rounds * 4 agents * ~$0.02 per message)
+    // Average debate: 5 rounds * 4 agents * 500 tokens * $0.0001/token = $0.10 = 35 credits
+    // Conservative estimate: 20 rounds max = $0.40 = 140 credits
+    const estimatedCreditsMax = 140
+    
+    const { hasSufficientCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
+    const hasBalance = await hasSufficientCredits(userId, estimatedCreditsMax)
+    
+    if (!hasBalance) {
+      // Update debate to failed status with clear error message
+      await db
+        .update(quoorumDebates)
+        .set({ 
+          status: 'failed', 
+          completedAt: new Date(),
+          metadata: {
+            error: 'Insufficient credits',
+            errorDetails: `Required: ${estimatedCreditsMax} credits`,
+          }
+        })
+        .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)))
+      
+      logger.error('Debate failed: Insufficient credits', {
+        debateId,
+        userId,
+        requiredCredits: estimatedCreditsMax,
+      })
+      return // Exit early, don't start debate
+    }
+
+    // Update status to in_progress (only after credit check passes)
     await db
       .update(quoorumDebates)
       .set({ status: 'in_progress', startedAt: new Date() })

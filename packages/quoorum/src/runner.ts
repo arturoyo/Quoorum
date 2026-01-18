@@ -156,6 +156,12 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
           identity, // Pass narrative identity
         })
 
+        // Skip agent if it failed (null means it was skipped due to quota/balance issues)
+        if (!message) {
+          quoorumLogger.warn(`Agent ${agentKey} skipped in round ${roundNum}`, { sessionId, round: roundNum })
+          continue
+        }
+
         roundMessages.push(message)
         totalCost += message.costUsd
 
@@ -301,33 +307,70 @@ interface GenerateAgentResponseInput {
 
 export async function generateAgentResponse(
   input: GenerateAgentResponseInput
-): Promise<DebateMessage> {
+): Promise<DebateMessage | null> {
   const { sessionId, round, agent, prompt, identity } = input
-  const client = getAIClient()
+  
+  try {
+    const client = getAIClient()
 
-  const response = await client.generate(prompt, {
-    modelId: agent.model,
-    temperature: agent.temperature,
-    maxTokens: MAX_TOKENS_PER_MESSAGE,
-  })
+    const response = await client.generate(prompt, {
+      modelId: agent.model,
+      temperature: agent.temperature,
+      maxTokens: MAX_TOKENS_PER_MESSAGE,
+    })
 
-  const content = response.text.trim()
-  const tokensUsed = response.usage?.totalTokens ?? estimateTokens(content)
-  const costUsd = estimateAgentCost(agent, tokensUsed)
+    const content = response.text.trim()
+    const tokensUsed = response.usage?.totalTokens ?? estimateTokens(content)
+    const costUsd = estimateAgentCost(agent, tokensUsed)
 
-  return {
-    id: crypto.randomUUID(),
-    sessionId,
-    round,
-    agentKey: agent.key,
-    agentName: identity?.displayNameUser ?? agent.name, // Use narrative name or fallback to technical name
-    content,
-    isCompressed: true,
-    tokensUsed,
-    costUsd,
-    provider: agent.provider, // Denormalized for analytics
-    modelId: agent.model, // Denormalized for analytics
-    createdAt: new Date(),
+    return {
+      id: crypto.randomUUID(),
+      sessionId,
+      round,
+      agentKey: agent.key,
+      agentName: identity?.displayNameUser ?? agent.name, // Use narrative name or fallback to technical name
+      content,
+      isCompressed: true,
+      tokensUsed,
+      costUsd,
+      provider: agent.provider, // Denormalized for analytics
+      modelId: agent.model, // Denormalized for analytics
+      createdAt: new Date(),
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    
+    // Check if it's a quota/balance error - AI client already tried all fallbacks
+    const isQuotaError = 
+      errorMessage.includes("quota") ||
+      errorMessage.includes("rate limit") ||
+      errorMessage.includes("429") ||
+      errorMessage.includes("insufficient balance") ||
+      errorMessage.includes("Insufficient Balance") ||
+      errorMessage.includes("insufficient funds") ||
+      errorMessage.includes("balance") ||
+      errorMessage.includes("All AI providers failed");
+
+    if (isQuotaError) {
+      // Silently skip this agent - don't add it to the round
+      quoorumLogger.warn(`Agent ${agent.name} skipped due to quota/balance issues (all fallbacks exhausted)`, {
+        sessionId,
+        agentName: agent.name,
+        provider: agent.provider,
+        model: agent.model,
+      })
+      return null // Return null to indicate agent should be skipped
+    }
+
+    // For non-quota errors, log but still skip to avoid breaking debate flow
+    quoorumLogger.error(`Agent ${agent.name} failed with non-quota error`, new Error(errorMessage), {
+      sessionId,
+      agentName: agent.name,
+      provider: agent.provider,
+      model: agent.model,
+    })
+    
+    return null // Skip agent to avoid showing error messages to user
   }
 }
 

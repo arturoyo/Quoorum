@@ -55,6 +55,11 @@ case $change_type in
     ;;
 esac
 
+# Auto-fix errors primero
+echo ""
+echo "→ Ejecutando auto-fix de errores comunes..."
+pnpm fix:auto || echo "⚠️  Auto-fix falló, continuando..."
+
 # TypeCheck + Lint (siempre)
 echo ""
 echo "→ Ejecutando TypeCheck..."

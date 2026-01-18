@@ -20,7 +20,7 @@ const INVALID_UUID = 'not-a-uuid'
 describe('debates router schemas', () => {
   describe('createDraft input schema', () => {
     const createDraftSchema = z.object({
-      question: z.string().min(1, "La pregunta no puede estar vacía").max(1000),
+      question: z.string().min(1, "La pregunta no puede estar vacía").max(5000, "La pregunta no puede exceder 5000 caracteres"),
     })
 
     it('should accept valid question', () => {
@@ -42,9 +42,9 @@ describe('debates router schemas', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should reject question longer than 1000 chars', () => {
+    it('should reject question longer than 5000 chars', () => {
       const result = createDraftSchema.safeParse({
-        question: 'a'.repeat(1001),
+        question: 'a'.repeat(5001),
       })
       expect(result.success).toBe(false)
     })
@@ -53,7 +53,7 @@ describe('debates router schemas', () => {
   describe('create input schema', () => {
     const createSchema = z.object({
       draftId: z.string().uuid().optional(),
-      question: z.string().min(20, "La pregunta debe tener al menos 20 caracteres").max(1000),
+      question: z.string().min(20, "La pregunta debe tener al menos 20 caracteres").max(5000, "La pregunta no puede exceder 5000 caracteres"),
       context: z.string().optional(),
       category: z.string().optional(),
       expertCount: z.number().min(4).max(10).default(6),

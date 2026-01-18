@@ -495,7 +495,7 @@ export const contextAssessmentRouter = router({
       const assumptions = aiResult.assumptions.map((a, i) => ({
         id: `assumption-${i}`,
         dimension: a.dimension,
-        assumption: a.assumption,
+        assumption: typeof a.assumption === 'string' ? a.assumption : JSON.stringify(a.assumption),
         confidence: a.confidence,
         confirmed: null,
         questionType: a.questionType,
@@ -504,7 +504,7 @@ export const contextAssessmentRouter = router({
 
       const questions = aiResult.questions.map((q, i) => ({
         id: `question-${i}`,
-        question: q.question,
+        question: typeof q.question === 'string' ? q.question : JSON.stringify(q.question),
         dimension: q.dimension,
         priority: q.priority,
         questionType: q.questionType,
@@ -679,7 +679,7 @@ Responde SOLO con el JSON.`;
         // Muy pocas preguntas después de refinamiento (máximo 2)
         const questions = aiResult.questions.slice(0, 2).map((q, i) => ({
           id: `refined-question-${i}`,
-          question: q.question,
+          question: typeof q.question === 'string' ? q.question : JSON.stringify(q.question),
           dimension: q.dimension,
           priority: "nice-to-have" as const,
           questionType: q.questionType,
@@ -726,7 +726,7 @@ Responde SOLO con el JSON.`;
         const stillMissing = aiResult.questions.slice(0, 2);
         const questions = stillMissing.map((q, i) => ({
           id: `refined-question-${i}`,
-          question: q.question,
+          question: typeof q.question === 'string' ? q.question : JSON.stringify(q.question),
           dimension: q.dimension,
           priority: "nice-to-have" as const,
           questionType: q.questionType,

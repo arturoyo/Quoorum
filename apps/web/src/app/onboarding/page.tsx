@@ -17,7 +17,6 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import {
-  MessageCircle,
   ArrowRight,
   ArrowLeft,
   Loader2,
@@ -27,6 +26,7 @@ import {
   Sparkles,
   CheckCircle,
 } from "lucide-react";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
 
 const STEPS = [
   { id: 1, title: "Perfil", icon: User },
@@ -142,10 +142,10 @@ export default function OnboardingPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center">
-              <MessageCircle className="w-6 h-6 text-white" />
+            <div className="relative w-10 h-10 rounded-xl flex items-center justify-center bg-purple-600">
+              <QuoorumLogo size={40} showGradient={true} />
             </div>
-            <span className="text-2xl font-bold text-white">Forum</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
           </div>
         </div>
 
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
             <>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl text-white">
-                  ¡Bienvenido a Forum!
+                  ¡Bienvenido a Quoorum!
                 </CardTitle>
                 <CardDescription>
                   Cuéntanos un poco sobre ti
@@ -299,7 +299,7 @@ export default function OnboardingPage() {
                   Tu objetivo principal
                 </CardTitle>
                 <CardDescription>
-                  ¿Para qué usarás Forum principalmente?
+                  ¿Para qué usarás Quoorum principalmente?
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -341,7 +341,7 @@ export default function OnboardingPage() {
                   ¡Todo listo!
                 </CardTitle>
                 <CardDescription>
-                  Ya puedes empezar a usar Forum para tomar mejores decisiones
+                  Ya puedes empezar a usar Quoorum para tomar mejores decisiones
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
@@ -349,7 +349,7 @@ export default function OnboardingPage() {
                   <div className="p-4 rounded-lg bg-white/5">
                     <p className="text-gray-400 text-sm">Tu primer debate es gratis</p>
                     <p className="text-white font-medium">
-                      Prueba Forum con una pregunta de estrategia
+                      Prueba Quoorum con una pregunta de estrategia
                     </p>
                   </div>
                 </div>

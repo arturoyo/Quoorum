@@ -9,7 +9,7 @@ if (!resend && process.env.NODE_ENV === "development") {
   logWarning("RESEND_API_KEY is not set. Emails will not be sent.");
 }
 
-const FROM_EMAIL = process.env.FROM_EMAIL || "Forum <noreply@forum.ai>";
+const FROM_EMAIL = process.env.FROM_EMAIL || "Quoorum <noreply@quoorum.ai>";
 
 export interface EmailOptions {
   to: string;
@@ -42,7 +42,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 // Predefined email templates
 export const emailTemplates = {
   welcome: (name: string) => ({
-    subject: "¡Bienvenido a Forum!",
+    subject: "¡Bienvenido a Quoorum!",
     html: `
       <!DOCTYPE html>
       <html>
@@ -56,7 +56,7 @@ export const emailTemplates = {
               <div style="display: inline-block; background-color: #9333ea; padding: 12px; border-radius: 12px;">
                 <span style="color: white; font-size: 24px;">💬</span>
               </div>
-              <h1 style="color: white; margin-top: 16px; font-size: 28px;">Forum</h1>
+              <h1 style="color: white; margin-top: 16px; font-size: 28px;">Quoorum</h1>
             </div>
 
             <h2 style="color: white; font-size: 24px; margin-bottom: 16px;">
@@ -64,7 +64,7 @@ export const emailTemplates = {
             </h2>
 
             <p style="color: #94a3b8; font-size: 16px; line-height: 1.6;">
-              Gracias por unirte a Forum. Estás a un paso de tomar mejores decisiones
+              Gracias por unirte a Quoorum. Estás a un paso de tomar mejores decisiones
               con la ayuda de nuestros expertos IA.
             </p>
 
@@ -84,7 +84,7 @@ export const emailTemplates = {
         </body>
       </html>
     `,
-    text: `¡Hola ${name}!\n\nGracias por unirte a Forum. Estás a un paso de tomar mejores decisiones con la ayuda de nuestros expertos IA.\n\nVe al dashboard: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+    text: `¡Hola ${name}!\n\nGracias por unirte a Quoorum. Estás a un paso de tomar mejores decisiones con la ayuda de nuestros expertos IA.\n\nVe al dashboard: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
   }),
 
   debateCompleted: (name: string, debateQuestion: string, consensusScore: number) => ({

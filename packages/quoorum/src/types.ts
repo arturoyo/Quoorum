@@ -57,6 +57,7 @@ export interface DebateMessage {
   modelId?: string // AI model used (e.g., "gpt-4o", "claude-3-5-sonnet", "gemini-2.0-flash")
   translation?: string
   expert?: string // Expert ID for dynamic mode
+  isError?: boolean // True if this message represents an error (agent failed)
 }
 
 // ============================================================================

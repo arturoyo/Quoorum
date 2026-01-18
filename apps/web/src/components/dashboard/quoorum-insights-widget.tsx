@@ -84,7 +84,7 @@ export function QuoorumInsightsWidget({ compact = false, className }: QuoorumIns
   if (compact) {
     return (
       <Link
-        href="/dashboard/forum-insights"
+        href="/insights"
         prefetch={false}
         className={cn(
           'group flex items-center gap-3 rounded-xl border border-[#2a3942] bg-gradient-to-r from-purple-500/10 to-[#00a884]/5 p-3 transition-all hover:border-purple-500/30 hover:from-purple-500/20',
@@ -95,7 +95,7 @@ export function QuoorumInsightsWidget({ compact = false, className }: QuoorumIns
           <Users className="h-5 w-5 text-purple-400" />
         </div>
         <div className="flex-1">
-          <p className="text-[14px] font-medium text-[#e9edef]">Forum IA</p>
+          <p className="text-[14px] font-medium text-[#e9edef]">Quoorum IA</p>
           <p className="text-[11px] text-[#8696a0]">
             {stats?.totalConsultations ?? 0} consultas este mes
           </p>
@@ -119,12 +119,12 @@ export function QuoorumInsightsWidget({ compact = false, className }: QuoorumIns
             <Users className="h-5 w-5 text-purple-400" />
           </div>
           <div>
-            <p className="text-[14px] font-medium text-[#e9edef]">Forum IA</p>
+            <p className="text-[14px] font-medium text-[#e9edef]">Quoorum IA</p>
             <p className="text-[11px] text-[#8696a0]">Asesoría estratégica</p>
           </div>
         </div>
         <Link
-          href="/dashboard/forum-insights"
+          href="/insights"
           className="flex items-center gap-1 text-[11px] text-purple-400 hover:underline"
         >
           Ver todo
@@ -227,7 +227,7 @@ export function QuoorumInsightsWidget({ compact = false, className }: QuoorumIns
           <BarChart3 className="h-8 w-8 text-purple-400/50" />
           <p className="mt-2 text-[12px] text-[#8696a0]">Sin consultas aún</p>
           <p className="text-[10px] text-[#8696a0]/70">
-            Forum te asesora automáticamente en conversaciones complejas
+            Quoorum te asesora automáticamente en conversaciones complejas
           </p>
         </div>
       )}

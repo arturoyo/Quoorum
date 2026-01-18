@@ -115,7 +115,26 @@
       "Bash(pnpm --filter @wallie/quoorum test:*)",
       "Bash(npx vitest:*)",
       "Bash(pnpm drizzle-kit generate:*)",
-      "Bash(pnpm drizzle-kit push:*)"
+      "Bash(pnpm drizzle-kit push:*)",
+      "Bash(if [ -n \"$DATABASE_URL\" ])",
+      "Bash(then echo \"DATABASE_URL is set\")",
+      "Bash(else echo \"DATABASE_URL is not set\")",
+      "Bash(fi)",
+      "Bash(pnpm --filter @wallie/api typecheck:*)",
+      "Bash(pnpm --filter @wallie/web typecheck:*)",
+      "Bash(pnpm clean:*)",
+      "Bash(npx tsup:*)",
+      "Bash(npx tsup)",
+      "Bash(node_modules/.bin/tsup:*)",
+      "Bash(pgrep:*)",
+      "Bash(pwsh -Command:*)",
+      "Bash(npx next dev:*)",
+      "Bash(cmd.exe /c start /b start-dev.bat)",
+      "Bash(PGPASSWORD=postgres psql:*)",
+      "Bash(lsof:*)",
+      "Bash(ps:*)",
+      "Bash(kill:*)",
+      "Bash(xargs ls:*)"
     ]
   }
 }

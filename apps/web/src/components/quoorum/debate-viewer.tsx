@@ -114,7 +114,10 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
   }
 
   const currentRoundData = debate.rounds?.[currentRound]
-  const progress = debate.rounds ? ((currentRound + 1) / debate.rounds.length) * 100 : 0
+  // Use totalRounds from debate if available, otherwise use rounds.length (completed rounds)
+  // For in-progress debates, we might not know totalRounds yet, so use rounds.length
+  const totalRounds = (debate as { totalRounds?: number }).totalRounds ?? debate.rounds?.length ?? 0
+  const progress = totalRounds > 0 ? ((currentRound + 1) / totalRounds) * 100 : 0
 
   // Theme name mapping
   const getThemeName = (themeId?: string) => {
@@ -156,7 +159,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
         <CardContent className="p-4">
           <div className="mb-2 flex items-center justify-between text-sm">
             <span className="text-[#8696a0]">
-              Ronda {currentRound + 1} de {debate.rounds?.length ?? 0}
+              Ronda {currentRound + 1} de {totalRounds}
             </span>
             <span className="text-[#8696a0]">{progress.toFixed(0)}%</span>
           </div>

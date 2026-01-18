@@ -1,5 +1,5 @@
 /**
- * Monitoring utilities for Forum
+ * Monitoring utilities for Quoorum
  * In production, these should integrate with Sentry/PostHog
  * In development, they use structured console output
  */
@@ -12,7 +12,7 @@ interface LogContext {
 
 export function logError(error: Error, context?: LogContext): void {
   if (isDev) {
-    console.error("[Forum Error]", {
+    console.error("[Quoorum Error]", {
       message: error.message,
       stack: error.stack,
       ...context,
@@ -24,14 +24,14 @@ export function logError(error: Error, context?: LogContext): void {
 
 export function logInfo(message: string, data?: LogContext): void {
   if (isDev) {
-    console.info("[Forum]", message, data);
+    console.info("[Quoorum]", message, data);
   }
   // Production: structured logging would go here
 }
 
 export function logWarning(message: string, data?: LogContext): void {
   if (isDev) {
-    console.warn("[Forum Warning]", message, data);
+    console.warn("[Quoorum Warning]", message, data);
   }
   // Production: Sentry.captureMessage(message, "warning");
 }

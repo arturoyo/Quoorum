@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
 import { AnimatedBackground } from "@/components/layout/animated-background";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+
 
 export default function AuthLayout({
   children,
@@ -17,12 +18,12 @@ export default function AuthLayout({
           <Link href="/" className="flex items-center gap-3 group w-fit">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition" />
-              <div className="relative w-12 h-12 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-                <MessageCircle className="w-6 h-6 text-white" />
+              <div className="relative w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0A0A0F]">
+                <QuoorumLogo size={48} showGradient={true} />
               </div>
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-              Forum
+              Quoorum
             </span>
           </Link>
         </div>

@@ -163,35 +163,35 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
     data: notifications,
     isLoading,
     refetch,
-  } = api.notifications.list.useQuery({
+  } = api.quoorumNotifications.list.useQuery({
     limit: 50,
     unreadOnly: activeTab === 'unread',
   })
 
-  const { data: unreadCount } = api.notifications.unreadCount.useQuery()
+  const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery()
 
-  const markAsRead = api.notifications.markRead.useMutation({
+  const markAsRead = api.quoorumNotifications.markAsRead.useMutation({
     onSuccess: () => {
       void refetch()
     },
   })
 
-  const markAllAsRead = api.notifications.markAllRead.useMutation({
+  const markAllAsRead = api.quoorumNotifications.markAllAsRead.useMutation({
     onSuccess: () => {
       toast.success('Todas las notificaciones marcadas como leídas')
       void refetch()
     },
   })
 
-  const deleteNotification = api.notifications.delete.useMutation({
+  const deleteNotification = api.quoorumNotifications.archive.useMutation({
     onSuccess: () => {
       void refetch()
     },
   })
 
-  const clearAll = api.notifications.clearAll.useMutation({
+  const clearAll = api.quoorumNotifications.archiveAllRead.useMutation({
     onSuccess: () => {
-      toast.success('Todas las notificaciones eliminadas')
+      toast.success('Todas las notificaciones archivadas')
       void refetch()
     },
   })
@@ -326,7 +326,7 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
 // ============================================================================
 
 export function NotificationBell({ onClick }: { onClick?: () => void }) {
-  const { data: unreadCount } = api.notifications.unreadCount.useQuery()
+  const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery()
 
   return (
     <button

@@ -20,6 +20,8 @@
     "backup": "bash scripts/backup-db.sh",
     "rollback": "bash scripts/rollback-db.sh",
     "check": "pnpm preflight && pnpm typecheck && pnpm lint",
+    "fix:auto": "tsx scripts/auto-fix-errors.ts",
+    "fix:check": "pnpm fix:auto && pnpm typecheck && pnpm lint",
     "prepare": "husky"
   },
   "devDependencies": {
