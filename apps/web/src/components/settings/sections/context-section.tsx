@@ -34,6 +34,7 @@ import {
   Edit,
   FileText,
   Upload,
+  UploadCloud,
 } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { ERROR_MESSAGES, getErrorMessage } from '@/lib/error-messages'
@@ -50,6 +51,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
   const [editingFile, setEditingFile] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [fileToDelete, setFileToDelete] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Form state
@@ -199,10 +201,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
     toggleActive.mutate({ id, isActive: !currentStatus })
   }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFile = event.target.files?.[0]
-    if (!uploadedFile) return
-
+  const processFile = (uploadedFile: File) => {
     // Only accept text files
     if (!uploadedFile.type.startsWith('text/') && !uploadedFile.name.endsWith('.txt') && !uploadedFile.name.endsWith('.md')) {
       toast.error('Solo se permiten archivos de texto (.txt, .md)')
@@ -224,11 +223,49 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
         name: prev.name || uploadedFile.name.replace(/\.[^/.]+$/, ''), // Use filename without extension as default name
         contentType: uploadedFile.type || 'text/plain',
       }))
+      toast.success(`Archivo "${uploadedFile.name}" cargado correctamente`)
     }
     reader.onerror = () => {
       toast.error('Error al leer el archivo')
     }
     reader.readAsText(uploadedFile)
+  }
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = event.target.files?.[0]
+    if (!uploadedFile) return
+    processFile(uploadedFile)
+  }
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const files = e.dataTransfer.files
+    if (files && files.length > 0) {
+      const file = files[0]
+      if (file) {
+        processFile(file)
+      }
+    }
   }
 
   const formatFileSize = (bytes: number | undefined) => {
@@ -300,27 +337,49 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
 
               <div className="space-y-2">
                 <Label>Subir Archivo (opcional)</Label>
-                <div className="flex items-center gap-2">
-                  <Input
+                <div
+                  onDragEnter={handleDragEnter}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`
+                    relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+                    transition-all duration-200 ease-in-out
+                    ${isDragging
+                      ? 'border-purple-500 bg-purple-500/10 scale-[1.02]'
+                      : 'border-white/20 bg-slate-800/30 hover:border-purple-500/50 hover:bg-slate-800/50'
+                    }
+                  `}
+                >
+                  <input
                     ref={fileInputRef}
                     type="file"
                     accept=".txt,.md,text/*"
                     onChange={handleFileUpload}
-                    className="border-white/10 bg-slate-800/50 text-white file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-white"
+                    className="hidden"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800"
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <div className={`
+                      rounded-full p-3 transition-all duration-200
+                      ${isDragging ? 'bg-purple-500/20 scale-110' : 'bg-purple-500/10'}
+                    `}>
+                      {isDragging ? (
+                        <UploadCloud className="h-8 w-8 text-purple-400 animate-pulse" />
+                      ) : (
+                        <Upload className="h-8 w-8 text-purple-400" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white mb-1">
+                        {isDragging ? '¡Suelta el archivo aquí!' : 'Arrastra un archivo o haz clic para seleccionar'}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Solo archivos de texto (.txt, .md). Máximo 500KB.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-gray-400">
-                  Solo archivos de texto (.txt, .md). Máximo 500KB.
-                </p>
               </div>
 
               <div className="space-y-2">
