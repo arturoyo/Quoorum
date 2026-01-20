@@ -107,7 +107,6 @@ type ReportType =
   | 'single_debate'
   | 'weekly_summary'
   | 'monthly_summary'
-  | 'deal_analysis'
   | 'expert_performance'
   | 'custom'
 
@@ -117,7 +116,6 @@ const reportTypeLabels: Record<ReportType, string> = {
   single_debate: 'Debate Individual',
   weekly_summary: 'Resumen Semanal',
   monthly_summary: 'Resumen Mensual',
-  deal_analysis: 'Análisis de Oportunidades',
   expert_performance: 'Rendimiento de Expertos',
   custom: 'Personalizado',
 }
@@ -453,7 +451,6 @@ function GenerateReportDialog({
                 <SelectItem value="weekly_summary">Resumen Semanal</SelectItem>
                 <SelectItem value="monthly_summary">Resumen Mensual</SelectItem>
                 <SelectItem value="expert_performance">Rendimiento de Expertos</SelectItem>
-                <SelectItem value="deal_analysis">Análisis de Oportunidades</SelectItem>
               </SelectContent>
             </Select>
           </div>

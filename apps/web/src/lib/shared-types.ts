@@ -69,30 +69,3 @@ export type TeamMemberResponse = {
   name: string | null
   avatar: string | null
 }
-
-export interface LinkedDeal {
-  link: {
-    id: string
-    userId: string
-    debateId: string
-    dealId: string
-    context: string
-    createdAt: Date
-    updatedAt: Date
-    outcomeData: Record<string, unknown> | null
-  }
-  deal: {
-    id: string
-    name: string
-    title?: string | null
-    value: number | null
-    stage: string | null
-    clientId: string | null
-    description: string | null
-    metadata: Record<string, unknown> | null
-    notes: string | null
-    createdAt: Date
-    updatedAt: Date
-    expectedCloseDate: Date | null
-  }
-}

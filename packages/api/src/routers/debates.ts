@@ -268,7 +268,7 @@ export const debatesRouter = router({
 
       // Trigger debate execution asynchronously via Inngest
       await inngest.send({
-        name: "forum/debate.created",
+        name: "quoorum/debate.created",
         data: {
           debateId: debate.id,
           userId: ctx.user.id,
