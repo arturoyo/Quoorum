@@ -296,27 +296,26 @@ export default function DebatePage({ params }: DebatePageProps) {
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
-        <div className="relative flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div>
-              {/* Breadcrumbs */}
-              <div className="flex items-center gap-2 mb-1 text-sm">
-                <Link
-                  href="/debates"
-                  className="text-gray-400 hover:text-white transition-colors flex items-center gap-1"
-                >
-                  <ArrowLeft className="h-3 w-3" />
-                  Debates
-                </Link>
-                <ChevronRight className="h-3 w-3 text-gray-600" />
-                <span className="text-gray-300 truncate max-w-xs">
-                  {debate.metadata?.title || debate.question}
-                </span>
-              </div>
-              <h1 className="text-lg font-semibold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent line-clamp-1">
-                {debate.question}
-              </h1>
-              <div className="flex items-center gap-2 text-xs text-gray-400">
+        <div className="relative flex min-h-16 py-3 items-start md:items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            {/* Breadcrumbs */}
+            <div className="flex items-center gap-2 mb-2 text-sm">
+              <Link
+                href="/debates"
+                className="text-gray-400 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Debates
+              </Link>
+              <ChevronRight className="h-3 w-3 text-gray-600 flex-shrink-0" />
+              <span className="text-gray-300 truncate">
+                {debate.metadata?.title || debate.question}
+              </span>
+            </div>
+            <h1 className="text-lg md:text-xl font-semibold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent line-clamp-2 mb-2">
+              {debate.question}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-gray-400">
                 <Badge
                   className={cn(
                     'flex items-center gap-1',
@@ -352,13 +351,12 @@ export default function DebatePage({ params }: DebatePageProps) {
                     <span>{debate.experts.length} expertos</span>
                   </>
                 )}
-              </div>
             </div>
           </div>
 
           {/* Consensus Score */}
           {debate.consensusScore !== null && debate.consensusScore !== undefined && (
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 flex-shrink-0">
               <div className="text-xs text-gray-400">Consenso</div>
               <div className="h-12 w-12 rounded-full border-4 border-white/10 bg-slate-950 flex items-center justify-center">
                 {debate.consensusScore >= 0.7 ? (
