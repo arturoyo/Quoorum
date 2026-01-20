@@ -157,7 +157,9 @@
       "Bash(\"C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe\" exec quoorum-postgres psql -U postgres -d quoorum -c \"SELECT COUNT\\(*\\) as total_experts FROM quoorum_custom_experts;\")",
       "Bash(npm install:*)",
       "Bash(npm --version)",
-      "Bash(xargs kill -9)"
+      "Bash(xargs kill -9)",
+      "Bash(git log:*)",
+      "Bash(git fetch:*)"
     ]
   }
 }
