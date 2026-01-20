@@ -397,3 +397,25 @@ export type {
   FinalSynthesis,
   FinalSynthesisOption,
 } from './types'
+
+// ============================================================================
+// CORPORATE INTELLIGENCE (Company Context System)
+// ============================================================================
+
+export {
+  CompanyContextStore,
+  createCompanyContext,
+  createStartupContext,
+  buildCorporateContext,
+} from './orchestration/company-context'
+
+export type {
+  CompanyProfile,
+  CompanyMetrics,
+  Competitor,
+  MarketContext,
+  StrategicContext,
+  CompanyContext,
+  DepartmentContext,
+  // Note: CorporateContext is exported from runner-dynamic.ts
+} from './orchestration/company-context'

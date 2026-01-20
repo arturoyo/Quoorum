@@ -48,6 +48,7 @@ export interface CorporateContext {
     departmentContext: string // Layer 3: KPIs, processes, reports
     customPrompt?: string // Layer 4: Personality/style customization
   }>
+  contextSummary?: string // Optional pre-formatted context for AI prompts
 }
 
 export interface RunDebateOptions {

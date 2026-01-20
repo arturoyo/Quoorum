@@ -11,7 +11,7 @@ import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { router, protectedProcedure, expensiveRateLimitedProcedure } from "../trpc.js";
 import { db } from "@quoorum/db";
 import { quoorumDebates, users, userContextFiles as userContextFilesTable } from "@quoorum/db/schema";
-import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator, buildCorporateContext } from "@quoorum/quoorum";
+import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator, buildCorporateContext, selectTheme } from "@quoorum/quoorum";
 import type { ExpertProfile, PatternType } from "@quoorum/quoorum";
 import { logger } from "../lib/logger.js";
 import { inngest } from "../lib/inngest-client.js";
@@ -527,6 +527,32 @@ export const debatesRouter = router({
         );
 
       return { success: true };
+    }),
+
+  /**
+   * Preview narrative theme for a debate question
+   * Analyzes question and context to suggest appropriate theme
+   */
+  previewTheme: protectedProcedure
+    .input(
+      z.object({
+        question: z.string().min(1, "La pregunta no puede estar vacía"),
+        context: z.string().optional(),
+      })
+    )
+    .query(({ input }) => {
+      // Use Theme Engine to analyze question
+      const themeSelection = selectTheme(input.question, input.context);
+
+      return {
+        themeId: themeSelection.themeId,
+        themeName: themeSelection.theme.name,
+        themeDescription: themeSelection.theme.description,
+        themeEmoji: themeSelection.theme.emoji,
+        reason: themeSelection.reason,
+        confidence: themeSelection.confidence,
+        shouldUseTheme: themeSelection.confidence >= 0.4, // Threshold check
+      };
     }),
 
   /**
