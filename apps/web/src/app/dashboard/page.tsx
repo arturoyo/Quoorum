@@ -98,6 +98,24 @@ export default function DashboardPage() {
     }
   );
 
+  // Fetch total experts count (library + custom)
+  const { data: libraryCounts } = api.experts.libraryCategoryCounts.useQuery(
+    { activeOnly: true },
+    { 
+      enabled: !isAuthChecking && !!user,
+      retry: false,
+    }
+  );
+
+  // Fetch user's custom experts count
+  const { data: myExperts = [] } = api.experts.myExperts.useQuery(
+    { activeOnly: true, limit: 100 },
+    { 
+      enabled: !isAuthChecking && !!user,
+      retry: false,
+    }
+  );
+
   // Fetch notifications for widget (with error handling)
   const { data: unreadCount, error: notificationsError } = api.quoorumNotifications.getUnreadCount.useQuery(
     undefined,
@@ -199,11 +217,13 @@ export default function DashboardPage() {
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-300">Total Debates</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{displayStats.totalDebates}</p>
+                  <p className="text-sm text-gray-300">Total de Expertos</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">
+                    {(libraryCounts?.total || 0) + (myExperts?.length || 0)}
+                  </p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <MessageCircle className="w-6 h-6 text-purple-400" />
+                  <Users className="w-6 h-6 text-purple-400" />
                 </div>
               </div>
             </CardContent>
@@ -214,11 +234,11 @@ export default function DashboardPage() {
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-300">Completados</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{displayStats.completedDebates}</p>
+                  <p className="text-sm text-gray-300">Nº de Nuestros Expertos</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{myExperts?.length || 0}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-green-400" />
+                  <Users className="w-6 h-6 text-green-400" />
                 </div>
               </div>
             </CardContent>
@@ -286,22 +306,23 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-4 max-h-[calc(100vh-400px)] overflow-y-auto pr-2">
                     {recentDebates.map((debate) => (
                     <Link
                       key={debate.id}
                       href={`/debates/${debate.id}`}
-                      className="block p-4 rounded-lg bg-white/5 hover:bg-white/10 transition"
+                      className="block p-5 rounded-lg bg-white/5 hover:bg-white/10 transition cursor-pointer min-h-[120px] flex flex-col justify-between"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <p className="text-white font-medium truncate break-words">{debate.question}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-300">
+                          <p className="text-white font-medium text-base leading-snug break-words mb-3">{debate.question}</p>
+                          <div className="flex items-center gap-4 text-sm text-gray-300">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
                               {new Date(debate.createdAt).toLocaleDateString("es-ES", {
                                 day: "numeric",
                                 month: "short",
+                                year: "numeric",
                               })}
                             </span>
                             {debate.consensusScore !== null && (
