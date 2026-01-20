@@ -583,32 +583,47 @@ export default function NewDebatePage() {
 
     // First message is the main question
     if (messages.length === 0) {
-      console.log('[DEBUG] Setting question:', input)
       setContextState((prev) => ({ ...prev, question: input }))
+      setIsGeneratingQuestions(true)
 
-      // First, save the debate as draft
-      console.log('[DEBUG] Creating draft debate with question:', input)
-      createDraftMutation.mutate(
-        { question: input },
-        {
-          onSuccess: (draftData) => {
-            console.log('[DEBUG] Draft created successfully:', draftData)
-            // Now analyze the question with full content (including files)
-            analyzeMutation.mutate({
-              userInput: fullContent, // Use full content with files
-              debateType: 'general',
-            })
-          },
-          onError: (error) => {
-            console.error('[DEBUG] Failed to create draft:', error)
-            // Continue with analysis even if draft creation fails
-            analyzeMutation.mutate({
-              userInput: fullContent, // Use full content with files
-              debateType: 'general',
-            })
-          },
+      // Generate dynamic contextual questions
+      try {
+        const questions = await generateQuestionsMutation.mutateAsync({
+          question: input,
+          context: fullContent !== input ? fullContent : undefined,
+        })
+
+        // Add IDs to questions
+        const questionsWithIds = questions.map((q: any, index: number) => ({
+          ...q,
+          id: `q-${index}`,
+        }))
+
+        setContextualQuestions(questionsWithIds)
+        setCurrentQuestionIndex(0)
+        setIsGeneratingQuestions(false)
+
+        // Show first question
+        if (questionsWithIds.length > 0) {
+          const firstQuestion = questionsWithIds[0]
+          const questionMsg: Message = {
+            id: `msg-${Date.now()}`,
+            role: 'ai',
+            content: firstQuestion.content,
+            type: firstQuestion.type,
+            questionType: firstQuestion.questionType,
+            options: firstQuestion.options,
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, questionMsg])
         }
-      )
+
+        setIsLoading(false)
+      } catch (error) {
+        setIsGeneratingQuestions(false)
+        setIsLoading(false)
+        toast.error('Error al generar preguntas. Intenta de nuevo.')
+      }
     } else if (pendingQuestionId) {
       // Check if pending is an assumption or a question
       const isAssumption = assessment?.assumptions.some((a: any) => a.id === pendingQuestionId)
@@ -991,6 +1006,97 @@ export default function NewDebatePage() {
       // Fallback to original context if AI fails
       return contextInfo
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // DYNAMIC CONTEXTUAL QUESTIONS SYSTEM
+  // ═══════════════════════════════════════════════════════════
+  interface ContextualQuestion {
+    id: string
+    type: 'question' | 'assumption'
+    questionType: 'yes_no' | 'multiple_choice' | 'free_text'
+    content: string
+    options?: string[]
+    answer?: string | boolean
+  }
+
+  const [contextualQuestions, setContextualQuestions] = useState<ContextualQuestion[]>([])
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false)
+
+  // Mutation to generate contextual questions
+  const generateQuestionsMutation = api.debates.generateContextualQuestions.useMutation()
+
+  // Handler for button responses (yes/no or multiple choice)
+  const handleButtonResponse = async (answer: string | boolean) => {
+    const currentQuestion = contextualQuestions[currentQuestionIndex]
+    if (!currentQuestion) return
+
+    // Update question with answer
+    const updatedQuestions = [...contextualQuestions]
+    updatedQuestions[currentQuestionIndex] = {
+      ...currentQuestion,
+      answer,
+    }
+    setContextualQuestions(updatedQuestions)
+
+    // Add user message showing the answer
+    let displayContent: string
+    if (typeof answer === 'boolean') {
+      displayContent = answer ? 'Sí' : 'No'
+    } else {
+      displayContent = answer
+    }
+
+    const userMsg: Message = {
+      id: `msg-${Date.now()}`,
+      role: 'user',
+      content: displayContent,
+      timestamp: new Date(),
+    }
+    setMessages((prev) => [...prev, userMsg])
+
+    // Move to next question or finish
+    if (currentQuestionIndex < contextualQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      setIsLoading(true)
+
+      // Show next question after delay
+      setTimeout(() => {
+        const nextQuestion = updatedQuestions[currentQuestionIndex + 1]
+        if (nextQuestion) {
+          const questionMsg: Message = {
+            id: `msg-${Date.now()}`,
+            role: 'ai',
+            content: nextQuestion.content,
+            type: nextQuestion.type,
+            questionType: nextQuestion.questionType,
+            options: nextQuestion.options,
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, questionMsg])
+        }
+        setIsLoading(false)
+      }, 800)
+    } else {
+      // All questions answered, move to experts phase
+      setContextState(prev => ({ ...prev, readyToStart: true }))
+      setCurrentPhase('expertos')
+      setIsLoading(false)
+
+      toast.success('¡Contexto completado! Ahora selecciona los expertos.')
+    }
+  }
+
+  // Handler for free text responses
+  const handleTextResponse = async () => {
+    if (!input.trim()) return
+
+    const currentQuestion = contextualQuestions[currentQuestionIndex]
+    if (!currentQuestion) return
+
+    await handleButtonResponse(input)
+    setInput('')
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -1646,21 +1752,72 @@ export default function NewDebatePage() {
               <div className="space-y-4">
                 {/* Messages */}
                 <div className="space-y-4">
-                  {messages.map((msg) => (
-                    <div key={msg.id} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
-                      <div className={cn(
-                        'rounded-lg px-4 py-3 relative max-w-[80%]',
-                        msg.role === 'user'
-                          ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                          : 'bg-blue-700 text-white shadow-md'
-                      )}>
-                        <p className="whitespace-pre-wrap">{msg.content}</p>
-                        <div className="mt-1 text-xs text-gray-300">
-                          {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                  {messages.map((msg, index) => {
+                    const isLastMessage = index === messages.length - 1
+                    const hasQuestionType = msg.questionType && msg.role === 'ai' && isLastMessage && !isLoading
+
+                    return (
+                      <div key={msg.id} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                        <div className={cn(
+                          'rounded-lg px-4 py-3 relative max-w-[80%]',
+                          msg.role === 'user'
+                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
+                            : 'bg-blue-700 text-white shadow-md'
+                        )}>
+                          {/* Badge for assumptions */}
+                          {msg.type === 'assumption' && (
+                            <div className="mb-2 flex items-center gap-2">
+                              <MessageSquare className="h-4 w-4 text-blue-200" />
+                              <span className="text-xs text-blue-200 font-medium">Suposición</span>
+                            </div>
+                          )}
+
+                          <p className="whitespace-pre-wrap">{msg.content}</p>
+
+                          {/* Dynamic buttons for yes/no questions */}
+                          {hasQuestionType && msg.questionType === 'yes_no' && (
+                            <div className="mt-4 flex gap-2">
+                              <Button
+                                onClick={() => void handleButtonResponse(true)}
+                                disabled={isLoading}
+                                className="flex-1 bg-green-600 hover:bg-green-500 text-white border-0"
+                              >
+                                Sí
+                              </Button>
+                              <Button
+                                onClick={() => void handleButtonResponse(false)}
+                                disabled={isLoading}
+                                className="flex-1 bg-red-600 hover:bg-red-500 text-white border-0"
+                              >
+                                No
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Dynamic buttons for multiple choice */}
+                          {hasQuestionType && msg.questionType === 'multiple_choice' && msg.options && (
+                            <div className="mt-4 flex flex-col gap-2">
+                              {msg.options.map((option, optIdx) => (
+                                <Button
+                                  key={optIdx}
+                                  onClick={() => void handleButtonResponse(option)}
+                                  disabled={isLoading}
+                                  className="w-full bg-purple-600 hover:bg-purple-500 text-white border-0 justify-start"
+                                >
+                                  {option}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Timestamp */}
+                          <div className="mt-1 text-xs text-gray-300">
+                            {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
 
                 {/* Continue Button when ready */}
@@ -1678,31 +1835,35 @@ export default function NewDebatePage() {
                   </div>
                 )}
 
-                {/* Input for additional context */}
-                <div className="border-t border-white/10 pt-4">
-                  <div className="flex gap-2 items-stretch">
-                    <Input
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          void handleSendMessage()
-                        }
-                      }}
-                      placeholder={contextState.readyToStart ? "Añade más contexto si lo deseas..." : "Responde la pregunta..."}
-                      disabled={isLoading}
-                      className="flex-1 border-2 bg-slate-900/60 backdrop-blur-sm text-white placeholder:text-gray-400 focus:ring-2 focus:ring-purple-500/20 border-purple-500/30 h-full"
-                    />
-                    <Button
-                      onClick={() => void handleSendMessage()}
-                      disabled={isLoading || !input.trim()}
-                      className="bg-purple-600 hover:bg-purple-500 text-white border-0 h-full min-w-[60px] w-[60px] flex items-center justify-center"
-                    >
-                      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                    </Button>
+                {/* Input for free text responses or when no buttons needed */}
+                {!isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'ai' &&
+                 messages[messages.length - 1]?.questionType === 'free_text' && (
+                  <div className="border-t border-white/10 pt-4">
+                    <div className="flex gap-2 items-stretch">
+                      <Input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault()
+                            void handleTextResponse()
+                          }
+                        }}
+                        placeholder="Escribe tu respuesta..."
+                        disabled={isLoading}
+                        className="flex-1 border-2 bg-slate-900/60 backdrop-blur-sm text-white placeholder:text-gray-400 focus:ring-2 focus:ring-purple-500/20 border-purple-500/30 h-full"
+                        autoFocus
+                      />
+                      <Button
+                        onClick={() => void handleTextResponse()}
+                        disabled={isLoading || !input.trim()}
+                        className="bg-purple-600 hover:bg-purple-500 text-white border-0 h-full min-w-[60px] w-[60px] flex items-center justify-center"
+                      >
+                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>

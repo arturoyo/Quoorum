@@ -901,6 +901,154 @@ export const debatesRouter = router({
         return input.contextInfo;
       }
     }),
+
+  /**
+   * Generate dynamic contextual questions
+   * AI analyzes the question and decides:
+   * - Whether to ask or assume
+   * - Type of response (yes/no, multiple choice, free text)
+   * - What to ask about
+   */
+  generateContextualQuestions: protectedProcedure
+    .input(
+      z.object({
+        question: z.string().min(10, "Question must be at least 10 characters"),
+        context: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      logger.info("[Contextual Questions] Generating dynamic questions", {
+        questionLength: input.question.length,
+      });
+
+      try {
+        const { getAIClient } = await import("@quoorum/ai");
+        const aiClient = getAIClient();
+
+        const systemPrompt = `Eres un asistente que ayuda a recopilar contexto para debates estratégicos.
+
+Analiza la pregunta del usuario y genera 3-5 preguntas contextuales DINÁMICAS:
+
+1. **Decide el tipo de interacción**:
+   - "question": Pregunta directa que necesita respuesta
+   - "assumption": Suposición inteligente que el usuario valida
+
+2. **Decide el tipo de respuesta óptimo**:
+   - "yes_no": Para preguntas binarias obvias (¿Ya has intentado X? ¿Tienes presupuesto?)
+   - "multiple_choice": Para opciones claras y limitadas (¿Qué industria? ¿Qué tamaño de equipo?)
+   - "free_text": Para respuestas abiertas y complejas (¿Cuál es tu estrategia actual?)
+
+3. **Sé inteligente**:
+   - Si algo es obvio, ASÚMELO y pregunta "¿Correcto?" (assumption + yes_no)
+   - Si hay opciones claras (2-4), usa multiple_choice con botones
+   - Solo usa free_text cuando realmente necesites detalles
+
+4. **Ordena por importancia**: Pregunta lo más crítico primero.
+
+RESPONDE SOLO CON JSON VÁLIDO (sin markdown, sin explicaciones):
+[
+  {
+    "type": "question" | "assumption",
+    "questionType": "yes_no" | "multiple_choice" | "free_text",
+    "content": "Texto de la pregunta/suposición",
+    "options": ["Opción 1", "Opción 2", ...] // Solo si questionType === "multiple_choice"
+  }
+]`;
+
+        const userPrompt = `Pregunta del usuario: "${input.question}"
+${input.context ? `\nContexto adicional: "${input.context}"` : ""}
+
+Genera 3-5 preguntas contextuales DINÁMICAS con tipos de respuesta óptimos.`;
+
+        const response = await aiClient.generateWithSystem(
+          systemPrompt,
+          userPrompt,
+          {
+            modelId: "gemini-2.0-flash-exp",
+            temperature: 0.7,
+            maxTokens: 1000,
+            responseFormat: "json",
+          }
+        );
+
+        // Parse and validate response
+        let questions;
+        try {
+          // Remove markdown code blocks if present
+          let cleanedText = response.text.trim();
+          if (cleanedText.startsWith("```json")) {
+            cleanedText = cleanedText.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+          } else if (cleanedText.startsWith("```")) {
+            cleanedText = cleanedText.replace(/```\n?/g, "");
+          }
+
+          questions = JSON.parse(cleanedText);
+
+          // Validate structure
+          if (!Array.isArray(questions)) {
+            throw new Error("Response is not an array");
+          }
+
+          // Validate each question has required fields
+          questions = questions.map((q: any) => ({
+            type: q.type || "question",
+            questionType: q.questionType || "free_text",
+            content: q.content || q.question || "",
+            options: q.questionType === "multiple_choice" ? q.options || [] : undefined,
+          }));
+
+        } catch (parseError) {
+          logger.error("[Contextual Questions] Failed to parse AI response", {
+            error: parseError instanceof Error ? parseError.message : String(parseError),
+            rawResponse: response.text,
+          });
+
+          // Fallback to generic questions
+          questions = [
+            {
+              type: "question",
+              questionType: "free_text",
+              content: "¿Cuál es tu objetivo principal con esta decisión?",
+            },
+            {
+              type: "question",
+              questionType: "yes_no",
+              content: "¿Tienes alguna restricción de presupuesto o tiempo?",
+            },
+            {
+              type: "question",
+              questionType: "free_text",
+              content: "¿Qué información adicional sería útil para tomar esta decisión?",
+            },
+          ];
+        }
+
+        logger.info("[Contextual Questions] Generated successfully", {
+          count: questions.length,
+          types: questions.map((q: any) => `${q.type}:${q.questionType}`),
+        });
+
+        return questions;
+      } catch (error) {
+        logger.error("[Contextual Questions] Generation failed", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        // Fallback to generic questions
+        return [
+          {
+            type: "question",
+            questionType: "free_text",
+            content: "¿Cuál es tu objetivo principal con esta decisión?",
+          },
+          {
+            type: "question",
+            questionType: "yes_no",
+            content: "¿Tienes alguna restricción de presupuesto o tiempo?",
+          },
+        ];
+      }
+    }),
 });
 
 /**
