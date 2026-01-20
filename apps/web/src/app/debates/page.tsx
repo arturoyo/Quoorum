@@ -221,20 +221,31 @@ export default function DebatesPage() {
                 <Card
                   key={debate.id}
                   className="bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer transition-colors relative group"
-                  onClick={() => router.push(`/debates/${debate.id}`)}
+                  onClick={(e) => {
+                    // Si no estamos seleccionando, navegar
+                    if (selectedDebates.size === 0) {
+                      router.push(`/debates/${debate.id}`);
+                    }
+                  }}
                 >
-                  {/* Checkbox - Always visible with highlight */}
+                  {/* Checkbox - Visible on hover or when selected */}
                   <div
-                    className="absolute top-4 right-4 z-10 bg-slate-800/80 backdrop-blur-sm p-2 rounded-lg border border-white/20 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all"
+                    className={`absolute top-4 left-4 z-10 transition-all ${
+                      selectedDebates.has(debate.id) || selectedDebates.size > 0
+                        ? 'opacity-100'
+                        : 'opacity-0 group-hover:opacity-100'
+                    }`}
                     onClick={(e) => handleToggleSelect(debate.id, e)}
                   >
-                    <Checkbox
-                      checked={selectedDebates.has(debate.id)}
-                      className="h-5 w-5 border-white/40 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
-                    />
+                    <div className="bg-slate-800/90 backdrop-blur-sm p-2 rounded-lg border-2 border-white/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all cursor-pointer">
+                      <Checkbox
+                        checked={selectedDebates.has(debate.id)}
+                        className="h-6 w-6 border-2 border-white/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                      />
+                    </div>
                   </div>
 
-                  <CardHeader className="pr-12">
+                  <CardHeader className="pl-16 pr-6">
                     <CardTitle className="text-white line-clamp-2 break-words">
                       {debate.question}
                     </CardTitle>
