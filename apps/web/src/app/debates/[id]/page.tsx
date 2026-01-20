@@ -18,6 +18,7 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronRight,
+  MessageCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { InteractiveControls } from '@/components/quoorum/interactive-controls'
@@ -86,6 +87,7 @@ export default function DebatePage({ params }: DebatePageProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [expertColors, setExpertColors] = useState<Record<string, string>>({})
   const [isContextExpanded, setIsContextExpanded] = useState(true) // Expandido por defecto
+  const [isCommentsExpanded, setIsCommentsExpanded] = useState(true) // Expandido por defecto
 
   // Fetch debate with refetch interval for real-time updates
   const { data: debate, isLoading } = api.debates.get.useQuery(
@@ -768,9 +770,42 @@ export default function DebatePage({ params }: DebatePageProps) {
 
       {/* Comments Section */}
       {debate.status === 'completed' && (
-        <div className="border-t border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 py-4">
+        <div className="border-t border-white/10 bg-slate-900/60 backdrop-blur-xl">
           <div className="mx-auto max-w-4xl">
-            <DebateComments debateId={id} />
+            {/* Header - Clickeable */}
+            <div
+              className="flex items-center justify-between px-4 py-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
+              onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
+            >
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5 text-purple-400" />
+                <h3 className="text-lg font-semibold text-white">
+                  Comentarios
+                </h3>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsCommentsExpanded(!isCommentsExpanded)
+                }}
+              >
+                {isCommentsExpanded ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+
+            {/* Content - Colapsable */}
+            {isCommentsExpanded && (
+              <div className="border-t border-white/10 px-4 pb-4">
+                <DebateComments debateId={id} />
+              </div>
+            )}
           </div>
         </div>
       )}
