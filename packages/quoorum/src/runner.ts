@@ -11,6 +11,8 @@ import { checkConsensus } from './consensus'
 import { deductCredits, refundCredits, hasSufficientCredits } from './billing/credit-transactions'
 import { convertUsdToCredits } from './analytics/cost'
 import { selectTheme, assignDebateIdentities, type AssignedIdentity, type ThemeSelection } from './narrative/theme-engine'
+import { determineAgentOrder, getActiveRuleDescription } from './router-engine'
+import { generateFinalSynthesis } from './final-synthesis'
 import { quoorumLogger } from './logger'
 import type {
   DebateMessage,
@@ -19,6 +21,7 @@ import type {
   LoadedContext,
   ConsensusResult,
   AgentConfig,
+  FinalSynthesis,
 } from './types'
 
 // ============================================================================
@@ -137,8 +140,36 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
     for (let roundNum = 1; roundNum <= MAX_ROUNDS; roundNum++) {
       const roundMessages: DebateMessage[] = []
 
-      // Execute round: each agent responds in order
-      for (const agentKey of AGENT_ORDER) {
+      // ============================================================================
+      // DYNAMIC AGENT ORDER (Router Engine)
+      // ============================================================================
+
+      // Determine agent order based on previous round's context
+      const lastMessage = rounds.length > 0
+        ? rounds[rounds.length - 1]?.messages[rounds[rounds.length - 1]!.messages.length - 1]
+        : undefined
+
+      const agentOrder = determineAgentOrder(
+        lastMessage,
+        rounds,
+        consensusResult
+      )
+
+      const routerDescription = getActiveRuleDescription(lastMessage, rounds, consensusResult)
+
+      quoorumLogger.info(`[Round ${roundNum}] Router strategy`, {
+        agentOrder,
+        reasoning: routerDescription,
+      })
+
+      // Execute round: each agent responds in order (DYNAMIC)
+      for (const agentRole of agentOrder) {
+        // Find agent by role
+        const agentKey = Object.keys(QUOORUM_AGENTS).find(
+          key => QUOORUM_AGENTS[key]?.role === agentRole
+        )
+        if (!agentKey) continue
+
         const agent = QUOORUM_AGENTS[agentKey]
         if (!agent) continue
 
@@ -196,6 +227,28 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
     }
 
     // ============================================================================
+    // GENERATE FINAL SYNTHESIS (Executive Summary)
+    // ============================================================================
+
+    let finalSynthesis: FinalSynthesis | null = null
+
+    try {
+      quoorumLogger.info('[Debate] Generating final synthesis...', { sessionId })
+      finalSynthesis = await generateFinalSynthesis(sessionId, question, rounds)
+
+      if (finalSynthesis) {
+        quoorumLogger.info('[Debate] Final synthesis completed', {
+          sessionId,
+          recommendation: finalSynthesis.recommendation.option,
+          quality: finalSynthesis.debateQuality,
+        })
+      }
+    } catch (error) {
+      // Don't fail the whole debate if synthesis fails
+      quoorumLogger.error('[Debate] Failed to generate final synthesis', error instanceof Error ? error : new Error(String(error)), { sessionId })
+    }
+
+    // ============================================================================
     // CALCULATE ACTUAL CREDITS USED & REFUND DIFFERENCE
     // ============================================================================
 
@@ -217,6 +270,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       status: 'completed',
       rounds,
       finalRanking: consensusResult?.topOptions ?? [],
+      finalSynthesis: finalSynthesis ?? undefined, // NEW: Executive synthesis
       totalCostUsd: totalCost,
       totalCreditsUsed: actualCreditsUsed,
       costsByProvider: calculateCostsByProvider(rounds), // Denormalized analytics

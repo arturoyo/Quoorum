@@ -75,6 +75,30 @@ export interface RankedOption {
   reasoning?: string // Explanation for this option
 }
 
+// ============================================================================
+// ROUTER TYPES (Conditional Workflow)
+// ============================================================================
+
+export type RouterCondition =
+  | 'high_confidence' // confidence >= 0.7
+  | 'low_confidence' // confidence < 0.5
+  | 'strong_agreement' // successRate >= 80
+  | 'strong_disagreement' // successRate <= 30
+  | 'needs_data' // message contains "falta", "necesito", "datos"
+  | 'stalemate' // No change in ranking for 2+ rounds
+  | 'default' // Fallback
+
+export interface RouterRule {
+  condition: RouterCondition
+  agentOrder: AgentRole[]
+  description: string
+}
+
+export interface RouterConfig {
+  rules: RouterRule[]
+  defaultOrder: AgentRole[]
+}
+
 export interface ConsensusResult {
   hasConsensus: boolean
   consensusScore: number // 0-1
@@ -110,12 +134,41 @@ export interface DebateRound {
   consensusCheck?: ConsensusResult
 }
 
+// ============================================================================
+// FINAL SYNTHESIS TYPES
+// ============================================================================
+
+export interface FinalSynthesisOption {
+  option: string
+  successRate: number // 0-100
+  pros: string[] // Max 3
+  cons: string[] // Max 3
+  criticalRisks: string[] // Max 3
+  implementation: string // Brief description of how to execute
+}
+
+export interface FinalSynthesis {
+  summary: string // Executive summary (max 200 words)
+  top3Options: FinalSynthesisOption[]
+  recommendation: {
+    option: string
+    reasoning: string
+    nextSteps: string[]
+  }
+  debateQuality: {
+    convergenceScore: number // 0-100: How well agents converged
+    depthScore: number // 0-100: How deeply was the topic analyzed
+    diversityScore: number // 0-100: How diverse were perspectives
+  }
+}
+
 export interface DebateResult {
   sessionId: string
   status: SessionStatus
   rounds: DebateRound[]
   finalRanking: RankedOption[]
   ranking?: RankedOption[] // Alias for finalRanking
+  finalSynthesis?: FinalSynthesis // NEW: Executive synthesis (generated at end)
   totalCostUsd: number
   totalCreditsUsed?: number // Credits consumed (formula: costUsd * 1.75 / 0.005)
   costsByProvider?: Record<

@@ -181,6 +181,147 @@ export const QUOORUM_AGENTS: Record<AgentKey, AgentConfig> = {
    └─ Reasoning del consenso
 ```
 
+## 🆕 Nuevas Capacidades (Enero 2026)
+
+### 1. Router Condicional (Workflows Dinámicos)
+
+El sistema ahora adapta el orden de los agentes dinámicamente según el contexto del debate:
+
+**Condiciones detectadas:**
+
+| Condición | Trigger | Orden de Agentes | Propósito |
+|-----------|---------|------------------|-----------|
+| `high_confidence` | "claro", "definitivamente", "sin duda" | Crítico → Analista → Sintetizador | Validar confianza excesiva |
+| `low_confidence` | "falta", "necesito", "depende" | Analista → Optimista → Crítico → Sintetizador | Recopilar datos primero |
+| `strong_agreement` | Consenso ≥80% | Crítico → Crítico → Analista → Sintetizador | Doble crítica para evitar groupthink |
+| `strong_disagreement` | Gap entre opciones <10% | Analista → Sintetizador → Optimista | Mediación y middle ground |
+| `needs_data` | "información", "datos" | Analista → Optimista → Sintetizador | Priorizar recopilación de datos |
+| `stalemate` | Misma opción top 2+ rondas | Optimista → Sintetizador → Crítico | Nueva perspectiva para romper empate |
+
+**Uso:**
+
+```typescript
+import { determineAgentOrder, detectDebateCondition } from '@wallie/quoorum'
+
+// Detectar condición automáticamente
+const condition = detectDebateCondition(lastMessage, rounds, lastConsensus)
+// => 'high_confidence' | 'needs_data' | ...
+
+// Determinar orden dinámico
+const agentOrder = determineAgentOrder(lastMessage, rounds, lastConsensus)
+// => ['critic', 'analyst', 'synthesizer'] (si high_confidence)
+```
+
+**Archivo:** `src/router-engine.ts`
+
+### 2. Síntesis Final Separada (Secretario del Tribunal)
+
+Al finalizar el debate, se genera una **síntesis ejecutiva** independiente usando GPT-4o:
+
+**Output estructurado:**
+
+```typescript
+{
+  summary: "Resumen ejecutivo del debate (máx 200 palabras)",
+  top3Options: [
+    {
+      option: "Nombre de la opción",
+      successRate: 85,  // 0-100
+      pros: ["Pro 1", "Pro 2", "Pro 3"],
+      cons: ["Con 1", "Con 2"],
+      criticalRisks: ["Riesgo 1", "Riesgo 2"],
+      implementation: "Cómo ejecutar en 1 frase"
+    }
+  ],
+  recommendation: {
+    option: "Opción 1",
+    reasoning: "Por qué recomendamos esta opción...",
+    nextSteps: [
+      "Paso 1 concreto",
+      "Paso 2 concreto",
+      "Paso 3 concreto"
+    ]
+  },
+  debateQuality: {
+    convergenceScore: 85,  // Qué tan bien convergieron los expertos
+    depthScore: 90,        // Qué tan profundo fue el análisis
+    diversityScore: 75     // Qué tan diversas fueron las perspectivas
+  }
+}
+```
+
+**Características:**
+
+- ✅ **Rol neutral:** El "Secretario del Tribunal" no tiene agenda propia
+- ✅ **Basado en datos:** Ignora argumentos emocionales, se enfoca en hechos
+- ✅ **Recomendación clara:** Opción principal con próximos pasos concretos
+- ✅ **Calidad del debate:** Scores de convergencia, profundidad y diversidad
+
+**Uso:**
+
+```typescript
+import { runDebate } from '@wallie/quoorum'
+
+const result = await runDebate({
+  sessionId,
+  userId,
+  question: "¿Cuál es la mejor estrategia?",
+  context,
+})
+
+// Síntesis ejecutiva disponible en el resultado
+console.log(result.finalSynthesis.summary)
+console.log(result.finalSynthesis.recommendation.option)
+console.log(result.finalSynthesis.recommendation.nextSteps)
+```
+
+**Archivo:** `src/final-synthesis.ts`
+
+### 3. Prohibiciones Explícitas en Prompts
+
+Los agentes ahora tienen **restricciones explícitas** para evitar "role drift":
+
+**Ejemplo - Optimista:**
+
+```
+✅ LO QUE DEBES HACER:
+- Maximiza upside, identifica oportunidades ocultas
+- Defiende la acción sobre la parálisis
+- Encuentra el camino más ambicioso pero viable
+
+❌ PROHIBIDO:
+- Mencionar riesgos o fallos (eso es rol del Crítico)
+- Ser cauteloso o conservador
+- Decir "depende", "puede que sí", "tal vez"
+- Aceptar el status quo
+```
+
+**Ejemplo - Crítico:**
+
+```
+✅ LO QUE DEBES HACER:
+- Pre-mortem: ¿Por qué fallará esto?
+- Cuestiona TODOS los supuestos sin excepción
+- Devil's advocate brutal pero constructivo
+
+❌ PROHIBIDO:
+- Ser complaciente o dar "pases" fáciles
+- Aceptar suposiciones sin evidencia sólida
+- Dar soluciones (tu trabajo es criticar, no resolver)
+- Usar eufemismos para suavizar críticas
+```
+
+**Beneficios:**
+
+- 🎯 **Especialización clara:** Cada agente mantiene su rol sin solapamiento
+- 🚫 **Evita contaminación:** El Optimista no menciona riesgos, el Crítico no propone soluciones
+- 📊 **Debates más ricos:** Mayor contraste entre perspectivas
+- ⚡ **Más eficiente:** Menos redundancia, más valor por token
+
+**Archivo:** `src/agents.ts` (prompts actualizados)
+
+---
+
 ## 💰 Costos
 
 ### Sin Ultra-Optimización

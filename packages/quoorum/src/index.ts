@@ -366,3 +366,34 @@ export type {
   NarrativeCharacter,
   NarrativeTheme,
 } from './narrative/theme-engine'
+
+// ============================================================================
+// ROUTER ENGINE (Conditional Workflow System)
+// ============================================================================
+
+export {
+  determineAgentOrder,
+  detectDebateCondition,
+  getActiveRuleDescription,
+  DEBATE_ROUTER_CONFIG,
+} from './router-engine'
+
+export type {
+  RouterCondition,
+  RouterRule,
+  RouterConfig,
+} from './types'
+
+// ============================================================================
+// FINAL SYNTHESIS (Executive Summary Generator)
+// ============================================================================
+
+export {
+  generateFinalSynthesis,
+  extractSynthesisInsights,
+} from './final-synthesis'
+
+export type {
+  FinalSynthesis,
+  FinalSynthesisOption,
+} from './types'
