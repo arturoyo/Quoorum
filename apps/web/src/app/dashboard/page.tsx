@@ -213,7 +213,7 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 flex-shrink-0">
           <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
           </Card>
 
           <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -245,7 +245,7 @@ export default function DashboardPage() {
           </Card>
 
           <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -260,7 +260,7 @@ export default function DashboardPage() {
           </Card>
 
           <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -279,7 +279,7 @@ export default function DashboardPage() {
           {/* Recent Debates */}
           <div className="lg:col-span-2 flex flex-col overflow-hidden">
             <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group flex flex-col h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader className="relative flex flex-row items-center justify-between flex-shrink-0">
                 <div>
                   <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Debates Recientes</CardTitle>
@@ -356,7 +356,7 @@ export default function DashboardPage() {
           <div className="space-y-6">
             {/* Subscription Card */}
             <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader className="relative">
                 <div className="flex items-center justify-between">
                   <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Tu Plan</CardTitle>
@@ -400,7 +400,7 @@ export default function DashboardPage() {
             {/* Notifications Widget */}
             {!isAuthChecking && user && (
               <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="relative">
                   <div className="flex items-center justify-between">
                     <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
@@ -526,7 +526,7 @@ function DashboardSkeleton() {
 
           <div className="space-y-6">
             <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader>
                 <Skeleton className="h-6 w-24 bg-slate-800/60" />
               </CardHeader>
