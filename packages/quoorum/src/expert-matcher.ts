@@ -102,9 +102,9 @@ function scoreExpert(expert: ExpertProfile, analysis: QuestionAnalysis): ExpertM
         area.area.toLowerCase().includes(e.toLowerCase())
     )
     if (areaMatch) {
-      const areaScore = area.weight * 0.6 // 60% weight for expertise match
+      const areaScore = area.weight * 60 // 60 points max for expertise match (weight is 0-1)
       score += areaScore
-      reasons.push(`Expertise en ${area.area} (${area.weight}%)`)
+      reasons.push(`Expertise en ${area.area} (${Math.round(area.weight * 100)}%)`)
     }
   }
 
@@ -116,7 +116,7 @@ function scoreExpert(expert: ExpertProfile, analysis: QuestionAnalysis): ExpertM
         topic.name.toLowerCase().includes(t.toLowerCase())
     )
     if (topicMatch) {
-      const topicScore = topic.relevance * 0.3 // 30% weight for topic match
+      const topicScore = topic.relevance * 30 // 30 points max for topic match (relevance is 0-1)
       score += topicScore
       reasons.push(`Conocimiento en ${topic.name}`)
     }
