@@ -150,6 +150,13 @@ export const EXPERT_CATEGORIES = {
   jason_lemkin: 'fundraising',
   christoph_janz: 'fundraising',
 
+  // Venture Capital & Investment
+  marc_andreessen: 'investment',
+  bill_gurley: 'investment',
+  brad_feld: 'investment',
+  chamath_palihapitiya: 'investment',
+  naval_ravikant: 'investment',
+
   // AI & Technical
   andrej_karpathy: 'technical',
   simon_willison: 'technical',

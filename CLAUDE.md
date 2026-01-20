@@ -1118,6 +1118,39 @@ import { EXPERT_DATABASE } from '@quoorum/quoorum/expert-database'
 - Toma de decisiones con múltiples variables
 - Debates colaborativos en tiempo real
 
+**Verticales Implementados:**
+
+| Vertical | Templates | Expertos | Documentación |
+|----------|-----------|----------|---------------|
+| SaaS | 5 (pricing, positioning, roadmap, GTM, vertical) | April Dunford, Patrick Campbell, etc. | templates.ts |
+| Startup | 2 (fundraising timing, amount) | Tomasz Tunguz, Jason Lemkin | templates.ts |
+| Investment/VC | 8 (deal eval, terms, follow-on, exit, etc.) | Marc Andreessen, Bill Gurley, Brad Feld, Naval, Chamath | [USE-CASE-INVESTORS.md](./docs/USE-CASE-INVESTORS.md) |
+| E-commerce | 1 (channel strategy) | Julian Shapiro, Brian Balfour | templates.ts |
+| Marketplace | 1 (side priority) | Boris Wertz, Lenny Rachitsky | templates.ts |
+| Creator Economy | 1 (monetization) | Sahil Lavingia, Alex Hormozi | templates.ts |
+
+**Templates de Inversión (Nuevo - 20 Ene 2026):**
+```typescript
+// packages/quoorum/src/templates.ts
+export const INVESTOR_TEMPLATES = [
+  'deal-evaluation',      // ¿Invertir en esta startup?
+  'deal-terms',           // ¿Son aceptables estos términos?
+  'follow-on-decision',   // ¿Hacer follow-on?
+  'exit-timing',          // ¿Cuándo salir?
+  'portfolio-prioritization', // ¿Dónde enfocar tiempo?
+  'market-timing',        // ¿Es buen momento para el sector?
+  'fund-strategy',        // ¿Cómo ajustar estrategia del fondo?
+  'due-diligence-focus',  // ¿Qué investigar más a fondo?
+]
+```
+
+**Expertos de Inversión (Nuevo - 20 Ene 2026):**
+- **Marc Andreessen**: Visión tecnológica, platform shifts
+- **Bill Gurley**: Unit economics, marketplaces, moats
+- **Brad Feld**: Term sheets, governance, founder relations
+- **Chamath Palihapitiya**: Market sizing, growth stage
+- **Naval Ravikant**: Founder DNA, angel investing
+
 ### Dónde Poner Cada Cosa
 
 | Tipo de Archivo       | Ubicación                            | Ejemplo                        |
