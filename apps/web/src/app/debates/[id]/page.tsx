@@ -101,6 +101,12 @@ export default function DebatePage({ params }: DebatePageProps) {
     }
   )
 
+  // Fetch comments count for header
+  const { data: comments } = api.quoorum.getComments.useQuery(
+    { debateId: id },
+    { enabled: debate?.status === 'completed' }
+  )
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -780,7 +786,7 @@ export default function DebatePage({ params }: DebatePageProps) {
               <div className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5 text-purple-400" />
                 <h3 className="text-lg font-semibold text-white">
-                  Comentarios
+                  Comentarios {comments && comments.length > 0 && `(${comments.length})`}
                 </h3>
               </div>
               <Button
@@ -802,8 +808,8 @@ export default function DebatePage({ params }: DebatePageProps) {
 
             {/* Content - Colapsable */}
             {isCommentsExpanded && (
-              <div className="border-t border-white/10 px-4 pb-4">
-                <DebateComments debateId={id} />
+              <div className="border-t border-white/10 px-4 pb-4 pt-4">
+                <DebateComments debateId={id} showHeader={false} />
               </div>
             )}
           </div>

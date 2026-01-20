@@ -13,9 +13,10 @@ import { toast } from 'sonner'
 
 interface DebateCommentsProps {
   debateId: string
+  showHeader?: boolean
 }
 
-export function DebateComments({ debateId }: DebateCommentsProps) {
+export function DebateComments({ debateId, showHeader = true }: DebateCommentsProps) {
   const [commentText, setCommentText] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
 
@@ -62,15 +63,8 @@ export function DebateComments({ debateId }: DebateCommentsProps) {
     }
   })
 
-  return (
-    <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
-          <MessageCircle className="h-5 w-5" />
-          Comentarios ({comments?.length || 0})
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+  const content = (
+    <div className="space-y-4">
         {/* Comment Form */}
         <form onSubmit={handleSubmit} className="space-y-3">
           <Textarea
@@ -134,6 +128,23 @@ export function DebateComments({ debateId }: DebateCommentsProps) {
             ))
           )}
         </div>
+    </div>
+  )
+
+  if (!showHeader) {
+    return content
+  }
+
+  return (
+    <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-white">
+          <MessageCircle className="h-5 w-5" />
+          Comentarios ({comments?.length || 0})
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {content}
       </CardContent>
     </Card>
   )
