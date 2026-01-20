@@ -96,7 +96,7 @@ export const expertsRouter = router({
         );
       }
 
-      // Only select necessary fields for performance (id, name, expertise, description, category)
+      // Only select necessary fields for performance (id, name, expertise, description, category, aiConfig)
       const results = await ctx.db
         .select({
           id: experts.id,
@@ -104,6 +104,7 @@ export const expertsRouter = router({
           expertise: experts.expertise,
           description: experts.description,
           category: experts.category,
+          aiConfig: experts.aiConfig,
         })
         .from(experts)
         .where(and(...conditions))

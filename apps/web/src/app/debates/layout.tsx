@@ -288,8 +288,12 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
   const utils = api.useUtils()
 
   const deleteDebateMutation = api.debates.delete.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       void utils.debates.list.invalidate()
+      // Si el debate eliminado es el seleccionado actualmente, redirigir a /debates
+      if (selectedDebateId === variables.id) {
+        router.push('/debates')
+      }
     },
   })
 
@@ -577,6 +581,10 @@ function DebateListItem({
   onClick: () => void
   onToggleSelect: (e: React.MouseEvent) => void
 }) {
+  const router = useRouter()
+  const params = useParams()
+  const selectedDebateId = params?.id as string | undefined
+
   const [isHovered, setIsHovered] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editedTitle, setEditedTitle] = useState(debate.metadata?.title || debate.question)
@@ -591,8 +599,12 @@ function DebateListItem({
   })
 
   const deleteDebateMutation = api.debates.delete.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       void utils.debates.list.invalidate()
+      // Si el debate eliminado es el seleccionado actualmente, redirigir a /debates
+      if (selectedDebateId === variables.id) {
+        router.push('/debates')
+      }
     },
   })
 
