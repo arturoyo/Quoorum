@@ -51,7 +51,7 @@ export { runDebate, executeRound, generateAgentResponse } from './runner'
 
 // Dynamic Runner (with quality monitoring and meta-moderation)
 export { runDebate as runDynamicDebate } from './runner-dynamic'
-export type { RunDebateOptions as DynamicDebateOptions } from './runner-dynamic'
+export type { RunDebateOptions as DynamicDebateOptions, CorporateContext } from './runner-dynamic'
 
 // Dynamic Expert System
 export { analyzeQuestion } from './question-analyzer'

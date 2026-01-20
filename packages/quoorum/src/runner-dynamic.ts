@@ -37,13 +37,28 @@ const MAX_AREAS_STATIC = 2 // <= 2 áreas usa modo estático
 // TYPES
 // ============================================================================
 
+// ============================================================================
+// CORPORATE INTELLIGENCE TYPES
+// ============================================================================
+
+export interface CorporateContext {
+  companyContext?: string // Layer 2: Mission, vision, values
+  departmentContexts?: Array<{
+    departmentName: string
+    departmentContext: string // Layer 3: KPIs, processes, reports
+    customPrompt?: string // Layer 4: Personality/style customization
+  }>
+}
+
 export interface RunDebateOptions {
   sessionId: string
   question: string
   context: LoadedContext
+  corporateContext?: CorporateContext // NEW: Corporate Intelligence (4 layers)
   forceMode?: 'static' | 'dynamic' // Forzar modo específico
   executionStrategy?: 'sequential' | 'parallel' // Estrategia de ejecución de agentes dentro de una ronda
   selectedExpertIds?: string[] // IDs de expertos personalizados seleccionados por el usuario
+  selectedDepartmentIds?: string[] // NEW: IDs de departamentos corporativos seleccionados
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
   onQualityCheck?: (quality: { round: number; score: number; issues: string[] }) => Promise<void>
@@ -87,7 +102,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
     const debateMode = await determineDebateMode(
       question,
       forceMode,
-      options.selectedExpertIds
+      options.selectedExpertIds,
+      options.selectedDepartmentIds
     )
     quoorumLogger.info('🎯 Debate Mode Determined', {
       mode: debateMode.mode,
@@ -103,6 +119,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       sessionId,
       question,
       context,
+      corporateContext: options.corporateContext,
       agents: debateMode.agents,
       agentOrder: debateMode.agentOrder,
       maxRounds: debateMode.estimatedRounds,
@@ -177,15 +194,69 @@ function estimateRoundsNeeded(complexity: number, areasCount: number): number {
 async function determineDebateMode(
   question: string,
   forceMode?: 'static' | 'dynamic',
-  selectedExpertIds?: string[]
+  selectedExpertIds?: string[],
+  selectedDepartmentIds?: string[]
 ): Promise<DebateMode> {
   // Always analyze question to get expert matches
   const analysis = await analyzeQuestion(question)
   const estimatedRounds = estimateRoundsNeeded(analysis.complexity, analysis.areas.length)
 
-  // If user selected custom experts, use those instead of automatic matching
+  // If user selected custom experts or departments, use those instead of automatic matching
   let expertMatches: Array<{ expert: ExpertProfile; score: number; reasons: string[]; suggestedRole: 'primary' | 'secondary' | 'critic' }> = []
 
+  // Load corporate departments if selected
+  if (selectedDepartmentIds && selectedDepartmentIds.length > 0) {
+    try {
+      const { db } = await import('@quoorum/db')
+      const { departments } = await import('@quoorum/db/schema')
+      const { inArray } = await import('drizzle-orm')
+
+      const selectedDepartments = await db
+        .select()
+        .from(departments)
+        .where(inArray(departments.id, selectedDepartmentIds))
+
+      // Convert departments to ExpertProfile format (with Layer 4 customization)
+      expertMatches = selectedDepartments.map((dept) => {
+        // Combine basePrompt + customPrompt (Layer 4)
+        const finalPrompt = dept.customPrompt
+          ? `${dept.basePrompt}\n\n[ESTILO PERSONALIZADO]\n${dept.customPrompt}`
+          : dept.basePrompt
+
+        const expertProfile: ExpertProfile = {
+          id: dept.id,
+          name: dept.name,
+          title: dept.name,
+          expertise: [dept.type], // Use department type as expertise area
+          topics: [],
+          perspective: dept.description || dept.departmentContext.substring(0, 200),
+          systemPrompt: finalPrompt, // Layer 1 (Technical) + Layer 4 (Personality)
+          temperature: parseFloat(dept.temperature || '0.7'),
+          provider: 'google', // Default provider for departments
+          modelId: 'gemini-2.0-flash-exp',
+        }
+
+        return {
+          expert: expertProfile,
+          score: 100, // High score for user-selected departments
+          reasons: ['Departamento corporativo seleccionado'],
+          suggestedRole: dept.agentRole as 'primary' | 'secondary' | 'critic' || 'primary',
+        }
+      })
+
+      quoorumLogger.info('Loaded corporate departments', {
+        departmentIds: selectedDepartmentIds,
+        departmentCount: selectedDepartments.length,
+      })
+    } catch (error) {
+      quoorumLogger.warn('Failed to load corporate departments, falling back to automatic matching', {
+        error: error instanceof Error ? error.message : String(error),
+        selectedDepartmentIds,
+      })
+    }
+  }
+
+  // Load custom experts if selected (and no departments were selected, or as addition)
   if (selectedExpertIds && selectedExpertIds.length > 0) {
     // Load custom experts from database
     // NOTE: This requires DB access, so we'll need to pass a callback or load them in the API layer
@@ -317,17 +388,18 @@ async function runStaticDebate(options: {
   sessionId: string
   question: string
   context: LoadedContext
+  corporateContext?: CorporateContext
   maxRounds: number
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
 }): Promise<DebateResult> {
-  const { sessionId, question, context, maxRounds, onRoundComplete, onMessageGenerated } = options
+  const { sessionId, question, context, corporateContext, maxRounds, onRoundComplete, onMessageGenerated } = options
 
   const rounds: DebateRound[] = []
   let totalCost = 0
   let consensusResult: ConsensusResult | undefined
 
-  const contextPrompt = buildContextPrompt(question, context)
+  const contextPrompt = buildContextPrompt(question, context, corporateContext)
 
   quoorumLogger.info(`Starting static debate with ${maxRounds} estimated rounds`, { sessionId })
 
@@ -400,6 +472,7 @@ async function runDynamicDebate(options: {
   sessionId: string
   question: string
   context: LoadedContext
+  corporateContext?: CorporateContext
   agents: AgentConfig[]
   agentOrder: string[]
   maxRounds: number
@@ -415,6 +488,7 @@ async function runDynamicDebate(options: {
     sessionId,
     question,
     context,
+    corporateContext,
     agents,
     agentOrder,
     maxRounds,
@@ -433,7 +507,7 @@ async function runDynamicDebate(options: {
   let interventionFrequency = 5
   let shouldForceConsensus = false
 
-  let contextPrompt = buildContextPrompt(question, context)
+  let contextPrompt = buildContextPrompt(question, context, corporateContext)
   const agentsMap = new Map(agents.map((a) => [a.key, a]))
 
   quoorumLogger.info(`Starting dynamic debate with ${maxRounds} estimated rounds`, { sessionId, agentCount: agents.length })
@@ -735,9 +809,23 @@ async function generateAgentResponse(input: GenerateAgentResponseInput): Promise
 // PROMPT BUILDERS
 // ============================================================================
 
-function buildContextPrompt(question: string, context: LoadedContext): string {
+function buildContextPrompt(question: string, context: LoadedContext, corporateContext?: CorporateContext): string {
   const parts: string[] = [`PREGUNTA: ${question}`]
 
+  // Layer 2: Company Context (Master - Mission, Vision, Values)
+  if (corporateContext?.companyContext) {
+    parts.push(`\n[CONTEXTO EMPRESARIAL]\n${corporateContext.companyContext}`)
+  }
+
+  // Layer 3: Department Context (Specific - KPIs, Processes, Reports)
+  if (corporateContext?.departmentContexts && corporateContext.departmentContexts.length > 0) {
+    parts.push('\n[CONTEXTOS DEPARTAMENTALES]')
+    for (const dept of corporateContext.departmentContexts) {
+      parts.push(`\n${dept.departmentName}:\n${dept.departmentContext}`)
+    }
+  }
+
+  // Regular context sources
   for (const source of context.sources) {
     parts.push(`\n[${source.type.toUpperCase()}]\n${source.content}`)
   }

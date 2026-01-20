@@ -30,6 +30,9 @@ import {
   contextFilesRouter,
   // Billing router
   billingRouter,
+  // Corporate Intelligence
+  companiesRouter,
+  departmentsRouter,
 } from "./routers/index.js";
 
 export const appRouter = router({
@@ -63,6 +66,9 @@ export const appRouter = router({
   contextFiles: contextFilesRouter,
   // Billing
   billing: billingRouter,
+  // Corporate Intelligence
+  companies: companiesRouter,
+  departments: departmentsRouter,
 });
 
 export type AppRouter = typeof appRouter;

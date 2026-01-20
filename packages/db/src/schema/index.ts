@@ -76,3 +76,10 @@ export type { WebhookEvent, NewWebhookEvent } from "./webhook-events";
 // User Context Files
 export { userContextFiles } from "./user-context-files";
 export type { UserContextFile, NewUserContextFile } from "./user-context-files";
+
+// Corporate Intelligence
+export { companies, companiesRelations } from "./companies";
+export type { Company, NewCompany } from "./companies";
+
+export { departments, departmentsRelations, departmentTypeEnum } from "./departments";
+export type { Department, NewDepartment, DepartmentType } from "./departments";

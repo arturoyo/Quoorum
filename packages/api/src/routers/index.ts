@@ -31,3 +31,7 @@ export { contextFilesRouter } from "./context-files.js";
 
 // Billing router
 export { billingRouter } from "./billing.js";
+
+// Corporate Intelligence
+export { companiesRouter } from "./companies.js";
+export { departmentsRouter } from "./departments.js";

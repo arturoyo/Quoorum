@@ -341,22 +341,36 @@ export const expertsRouter = router({
     .query(async ({ input }) => {
       // Use the same logic as deliberation strategy
       // Import from main package (these are exported from @quoorum/quoorum)
-      const { analyzeQuestion, matchExperts } = await import("@quoorum/quoorum");
+      const { analyzeQuestion, matchExperts, getAllExperts } = await import("@quoorum/quoorum");
 
       // Analyze question to get areas, topics, complexity
       const analysis = await analyzeQuestion(input.question, input.context);
 
+      console.log('[experts.suggest] Question analysis:', {
+        question: input.question.substring(0, 100),
+        complexity: analysis.complexity,
+        decisionType: analysis.decisionType,
+        areasCount: analysis.areas.length,
+        areas: analysis.areas.map(a => ({ area: a.area, weight: a.weight })),
+        topicsCount: analysis.topics?.length || 0,
+        topics: analysis.topics?.slice(0, 5)
+      });
+
+      const allExperts = getAllExperts();
+      console.log('[experts.suggest] Total experts in database:', allExperts.length);
+
       // Match experts based on analysis (like in runner-dynamic.ts)
+      // Temporarily using minScore: 0 to see ALL matches for debugging
       const matches = matchExperts(analysis, {
         minExperts: 3,
         maxExperts: 7,
-        minScore: 30,
-        alwaysIncludeCritic: false, // Core critic agent is separate
+        minScore: 0, // Changed from 30 to see all matches
+        alwaysIncludeCritic: true, // Changed from false to always include at least one expert
       });
 
       console.log('[experts.suggest] Matches found:', {
         count: matches.length,
-        experts: matches.map(m => ({ id: m.expert.id, name: m.expert.name, score: m.score }))
+        experts: matches.map(m => ({ id: m.expert.id, name: m.expert.name, score: m.score, role: m.suggestedRole }))
       });
 
       // Return suggested experts with match info
