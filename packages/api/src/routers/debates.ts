@@ -124,6 +124,7 @@ export const debatesRouter = router({
         executionStrategy: z.enum(['sequential', 'parallel']).optional(), // Estrategia de ejecución de agentes dentro de una ronda
         pattern: z.enum(['simple', 'sequential', 'parallel', 'conditional', 'iterative', 'tournament', 'adversarial', 'ensemble', 'hierarchical']).optional(), // Patrón de orquestación (si no se proporciona, se determina automáticamente)
         selectedExpertIds: z.array(z.string().uuid()).optional(), // IDs de expertos personalizados seleccionados por el usuario
+        selectedDepartmentIds: z.array(z.string().uuid()).optional(), // IDs de departamentos corporativos seleccionados por el usuario
         assessment: z
           .object({
             overallScore: z.number(),
@@ -286,7 +287,7 @@ export const debatesRouter = router({
       });
 
       // Also start debate inline (fallback if Inngest not configured)
-      runDebateAsync(debate.id, ctx.user.id, input.question, debateContext, input.executionStrategy, (input.pattern as PatternType | undefined), input.selectedExpertIds).catch(
+      runDebateAsync(debate.id, ctx.user.id, input.question, debateContext, input.executionStrategy, (input.pattern as PatternType | undefined), input.selectedExpertIds, input.selectedDepartmentIds).catch(
         (error: unknown) => {
           logger.error(
             "Error starting debate",
@@ -1061,7 +1062,8 @@ async function runDebateAsync(
   context?: DebateContext,
   executionStrategy?: 'sequential' | 'parallel', // Estrategia de ejecución de agentes dentro de una ronda
   pattern?: PatternType, // Patrón de orquestación (simple, tournament, adversarial, etc.)
-  selectedExpertIds?: string[] // IDs de expertos personalizados seleccionados por el usuario
+  selectedExpertIds?: string[], // IDs de expertos personalizados seleccionados por el usuario
+  selectedDepartmentIds?: string[] // IDs de departamentos corporativos seleccionados por el usuario
 ): Promise<void> {
   try {
     // Update status to in_progress
@@ -1106,6 +1108,60 @@ async function runDebateAsync(
       "Seleccionando expertos especializados...",
       25
     );
+
+    // Load corporate intelligence (company + departments) if selectedDepartmentIds provided
+    let corporateContext: any = undefined
+    if (selectedDepartmentIds && selectedDepartmentIds.length > 0) {
+      try {
+        // Import schemas
+        const { companies, departments } = await import('@quoorum/db/schema')
+        const { eq, inArray } = await import('drizzle-orm')
+
+        // Get user's company
+        const [company] = await db
+          .select()
+          .from(companies)
+          .where(eq(companies.userId, userId))
+          .limit(1)
+
+        if (company) {
+          // Get selected departments
+          const selectedDepartments = await db
+            .select()
+            .from(departments)
+            .where(
+              and(
+                inArray(departments.id, selectedDepartmentIds),
+                eq(departments.companyId, company.id)
+              )
+            )
+
+          if (selectedDepartments.length > 0) {
+            corporateContext = {
+              companyContext: company.context,
+              departmentContexts: selectedDepartments.map((dept) => ({
+                departmentName: dept.name,
+                departmentContext: dept.departmentContext,
+                customPrompt: dept.customPrompt || undefined,
+              })),
+            }
+
+            logger.info('Corporate intelligence loaded', {
+              debateId,
+              companyName: company.name,
+              departmentCount: selectedDepartments.length,
+              departments: selectedDepartments.map((d) => d.name),
+            })
+          }
+        }
+      } catch (error) {
+        logger.warn('Failed to load corporate intelligence', {
+          error: error instanceof Error ? error.message : String(error),
+          debateId,
+        })
+        // Continue without corporate context (non-blocking)
+      }
+    }
 
     // Event 4: Preparing rounds (30%)
     await updateProcessingStatus(
@@ -1171,6 +1227,8 @@ async function runDebateAsync(
       context: loadedContext,
       executionStrategy: finalExecutionStrategy, // Pass execution strategy (sequential: agents see each other, parallel: faster but no same-round responses)
       selectedExpertIds: selectedExpertIds, // Pass selected custom experts if provided
+      corporateContext: corporateContext, // Pass corporate intelligence (4-layer context injection)
+      selectedDepartmentIds: selectedDepartmentIds, // Pass selected department IDs for agent configuration
       checkDebateState: async () => {
         // Check debate state from DB before each round
         const [debate] = await db
