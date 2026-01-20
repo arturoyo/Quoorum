@@ -191,9 +191,9 @@ export default function DashboardPage() {
       />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8 h-[calc(100vh-64px)] flex flex-col">
         {/* Welcome Section */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-6 sm:mb-8 flex-shrink-0">
           <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
             ¡Hola, {user.user_metadata?.full_name || user.email?.split("@")[0]}!
           </h1>
@@ -211,7 +211,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 flex-shrink-0">
           <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <CardContent className="relative p-6">
@@ -275,12 +275,12 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 flex-1 overflow-hidden">
           {/* Recent Debates */}
-          <div className="lg:col-span-2">
-            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+          <div className="lg:col-span-2 flex flex-col overflow-hidden">
+            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group flex flex-col h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardHeader className="relative flex flex-row items-center justify-between">
+              <CardHeader className="relative flex flex-row items-center justify-between flex-shrink-0">
                 <div>
                   <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Debates Recientes</CardTitle>
                   <CardDescription className="text-gray-400">Tus últimas deliberaciones</CardDescription>
@@ -292,7 +292,7 @@ export default function DashboardPage() {
                   </Button>
                 </Link>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1 overflow-hidden flex flex-col">
                 {debatesError ? (
                   <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
                     <p className="text-red-300 text-sm">
@@ -306,7 +306,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto pr-2">
+                  <div className="space-y-3 overflow-y-auto pr-2">
                     {recentDebates.map((debate) => (
                     <Link
                       key={debate.id}
