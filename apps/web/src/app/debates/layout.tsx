@@ -662,7 +662,7 @@ function DebateListItem({
     >
       {/* Icon/Checkbox - Contextual icon by default, checkbox on hover or when selected */}
       <div
-        className="absolute left-6 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 transition-all cursor-pointer"
+        className="absolute left-8 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 transition-all cursor-pointer"
         onClick={onToggleSelect}
       >
         {/* Show checkbox on hover, when any debate is selected, or when this debate is checked */}
