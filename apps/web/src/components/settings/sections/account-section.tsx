@@ -41,7 +41,6 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    company: '',
     role: '',
   })
 
@@ -62,7 +61,6 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
       setFormData({
         fullName: user.user_metadata?.full_name || '',
         email: user.email || '',
-        company: user.user_metadata?.company || '',
         role: user.user_metadata?.role || '',
       })
       setIsLoading(false)
@@ -78,7 +76,6 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
       const { error } = await supabase.auth.updateUser({
         data: {
           full_name: formData.fullName,
-          company: formData.company,
           role: formData.role,
         },
       })
@@ -160,20 +157,6 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
                 value={formData.email}
                 disabled
                 className="bg-slate-900/40 backdrop-blur-sm border-purple-500/20 text-gray-500"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="company" className="text-blue-200">
-                Empresa
-              </Label>
-              <Input
-                id="company"
-                value={formData.company}
-                onChange={(e) =>
-                  setFormData({ ...formData, company: e.target.value })
-                }
-                className="bg-slate-900/60 backdrop-blur-sm border-purple-500/30 text-white focus:border-blue-500/50 focus:ring-blue-500/20"
               />
             </div>
 

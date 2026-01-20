@@ -22,6 +22,9 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
   const [isEditingCompany, setIsEditingCompany] = useState(false)
   const [companyName, setCompanyName] = useState('')
   const [companyContext, setCompanyContext] = useState('')
+  const [companyIndustry, setCompanyIndustry] = useState('')
+  const [companySize, setCompanySize] = useState('')
+  const [companyDescription, setCompanyDescription] = useState('')
 
   // Queries
   const { data: company, isLoading: loadingCompany, refetch: refetchCompany } = api.companies.get.useQuery()
@@ -77,21 +80,25 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
   // Handlers
   const handleSaveCompany = () => {
     if (!companyName || !companyContext) {
-      toast.error('Completa todos los campos')
+      toast.error('Nombre y contexto son requeridos')
       return
+    }
+
+    const payload = {
+      name: companyName,
+      context: companyContext,
+      industry: companyIndustry || undefined,
+      size: companySize || undefined,
+      description: companyDescription || undefined,
     }
 
     if (company) {
       updateCompanyMutation.mutate({
         id: company.id,
-        name: companyName,
-        context: companyContext,
+        ...payload,
       })
     } else {
-      createCompanyMutation.mutate({
-        name: companyName,
-        context: companyContext,
-      })
+      createCompanyMutation.mutate(payload)
     }
   }
 
@@ -114,6 +121,9 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
   if (company && !isEditingCompany && !companyName) {
     setCompanyName(company.name)
     setCompanyContext(company.context)
+    setCompanyIndustry(company.industry || '')
+    setCompanySize(company.size || '')
+    setCompanyDescription(company.description || '')
   }
 
   if (loadingCompany) {
@@ -161,30 +171,83 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
           {company && !isEditingCompany ? (
             // Display mode
             <div className="space-y-4">
-              <div>
-                <Label className="text-sm text-gray-400">Nombre</Label>
-                <p className="text-lg font-medium text-white">{company.name}</p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label className="text-sm text-gray-400">Nombre</Label>
+                  <p className="text-lg font-medium text-white">{company.name}</p>
+                </div>
+                {company.industry && (
+                  <div>
+                    <Label className="text-sm text-gray-400">Industria</Label>
+                    <p className="text-lg font-medium text-white">{company.industry}</p>
+                  </div>
+                )}
               </div>
+              {company.size && (
+                <div>
+                  <Label className="text-sm text-gray-400">Tamaño</Label>
+                  <p className="text-white">{company.size} empleados</p>
+                </div>
+              )}
+              {company.description && (
+                <div>
+                  <Label className="text-sm text-gray-400">Descripción</Label>
+                  <p className="text-sm text-gray-300">{company.description}</p>
+                </div>
+              )}
               <div>
-                <Label className="text-sm text-gray-400">Contexto Maestro</Label>
+                <Label className="text-sm text-gray-400">Contexto Maestro (Misión, Visión, Valores)</Label>
                 <p className="whitespace-pre-wrap text-sm text-gray-300">{company.context}</p>
               </div>
             </div>
           ) : (
             // Edit mode
             <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="company-name" className="text-white">Nombre de la Empresa *</Label>
+                  <Input
+                    id="company-name"
+                    placeholder="Ej: Acme Corp"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="border-white/10 bg-slate-800/50 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="company-industry" className="text-white">Industria</Label>
+                  <Input
+                    id="company-industry"
+                    placeholder="Ej: SaaS B2B, E-commerce, Fintech"
+                    value={companyIndustry}
+                    onChange={(e) => setCompanyIndustry(e.target.value)}
+                    className="border-white/10 bg-slate-800/50 text-white"
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
-                <Label htmlFor="company-name" className="text-white">Nombre de la Empresa</Label>
+                <Label htmlFor="company-size" className="text-white">Tamaño</Label>
                 <Input
-                  id="company-name"
-                  placeholder="Ej: Acme Corp"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
+                  id="company-size"
+                  placeholder="Ej: 1-10, 11-50, 51-200, 200+"
+                  value={companySize}
+                  onChange={(e) => setCompanySize(e.target.value)}
                   className="border-white/10 bg-slate-800/50 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="company-context" className="text-white">Contexto Maestro</Label>
+                <Label htmlFor="company-description" className="text-white">Descripción</Label>
+                <Textarea
+                  id="company-description"
+                  placeholder="Breve descripción de tu empresa..."
+                  rows={2}
+                  value={companyDescription}
+                  onChange={(e) => setCompanyDescription(e.target.value)}
+                  className="resize-none border-white/10 bg-slate-800/50 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="company-context" className="text-white">Contexto Maestro *</Label>
                 <Textarea
                   id="company-context"
                   placeholder="Misión, visión, valores, cultura de la empresa..."
@@ -265,11 +328,15 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
                 <Card key={dept.id} className="relative border-white/10 bg-slate-900/60 backdrop-blur-xl hover:border-purple-500/30 transition-colors">
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="flex items-center gap-2 text-lg text-white">
-                          {dept.icon && <span>{dept.icon}</span>}
-                          {dept.name}
-                        </CardTitle>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="flex items-center gap-2 text-lg text-white">
+                            {dept.icon && <span>{dept.icon}</span>}
+                            {dept.name}
+                          </CardTitle>
+                          {/* Estado activo/inactivo */}
+                          <div className={`h-2 w-2 rounded-full ${dept.isActive ? 'bg-green-500' : 'bg-gray-500'}`} title={dept.isActive ? 'Activo' : 'Inactivo'} />
+                        </div>
                         <CardDescription className="line-clamp-2 text-gray-400">
                           {dept.description || dept.departmentContext.substring(0, 100) + '...'}
                         </CardDescription>
@@ -277,12 +344,51 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
+                    {/* Badges principales */}
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10">{dept.type}</Badge>
                       <Badge variant="secondary" className="bg-slate-800/50 text-gray-300">{dept.agentRole}</Badge>
                       {dept.isPredefined && <Badge className="bg-purple-600 text-white">Predefinido</Badge>}
                     </div>
-                    <div className="flex gap-2">
+
+                    {/* Temperatura */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-400">Temperatura</span>
+                        <span className="text-xs font-medium text-purple-300">{dept.temperature || '0.7'}</span>
+                      </div>
+                      <div className="h-1 bg-slate-800/50 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                          style={{ width: `${((parseFloat(dept.temperature || '0.7')) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Prompts (solo si existen) */}
+                    {(dept.basePrompt || dept.customPrompt) && (
+                      <div className="space-y-2 pt-2 border-t border-white/10">
+                        {dept.basePrompt && (
+                          <div>
+                            <span className="text-xs font-medium text-gray-400">Base Prompt</span>
+                            <p className="text-xs text-gray-500 line-clamp-2 mt-1">
+                              {dept.basePrompt}
+                            </p>
+                          </div>
+                        )}
+                        {dept.customPrompt && (
+                          <div>
+                            <span className="text-xs font-medium text-purple-400">Custom Prompt</span>
+                            <p className="text-xs text-purple-300/70 line-clamp-2 mt-1">
+                              {dept.customPrompt}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Botones */}
+                    <div className="flex gap-2 pt-2">
                       <Button
                         variant="outline"
                         size="sm"

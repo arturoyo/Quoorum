@@ -55,7 +55,6 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    company: '',
     role: '',
   })
 
@@ -90,7 +89,6 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
       setFormData({
         fullName: user.user_metadata?.full_name || '',
         email: user.email || '',
-        company: user.user_metadata?.company || '',
         role: user.user_metadata?.role || '',
       })
       setIsLoading(false)
@@ -106,7 +104,6 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
       const { error } = await supabase.auth.updateUser({
         data: {
           full_name: formData.fullName,
-          company: formData.company,
           role: formData.role,
         },
       })
