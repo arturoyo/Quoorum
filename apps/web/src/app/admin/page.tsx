@@ -34,20 +34,17 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
   Loader2,
   Settings,
   Users,
   Search,
   Plus,
-  Zap,
   Activity,
   AlertCircle,
   CheckCircle,
   XCircle,
   DollarSign,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -177,11 +174,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      {/* Header */}
-      <AppHeader variant="app" />
-
-      <main className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 py-8">
         <div className="space-y-6">
           {/* Header */}
           <div>
@@ -499,7 +492,6 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </div>
-      </main>
 
       {/* Add Credits Dialog */}
       <Dialog open={isAddCreditsDialogOpen} onOpenChange={setIsAddCreditsDialogOpen}>
