@@ -18,6 +18,7 @@ import { ExpertsSection } from './sections/experts-section'
 import { ExpertsLibrarySection } from './sections/experts-library-section'
 import { ContextSection } from './sections/context-section'
 import { CompanySection } from './sections/company-section'
+import { DepartmentsSection } from './sections/departments-section'
 
 interface SettingsSectionRendererProps {
   activePath: string
@@ -63,6 +64,8 @@ export function SettingsSectionRenderer({ activePath, isInModal = false }: Setti
       return <BillingSection isInModal={isInModal} />
     case 'company':
       return <CompanySection isInModal={isInModal} />
+    case 'departments':
+      return <DepartmentsSection isInModal={isInModal} />
     case 'api-keys':
       return <ApiKeysSection isInModal={isInModal} />
     case 'security':
