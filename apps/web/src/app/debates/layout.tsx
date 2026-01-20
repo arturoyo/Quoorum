@@ -548,20 +548,24 @@ function DebateListItem({
           : 'hover:bg-[#2a3942]'
       )}
     >
-      {/* Checkbox - Visible on hover or when showCheckbox is true */}
+      {/* Icon/Checkbox - Icon by default, checkbox on hover or when selected */}
       <div
-        className={cn(
-          'absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-all',
-          isCheckboxSelected || showCheckbox ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        )}
+        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-all"
         onClick={onToggleSelect}
       >
-        <div className="bg-[#202c33]/90 backdrop-blur-sm p-1.5 rounded border border-[#aebac1]/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all cursor-pointer">
-          <Checkbox
-            checked={isCheckboxSelected}
-            className="h-5 w-5 border-[#aebac1]/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
-          />
-        </div>
+        {/* Show checkbox on hover, when any debate is selected, or when this debate is checked */}
+        {(isHovered || showCheckbox || isCheckboxSelected) ? (
+          <div className="bg-[#202c33]/90 backdrop-blur-sm p-1.5 rounded border border-[#aebac1]/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all cursor-pointer">
+            <Checkbox
+              checked={isCheckboxSelected}
+              className="h-5 w-5 border-[#aebac1]/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+            />
+          </div>
+        ) : (
+          <div className="bg-[#202c33]/60 p-1.5 rounded">
+            <MessageSquare className="h-5 w-5 text-[#aebac1]" />
+          </div>
+        )}
       </div>
 
       <div className="flex items-start justify-between gap-3 pl-12">
