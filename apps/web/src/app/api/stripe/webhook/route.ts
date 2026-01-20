@@ -4,7 +4,7 @@ import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/client";
 import { logError, logWarning } from "@/lib/monitoring";
 import { db } from "@quoorum/db";
-import { subscriptions, plans, usage, webhookEvents, users } from "@quoorum/db/schema";
+import { subscriptions, plans, usage, webhookEvents, users, creditTransactions } from "@quoorum/db/schema";
 import { eq, sql } from "drizzle-orm";
 import {
   checkWebhookRateLimit,
@@ -146,11 +146,39 @@ export async function POST(request: Request) {
     }
 
     // Event exists but not processed (retry scenario)
-    // Update retry count
+    const currentRetryCount = Number(existingEvent.retryCount);
+
+    // Check if we've exceeded max retries (3 attempts)
+    if (currentRetryCount >= 3) {
+      // Mark as failed after 3 retries
+      await db
+        .update(webhookEvents)
+        .set({
+          error: 'Maximum retry attempts exceeded (3)',
+          updatedAt: new Date(),
+        })
+        .where(eq(webhookEvents.id, existingEvent.id));
+
+      // Admin notification for persistent failure
+      logError(new Error(`Webhook event failed after 3 retries: ${event.type}`), {
+        context: 'stripe_webhook_max_retries_exceeded',
+        eventId: event.id,
+        eventType: event.type,
+        retryCount: currentRetryCount,
+        lastError: existingEvent.error || 'Unknown error',
+      });
+
+      return NextResponse.json(
+        { error: "Maximum retry attempts exceeded" },
+        { status: 400 }
+      );
+    }
+
+    // Update retry count (still have retries left)
     await db
       .update(webhookEvents)
       .set({
-        retryCount: String(Number(existingEvent.retryCount) + 1),
+        retryCount: String(currentRetryCount + 1),
         processingStartedAt: new Date(),
         updatedAt: new Date(),
       })
@@ -190,14 +218,55 @@ export async function POST(request: Request) {
           const creditsToAdd = Number(session.metadata?.credits || 0);
 
           if (creditsToAdd > 0) {
+            // Get current balance before update
+            const [userBefore] = await db
+              .select({ credits: users.credits })
+              .from(users)
+              .where(eq(users.id, userId));
+
+            const balanceBefore = userBefore?.credits || 0;
+
             // Add credits atomically to user balance
-            await db
+            const [updatedUser] = await db
               .update(users)
               .set({
                 credits: sql`${users.credits} + ${creditsToAdd}`,
                 updatedAt: new Date(),
               })
-              .where(eq(users.id, userId));
+              .where(eq(users.id, userId))
+              .returning({ credits: users.credits });
+
+            const balanceAfter = updatedUser?.credits || balanceBefore + creditsToAdd;
+
+            // Record transaction for audit trail
+            await db.insert(creditTransactions).values({
+              userId,
+              amount: creditsToAdd,
+              type: 'credit_purchase',
+              description: `One-time credit purchase: ${creditsToAdd} credits`,
+              balanceBefore,
+              balanceAfter,
+              metadata: {
+                stripeSessionId: session.id,
+                stripeCustomerId: session.customer as string,
+                amountPaidUsd: session.amount_total ? session.amount_total / 100 : 0,
+                timestamp: new Date().toISOString(),
+              },
+            });
+
+            // Admin notification for large purchases (>10,000 credits)
+            if (creditsToAdd > 10000) {
+              logWarning(`🚨 LARGE CREDIT PURCHASE: ${creditsToAdd} credits purchased by user ${userId}`, {
+                userId,
+                credits: creditsToAdd,
+                amountUsd: session.amount_total ? session.amount_total / 100 : 0,
+                stripeSessionId: session.id,
+                stripeCustomerId: session.customer as string,
+                balanceBefore,
+                balanceAfter,
+                context: 'stripe_webhook_large_purchase',
+              });
+            }
 
             logWarning(`Added ${creditsToAdd} credits to user ${userId} (one-time purchase)`);
           }
@@ -221,15 +290,44 @@ export async function POST(request: Request) {
         };
         const monthlyCredits = monthlyCreditsMap[planId] || 1000;
 
+        // Get current balance before update
+        const [userBefore] = await db
+          .select({ credits: users.credits })
+          .from(users)
+          .where(eq(users.id, userId));
+
+        const balanceBefore = userBefore?.credits || 0;
+
         // Update user tier and add monthly credits
-        await db
+        const [updatedUser] = await db
           .update(users)
           .set({
             tier: planId as "free" | "starter" | "pro" | "business",
             credits: sql`${users.credits} + ${monthlyCredits}`, // Add monthly allocation
             updatedAt: new Date(),
           })
-          .where(eq(users.id, userId));
+          .where(eq(users.id, userId))
+          .returning({ credits: users.credits });
+
+        const balanceAfter = updatedUser?.credits || balanceBefore + monthlyCredits;
+
+        // Record transaction for audit trail
+        await db.insert(creditTransactions).values({
+          userId,
+          amount: monthlyCredits,
+          type: 'subscription_start',
+          description: `Subscription started: ${plan.name} plan (${monthlyCredits} monthly credits)`,
+          balanceBefore,
+          balanceAfter,
+          metadata: {
+            planId,
+            planName: plan.name,
+            stripeSessionId: session.id,
+            stripeCustomerId: session.customer as string,
+            stripeSubscriptionId: session.subscription as string,
+            timestamp: new Date().toISOString(),
+          },
+        });
 
         // Create or update subscription
         const [existingSubscription] = await db
@@ -303,7 +401,7 @@ export async function POST(request: Request) {
         // Get free plan
         const freePlan = await getOrCreatePlan("free");
 
-        // Get subscription to find userId
+        // Get subscription to find userId and current plan
         const [sub] = await db
           .select()
           .from(subscriptions)
@@ -318,6 +416,18 @@ export async function POST(request: Request) {
               updatedAt: new Date(),
             })
             .where(eq(users.id, sub.userId));
+
+          // Admin notification for subscription cancellation
+          logWarning(`🚨 SUBSCRIPTION CANCELED: User ${sub.userId} canceled subscription`, {
+            userId: sub.userId,
+            previousPlanId: sub.planId,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscription.id,
+            cancelReason: subscription.cancellation_details?.reason || 'unknown',
+            cancelComment: subscription.cancellation_details?.comment || null,
+            hadActivePeriod: sub.currentPeriodStart && sub.currentPeriodEnd,
+            context: 'stripe_webhook_subscription_canceled',
+          });
         }
 
         // Cancel subscription
@@ -346,13 +456,43 @@ export async function POST(request: Request) {
           // Add monthly credits to user balance (renewal)
           // Only add credits if this is NOT the first invoice (billing_reason !== 'subscription_create')
           if (invoice.billing_reason !== 'subscription_create') {
-            await db
+            // Get current balance before update
+            const [userBefore] = await db
+              .select({ credits: users.credits })
+              .from(users)
+              .where(eq(users.id, sub.userId));
+
+            const balanceBefore = userBefore?.credits || 0;
+
+            // Add credits atomically
+            const [updatedUser] = await db
               .update(users)
               .set({
                 credits: sql`${users.credits} + ${sub.monthlyCredits}`,
                 updatedAt: new Date(),
               })
-              .where(eq(users.id, sub.userId));
+              .where(eq(users.id, sub.userId))
+              .returning({ credits: users.credits });
+
+            const balanceAfter = updatedUser?.credits || balanceBefore + sub.monthlyCredits;
+
+            // Record transaction for audit trail
+            await db.insert(creditTransactions).values({
+              userId: sub.userId,
+              amount: sub.monthlyCredits,
+              type: 'subscription_renewal',
+              description: `Monthly subscription renewal: ${sub.monthlyCredits} credits`,
+              balanceBefore,
+              balanceAfter,
+              metadata: {
+                stripeInvoiceId: invoice.id,
+                stripeCustomerId: customerId,
+                stripeSubscriptionId: sub.stripeSubscriptionId,
+                billingReason: invoice.billing_reason || 'subscription_cycle',
+                amountPaidUsd: invoice.amount_paid ? invoice.amount_paid / 100 : 0,
+                timestamp: new Date().toISOString(),
+              },
+            });
 
             logWarning(`Renewed ${sub.monthlyCredits} credits for user ${sub.userId} (monthly renewal)`);
           }
@@ -376,12 +516,32 @@ export async function POST(request: Request) {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
 
+        // Get subscription to find userId
+        const [sub] = await db
+          .select()
+          .from(subscriptions)
+          .where(eq(subscriptions.stripeCustomerId, customerId));
+
         await db.update(subscriptions)
           .set({
             status: "past_due",
             updatedAt: new Date(),
           })
           .where(eq(subscriptions.stripeCustomerId, customerId));
+
+        // Admin notification for failed payment
+        if (sub) {
+          logError(new Error('Payment failed for subscription'), {
+            context: 'stripe_webhook_payment_failed',
+            userId: sub.userId,
+            stripeCustomerId: customerId,
+            stripeInvoiceId: invoice.id,
+            stripeSubscriptionId: sub.stripeSubscriptionId,
+            amountDue: invoice.amount_due ? invoice.amount_due / 100 : 0,
+            attemptCount: invoice.attempt_count,
+            nextPaymentAttempt: invoice.next_payment_attempt ? new Date(invoice.next_payment_attempt * 1000).toISOString() : null,
+          });
+        }
         break;
       }
 

@@ -11,7 +11,7 @@ import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { router, protectedProcedure, expensiveRateLimitedProcedure } from "../trpc.js";
 import { db } from "@quoorum/db";
 import { quoorumDebates, users, userContextFiles as userContextFilesTable } from "@quoorum/db/schema";
-import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator } from "@quoorum/quoorum";
+import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator, buildCorporateContext } from "@quoorum/quoorum";
 import type { ExpertProfile, PatternType } from "@quoorum/quoorum";
 import { logger } from "../lib/logger.js";
 import { inngest } from "../lib/inngest-client.js";
@@ -1250,46 +1250,26 @@ async function runDebateAsync(
     let corporateContext: any = undefined
     if (selectedDepartmentIds && selectedDepartmentIds.length > 0) {
       try {
-        // Import schemas
-        const { companies, departments } = await import('@quoorum/db/schema')
-        const { eq, inArray } = await import('drizzle-orm')
+        // Use centralized buildCorporateContext function
+        const corporateData = await buildCorporateContext(userId, selectedDepartmentIds)
 
-        // Get user's company
-        const [company] = await db
-          .select()
-          .from(companies)
-          .where(eq(companies.userId, userId))
-          .limit(1)
-
-        if (company) {
-          // Get selected departments
-          const selectedDepartments = await db
-            .select()
-            .from(departments)
-            .where(
-              and(
-                inArray(departments.id, selectedDepartmentIds),
-                eq(departments.companyId, company.id)
-              )
-            )
-
-          if (selectedDepartments.length > 0) {
-            corporateContext = {
-              companyContext: company.context,
-              departmentContexts: selectedDepartments.map((dept) => ({
-                departmentName: dept.name,
-                departmentContext: dept.departmentContext,
-                customPrompt: dept.customPrompt || undefined,
-              })),
-            }
-
-            logger.info('Corporate intelligence loaded', {
-              debateId,
-              companyName: company.name,
-              departmentCount: selectedDepartments.length,
-              departments: selectedDepartments.map((d) => d.name),
-            })
+        if (corporateData) {
+          corporateContext = {
+            companyContext: corporateData.company.context,
+            departmentContexts: corporateData.departments.map((dept) => ({
+              departmentName: dept.name,
+              departmentContext: dept.context,
+              customPrompt: dept.customPrompt || undefined,
+            })),
+            contextSummary: corporateData.contextSummary, // Full formatted context for AI
           }
+
+          logger.info('Corporate intelligence loaded', {
+            debateId,
+            companyName: corporateData.company.name,
+            departmentCount: corporateData.departments.length,
+            departments: corporateData.departments.map((d) => d.name),
+          })
         }
       } catch (error) {
         logger.warn('Failed to load corporate intelligence', {

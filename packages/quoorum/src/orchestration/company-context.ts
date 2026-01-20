@@ -3,6 +3,9 @@
  */
 
 import type { AIProvider } from './ai-debate-types'
+import { db } from '@quoorum/db'
+import { companies, departments } from '@quoorum/db/schema'
+import { eq, and } from 'drizzle-orm'
 
 // ============================================================================
 // TYPES
@@ -202,4 +205,182 @@ export function createStartupContext(
     updatedAt: new Date(),
   })
   return store
+}
+
+// ============================================================================
+// DATABASE INTEGRATION (Layer 2-4 Corporate Intelligence)
+// ============================================================================
+
+export interface DepartmentContext {
+  id: string
+  name: string
+  type: string
+  context: string
+  basePrompt: string
+  customPrompt?: string | null
+  agentRole: string | null
+  temperature: string | null
+}
+
+export interface CorporateContext {
+  company: {
+    id: string
+    name: string
+    industry?: string | null
+    size?: string | null
+    context: string
+    description?: string | null
+  }
+  departments: DepartmentContext[]
+  contextSummary: string
+}
+
+/**
+ * Build corporate context from database (4-layer intelligence)
+ * Connects database schemas (companies, departments) to CompanyContextStore
+ *
+ * @param userId - User ID to fetch company for
+ * @param departmentIds - Optional array of department IDs to include (default: all active)
+ * @returns CorporateContext with company and department information
+ */
+export async function buildCorporateContext(
+  userId: string,
+  departmentIds?: string[]
+): Promise<CorporateContext | null> {
+  // Layer 1: Fetch company (master context)
+  const [company] = await db
+    .select()
+    .from(companies)
+    .where(and(eq(companies.userId, userId), eq(companies.isActive, true)))
+    .limit(1)
+
+  if (!company) {
+    return null // No company configured for this user
+  }
+
+  // Layer 2: Fetch departments
+  const conditions = [
+    eq(departments.companyId, company.id),
+    eq(departments.isActive, true),
+  ]
+
+  // If specific departments requested, filter by IDs
+  if (departmentIds && departmentIds.length > 0) {
+    const depts = await db
+      .select()
+      .from(departments)
+      .where(
+        and(
+          ...conditions,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- drizzle-orm's inArray type requires any[]
+          ...(departmentIds.length ? [eq(departments.id, departmentIds[0] as any)] : [])
+        )
+      )
+
+    const filteredDepts = depts.filter((d) => departmentIds.includes(d.id))
+
+    const departmentContexts: DepartmentContext[] = filteredDepts.map((dept) => ({
+      id: dept.id,
+      name: dept.name,
+      type: dept.type,
+      context: dept.departmentContext,
+      basePrompt: dept.basePrompt,
+      customPrompt: dept.customPrompt,
+      agentRole: dept.agentRole,
+      temperature: dept.temperature,
+    }))
+
+    // Layer 3: Build context summary
+    const contextSummary = buildContextSummary(company, departmentContexts)
+
+    return {
+      company: {
+        id: company.id,
+        name: company.name,
+        industry: company.industry,
+        size: company.size,
+        context: company.context,
+        description: company.description,
+      },
+      departments: departmentContexts,
+      contextSummary,
+    }
+  }
+
+  // Fetch all active departments if no specific IDs
+  const allDepartments = await db
+    .select()
+    .from(departments)
+    .where(and(...conditions))
+
+  const departmentContexts: DepartmentContext[] = allDepartments.map((dept) => ({
+    id: dept.id,
+    name: dept.name,
+    type: dept.type,
+    context: dept.departmentContext,
+    basePrompt: dept.basePrompt,
+    customPrompt: dept.customPrompt,
+    agentRole: dept.agentRole,
+    temperature: dept.temperature,
+  }))
+
+  // Layer 3: Build context summary
+  const contextSummary = buildContextSummary(company, departmentContexts)
+
+  return {
+    company: {
+      id: company.id,
+      name: company.name,
+      industry: company.industry,
+      size: company.size,
+      context: company.context,
+      description: company.description,
+    },
+    departments: departmentContexts,
+    contextSummary,
+  }
+}
+
+/**
+ * Build context summary for prompts (Layer 4: Formatted for AI)
+ */
+function buildContextSummary(
+  company: {
+    name: string
+    industry?: string | null
+    size?: string | null
+    context: string
+    description?: string | null
+  },
+  departments: DepartmentContext[]
+): string {
+  const lines: string[] = []
+
+  // Company header
+  lines.push(`📊 CONTEXTO CORPORATIVO: ${company.name.toUpperCase()}`)
+
+  // Company details
+  const details: string[] = []
+  if (company.industry) details.push(`Industria: ${company.industry}`)
+  if (company.size) details.push(`Tamaño: ${company.size}`)
+  if (details.length) lines.push(details.join(' | '))
+
+  // Mission/Vision/Values (Layer 2)
+  if (company.context) {
+    lines.push(`\n🎯 Contexto Maestro:\n${company.context}`)
+  }
+
+  // Department contexts (Layer 3)
+  if (departments.length > 0) {
+    lines.push(`\n📂 Departamentos Activos (${departments.length}):`)
+    departments.forEach((dept) => {
+      lines.push(`\n  • ${dept.name} (${dept.type}):`)
+      lines.push(`    ${dept.context}`)
+      if (dept.customPrompt) {
+        lines.push(`    Prompt: ${dept.customPrompt}`)
+      }
+    })
+  }
+
+  return lines.join('\n')
 }

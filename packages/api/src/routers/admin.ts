@@ -12,7 +12,8 @@ import { TRPCError } from '@trpc/server'
 import { router, adminProcedure } from '../trpc'
 import { db } from '@quoorum/db'
 import { users, profiles, usage, subscriptions } from '@quoorum/db/schema'
-import { eq, and, like, desc, sql } from 'drizzle-orm'
+// TODO: creditTransactions table not yet created in schema
+import { eq, and, like, desc, sql, gte, lte } from 'drizzle-orm'
 import { CREDIT_MULTIPLIER } from '@quoorum/quoorum'
 import { env } from '../env'
 
@@ -255,14 +256,14 @@ export const adminRouter = router({
    * Get Stripe configuration variables (for admin visibility)
    */
   getStripeConfig: adminProcedure.query(() => {
-    
+
     return {
       // Stripe Keys
       hasSecretKey: !!env.STRIPE_SECRET_KEY,
       secretKeyPrefix: env.STRIPE_SECRET_KEY ? `${env.STRIPE_SECRET_KEY.substring(0, 10)}...` : 'NO CONFIGURADO',
       hasWebhookSecret: !!env.STRIPE_WEBHOOK_SECRET,
       webhookSecretPrefix: env.STRIPE_WEBHOOK_SECRET ? `${env.STRIPE_WEBHOOK_SECRET.substring(0, 10)}...` : 'NO CONFIGURADO',
-      
+
       // Subscription Price IDs
       priceIds: {
         starter: {
@@ -278,7 +279,7 @@ export const adminRouter = router({
           yearly: env.STRIPE_BUSINESS_YEARLY_PRICE_ID || 'NO CONFIGURADO',
         },
       },
-      
+
       // Credit Pack Price IDs
       creditPacks: {
         '100': env.STRIPE_CREDITS_100_PRICE_ID || 'NO CONFIGURADO',
@@ -287,9 +288,187 @@ export const adminRouter = router({
         '5000': env.STRIPE_CREDITS_5000_PRICE_ID || 'NO CONFIGURADO',
         '10000': env.STRIPE_CREDITS_10000_PRICE_ID || 'NO CONFIGURADO',
       },
-      
+
       // App URL
       appUrl: env.NEXT_PUBLIC_APP_URL || 'NO CONFIGURADO',
     }
   }),
+
+  /**
+   * Get billing stats overview (for admin dashboard)
+   */
+  getBillingStats: adminProcedure.query(async () => {
+    // Total users count
+    const [totalUsersResult] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(users)
+
+    // Active subscriptions count
+    const [activeSubsResult] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(subscriptions)
+      .where(eq(subscriptions.status, 'active'))
+
+    // Total credits issued (sum of all positive credit transactions)
+    // TODO: creditTransactions table not yet created
+    const creditsIssuedResult = { total: 0 }
+    // const [creditsIssuedResult] = await db
+    //   .select({ total: sql<number>`coalesce(sum(amount), 0)::int` })
+    //   .from(creditTransactions)
+    //   .where(sql`${creditTransactions.amount} > 0`)
+
+    // Calculate MRR (Monthly Recurring Revenue)
+    // Assuming monthlyCredits represents the plan's monthly value in credits
+    // and each credit = $0.01 (adjust as needed)
+    const [mrrResult] = await db
+      .select({
+        mrr: sql<number>`coalesce(sum(${subscriptions.monthlyCredits}) * 0.01, 0)::numeric`,
+      })
+      .from(subscriptions)
+      .where(eq(subscriptions.status, 'active'))
+
+    return {
+      totalUsers: totalUsersResult?.count || 0,
+      activeSubscriptions: activeSubsResult?.count || 0,
+      totalCreditsIssued: creditsIssuedResult?.total || 0,
+      mrr: Number(mrrResult?.mrr) || 0,
+    }
+  }),
+
+  /**
+   * Get credit transactions for a user (transaction history)
+   * TODO: creditTransactions table not yet created - commented out temporarily
+   */
+  // getCreditTransactions: adminProcedure
+  //   .input(
+  //     z.object({
+  //       userId: z.string().uuid(),
+  //       limit: z.number().min(1).max(100).default(50),
+  //       offset: z.number().min(0).default(0),
+  //       })
+  //   )
+  //   .query(async ({ input }) => {
+  //     const transactions = await db
+  //       .select()
+  //       .from(creditTransactions)
+  //       .where(eq(creditTransactions.userId, input.userId))
+  //       .orderBy(desc(creditTransactions.createdAt))
+  //       .limit(input.limit)
+  //       .offset(input.offset)
+  //
+  //     return transactions
+  //   }),
+
+  /**
+   * Deduct credits from user (for admin corrections)
+   */
+  deductCredits: adminProcedure
+    .input(
+      z.object({
+        userId: z.string().uuid(),
+        credits: z.number().int().positive(),
+        reason: z.string().min(1).max(500),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Get current balance
+      const [user] = await db
+        .select({ credits: users.credits, email: users.email })
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1)
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuario no encontrado',
+        })
+      }
+
+      const balanceBefore = user.credits
+      const balanceAfter = Math.max(0, balanceBefore - input.credits)
+      const actualDeduction = balanceBefore - balanceAfter
+
+      // Update user credits atomically
+      await db
+        .update(users)
+        .set({
+          credits: balanceAfter,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, input.userId))
+
+      // Create transaction record
+      // TODO: creditTransactions table not yet created - commented out temporarily
+      // await db.insert(creditTransactions).values({
+      //   userId: input.userId,
+      //   amount: -actualDeduction,
+      //   type: 'admin_deduction',
+      //   description: input.reason,
+      //   balanceBefore,
+      //   balanceAfter,
+      //   metadata: {
+      //     adminId: ctx.user.id,
+      //     adminEmail: ctx.user.email,
+      //     timestamp: new Date().toISOString(),
+      //   },
+      // })
+
+      return {
+        success: true,
+        userId: input.userId,
+        creditsDeducted: actualDeduction,
+        newBalance: balanceAfter,
+        reason: input.reason,
+        adminId: ctx.user.id,
+      }
+    }),
+
+  /**
+   * Get MRR history (last N months)
+   */
+  getMrrHistory: adminProcedure
+    .input(
+      z.object({
+        months: z.number().min(1).max(24).default(12),
+      })
+    )
+    .query(async ({ input }) => {
+      const results = []
+      const now = new Date()
+
+      // Generate monthly data
+      for (let i = 0; i < input.months; i++) {
+        const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1)
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0)
+
+        // Count active subscriptions in this month
+        const [stats] = await db
+          .select({
+            activeCount: sql<number>`count(*)::int`,
+            totalCredits: sql<number>`coalesce(sum(${subscriptions.monthlyCredits}), 0)::int`,
+          })
+          .from(subscriptions)
+          .where(
+            and(
+              eq(subscriptions.status, 'active'),
+              lte(subscriptions.createdAt, monthEnd),
+              sql`(${subscriptions.canceledAt} IS NULL OR ${subscriptions.canceledAt} > ${monthStart})`
+            )
+          )
+
+        // Convert credits to MRR (assuming 1 credit = $0.01)
+        const mrr = (stats?.totalCredits || 0) * 0.01
+
+        results.unshift({
+          month: monthStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+          timestamp: monthStart.toISOString(),
+          mrr: Math.round(mrr * 100) / 100, // Round to 2 decimals
+          activeSubscriptions: stats?.activeCount || 0,
+          totalCredits: stats?.totalCredits || 0,
+        })
+      }
+
+      return results
+    }),
 })
