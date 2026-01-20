@@ -550,21 +550,17 @@ function DebateListItem({
     >
       {/* Icon/Checkbox - Icon by default, checkbox on hover or when selected */}
       <div
-        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-all"
+        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-all cursor-pointer"
         onClick={onToggleSelect}
       >
         {/* Show checkbox on hover, when any debate is selected, or when this debate is checked */}
         {(isHovered || showCheckbox || isCheckboxSelected) ? (
-          <div className="bg-[#202c33]/90 backdrop-blur-sm p-1.5 rounded border border-[#aebac1]/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all cursor-pointer">
-            <Checkbox
-              checked={isCheckboxSelected}
-              className="h-5 w-5 border-[#aebac1]/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
-            />
-          </div>
+          <Checkbox
+            checked={isCheckboxSelected}
+            className="h-6 w-6 border-2 border-[#aebac1]/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 hover:border-purple-500"
+          />
         ) : (
-          <div className="bg-[#202c33]/60 p-1.5 rounded">
-            <MessageSquare className="h-5 w-5 text-[#aebac1]" />
-          </div>
+          <MessageSquare className="h-6 w-6 text-[#aebac1]" />
         )}
       </div>
 
