@@ -15,14 +15,19 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Plus,
   Clock,
   CheckCircle,
   XCircle,
   Loader2,
+  Trash2,
 } from "lucide-react";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { AppHeader } from "@/components/layout/app-header";
+import { toast } from "sonner";
+import { QuoorumLogo } from "@/components/icons/quoorum-logo";
 
 // Pattern labels in Spanish
 function getPatternLabel(pattern: string): string {
@@ -44,6 +49,8 @@ export default function DebatesPage() {
   const router = useRouter();
   const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [selectedDebates, setSelectedDebates] = useState<Set<string>>(new Set());
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Auth check (runs BEFORE query)
   useEffect(() => {
@@ -59,7 +66,7 @@ export default function DebatesPage() {
   }, [router, supabase.auth]);
 
   // Fetch debates using tRPC (only if authenticated)
-  const { data: debates = [], isLoading } = api.debates.list.useQuery(
+  const { data: debates = [], isLoading, error, refetch } = api.debates.list.useQuery(
     {
       limit: 50,
       offset: 0,
@@ -75,51 +82,89 @@ export default function DebatesPage() {
     }
   );
 
+  // Delete mutation
+  const deleteDebate = api.debates.delete.useMutation({
+    onSuccess: () => {
+      void refetch();
+    },
+  });
+
+  // Handlers
+  const handleToggleSelect = (debateId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedDebates((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(debateId)) {
+        newSet.delete(debateId);
+      } else {
+        newSet.add(debateId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedDebates.size === debates.length) {
+      setSelectedDebates(new Set());
+    } else {
+      setSelectedDebates(new Set(debates.map((d) => d.id)));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    try {
+      const selectedIds = Array.from(selectedDebates);
+
+      // Delete all selected debates in parallel
+      await Promise.all(
+        selectedIds.map((id) => deleteDebate.mutateAsync({ id }))
+      );
+
+      toast.success(
+        `${selectedIds.length} debate${selectedIds.length > 1 ? 's' : ''} eliminado${selectedIds.length > 1 ? 's' : ''}`
+      );
+      setSelectedDebates(new Set());
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      toast.error('Error al eliminar debates');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900">
-      {/* Header igual al dashboard */}
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
-                  <QuoorumLogo size={24} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
-            </Link>
+      {/* Header */}
+      <AppHeader variant="app" />
 
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/dashboard" className="text-sm text-gray-400 hover:text-white">
-                Dashboard
-              </Link>
-              <Link href="/debates" className="text-sm text-purple-400 font-medium">
-                Debates
-              </Link>
-              <Link href="/settings" className="text-sm text-gray-400 hover:text-white">
-                Configuración
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">Debates</h1>
-            <p className="text-gray-400 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Debates</h1>
+            <p className="text-sm sm:text-base text-gray-400 mt-1">
               Gestiona tus debates y deliberaciones
             </p>
           </div>
-          <Link href="/debates/new">
-            <Button className="bg-purple-600 hover:bg-purple-700">
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo Debate
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {debates.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSelectAll}
+                className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+              >
+                <Checkbox
+                  checked={selectedDebates.size === debates.length && debates.length > 0}
+                  className="mr-2"
+                />
+                {selectedDebates.size === debates.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
+              </Button>
+            )}
+            <Link href="/debates/new">
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                <Plus className="mr-2 h-4 w-4" />
+                Nuevo Debate
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="mt-8">
@@ -137,6 +182,21 @@ export default function DebatesPage() {
                 </Card>
               ))}
             </div>
+          ) : error ? (
+            <Card className="bg-red-500/10 border-red-500/20">
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <XCircle className="h-12 w-12 text-red-500 mb-4" />
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Error al cargar debates
+                </h3>
+                <p className="text-gray-400 text-center mb-4">
+                  {error.message || 'No se pudo conectar a la base de datos'}
+                </p>
+                <p className="text-sm text-gray-500 text-center">
+                  Asegúrate de que Docker Desktop esté corriendo y PostgreSQL esté iniciado
+                </p>
+              </CardContent>
+            </Card>
           ) : debates.length === 0 ? (
             <Card className="bg-white/5 border-white/10">
               <CardContent className="flex flex-col items-center justify-center py-16">
@@ -160,14 +220,25 @@ export default function DebatesPage() {
               {debates.map((debate) => (
                 <Card
                   key={debate.id}
-                  className="bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer transition-colors"
+                  className="bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer transition-colors relative"
                   onClick={() => router.push(`/debates/${debate.id}`)}
                 >
-                  <CardHeader>
-                    <CardTitle className="text-white line-clamp-2">
+                  {/* Checkbox */}
+                  <div
+                    className="absolute top-4 right-4 z-10"
+                    onClick={(e) => handleToggleSelect(debate.id, e)}
+                  >
+                    <Checkbox
+                      checked={selectedDebates.has(debate.id)}
+                      className="h-5 w-5 border-white/20 bg-white/10 data-[state=checked]:bg-purple-600"
+                    />
+                  </div>
+
+                  <CardHeader className="pr-12">
+                    <CardTitle className="text-white line-clamp-2 break-words">
                       {debate.question}
                     </CardTitle>
-                    <CardDescription className="flex items-center gap-2">
+                    <CardDescription className="flex items-center gap-2 flex-wrap">
                       {debate.status === "draft" && (
                         <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/50">
                           <Clock className="mr-1 h-3 w-3" />
@@ -230,6 +301,58 @@ export default function DebatesPage() {
             </div>
           )}
         </div>
+
+        {/* Floating Action Bar */}
+        {selectedDebates.size > 0 && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
+            <Card className="border-white/20 bg-slate-800/95 backdrop-blur-xl shadow-2xl">
+              <CardContent className="flex items-center gap-4 p-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={selectedDebates.size === debates.length}
+                    onCheckedChange={handleSelectAll}
+                    className="h-5 w-5"
+                  />
+                  <span className="text-white font-medium">
+                    {selectedDebates.size} debate{selectedDebates.size > 1 ? 's' : ''} seleccionado{selectedDebates.size > 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="h-6 w-px bg-white/20" />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  disabled={deleteDebate.isPending}
+                >
+                  {deleteDebate.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Eliminando...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Eliminar
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Confirm Delete Dialog */}
+        <ConfirmDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="¿Eliminar debates seleccionados?"
+          description={`Estás a punto de eliminar ${selectedDebates.size} debate${selectedDebates.size > 1 ? 's' : ''}. Esta acción no se puede deshacer.`}
+          confirmText="Eliminar"
+          cancelText="Cancelar"
+          onConfirm={handleDeleteSelected}
+          variant="destructive"
+          isLoading={deleteDebate.isPending}
+        />
       </main>
     </div>
   );
