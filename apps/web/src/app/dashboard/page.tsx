@@ -91,8 +91,8 @@ export default function DashboardPage() {
 
   // Fetch recent debates via tRPC (with error handling)
   const { data: recentDebates = [], isLoading: debatesLoading, error: debatesError } = api.debates.list.useQuery(
-    { limit: 5, offset: 0 },
-    { 
+    { limit: 20, offset: 0 },
+    {
       enabled: !isAuthChecking && !!user,
       retry: false,
     }
@@ -306,12 +306,12 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4 max-h-[calc(100vh-400px)] overflow-y-auto pr-2">
+                  <div className="space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto pr-2">
                     {recentDebates.map((debate) => (
                     <Link
                       key={debate.id}
                       href={`/debates/${debate.id}`}
-                      className="block p-5 rounded-lg bg-white/5 hover:bg-white/10 transition cursor-pointer min-h-[120px] flex flex-col justify-between"
+                      className="block p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer hover:bg-purple-500/10 border border-transparent hover:border-purple-500/30"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
