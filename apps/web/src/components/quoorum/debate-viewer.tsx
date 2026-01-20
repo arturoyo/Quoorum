@@ -313,7 +313,11 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                   >
                     {idx + 1}
                   </div>
-                  <span className="text-[#e9edef]">{option.option}</span>
+                  <span className="text-[#e9edef]">
+                    {typeof option.option === 'object'
+                      ? JSON.stringify(option.option, null, 2)
+                      : option.option}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-[#8696a0]">{option.score.toFixed(1)}%</span>

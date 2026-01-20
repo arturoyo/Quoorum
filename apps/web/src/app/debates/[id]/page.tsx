@@ -396,12 +396,13 @@ export default function DebatePage({ params }: DebatePageProps) {
                   {/* Síntesis cuando está colapsado */}
                   {!isContextExpanded && (
                     <p className="text-xs text-gray-300 mt-1 line-clamp-1">
-                      {debate.context.assessment?.summary || 
-                       (debate.context.background 
-                         ? (debate.context.background.length > 120 
-                            ? `${debate.context.background.substring(0, 120)}...` 
-                            : debate.context.background)
-                         : 'Ver contexto completo')}
+                      {debate.context.assessment && typeof debate.context.assessment === 'object' && 'summary' in debate.context.assessment
+                        ? String(debate.context.assessment.summary || '')
+                        : debate.context.background 
+                        ? (debate.context.background.length > 120 
+                           ? `${debate.context.background.substring(0, 120)}...` 
+                           : debate.context.background)
+                        : 'Ver contexto completo'}
                     </p>
                   )}
                   {/* Mensaje cuando está en progreso y colapsado */}
@@ -464,7 +465,11 @@ export default function DebatePage({ params }: DebatePageProps) {
                         Análisis de Contexto:
                       </div>
                       <p className="text-sm text-gray-400">
-                        {debate.context.assessment.summary}
+                        {typeof debate.context.assessment === 'object' && 'summary' in debate.context.assessment
+                          ? String(debate.context.assessment.summary || '')
+                          : typeof debate.context.assessment === 'string'
+                          ? debate.context.assessment
+                          : 'Análisis disponible'}
                       </p>
                     </div>
                   )}
@@ -703,7 +708,9 @@ export default function DebatePage({ params }: DebatePageProps) {
                               </div>
                               <div className="rounded-md bg-slate-900/60 border border-slate-700/50 p-4">
                                 <pre className="whitespace-pre-wrap font-sans text-white text-sm leading-relaxed">
-                                  {option.option}
+                                  {typeof option.option === 'object'
+                                    ? JSON.stringify(option.option, null, 2)
+                                    : option.option}
                                 </pre>
                               </div>
                               {option.reasoning && (
@@ -731,7 +738,9 @@ export default function DebatePage({ params }: DebatePageProps) {
                                     'font-medium text-white',
                                     isLongContent && 'max-w-2xl'
                                   )}>
-                                    {option.option}
+                                    {typeof option.option === 'object'
+                                      ? JSON.stringify(option.option, null, 2)
+                                      : option.option}
                                   </div>
                                   {option.reasoning && (
                                     <div className="text-xs text-gray-400">{option.reasoning}</div>
