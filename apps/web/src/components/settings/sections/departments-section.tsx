@@ -2,11 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2, Plus, Edit2, Trash2, Sparkles, Building2, Network } from 'lucide-react'
+import { Loader2, Plus, Building2, BookOpen } from 'lucide-react'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 
 interface DepartmentsSectionProps {
@@ -15,85 +18,63 @@ interface DepartmentsSectionProps {
 
 export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProps) {
   const router = useRouter()
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    departmentContext: '',
+    basePrompt: '',
+    customPrompt: '',
+    agentRole: 'analyst',
+    temperature: '0.7',
+    icon: '📊',
+  })
 
   // Queries
   const { data: company } = api.companies.get.useQuery()
-  const { data: departments, isLoading: loadingDepartments, refetch: refetchDepartments } = api.departments.list.useQuery(
-    { companyId: company?.id ?? '' },
-    { enabled: !!company?.id }
-  )
-  const { data: predefinedDepartments } = api.departments.listPredefined.useQuery()
 
   // Mutations
-  const seedDepartmentsMutation = api.departments.seedPredefined.useMutation({
-    onSuccess: (data) => {
-      toast.success(`${data.length} departamentos creados`)
-      void refetchDepartments()
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
-
-  const deleteDepartmentMutation = api.departments.delete.useMutation({
+  const createDepartment = api.departments.create.useMutation({
     onSuccess: () => {
-      toast.success('Departamento eliminado')
-      void refetchDepartments()
+      toast.success('Departamento creado exitosamente')
+      setFormData({
+        name: '',
+        description: '',
+        departmentContext: '',
+        basePrompt: '',
+        customPrompt: '',
+        agentRole: 'analyst',
+        temperature: '0.7',
+        icon: '📊',
+      })
     },
     onError: (error) => {
       toast.error(error.message)
     },
   })
 
-  // Handlers
-  const handleSeedDepartments = () => {
+  const handleSubmit = () => {
     if (!company) {
       toast.error('Primero configura tu empresa en la sección Empresa')
       return
     }
 
-    seedDepartmentsMutation.mutate({ companyId: company.id })
-  }
-
-  const handleDeleteDepartment = (id: string) => {
-    if (confirm('¿Eliminar este departamento?')) {
-      deleteDepartmentMutation.mutate({ id })
+    if (!formData.name || !formData.departmentContext) {
+      toast.error('El nombre y contexto son obligatorios')
+      return
     }
-  }
 
-  // Si no hay empresa, mostrar mensaje
-  if (!company) {
-    return (
-      <div className="space-y-6">
-        {!isInModal && (
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Departamentos</h1>
-            <p className="text-gray-400">
-              Organiza y configura los departamentos de tu empresa
-            </p>
-          </div>
-        )}
-
-        <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="mb-4 rounded-full bg-purple-500/10 p-3">
-              <Building2 className="h-6 w-6 text-purple-400" />
-            </div>
-            <h3 className="mb-1 text-lg font-semibold text-white">Configura tu empresa primero</h3>
-            <p className="mb-4 text-center text-sm text-gray-400">
-              Necesitas configurar tu empresa antes de crear departamentos
-            </p>
-            <Button
-              onClick={() => router.push('/settings/company')}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              <Building2 className="mr-2 h-4 w-4" />
-              Configurar Empresa
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    createDepartment.mutate({
+      companyId: company.id,
+      name: formData.name,
+      description: formData.description || undefined,
+      departmentContext: formData.departmentContext,
+      basePrompt: formData.basePrompt || undefined,
+      customPrompt: formData.customPrompt || undefined,
+      agentRole: formData.agentRole,
+      temperature: formData.temperature,
+      icon: formData.icon || undefined,
+      type: 'custom',
+    })
   }
 
   return (
@@ -101,225 +82,192 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
       {/* Header */}
       {!isInModal && (
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Departamentos</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Crear Departamento</h1>
           <p className="text-gray-400">
-            Capa 3: Contextos Específicos + Capa 4: Prompts Personalizados
+            Crea un departamento personalizado con contexto específico
           </p>
         </div>
       )}
 
-      {/* Info sobre la empresa actual */}
+      {/* Info sobre empresa */}
+      {company && (
+        <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Building2 className="h-5 w-5" />
+                  {company.name}
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Creando departamento para esta empresa
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/settings/departments/library')}
+                className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800"
+              >
+                <BookOpen className="mr-2 h-4 w-4" />
+                Ver Plantillas
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+      )}
+
+      {/* Formulario de creación */}
       <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Building2 className="h-5 w-5" />
-                {company.name}
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                {company.industry || 'Empresa'} · Departamentos configurados
-              </CardDescription>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/settings/company')}
-              className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800"
-            >
-              Ver empresa
-            </Button>
-          </div>
+          <CardTitle className="text-white">Información Básica</CardTitle>
+          <CardDescription className="text-gray-400">
+            Define el nombre y contexto del departamento
+          </CardDescription>
         </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-white">Nombre del Departamento *</Label>
+              <Input
+                id="name"
+                placeholder="Ej: Ventas, Marketing, Producto"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="border-white/10 bg-slate-800/50 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="icon" className="text-white">Icono</Label>
+              <Input
+                id="icon"
+                placeholder="📊"
+                value={formData.icon}
+                onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+                className="border-white/10 bg-slate-800/50 text-white"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-white">Descripción</Label>
+            <Textarea
+              id="description"
+              placeholder="Breve descripción del departamento..."
+              rows={2}
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              className="resize-none border-white/10 bg-slate-800/50 text-white"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="departmentContext" className="text-white">Contexto del Departamento *</Label>
+            <Textarea
+              id="departmentContext"
+              placeholder="Describe el propósito, responsabilidades y enfoque de este departamento..."
+              rows={4}
+              value={formData.departmentContext}
+              onChange={(e) => setFormData(prev => ({ ...prev, departmentContext: e.target.value }))}
+              className="resize-none border-white/10 bg-slate-800/50 text-white"
+            />
+            <p className="text-xs text-gray-400">
+              Este contexto se inyectará en debates relacionados con este departamento
+            </p>
+          </div>
+        </CardContent>
       </Card>
 
-      {/* Actions */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h2 className="text-xl font-bold tracking-tight text-white">
-            Tus Departamentos ({departments?.length || 0})
-          </h2>
-          <p className="text-sm text-gray-400">
-            Configura contextos específicos por departamento
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {(!departments || departments.length === 0) && predefinedDepartments && (
-            <Button
-              variant="outline"
-              onClick={handleSeedDepartments}
-              disabled={seedDepartmentsMutation.isPending}
-              className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800"
-            >
-              {seedDepartmentsMutation.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
-              Crear {predefinedDepartments.length} Predefinidos
-            </Button>
-          )}
-          <Button
-            onClick={() => router.push('/settings/company/departments/new')}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Crear Departamento
-          </Button>
-        </div>
-      </div>
-
-      {/* Departments Grid */}
-      {loadingDepartments ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-        </div>
-      ) : departments && departments.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {departments.map((dept) => (
-            <Card key={dept.id} className="relative border-white/10 bg-slate-900/60 backdrop-blur-xl hover:border-purple-500/30 transition-colors">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-lg text-white">
-                        {dept.icon && <span>{dept.icon}</span>}
-                        {dept.name}
-                      </CardTitle>
-                      {/* Estado activo/inactivo */}
-                      <div className={`h-2 w-2 rounded-full ${dept.isActive ? 'bg-green-500' : 'bg-gray-500'}`} title={dept.isActive ? 'Activo' : 'Inactivo'} />
-                    </div>
-                    <CardDescription className="line-clamp-2 text-gray-400">
-                      {dept.description || dept.departmentContext.substring(0, 100) + '...'}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {/* Badges principales */}
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10">{dept.type}</Badge>
-                  <Badge variant="secondary" className="bg-slate-800/50 text-gray-300">{dept.agentRole}</Badge>
-                  {dept.isPredefined && <Badge className="bg-purple-600 text-white">Predefinido</Badge>}
-                </div>
-
-                {/* Temperatura */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">Temperatura</span>
-                    <span className="text-xs font-medium text-purple-300">{dept.temperature || '0.7'}</span>
-                  </div>
-                  <div className="h-1 bg-slate-800/50 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-                      style={{ width: `${((parseFloat(dept.temperature || '0.7')) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Prompts (solo si existen) */}
-                {(dept.basePrompt || dept.customPrompt) && (
-                  <div className="space-y-2 pt-2 border-t border-white/10">
-                    {dept.basePrompt && (
-                      <div>
-                        <span className="text-xs font-medium text-gray-400">Base Prompt</span>
-                        <p className="text-xs text-gray-500 line-clamp-2 mt-1">
-                          {dept.basePrompt}
-                        </p>
-                      </div>
-                    )}
-                    {dept.customPrompt && (
-                      <div>
-                        <span className="text-xs font-medium text-purple-400">Custom Prompt</span>
-                        <p className="text-xs text-purple-300/70 line-clamp-2 mt-1">
-                          {dept.customPrompt}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Botones */}
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 border-white/10 bg-slate-800/50 text-white hover:bg-slate-800"
-                    onClick={() => router.push(`/settings/company/departments/${dept.id}`)}
-                  >
-                    <Edit2 className="mr-2 h-3 w-3" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteDepartment(dept.id)}
-                    disabled={deleteDepartmentMutation.isPending}
-                    className="border-red-500/40 text-red-300 hover:bg-red-500/20 hover:text-white hover:border-red-500/60"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="mb-4 rounded-full bg-purple-500/10 p-3">
-              <Network className="h-6 w-6 text-purple-400" />
+      {/* Configuración avanzada */}
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white">Configuración del Agente IA</CardTitle>
+          <CardDescription className="text-gray-400">
+            Personaliza el comportamiento del agente para este departamento
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="agentRole" className="text-white">Rol del Agente</Label>
+              <Select value={formData.agentRole} onValueChange={(value) => setFormData(prev => ({ ...prev, agentRole: value }))}>
+                <SelectTrigger className="border-white/10 bg-slate-800/50 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="analyst">Analista (datos y hechos)</SelectItem>
+                  <SelectItem value="critic">Crítico (identifica riesgos)</SelectItem>
+                  <SelectItem value="synthesizer">Sintetizador (conclusiones)</SelectItem>
+                  <SelectItem value="optimizer">Optimizador (mejora procesos)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-white">Sin departamentos</h3>
-            <p className="mb-4 text-center text-sm text-gray-400">
-              Crea departamentos para contextualizar tus debates con información específica
-            </p>
-            {predefinedDepartments && predefinedDepartments.length > 0 && (
-              <Button onClick={handleSeedDepartments} disabled={seedDepartmentsMutation.isPending} className="bg-purple-600 hover:bg-purple-700">
-                {seedDepartmentsMutation.isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="mr-2 h-4 w-4" />
-                )}
-                Crear {predefinedDepartments.length} Predefinidos
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Info Cards sobre las capas */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-white">Capa 1: Técnica</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-gray-400">
-              Rol base del agente (Analista, Crítico, Sintetizador)
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-white">Capa 2: Maestra</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-gray-400">
-              Contexto de empresa (misión, visión, valores)
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-white">Capas 3 & 4</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-gray-400">
-              Contexto departamental + Prompt personalizado
-            </p>
-          </CardContent>
-        </Card>
+            <div className="space-y-2">
+              <Label htmlFor="temperature" className="text-white">Temperatura ({formData.temperature})</Label>
+              <Input
+                id="temperature"
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={formData.temperature}
+                onChange={(e) => setFormData(prev => ({ ...prev, temperature: e.target.value }))}
+                className="border-white/10 bg-slate-800/50"
+              />
+              <p className="text-xs text-gray-400">
+                0.0 = Preciso y conservador | 1.0 = Creativo y exploratorio
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="basePrompt" className="text-white">Base Prompt (Template)</Label>
+            <Textarea
+              id="basePrompt"
+              placeholder="Prompt base del sistema para este departamento..."
+              rows={3}
+              value={formData.basePrompt}
+              onChange={(e) => setFormData(prev => ({ ...prev, basePrompt: e.target.value }))}
+              className="resize-none border-white/10 bg-slate-800/50 text-white"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="customPrompt" className="text-white">Custom Prompt (Personalización)</Label>
+            <Textarea
+              id="customPrompt"
+              placeholder="Personalización adicional del prompt..."
+              rows={3}
+              value={formData.customPrompt}
+              onChange={(e) => setFormData(prev => ({ ...prev, customPrompt: e.target.value }))}
+              className="resize-none border-white/10 bg-slate-800/50 text-white"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Botón de crear */}
+      <div className="flex gap-2">
+        <Button
+          onClick={handleSubmit}
+          disabled={createDepartment.isPending || !company}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          {createDepartment.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Plus className="mr-2 h-4 w-4" />
+          Crear Departamento
+        </Button>
+        {!company && (
+          <Button
+            variant="outline"
+            onClick={() => router.push('/settings/company')}
+            className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800"
+          >
+            <Building2 className="mr-2 h-4 w-4" />
+            Configurar Empresa Primero
+          </Button>
+        )}
       </div>
     </div>
   )

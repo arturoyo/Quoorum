@@ -39,7 +39,15 @@ export function getSettingsNav(currentPath: string): SettingsNavItem[] {
   const navItems: Omit<SettingsNavItem, 'active'>[] = [
     { href: '/settings', label: 'Cuenta', icon: User },
     { href: '/settings/company', label: 'Empresa', icon: Building2 },
-    { href: '/settings/departments', label: 'Departamentos', icon: Network },
+    {
+      href: '/settings/departments',
+      label: 'Departamentos',
+      icon: Network,
+      subItems: [
+        { href: '/settings/departments', label: 'Nuevo' },
+        { href: '/settings/departments/library', label: 'Plantillas' },
+      ],
+    },
     { href: '/settings/billing', label: 'Facturación', icon: CreditCard },
     { href: '/settings/api-keys', label: 'API Keys', icon: Key },
     {

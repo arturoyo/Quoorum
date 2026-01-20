@@ -19,6 +19,7 @@ import { ExpertsLibrarySection } from './sections/experts-library-section'
 import { ContextSection } from './sections/context-section'
 import { CompanySection } from './sections/company-section'
 import { DepartmentsSection } from './sections/departments-section'
+import { DepartmentsLibrarySection } from './sections/departments-library-section'
 
 interface SettingsSectionRendererProps {
   activePath: string
@@ -51,9 +52,13 @@ export function SettingsSectionRenderer({ activePath, isInModal = false }: Setti
   const section = pathParts[0] || 'account'
   const subpath = pathParts[1] || ''
 
-  // Handle subsecciones (e.g., experts/library)
+  // Handle subsecciones (e.g., experts/library, departments/library)
   if (section === 'experts' && subpath === 'library') {
     return <ExpertsLibrarySection isInModal={isInModal} />
+  }
+
+  if (section === 'departments' && subpath === 'library') {
+    return <DepartmentsLibrarySection isInModal={isInModal} />
   }
 
   // Render the appropriate section component
