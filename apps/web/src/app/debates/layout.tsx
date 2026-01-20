@@ -48,11 +48,9 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
   // Check if we're on the "new" route
   const isNewDebate = pathname === '/debates/new'
 
-  // Collapse sidebar when creating a new debate
+  // Collapse sidebar only when creating a new debate, expand otherwise
   useEffect(() => {
-    if (isNewDebate) {
-      setIsLeftPanelCollapsed(true)
-    }
+    setIsLeftPanelCollapsed(isNewDebate)
   }, [isNewDebate])
 
   // Load column width from localStorage
