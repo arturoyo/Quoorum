@@ -13,7 +13,6 @@ import {
   MessageSquare,
   Send,
   Sparkles,
-  DollarSign,
   Plus,
   FileText,
   X,
@@ -57,8 +56,6 @@ export default function NewDebatePage() {
   const searchParams = useSearchParams()
   const retryDebateId = searchParams.get('retry')
   const draftId = searchParams.get('draft')
-  const dealId = searchParams.get('dealId')
-  const dealName = searchParams.get('dealName')
   const supabase = createClient()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -246,12 +243,6 @@ export default function NewDebatePage() {
     { enabled: !!draftId }
   )
 
-  // Load deal data if coming from suggested deals
-  const { data: dealData } = api.quoorumDeals.getDealById.useQuery(
-    { dealId: dealId! },
-    { enabled: !!dealId }
-  )
-
   // Pre-fill with retry debate context
   useEffect(() => {
     if (retryDebate && retryDebate.context) {
@@ -284,34 +275,6 @@ export default function NewDebatePage() {
       toast.info('📝 Borrador cargado. Continúa escribiendo o presiona Enter.')
     }
   }, [draftDebate])
-
-  // Pre-fill with deal context if coming from suggested deals
-  useEffect(() => {
-    if (dealId && dealName && !draftDebate && !retryDebate) {
-      const dealContext = dealData
-        ? `Oportunidad: ${dealData.name}\n${dealData.value ? `Valor: ${Number(dealData.value).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}\n` : ''}${dealData.stage ? `Etapa: ${dealData.stage}\n` : ''}${dealData.description ? `\nDescripción: ${dealData.description}` : ''}`
-        : `Oportunidad: ${decodeURIComponent(dealName)}`
-
-      const suggestedQuestion = dealData?.stage === 'negotiation'
-        ? `¿Cuál es la mejor estrategia de negociación para cerrar la oportunidad "${dealName}"?`
-        : dealData?.stage === 'proposal'
-          ? `¿Cómo puedo mejorar la propuesta de valor para la oportunidad "${dealName}"?`
-          : dealData?.stage === 'qualified'
-            ? `¿Cuál es la mejor estrategia inicial para la oportunidad "${dealName}"?`
-            : `¿Cómo puedo mejorar el cierre de la oportunidad "${dealName}"?`
-
-      const fullInput = `${suggestedQuestion}\n\n${dealContext}`
-
-      setInput(fullInput)
-      setContextState((prev) => ({
-        ...prev,
-        question: suggestedQuestion,
-        context: dealContext,
-      }))
-
-      toast.success(`💼 Oportunidad "${decodeURIComponent(dealName)}" vinculada. Puedes modificar la pregunta o presionar Enter.`)
-    }
-  }, [dealId, dealName, dealData, draftDebate, retryDebate])
 
   // Auth check
   useEffect(() => {
@@ -938,7 +901,6 @@ export default function NewDebatePage() {
         maxRounds: 5, // Metadata only - not used by deliberation system
         executionStrategy, // Pass execution strategy (for simple pattern)
         pattern, // Pass orchestration pattern (if different from simple)
-        dealId: dealId || undefined, // Link to deal if coming from suggested deals
       })
       console.log('[DEBUG] createDebateMutation.mutate called successfully with draftId:', contextState.debateId)
     } catch (error) {
@@ -1303,20 +1265,6 @@ export default function NewDebatePage() {
                         <h2 className="text-xl font-bold text-white mb-2">🔄 Reintentando debate</h2>
                         <p className="text-sm text-gray-300 mb-2">El contexto del debate anterior se ha cargado en el campo de texto.</p>
                         <p className="text-xs text-gray-400 italic">Debate original: "{retryDebate.question}"</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {dealId && dealName && !actualRetryId && (
-                  <div className="relative rounded-lg border-2 border-green-500/30 bg-green-900/20 backdrop-blur-xl p-6 w-full max-w-2xl">
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-600">
-                        <DollarSign className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h2 className="text-xl font-bold text-white mb-2">💼 Debate para Oportunidad: {decodeURIComponent(dealName)}</h2>
-                        <p className="text-sm text-gray-300 mb-2">Hemos pre-llenado la pregunta con información de esta oportunidad.</p>
                       </div>
                     </div>
                   </div>

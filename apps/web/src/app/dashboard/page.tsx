@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { api } from "@/lib/trpc/client";
-import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,9 +17,6 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Plus,
-  History,
-  Settings,
   TrendingUp,
   Users,
   Zap,
@@ -30,11 +26,9 @@ import {
   CreditCard,
   MessageCircle,
   Bell,
-  DollarSign,
-  Link2,
 } from "lucide-react";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
-import { QuoorumInsightsWidget } from "@/components/dashboard/quoorum-insights-widget";
+import { AppHeader } from "@/components/layout/app-header";
+import { SettingsModal } from "@/components/settings/settings-modal";
 import type { User } from "@supabase/supabase-js";
 
 interface DashboardData {
@@ -64,6 +58,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [settingsInitialSection, setSettingsInitialSection] = useState<string | undefined>(undefined);
 
   const supabase = createClient();
 
@@ -84,49 +80,77 @@ export default function DashboardPage() {
     checkAuth();
   }, [router, supabase.auth]);
 
-  // Fetch stats via tRPC
-  const { data: stats, isLoading: statsLoading } = api.debates.stats.useQuery(
+  // Fetch stats via tRPC (with error handling)
+  const { data: stats, isLoading: statsLoading, error: statsError } = api.debates.stats.useQuery(
     undefined,
-    { enabled: !isAuthChecking && !!user }
+    { 
+      enabled: !isAuthChecking && !!user,
+      retry: false, // Don't retry on error to show UI faster
+    }
   );
 
-  // Fetch recent debates via tRPC
-  const { data: recentDebates = [], isLoading: debatesLoading } = api.debates.list.useQuery(
+  // Fetch recent debates via tRPC (with error handling)
+  const { data: recentDebates = [], isLoading: debatesLoading, error: debatesError } = api.debates.list.useQuery(
     { limit: 5, offset: 0 },
-    { enabled: !isAuthChecking && !!user }
+    { 
+      enabled: !isAuthChecking && !!user,
+      retry: false,
+    }
   );
 
-  // Fetch notifications for widget
-  const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery(
+  // Fetch notifications for widget (with error handling)
+  const { data: unreadCount, error: notificationsError } = api.quoorumNotifications.getUnreadCount.useQuery(
     undefined,
-    { enabled: !isAuthChecking && !!user }
+    { 
+      enabled: !isAuthChecking && !!user,
+      retry: false,
+    }
   );
 
-  const { data: recentNotifications } = api.quoorumNotifications.list.useQuery(
+  const { data: recentNotifications, error: notificationsListError } = api.quoorumNotifications.list.useQuery(
     { limit: 3 },
-    { enabled: !isAuthChecking && !!user }
+    { 
+      enabled: !isAuthChecking && !!user,
+      retry: false,
+    }
   );
 
-  // Fetch suggested deals for widget
-  const { data: suggestedDeals, isLoading: dealsLoading } = api.quoorumDeals.getSuggestedDeals.useQuery(
-    { limit: 3 },
-    { enabled: !isAuthChecking && !!user }
+  // Get current user role (to show admin menu)
+  const { data: currentUser } = api.users.getMe.useQuery(
+    undefined,
+    { 
+      enabled: !isAuthChecking && !!user,
+      retry: false,
+    }
   );
 
   const isLoading = isAuthChecking || statsLoading || debatesLoading;
 
-  if (isLoading) {
+  // Show skeleton only during initial auth check or first load
+  if (isAuthChecking) {
     return <DashboardSkeleton />;
   }
 
-  if (!user || !stats) {
+  if (!user) {
     return null;
   }
+
+  // Default stats if query failed (database not available)
+  const defaultStats = {
+    totalDebates: 0,
+    completedDebates: 0,
+    inProgressDebates: 0,
+    avgConsensus: 0,
+    thisMonth: 0,
+  };
+
+  const displayStats = stats || defaultStats;
+  const hasDatabaseError = statsError || debatesError || notificationsError;
 
   // Default subscription data (TODO: implement real subscription system)
   const subscription = {
     plan: "Free",
-    debatesUsed: stats.totalDebates,
+    debatesUsed: displayStats.totalDebates,
     debatesLimit: 10,
   };
 
@@ -142,70 +166,41 @@ export default function DashboardPage() {
       </div>
 
       {/* Header */}
-      <header className="relative border-b border-white/10 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
-        <div className="container mx-auto px-4">
-          <div className="relative flex h-16 items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
-                  <QuoorumLogo size={24} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-                Quoorum
-              </span>
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/dashboard" className="text-sm font-medium text-blue-300 relative group">
-                Dashboard
-                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500" />
-              </Link>
-              <Link href="/debates" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
-                Debates
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
-              </Link>
-              <Link href="/settings" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
-                Configuración
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Link href="/debates/new">
-                <Button className="bg-purple-600 hover:bg-purple-500 text-white border-0">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nuevo Debate
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader 
+        variant="app"
+        onSettingsOpen={() => setSettingsModalOpen(true)}
+        settingsInitialSection={settingsInitialSection}
+      />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
             ¡Hola, {user.user_metadata?.full_name || user.email?.split("@")[0]}!
           </h1>
-          <p className="text-gray-400 mt-1">
+          <p className="text-sm sm:text-base text-gray-300 mt-1">
             Aquí tienes un resumen de tu actividad en Quoorum.
           </p>
+          {hasDatabaseError && (
+            <div className="mt-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <p className="text-yellow-300 text-sm">
+                ⚠️ La base de datos no está disponible. Algunos datos pueden no mostrarse correctamente.
+                Asegúrate de que Docker Desktop esté corriendo y PostgreSQL esté iniciado.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Stats Grid */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Total Debates</p>
-                  <p className="text-3xl font-bold text-white mt-1">{stats.totalDebates}</p>
+                  <p className="text-sm text-gray-300">Total Debates</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{displayStats.totalDebates}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
                   <MessageCircle className="w-6 h-6 text-purple-400" />
@@ -219,8 +214,8 @@ export default function DashboardPage() {
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Completados</p>
-                  <p className="text-3xl font-bold text-white mt-1">{stats.completedDebates}</p>
+                  <p className="text-sm text-gray-300">Completados</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{displayStats.completedDebates}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
                   <CheckCircle className="w-6 h-6 text-green-400" />
@@ -234,8 +229,8 @@ export default function DashboardPage() {
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Consenso Promedio</p>
-                  <p className="text-3xl font-bold text-white mt-1">{stats.avgConsensus}%</p>
+                  <p className="text-sm text-gray-300">Consenso Promedio</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{displayStats.avgConsensus}%</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
                   <TrendingUp className="w-6 h-6 text-blue-400" />
@@ -249,8 +244,8 @@ export default function DashboardPage() {
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Este Mes</p>
-                  <p className="text-3xl font-bold text-white mt-1">{stats.thisMonth}</p>
+                  <p className="text-sm text-gray-300">Este Mes</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{displayStats.thisMonth}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
                   <Zap className="w-6 h-6 text-orange-400" />
@@ -260,14 +255,7 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Insights Widget */}
-        {!isAuthChecking && user && (
-          <div className="mb-8">
-            <QuoorumInsightsWidget compact={false} />
-          </div>
-        )}
-
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Recent Debates */}
           <div className="lg:col-span-2">
             <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
@@ -285,8 +273,21 @@ export default function DashboardPage() {
                 </Link>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentDebates.map((debate) => (
+                {debatesError ? (
+                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
+                    <p className="text-red-300 text-sm">
+                      No se pudieron cargar los debates. Verifica que PostgreSQL esté corriendo.
+                    </p>
+                  </div>
+                ) : recentDebates.length === 0 ? (
+                  <div className="p-4 rounded-lg bg-white/5 text-center">
+                    <p className="text-gray-400 text-sm">
+                      No tienes debates todavía. Crea tu primer debate para empezar.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentDebates.map((debate) => (
                     <Link
                       key={debate.id}
                       href={`/debates/${debate.id}`}
@@ -294,8 +295,8 @@ export default function DashboardPage() {
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <p className="text-white font-medium truncate">{debate.question}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                          <p className="text-white font-medium truncate break-words">{debate.question}</p>
+                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-300">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
                               {new Date(debate.createdAt).toLocaleDateString("es-ES", {
@@ -324,17 +325,6 @@ export default function DashboardPage() {
                       </div>
                     </Link>
                   ))}
-                </div>
-
-                {recentDebates.length === 0 && (
-                  <div className="text-center py-8">
-                    <MessageCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-400">No tienes debates aún</p>
-                    <Link href="/debates/new">
-                      <Button className="mt-4 bg-purple-600 hover:bg-purple-700">
-                        Crear tu primer debate
-                      </Button>
-                    </Link>
                   </div>
                 )}
               </CardContent>
@@ -357,7 +347,7 @@ export default function DashboardPage() {
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-gray-400">Debates este mes</span>
+                    <span className="text-gray-300">Debates este mes</span>
                     <span className="text-white">
                       {subscription.debatesUsed} / {subscription.debatesLimit}
                     </span>
@@ -366,44 +356,23 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Próxima renovación</span>
+                  <span className="text-gray-300">Próxima renovación</span>
                   <span className="text-white">{daysUntilRenewal} días</span>
                 </div>
 
-                <Link href="/settings/billing" className="block">
-                  <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/10">
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Gestionar Plan
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardHeader className="relative">
-                <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Acciones Rápidas</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Link href="/debates/new" className="block">
-                  <Button variant="ghost" className="w-full justify-start text-gray-300 hover:text-white hover:bg-white/10">
-                    <Plus className="mr-3 h-4 w-4" />
-                    Nuevo Debate
-                  </Button>
-                </Link>
-                <Link href="/debates" className="block">
-                  <Button variant="ghost" className="w-full justify-start text-gray-300 hover:text-white hover:bg-white/10">
-                    <History className="mr-3 h-4 w-4" />
-                    Ver Historial
-                  </Button>
-                </Link>
-                <Link href="/settings" className="block">
-                  <Button variant="ghost" className="w-full justify-start text-gray-300 hover:text-white hover:bg-white/10">
-                    <Settings className="mr-3 h-4 w-4" />
-                    Configuración
-                  </Button>
-                </Link>
+                <Button 
+                  className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white relative z-10"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setSettingsInitialSection('/settings/billing')
+                    setSettingsModalOpen(true)
+                  }}
+                  type="button"
+                >
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Gestionar Plan
+                </Button>
               </CardContent>
             </Card>
 
@@ -437,7 +406,7 @@ export default function DashboardPage() {
                           href={notification.debateId ? `/debates/${notification.debateId}` : '/debates'}
                           className="block p-2 rounded-lg bg-white/5 hover:bg-white/10 transition text-sm"
                         >
-                          <p className="text-white font-medium truncate">
+                          <p className="text-white font-medium line-clamp-2 break-words">
                             {notification.message}
                           </p>
                           <p className="text-xs text-gray-400 mt-1">
@@ -449,66 +418,11 @@ export default function DashboardPage() {
                         </Link>
                       ))}
                       <Link href="/debates" className="block mt-3">
-                        <Button variant="ghost" className="w-full text-gray-400 hover:text-white hover:bg-white/10 text-xs">
+                        <Button variant="ghost" className="w-full text-gray-300 hover:text-white hover:bg-white/10 text-xs">
                           Ver todas
                           <ArrowRight className="ml-2 h-3 w-3" />
                         </Button>
                       </Link>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Suggested Deals Widget */}
-            {!isAuthChecking && user && (
-              <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <CardHeader className="relative">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-                      Deals Sugeridos
-                    </CardTitle>
-                    <DollarSign className="w-5 h-5 text-green-400" />
-                  </div>
-                  <CardDescription className="text-gray-400 text-xs">
-                    Oportunidades que podrían beneficiarse de Forum
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {dealsLoading ? (
-                    <div className="space-y-2">
-                      <Skeleton className="h-16 w-full bg-slate-800/60" />
-                      <Skeleton className="h-16 w-full bg-slate-800/60" />
-                    </div>
-                  ) : !suggestedDeals || suggestedDeals.length === 0 ? (
-                    <div className="text-center py-4">
-                      <Link2 className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-400">No hay deals sugeridos</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {suggestedDeals.slice(0, 3).map((deal) => (
-                        <div
-                          key={deal.id}
-                          className="p-2 rounded-lg bg-white/5 border border-white/5"
-                        >
-                          <p className="text-white font-medium truncate text-sm">
-                            {deal.name || deal.title || 'Oportunidad sin nombre'}
-                          </p>
-                          {deal.value && (
-                            <p className="text-xs text-green-400 mt-1">
-                              {Number(deal.value).toLocaleString('es-ES', {
-                                style: 'currency',
-                                currency: 'EUR',
-                              })}
-                            </p>
-                          )}
-                          {deal.suggestion && (
-                            <p className="text-xs text-gray-400 mt-1">{deal.suggestion}</p>
-                          )}
-                        </div>
-                      ))}
                     </div>
                   )}
                 </CardContent>
@@ -536,6 +450,19 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Settings Modal with blur background (like manus) */}
+      <SettingsModal 
+        open={settingsModalOpen} 
+        onOpenChange={(open) => {
+          setSettingsModalOpen(open)
+          if (!open) {
+            // Reset initial section when modal closes
+            setSettingsInitialSection(undefined)
+          }
+        }}
+        initialSection={settingsInitialSection}
+      />
     </div>
   );
 }
@@ -549,12 +476,11 @@ function DashboardSkeleton() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
       </div>
 
-      <header className="border-b border-white/10 bg-slate-900/60 backdrop-blur-xl h-16" />
-      <main className="container mx-auto px-4 py-8">
-        <Skeleton className="h-10 w-64 mb-2 bg-slate-800/60" />
-        <Skeleton className="h-5 w-96 mb-8 bg-slate-800/40" />
+      <main className="container mx-auto px-4 py-4 sm:py-8">
+        <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-2 bg-slate-800/60" />
+        <Skeleton className="h-4 sm:h-5 w-72 sm:w-96 mb-8 bg-slate-800/40" />
 
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i} className="bg-slate-900/60 backdrop-blur-sm border-purple-500/20">
               <CardContent className="relative p-6">

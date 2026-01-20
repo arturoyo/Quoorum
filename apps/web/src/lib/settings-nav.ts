@@ -12,7 +12,6 @@ import {
   Shield,
   Sparkles,
   User,
-  DollarSign,
   FileText,
 } from "lucide-react";
 import type { LucideIcon } from 'lucide-react'
@@ -36,19 +35,18 @@ export interface SettingsNavSubItem {
  */
 export function getSettingsNav(currentPath: string): SettingsNavItem[] {
   const navItems: Omit<SettingsNavItem, 'active'>[] = [
-    { href: '/settings', label: 'Perfil', icon: User },
+    { href: '/settings', label: 'Cuenta', icon: User },
     { href: '/settings/billing', label: 'Facturación', icon: CreditCard },
     { href: '/settings/api-keys', label: 'API Keys', icon: Key },
-    { 
-      href: '/settings/experts', 
-      label: 'Expertos', 
+    {
+      href: '/settings/experts',
+      label: 'Expertos',
       icon: Sparkles,
       subItems: [
         { href: '/settings/experts', label: 'Nuevo' },
         { href: '/settings/experts/library', label: 'Biblioteca' },
       ],
     },
-    { href: '/settings/deals', label: 'Oportunidades', icon: DollarSign },
     { href: '/settings/context', label: 'Contexto', icon: FileText },
     { href: '/settings/notifications', label: 'Notificaciones', icon: Bell },
     { href: '/settings/security', label: 'Seguridad', icon: Shield },

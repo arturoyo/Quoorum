@@ -16,7 +16,6 @@ import { SecuritySection } from './sections/security-section'
 import { NotificationsSection } from './sections/notifications-section'
 import { ExpertsSection } from './sections/experts-section'
 import { ExpertsLibrarySection } from './sections/experts-library-section'
-import { DealsSection } from './sections/deals-section'
 import { ContextSection } from './sections/context-section'
 
 interface SettingsSectionRendererProps {
@@ -69,8 +68,6 @@ export function SettingsSectionRenderer({ activePath, isInModal = false }: Setti
       return <NotificationsSection isInModal={isInModal} />
     case 'experts':
       return <ExpertsSection isInModal={isInModal} />
-    case 'deals':
-      return <DealsSection isInModal={isInModal} />
     case 'context':
       return <ContextSection isInModal={isInModal} />
     default:
