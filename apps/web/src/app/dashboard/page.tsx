@@ -292,7 +292,7 @@ export default function DashboardPage() {
                   </Button>
                 </Link>
               </CardHeader>
-              <CardContent className="flex-1 overflow-hidden flex flex-col">
+              <CardContent className="flex-1 overflow-hidden flex flex-col pb-6">
                 {debatesError ? (
                   <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
                     <p className="text-red-300 text-sm">
@@ -306,12 +306,12 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3 pb-2">
                     {recentDebates.map((debate) => (
                     <Link
                       key={debate.id}
                       href={`/debates/${debate.id}`}
-                      className="block p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer hover:bg-purple-500/10 border border-transparent hover:border-purple-500/30"
+                      className="block p-4 rounded-lg bg-white/5 hover:bg-purple-500/10 transition-all duration-200 cursor-pointer border border-white/10 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02]"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
