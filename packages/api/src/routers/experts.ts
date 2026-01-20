@@ -354,6 +354,11 @@ export const expertsRouter = router({
         alwaysIncludeCritic: false, // Core critic agent is separate
       });
 
+      console.log('[experts.suggest] Matches found:', {
+        count: matches.length,
+        experts: matches.map(m => ({ id: m.expert.id, name: m.expert.name, score: m.score }))
+      });
+
       // Return suggested experts with match info
       return matches.map((match) => ({
         id: match.expert.id,

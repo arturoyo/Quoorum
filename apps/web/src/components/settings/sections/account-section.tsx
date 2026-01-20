@@ -14,8 +14,14 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { toast } from 'sonner'
-import { Loader2, Save } from 'lucide-react'
+import { Loader2, Save, Info } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface AccountSectionProps {
@@ -132,9 +138,23 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-blue-200">
-                Email
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="email" className="text-blue-200">
+                  Email
+                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs bg-slate-800 border-purple-500/30 text-white">
+                      <p className="text-sm">
+                        El email no se puede cambiar por seguridad. Contacta a soporte si necesitas cambiarlo.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <Input
                 id="email"
                 value={formData.email}

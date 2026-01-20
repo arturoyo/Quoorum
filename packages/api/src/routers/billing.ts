@@ -12,6 +12,7 @@ import { env } from '../env'
 import { db } from '@quoorum/db'
 import { usage, subscriptions, users, plans } from '@quoorum/db/schema'
 import { eq, desc, and, sql } from 'drizzle-orm'
+import { logger } from '../lib/logger'
 
 // ============================================================================
 // STRIPE CLIENT
@@ -297,11 +298,11 @@ export async function handleStripeWebhook(payload: string | Buffer, signature: s
     // Verify webhook signature
     event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_WEBHOOK_SECRET)
   } catch (err) {
-    console.error('❌ Webhook signature verification failed:', err)
+    logger.error('Webhook signature verification failed', err instanceof Error ? err : new Error(String(err)))
     return { success: false, error: 'Invalid signature' }
   }
 
-  console.log(`[Stripe Webhook] Received event: ${event.type}`)
+  logger.info('Stripe webhook received', { eventType: event.type })
 
   try {
     switch (event.type) {
@@ -347,12 +348,12 @@ export async function handleStripeWebhook(payload: string | Buffer, signature: s
       }
 
       default:
-        console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`)
+        logger.info('Stripe webhook unhandled event', { eventType: event.type })
     }
 
     return { success: true }
   } catch (error) {
-    console.error(`[Stripe Webhook] Error processing ${event.type}:`, error)
+    logger.error(`Stripe webhook error processing ${event.type}`, error instanceof Error ? error : new Error(String(error)))
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
@@ -369,7 +370,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
     throw new Error('Missing userId or planId in session metadata')
   }
 
-  console.log(`[Webhook] Processing subscription payment for user ${userId}, plan ${planId}`)
+  logger.info('Webhook processing subscription payment', { userId, planId })
 
   const plan = PLAN_PRICES[planId]
 
@@ -425,7 +426,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
     })
     .where(eq(users.id, userId))
 
-  console.log(`✅ [Webhook] Subscription activated: user ${userId} → ${planId} (+${plan.credits} credits)`)
+  logger.info('Webhook subscription activated', { userId, planId, creditsAdded: plan.credits })
 }
 
 async function handleCreditPurchase(session: Stripe.Checkout.Session) {
@@ -438,7 +439,7 @@ async function handleCreditPurchase(session: Stripe.Checkout.Session) {
 
   const credits = parseInt(creditsStr, 10)
 
-  console.log(`[Webhook] Processing credit purchase for user ${userId}, amount ${credits}`)
+  logger.info('Webhook processing credit purchase', { userId, credits })
 
   // Add credits to user account
   await db
@@ -449,18 +450,18 @@ async function handleCreditPurchase(session: Stripe.Checkout.Session) {
     })
     .where(eq(users.id, userId))
 
-  console.log(`✅ [Webhook] Credits added: user ${userId} +${credits} credits`)
+  logger.info('Webhook credits added', { userId, credits })
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const userId = invoice.subscription_details?.metadata?.userId
 
   if (!userId) {
-    console.log('[Webhook] No userId found in invoice, skipping')
+    logger.warn('Webhook invoice missing userId', {})
     return
   }
 
-  console.log(`[Webhook] Processing invoice paid for user ${userId}`)
+  logger.info('Webhook processing invoice paid', { userId })
 
   // Get current subscription to know the monthly credit allocation
   const [sub] = await db
@@ -470,7 +471,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     .limit(1)
 
   if (!sub) {
-    console.log('[Webhook] No active subscription found, skipping credit renewal')
+    logger.warn('Webhook no active subscription for renewal', {})
     return
   }
 
@@ -493,7 +494,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     })
     .where(eq(subscriptions.id, sub.id))
 
-  console.log(`✅ [Webhook] Credits renewed: user ${userId} +${sub.monthlyCredits} credits`)
+  logger.info('Webhook credits renewed', { userId, monthlyCredits: sub.monthlyCredits })
 }
 
 async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
@@ -503,7 +504,7 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
     throw new Error('Missing userId in subscription metadata')
   }
 
-  console.log(`[Webhook] Processing subscription cancellation for user ${userId}`)
+  logger.info('Webhook processing subscription cancellation', { userId })
 
   // Update subscription status
   await db
@@ -524,11 +525,11 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
     })
     .where(eq(users.id, userId))
 
-  console.log(`✅ [Webhook] Subscription canceled: user ${userId} → free tier`)
+  logger.info('Webhook subscription canceled', { userId, tier: 'free' })
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  console.log(`[Webhook] Processing subscription update: ${subscription.id}`)
+  logger.info('Webhook processing subscription update', { subscriptionId: subscription.id })
 
   // Map Stripe status to our enum
   const statusMap: Record<string, string> = {
@@ -554,5 +555,5 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     })
     .where(eq(subscriptions.stripeSubscriptionId, subscription.id))
 
-  console.log(`✅ [Webhook] Subscription updated: ${subscription.id} → ${status}`)
+  logger.info('Webhook subscription updated', { subscriptionId: subscription.id, status })
 }

@@ -83,7 +83,7 @@ export function ExpertSelector({
   // Get auto-suggested experts when question is available (only in auto mode)
   const { data: suggestedExperts, isLoading: isLoadingSuggestions } = api.experts.suggest.useQuery(
     { question: question || '', context: context || '' },
-    { 
+    {
       enabled: isOpen && !!question && question.length >= 10 && selectionMode === 'auto',
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     }
@@ -103,17 +103,22 @@ export function ExpertSelector({
 
   // Auto-select suggested experts when they arrive (only if no selection yet and in auto mode)
   useEffect(() => {
-    if (suggestedExperts && 
-        suggestedExperts.length > 0 && 
-        selectedExpertIds.length === 0 && 
-        selectionMode === 'auto' && 
+    if (suggestedExperts &&
+        suggestedExperts.length > 0 &&
+        selectedExpertIds.length === 0 &&
+        selectionMode === 'auto' &&
         isOpen) {
       // Auto-select top 3-5 suggested experts
       const topExperts = suggestedExperts
         .sort((a, b) => b.matchScore - a.matchScore)
         .slice(0, 5)
         .map((e) => e.id)
-      
+
+      console.log('[ExpertSelector] 🎯 Auto-selecting experts:', {
+        count: topExperts.length,
+        expertIds: topExperts
+      })
+
       if (topExperts.length > 0) {
         onSelectionChange(topExperts)
       }

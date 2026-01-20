@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
+    "dev": "echo 'Workers dev disabled temporarily'",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

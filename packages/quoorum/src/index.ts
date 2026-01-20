@@ -56,7 +56,7 @@ export type { RunDebateOptions as DynamicDebateOptions } from './runner-dynamic'
 // Dynamic Expert System
 export { analyzeQuestion } from './question-analyzer'
 export { matchExperts, validateMatching } from './expert-matcher'
-export { EXPERT_DATABASE, getExpertsByIds, getExpertsByExpertise } from './expert-database'
+export { EXPERT_DATABASE, getExpertsByIds, getExpertsByExpertise, getAllExperts, getExpert } from './expert-database'
 export { analyzeDebateQuality, detectPrematureConsensus, summarizeQuality } from './quality-monitor'
 export {
   shouldIntervene,
