@@ -360,7 +360,7 @@ export default function DebatesPage() {
                   >
                     {/* Icon/Checkbox - Contextual icon by default, checkbox on hover or when in selection mode */}
                     <div
-                      className="absolute top-4 left-4 z-10 transition-all cursor-pointer"
+                      className="absolute top-4 left-8 -translate-x-1/2 z-10 transition-all cursor-pointer"
                       onClick={(e) => handleToggleSelect(debate.id, e)}
                     >
                       {/* Show checkbox when any debate is selected or on hover, otherwise show contextual icon */}
