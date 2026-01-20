@@ -2,6 +2,7 @@
 
 import { use, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -16,11 +17,11 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { InteractiveControls } from '@/components/quoorum/interactive-controls'
 import { DebateProgressCascade } from '@/components/debates/debate-progress-cascade'
-import { DealDebateWidget } from '@/components/quoorum/deal-debate-widget'
 import { DebateComments } from '@/components/quoorum/debate-comments'
 
 // ═══════════════════════════════════════════════════════════
@@ -84,7 +85,7 @@ export default function DebatePage({ params }: DebatePageProps) {
   const router = useRouter()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [expertColors, setExpertColors] = useState<Record<string, string>>({})
-  const [isContextExpanded, setIsContextExpanded] = useState(false) // Colapsado por defecto
+  const [isContextExpanded, setIsContextExpanded] = useState(true) // Expandido por defecto
 
   // Fetch debate with refetch interval for real-time updates
   const { data: debate, isLoading } = api.debates.get.useQuery(
@@ -173,14 +174,137 @@ export default function DebatePage({ params }: DebatePageProps) {
     )
   }
 
+  // Determine current phase based on debate status
+  const getCurrentPhase = (): 'contexto' | 'debate' | 'conclusion' => {
+    if (!debate) return 'contexto'
+    
+    if (debate.status === 'completed') {
+      return 'conclusion'
+    }
+    
+    if (debate.status === 'in_progress' || debate.status === 'pending') {
+      return 'debate'
+    }
+    
+    // draft status means still in context phase
+    return 'contexto'
+  }
+
+  const currentPhase = getCurrentPhase()
+
   return (
     <div className="flex h-screen flex-col bg-slate-950">
+      {/* Phase Indicator */}
+      <div className="relative border-b border-white/10 bg-slate-900/40 backdrop-blur-xl px-4 py-3">
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex items-center justify-center gap-4 sm:gap-8">
+            {/* Contexto Phase */}
+            <div className="flex items-center gap-2">
+              <div className={cn(
+                "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all",
+                currentPhase === 'contexto'
+                  ? "bg-purple-600 border-purple-400 text-white"
+                  : currentPhase === 'debate' || currentPhase === 'conclusion'
+                  ? "bg-purple-600/50 border-purple-600/50 text-purple-300"
+                  : "bg-slate-800/50 border-slate-600/50 text-slate-500"
+              )}>
+                <span className="text-xs font-bold">1</span>
+              </div>
+              <span className={cn(
+                "text-sm font-medium transition-colors",
+                currentPhase === 'contexto'
+                  ? "text-white"
+                  : currentPhase === 'debate' || currentPhase === 'conclusion'
+                  ? "text-purple-300"
+                  : "text-slate-500"
+              )}>
+                Contexto
+              </span>
+            </div>
+
+            {/* Connector Line */}
+            <div className={cn(
+              "flex-1 h-0.5 transition-colors",
+              currentPhase === 'debate' || currentPhase === 'conclusion'
+                ? "bg-purple-600/50"
+                : "bg-slate-700/50"
+            )} />
+
+            {/* Debate Phase */}
+            <div className="flex items-center gap-2">
+              <div className={cn(
+                "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all",
+                currentPhase === 'debate'
+                  ? "bg-purple-600 border-purple-400 text-white"
+                  : currentPhase === 'conclusion'
+                  ? "bg-purple-600/50 border-purple-600/50 text-purple-300"
+                  : "bg-slate-800/50 border-slate-600/50 text-slate-500"
+              )}>
+                <span className="text-xs font-bold">2</span>
+              </div>
+              <span className={cn(
+                "text-sm font-medium transition-colors",
+                currentPhase === 'debate'
+                  ? "text-white"
+                  : currentPhase === 'conclusion'
+                  ? "text-purple-300"
+                  : "text-slate-500"
+              )}>
+                Debate
+              </span>
+            </div>
+
+            {/* Connector Line */}
+            <div className={cn(
+              "flex-1 h-0.5 transition-colors",
+              currentPhase === 'conclusion'
+                ? "bg-purple-600/50"
+                : "bg-slate-700/50"
+            )} />
+
+            {/* Conclusión Phase */}
+            <div className="flex items-center gap-2">
+              <div className={cn(
+                "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all",
+                currentPhase === 'conclusion'
+                  ? "bg-purple-600 border-purple-400 text-white"
+                  : "bg-slate-800/50 border-slate-600/50 text-slate-500"
+              )}>
+                <span className="text-xs font-bold">3</span>
+              </div>
+              <span className={cn(
+                "text-sm font-medium transition-colors",
+                currentPhase === 'conclusion'
+                  ? "text-white"
+                  : "text-slate-500"
+              )}>
+                Conclusión
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
         <div className="relative flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
             <div>
+              {/* Breadcrumbs */}
+              <div className="flex items-center gap-2 mb-1 text-sm">
+                <Link
+                  href="/debates"
+                  className="text-gray-400 hover:text-white transition-colors flex items-center gap-1"
+                >
+                  <ArrowLeft className="h-3 w-3" />
+                  Debates
+                </Link>
+                <ChevronRight className="h-3 w-3 text-gray-600" />
+                <span className="text-gray-300 truncate max-w-xs">
+                  {debate.metadata?.title || debate.question}
+                </span>
+              </div>
               <h1 className="text-lg font-semibold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent line-clamp-1">
                 {debate.question}
               </h1>
@@ -537,15 +661,6 @@ export default function DebatePage({ params }: DebatePageProps) {
       </div>
 
       {/* Final Ranking (Bottom Sheet) */}
-      {/* Linked Deals Section */}
-      {debate.status === 'completed' && (
-        <div className="border-t border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 py-4">
-          <div className="mx-auto max-w-4xl">
-            <DealDebateWidget mode="debate" entityId={id} />
-          </div>
-        </div>
-      )}
-
       {debate.status === 'completed' && debate.finalRanking && (
         <div className="border-t border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 py-4">
           <div className="mx-auto max-w-4xl">

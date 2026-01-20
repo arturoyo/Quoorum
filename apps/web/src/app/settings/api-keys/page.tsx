@@ -35,8 +35,12 @@ import {
   Eye,
   EyeOff,
   AlertTriangle,
+  Key,
 } from "lucide-react";
+import { AppHeader } from "@/components/layout/app-header";
 import { getSettingsNav } from "@/lib/settings-nav";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { getErrorMessage } from "@/lib/error-messages";
 
 export default function ApiKeysPage() {
   const router = useRouter();
@@ -47,6 +51,8 @@ export default function ApiKeysPage() {
   const [newKey, setNewKey] = useState<string | null>(null);
   const [showKey, setShowKey] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [keyToDelete, setKeyToDelete] = useState<string | null>(null);
 
   // Auth check (runs BEFORE query)
   useEffect(() => {
@@ -76,7 +82,7 @@ export default function ApiKeysPage() {
       void refetch();
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(getErrorMessage(error, "No se pudo crear la API key. Intenta de nuevo."));
     },
   });
 
@@ -86,7 +92,7 @@ export default function ApiKeysPage() {
       void refetch();
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(getErrorMessage(error, "No se pudo eliminar la API key. Intenta de nuevo."));
     },
   });
 
@@ -99,9 +105,16 @@ export default function ApiKeysPage() {
   };
 
   const handleDeleteKey = (id: string) => {
-    if (confirm("¿Estás seguro de que quieres eliminar esta API key? Esta acción no se puede deshacer.")) {
-      deleteKey.mutate({ id });
+    setKeyToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (keyToDelete) {
+      deleteKey.mutate({ id: keyToDelete });
     }
+    setDeleteDialogOpen(false);
+    setKeyToDelete(null);
   };
 
   const copyToClipboard = (text: string) => {
@@ -129,32 +142,7 @@ export default function ApiKeysPage() {
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" className="text-gray-400 hover:text-white">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Dashboard
-                </Button>
-              </Link>
-            </div>
-
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
-                  <QuoorumLogo size={24} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
-            </Link>
-
-            <div className="w-32" />
-          </div>
-        </div>
-      </header>
+      <AppHeader variant="app" />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -425,6 +413,18 @@ export default function ApiKeysPage() {
           </div>
         </div>
       </main>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="¿Eliminar API key?"
+        description="Esta acción eliminará permanentemente esta API key. No se puede deshacer y cualquier aplicación que la use dejará de funcionar."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={confirmDelete}
+        variant="destructive"
+        isLoading={deleteKey.isPending}
+      />
     </div>
   );
 }

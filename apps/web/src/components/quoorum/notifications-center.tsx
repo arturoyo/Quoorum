@@ -55,11 +55,15 @@ function NotificationItem({
   onMarkAsRead,
   onDelete,
   onClick,
+  isMarkingAsRead,
+  isDeleting,
 }: {
   notification: Notification
   onMarkAsRead: () => void
   onDelete: () => void
   onClick?: () => void
+  isMarkingAsRead?: boolean
+  isDeleting?: boolean
 }) {
   const Icon = notificationIcons[notification.type] || Bell
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
@@ -126,9 +130,14 @@ function NotificationItem({
                 e.stopPropagation()
                 onMarkAsRead()
               }}
+              disabled={isMarkingAsRead}
               className="h-7 text-xs text-[#8696a0] hover:text-[#e9edef]"
             >
-              <CheckCheck className="mr-1 h-3 w-3" />
+              {isMarkingAsRead ? (
+                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+              ) : (
+                <CheckCheck className="mr-1 h-3 w-3" />
+              )}
               Marcar como leída
             </Button>
           )}
@@ -139,9 +148,14 @@ function NotificationItem({
               e.stopPropagation()
               onDelete()
             }}
+            disabled={isDeleting}
             className="h-7 text-xs text-[#8696a0] hover:text-[#e9edef]"
           >
-            <Trash2 className="mr-1 h-3 w-3" />
+            {isDeleting ? (
+              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+            ) : (
+              <Trash2 className="mr-1 h-3 w-3" />
+            )}
             Eliminar
           </Button>
         </div>
@@ -286,6 +300,8 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
                     onMarkAsRead={() => markAsRead.mutate({ id: notification.id })}
                     onDelete={() => deleteNotification.mutate({ id: notification.id })}
                     onClick={() => onNotificationClick?.(notification)}
+                    isMarkingAsRead={markAsRead.isPending}
+                    isDeleting={deleteNotification.isPending}
                   />
                 ))}
               </>
@@ -311,6 +327,8 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
                   onMarkAsRead={() => markAsRead.mutate({ id: notification.id })}
                   onDelete={() => deleteNotification.mutate({ id: notification.id })}
                   onClick={() => onNotificationClick?.(notification)}
+                  isMarkingAsRead={markAsRead.isPending}
+                  isDeleting={deleteNotification.isPending}
                 />
               ))
             )}
@@ -332,6 +350,7 @@ export function NotificationBell({ onClick }: { onClick?: () => void }) {
     <button
       onClick={onClick}
       className="relative rounded-lg p-2 transition-colors hover:bg-[#2a3942]"
+      title={(unreadCount ?? 0) > 0 ? `${unreadCount} notificación${(unreadCount ?? 0) > 1 ? 'es' : ''} sin leer` : 'Notificaciones'}
     >
       <Bell className="h-5 w-5 text-[#8696a0]" />
       {(unreadCount ?? 0) > 0 && (

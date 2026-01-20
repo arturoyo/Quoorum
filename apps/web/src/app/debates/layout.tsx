@@ -20,7 +20,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { QuoorumLogo } from '@/components/ui/quoorum-logo'
+import { AppHeader } from '@/components/layout/app-header'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface DebatesLayoutProps {
   children: React.ReactNode
@@ -33,6 +34,8 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'pending' | 'in_progress' | 'completed'>('all')
   const [showFilters, setShowFilters] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [debateToDelete, setDebateToDelete] = useState<string | null>(null)
 
   // Resizable columns
   const [leftColumnWidth, setLeftColumnWidth] = useState(400)
@@ -44,6 +47,13 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
 
   // Check if we're on the "new" route
   const isNewDebate = pathname === '/debates/new'
+
+  // Collapse sidebar when creating a new debate
+  useEffect(() => {
+    if (isNewDebate) {
+      setIsLeftPanelCollapsed(true)
+    }
+  }, [isNewDebate])
 
   // Load column width from localStorage
   useEffect(() => {
@@ -154,52 +164,12 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
       </div>
 
-      {/* Header Global with gradient glow */}
-      <header className="relative border-b border-white/10 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
-        <div className="container mx-auto px-4">
-          <div className="relative flex h-16 items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                  <QuoorumLogo size={24} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-                Quoorum
-              </span>
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/dashboard" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
-                Dashboard
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
-              </Link>
-              <Link href="/debates" className="text-sm font-medium text-blue-300 relative group">
-                Debates
-                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500" />
-              </Link>
-              <Link href="/settings" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
-                Configuración
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Link href="/debates/new">
-                <Button className="bg-purple-600 hover:bg-purple-500 text-white border-0">
-                  <MessageSquarePlus className="mr-2 h-4 w-4" />
-                  Nuevo Debate
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Header Global */}
+      <AppHeader variant="app" />
 
       <div className="relative flex flex-1 overflow-hidden">
         {/* Lista de debates - Lado izquierdo */}
+        {!isNewDebate && (
         <div
           className={cn(
             'relative flex h-full flex-col border-r border-[#2a3942] transition-all duration-300',
@@ -315,7 +285,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
         </div>
 
         {/* Collapse/Expand Button */}
-        {!isLeftPanelCollapsed && (
+        {!isLeftPanelCollapsed && !isNewDebate && (
           <button
             onClick={() => setIsLeftPanelCollapsed(true)}
             className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800/80 text-gray-400 backdrop-blur-sm transition-all hover:bg-slate-700 hover:text-white"
@@ -326,7 +296,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
         )}
 
         {/* Resize Handle */}
-        {!isLeftPanelCollapsed && (
+        {!isLeftPanelCollapsed && !isNewDebate && (
           <div
             onMouseDown={() => setIsResizing(true)}
             className={cn(
@@ -338,10 +308,11 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
             <div className="absolute right-0 top-0 h-full w-2 -translate-x-1" />
           </div>
         )}
-      </div>
+        </div>
+        )}
 
       {/* Expand Button (when collapsed) */}
-      {isLeftPanelCollapsed && (
+      {isLeftPanelCollapsed && !isNewDebate && (
         <button
           onClick={() => setIsLeftPanelCollapsed(false)}
           className="absolute left-4 top-20 z-50 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-600/90 text-white backdrop-blur-sm shadow-lg transition-all hover:bg-purple-500 hover:scale-110"
@@ -376,6 +347,7 @@ function DebateListItem({
   const [isHovered, setIsHovered] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editedTitle, setEditedTitle] = useState(debate.metadata?.title || debate.question)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const utils = api.useUtils()
 
   const updateDebateMutation = api.debates.update.useMutation({
@@ -412,9 +384,12 @@ function DebateListItem({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (confirm('¿Estás seguro de que quieres eliminar este debate?')) {
-      deleteDebateMutation.mutate({ id: debate.id })
-    }
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = () => {
+    deleteDebateMutation.mutate({ id: debate.id })
+    setDeleteDialogOpen(false)
   }
 
   const handleSave = (e: React.FormEvent) => {
@@ -513,6 +488,18 @@ function DebateListItem({
           </span>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="¿Eliminar debate?"
+        description="Esta acción eliminará permanentemente este debate. No se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={confirmDelete}
+        variant="destructive"
+        isLoading={deleteDebateMutation.isPending}
+      />
     </div>
   )
 }

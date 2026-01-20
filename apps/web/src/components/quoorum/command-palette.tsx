@@ -8,6 +8,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // ============================================================================
@@ -30,6 +31,7 @@ interface Command {
 // ============================================================================
 
 export function CommandPalette() {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -65,7 +67,7 @@ export function CommandPalette() {
         category: 'debates',
         keywords: ['new', 'create', 'debate', 'start'],
         action: () => {
-          // Navigate to new debate
+          router.push('/debates/new')
           setIsOpen(false)
         },
         shortcut: 'N',
@@ -78,18 +80,19 @@ export function CommandPalette() {
         category: 'debates',
         keywords: ['view', 'list', 'all', 'debates', 'history'],
         action: () => {
-          // Navigate to debates list
+          router.push('/debates')
           setIsOpen(false)
         },
       },
       {
-        id: 'schedule-debate',
-        title: 'Schedule Debate',
-        description: 'Schedule a debate for later',
-        icon: '⏰',
+        id: 'dashboard',
+        title: 'Dashboard',
+        description: 'Go to main dashboard',
+        icon: '🏠',
         category: 'debates',
-        keywords: ['schedule', 'later', 'time', 'calendar'],
+        keywords: ['dashboard', 'home', 'main'],
         action: () => {
+          router.push('/dashboard')
           setIsOpen(false)
         },
       },
@@ -103,6 +106,7 @@ export function CommandPalette() {
         category: 'experts',
         keywords: ['experts', 'browse', 'view', 'all'],
         action: () => {
+          router.push('/settings/experts')
           setIsOpen(false)
         },
       },
@@ -114,84 +118,38 @@ export function CommandPalette() {
         category: 'experts',
         keywords: ['create', 'custom', 'expert', 'new', 'add'],
         action: () => {
+          router.push('/settings/experts')
           setIsOpen(false)
         },
       },
 
-      // Templates
+      // Navigation & Settings
       {
-        id: 'browse-templates',
-        title: 'Browse Templates',
-        description: 'See all debate templates',
+        id: 'context-files',
+        title: 'Context Files',
+        description: 'Manage your context files',
         icon: '📄',
-        category: 'templates',
-        keywords: ['templates', 'browse', 'view'],
-        action: () => {
-          setIsOpen(false)
-        },
-      },
-      {
-        id: 'create-template',
-        title: 'Create Template',
-        description: 'Save a custom template',
-        icon: '✨',
-        category: 'templates',
-        keywords: ['create', 'template', 'save', 'custom'],
-        action: () => {
-          setIsOpen(false)
-        },
-      },
-
-      // Actions
-      {
-        id: 'export-pdf',
-        title: 'Export to PDF',
-        description: 'Export current debate as PDF',
-        icon: '📥',
-        category: 'actions',
-        keywords: ['export', 'pdf', 'download', 'save'],
-        action: () => {
-          setIsOpen(false)
-        },
-        shortcut: 'E',
-      },
-      {
-        id: 'share-debate',
-        title: 'Share Debate',
-        description: 'Share with your team',
-        icon: '🔗',
-        category: 'actions',
-        keywords: ['share', 'link', 'team', 'collaborate'],
-        action: () => {
-          setIsOpen(false)
-        },
-        shortcut: 'S',
-      },
-      {
-        id: 'copy-summary',
-        title: 'Copy Summary',
-        description: 'Copy debate summary to clipboard',
-        icon: '📋',
-        category: 'actions',
-        keywords: ['copy', 'summary', 'clipboard'],
-        action: () => {
-          setIsOpen(false)
-        },
-      },
-
-      // Navigation
-      {
-        id: 'go-analytics',
-        title: 'Analytics Dashboard',
-        description: 'View your analytics',
-        icon: '📊',
         category: 'navigation',
-        keywords: ['analytics', 'dashboard', 'stats', 'metrics'],
+        keywords: ['context', 'files', 'documents'],
         action: () => {
+          router.push('/settings/context')
           setIsOpen(false)
         },
-        shortcut: 'A',
       },
+      {
+        id: 'api-keys',
+        title: 'API Keys',
+        description: 'Manage API keys',
+        icon: '🔑',
+        category: 'navigation',
+        keywords: ['api', 'keys', 'tokens'],
+        action: () => {
+          router.push('/settings/api-keys')
+          setIsOpen(false)
+        },
+      },
+
+      // Settings Navigation
       {
         id: 'go-settings',
         title: 'Settings',
@@ -200,23 +158,48 @@ export function CommandPalette() {
         category: 'navigation',
         keywords: ['settings', 'config', 'preferences'],
         action: () => {
+          router.push('/settings')
           setIsOpen(false)
         },
       },
       {
-        id: 'keyboard-shortcuts',
-        title: 'Keyboard Shortcuts',
-        description: 'View all shortcuts',
-        icon: '⌨️',
+        id: 'notifications',
+        title: 'Notifications',
+        description: 'Manage notifications',
+        icon: '🔔',
         category: 'navigation',
-        keywords: ['keyboard', 'shortcuts', 'keys', 'help'],
+        keywords: ['notifications', 'alerts', 'settings'],
         action: () => {
+          router.push('/settings/notifications')
           setIsOpen(false)
         },
-        shortcut: '?',
+      },
+      {
+        id: 'billing',
+        title: 'Billing',
+        description: 'Manage subscription and billing',
+        icon: '💳',
+        category: 'navigation',
+        keywords: ['billing', 'subscription', 'payment'],
+        action: () => {
+          router.push('/settings/billing')
+          setIsOpen(false)
+        },
+      },
+      {
+        id: 'security',
+        title: 'Security',
+        description: 'Manage account security',
+        icon: '🔒',
+        category: 'navigation',
+        keywords: ['security', 'password', 'account'],
+        action: () => {
+          router.push('/settings/security')
+          setIsOpen(false)
+        },
       },
     ],
-    []
+    [router]
   )
 
   // Filter commands
@@ -301,20 +284,20 @@ export function CommandPalette() {
           {/* Commands List */}
           <div className="max-h-[400px] overflow-y-auto">
             {filteredCommands.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-gray-600">
                 <p className="text-lg mb-2">No commands found</p>
                 <p className="text-sm">Try a different search term</p>
               </div>
             ) : (
               <div className="p-2">
                 {/* Group by category */}
-                {['debates', 'experts', 'templates', 'actions', 'navigation'].map((category) => {
+                {['debates', 'experts', 'navigation'].map((category) => {
                   const categoryCommands = filteredCommands.filter((cmd) => cmd.category === category)
                   if (categoryCommands.length === 0) return null
 
                   return (
                     <div key={category} className="mb-4">
-                      <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <div className="px-3 py-1 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         {category}
                       </div>
                       {categoryCommands.map((cmd) => {
@@ -336,7 +319,7 @@ export function CommandPalette() {
                             <div className="flex-1 text-left">
                               <div className="font-medium">{cmd.title}</div>
                               {cmd.description && (
-                                <div className="text-sm text-gray-500">{cmd.description}</div>
+                                <div className="text-sm text-gray-600">{cmd.description}</div>
                               )}
                             </div>
                             {cmd.shortcut && (
@@ -355,7 +338,7 @@ export function CommandPalette() {
           </div>
 
           {/* Footer */}
-          <div className="p-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-gray-500">
+          <div className="p-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-gray-600">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 font-mono bg-white rounded border border-gray-300">↑</kbd>
