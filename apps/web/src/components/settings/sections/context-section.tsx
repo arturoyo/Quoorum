@@ -53,6 +53,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
   const [fileToDelete, setFileToDelete] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const quickUploadRef = useRef<HTMLInputElement>(null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -201,7 +202,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
     toggleActive.mutate({ id, isActive: !currentStatus })
   }
 
-  const processFile = (uploadedFile: File) => {
+  const processFile = (uploadedFile: File, autoCreate = true) => {
     // Only accept text files
     if (!uploadedFile.type.startsWith('text/') && !uploadedFile.name.endsWith('.txt') && !uploadedFile.name.endsWith('.md')) {
       toast.error('Solo se permiten archivos de texto (.txt, .md)')
@@ -217,13 +218,26 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
     const reader = new FileReader()
     reader.onload = (e) => {
       const content = e.target?.result as string
-      setFormData((prev) => ({
-        ...prev,
-        content: content,
-        name: prev.name || uploadedFile.name.replace(/\.[^/.]+$/, ''), // Use filename without extension as default name
-        contentType: uploadedFile.type || 'text/plain',
-      }))
-      toast.success(`Archivo "${uploadedFile.name}" cargado correctamente`)
+      const fileName = uploadedFile.name.replace(/\.[^/.]+$/, '') // Remove extension
+
+      if (autoCreate) {
+        // Auto-create file without opening dialog
+        createFile.mutate({
+          name: fileName,
+          content: content,
+          contentType: uploadedFile.type || 'text/plain',
+          order: 0,
+        })
+      } else {
+        // Manual mode: populate form and open dialog
+        setFormData((prev) => ({
+          ...prev,
+          content: content,
+          name: prev.name || fileName,
+          contentType: uploadedFile.type || 'text/plain',
+        }))
+        toast.success(`Archivo "${uploadedFile.name}" cargado correctamente`)
+      }
     }
     reader.onerror = () => {
       toast.error('Error al leer el archivo')
@@ -234,7 +248,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = event.target.files?.[0]
     if (!uploadedFile) return
-    processFile(uploadedFile)
+    processFile(uploadedFile, true) // Auto-create by default
   }
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
@@ -263,7 +277,21 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
     if (files && files.length > 0) {
       const file = files[0]
       if (file) {
-        processFile(file)
+        processFile(file, true) // Auto-create on main drop zone
+      }
+    }
+  }
+
+  const handleDropInDialog = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const files = e.dataTransfer.files
+    if (files && files.length > 0) {
+      const file = files[0]
+      if (file) {
+        processFile(file, false) // Don't auto-create, populate form
       }
     }
   }
@@ -341,7 +369,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
                   onDragEnter={handleDragEnter}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
+                  onDrop={handleDropInDialog}
                   onClick={() => fileInputRef.current?.click()}
                   className={`
                     relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
@@ -356,7 +384,10 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
                     ref={fileInputRef}
                     type="file"
                     accept=".txt,.md,text/*"
-                    onChange={handleFileUpload}
+                    onChange={(e) => {
+                      const uploadedFile = e.target.files?.[0]
+                      if (uploadedFile) processFile(uploadedFile, false) // Populate form, don't auto-create
+                    }}
                     className="hidden"
                   />
                   <div className="flex flex-col items-center justify-center gap-3">
@@ -455,6 +486,51 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      </div>
+
+      {/* Quick Upload Zone */}
+      <div
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => quickUploadRef.current?.click()}
+        className={`
+          mb-6 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
+          transition-all duration-200 ease-in-out
+          ${isDragging
+            ? 'border-purple-500 bg-purple-500/10 scale-[1.01]'
+            : 'border-white/20 bg-slate-800/30 hover:border-purple-500/50 hover:bg-slate-800/50'
+          }
+        `}
+      >
+        <input
+          ref={quickUploadRef}
+          type="file"
+          accept=".txt,.md,text/*"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+        <div className="flex flex-col items-center justify-center gap-2">
+          <div className={`
+            rounded-full p-2 transition-all duration-200
+            ${isDragging ? 'bg-purple-500/20 scale-110' : 'bg-purple-500/10'}
+          `}>
+            {isDragging ? (
+              <UploadCloud className="h-6 w-6 text-purple-400 animate-pulse" />
+            ) : (
+              <Upload className="h-6 w-6 text-purple-400" />
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-white">
+              {isDragging ? '¡Suelta para subir!' : 'Arrastra archivos aquí para añadirlos rápidamente'}
+            </p>
+            <p className="text-xs text-gray-400">
+              O haz clic para seleccionar • Solo .txt, .md • Máx 500KB
+            </p>
+          </div>
+        </div>
       </div>
 
       {!files || files.length === 0 ? (
