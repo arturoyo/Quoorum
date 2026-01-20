@@ -22,6 +22,7 @@ import {
 import { cn } from '@/lib/utils'
 import { StrategySelector } from '@/components/quoorum/strategy-selector'
 import { ExpertSelector } from '@/components/quoorum/expert-selector'
+import { DepartmentSelector } from '@/components/quoorum/department-selector'
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -90,6 +91,7 @@ export default function NewDebatePage() {
   const [assessment, setAssessment] = useState<any>(null)
   const [selectedStrategy, setSelectedStrategy] = useState<string>('')
   const [selectedExpertIds, setSelectedExpertIds] = useState<string[]>([])
+  const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>([])
   const [showStructuredFields, setShowStructuredFields] = useState(false)
   
   // File attachments state
@@ -965,6 +967,7 @@ export default function NewDebatePage() {
         executionStrategy, // Pass execution strategy (for simple pattern)
         pattern, // Pass orchestration pattern (if different from simple)
         selectedExpertIds, // Pass selected experts
+        selectedDepartmentIds, // Pass selected corporate departments
       })
       console.log('[DEBUG] createDebateMutation.mutate called successfully with draftId:', contextState.debateId)
     } catch (error) {
@@ -1886,6 +1889,15 @@ export default function NewDebatePage() {
                 question={contextState.question}
                 context={contextState.context}
                 defaultOpen={true} // Auto-open in expertos phase
+              />
+            </div>
+
+            {/* Corporate Departments Selector */}
+            <div className="bg-slate-900/60 backdrop-blur-xl rounded-lg p-6 border border-white/10">
+              <DepartmentSelector
+                selectedDepartmentIds={selectedDepartmentIds}
+                onSelectionChange={setSelectedDepartmentIds}
+                defaultOpen={false}
               />
             </div>
 
