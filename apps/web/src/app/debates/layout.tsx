@@ -355,30 +355,14 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
           {/* Subheader de la lista */}
           <div className="flex h-[60px] items-center justify-between border-b border-[#2a3942] bg-[#202c33] px-4">
             <h2 className="text-lg font-semibold text-white">Debates</h2>
-            <div className="flex items-center gap-2">
-              {filteredDebates.length > 0 && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-9 px-2 text-xs text-[#aebac1] hover:bg-purple-500/20 hover:text-purple-300"
-                  onClick={handleSelectAll}
-                >
-                  <Checkbox
-                    checked={selectedDebates.size === filteredDebates.length && filteredDebates.length > 0}
-                    className="mr-1 h-4 w-4"
-                  />
-                  {selectedDebates.size === filteredDebates.length ? 'Deseleccionar' : 'Seleccionar'}
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-9 w-9 p-0 text-[#aebac1] hover:bg-[#2a3942] hover:text-white"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <Filter className="h-5 w-5" />
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-9 w-9 p-0 text-[#aebac1] hover:bg-[#2a3942] hover:text-white"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="h-5 w-5" />
+            </Button>
           </div>
 
         {/* Search Bar */}
