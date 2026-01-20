@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 import { api } from '@/lib/trpc'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { Badge } from '@/components/ui/badge'
 
 const DEPARTMENT_TYPES = [
   { value: 'finance', label: 'Finanzas', icon: '💰' },
@@ -37,8 +38,11 @@ const AGENT_ROLES = [
   { value: 'synthesizer', label: 'Sintetizador' },
 ] as const
 
-export default function NewDepartmentPage() {
+export default function EditDepartmentPage() {
   const router = useRouter()
+  const params = useParams()
+  const departmentId = params?.id as string
+
   const [name, setName] = useState('')
   const [type, setType] = useState<string>('custom')
   const [departmentContext, setDepartmentContext] = useState('')
@@ -49,39 +53,48 @@ export default function NewDepartmentPage() {
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('')
 
-  // Get company
-  const { data: company, isLoading: loadingCompany } = api.companies.get.useQuery()
+  // Get department
+  const { data: department, isLoading } = api.departments.getById.useQuery(
+    { id: departmentId },
+    { enabled: !!departmentId }
+  )
 
-  // Get predefined departments for templates
-  const { data: predefinedDepartments } = api.departments.listPredefined.useQuery()
-
-  // Create mutation
-  const createMutation = api.departments.create.useMutation({
+  // Update mutation
+  const updateMutation = api.departments.update.useMutation({
     onSuccess: () => {
-      toast.success('Departamento creado')
-      router.push('/company/setup')
+      toast.success('Departamento actualizado')
+      router.push('/settings/company')
     },
     onError: (error) => {
       toast.error(error.message)
     },
   })
 
+  // Load department data
+  useEffect(() => {
+    if (department) {
+      setName(department.name)
+      setType(department.type)
+      setDepartmentContext(department.departmentContext)
+      setBasePrompt(department.basePrompt)
+      setCustomPrompt(department.customPrompt || '')
+      setAgentRole(department.agentRole || 'analyst')
+      setTemperature(department.temperature || '0.7')
+      setDescription(department.description || '')
+      setIcon(department.icon || '')
+    }
+  }, [department])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!company) {
-      toast.error('Primero configura tu empresa')
-      router.push('/company/setup')
-      return
-    }
 
     if (!name || !departmentContext || !basePrompt) {
       toast.error('Completa los campos obligatorios')
       return
     }
 
-    createMutation.mutate({
-      companyId: company.id,
+    updateMutation.mutate({
+      id: departmentId,
       name,
       type: type as any,
       departmentContext,
@@ -94,21 +107,7 @@ export default function NewDepartmentPage() {
     })
   }
 
-  const handleLoadTemplate = (templateType: string) => {
-    const template = predefinedDepartments?.find((d) => d.type === templateType)
-    if (template) {
-      setName(template.name)
-      setType(template.type)
-      setDepartmentContext(template.departmentContext)
-      setBasePrompt(template.basePrompt)
-      setAgentRole(template.agentRole)
-      setDescription(template.description || '')
-      setIcon(template.icon || '')
-      toast.success('Plantilla cargada. Personaliza según necesites')
-    }
-  }
-
-  if (loadingCompany) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -116,8 +115,8 @@ export default function NewDepartmentPage() {
     )
   }
 
-  if (!company) {
-    router.push('/company/setup')
+  if (!department) {
+    router.push('/settings/company')
     return null
   }
 
@@ -128,14 +127,17 @@ export default function NewDepartmentPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => router.push('/company/setup')}
+          onClick={() => router.push('/settings/company')}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Nuevo Departamento</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Editar Departamento</h1>
+          {department.isPredefined && <Badge>Predefinido</Badge>}
+        </div>
         <p className="text-muted-foreground">
-          Crea un departamento personalizado para tu empresa
+          Personaliza el departamento según las necesidades de tu empresa
         </p>
       </div>
 
@@ -198,32 +200,6 @@ export default function NewDepartmentPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Load Template */}
-        {predefinedDepartments && predefinedDepartments.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Cargar Plantilla Predefinida</CardTitle>
-              <CardDescription>
-                Comienza con una plantilla y personalízala según necesites
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2 md:grid-cols-3">
-                {predefinedDepartments.slice(0, 9).map((template) => (
-                  <Button
-                    key={template.type}
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleLoadTemplate(template.type)}
-                  >
-                    {template.icon} {template.name}
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Layer 3: Department Context */}
         <Card>
@@ -337,19 +313,19 @@ export default function NewDepartmentPage() {
         <div className="flex gap-2">
           <Button
             type="submit"
-            disabled={createMutation.isPending}
+            disabled={updateMutation.isPending}
             className="flex-1"
           >
-            {createMutation.isPending && (
+            {updateMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
             <Save className="mr-2 h-4 w-4" />
-            Crear Departamento
+            Guardar Cambios
           </Button>
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/company/setup')}
+            onClick={() => router.push('/settings/company')}
           >
             Cancelar
           </Button>

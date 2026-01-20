@@ -82,7 +82,7 @@ export function DepartmentSelector({
             </p>
             <Button
               className="mt-4"
-              onClick={() => router.push('/company/setup')}
+              onClick={() => router.push('/settings/company')}
             >
               Configurar Empresa
             </Button>
@@ -135,7 +135,7 @@ export function DepartmentSelector({
             </p>
             <Button
               className="mt-4"
-              onClick={() => router.push('/company/setup')}
+              onClick={() => router.push('/settings/company')}
             >
               Gestionar Departamentos
             </Button>

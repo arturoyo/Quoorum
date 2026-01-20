@@ -904,11 +904,148 @@ export const debatesRouter = router({
     }),
 
   /**
-   * Generate dynamic contextual questions
-   * AI analyzes the question and decides:
-   * - Whether to ask or assume
-   * - Type of response (yes/no, multiple choice, free text)
-   * - What to ask about
+   * SISTEMA DE CONTEXTO INTELIGENTE - FASE 1
+   * Genera preguntas críticas iniciales (3-4 esenciales)
+   */
+  generateCriticalQuestions: protectedProcedure
+    .input(
+      z.object({
+        question: z.string().min(10, "Question must be at least 10 characters"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      logger.info("[Context Phase 1] Generating critical questions");
+
+      try {
+        const { getAIClient } = await import("@quoorum/ai");
+        const aiClient = getAIClient();
+
+        const systemPrompt = `Eres un experto en recopilar contexto para decisiones estratégicas.
+
+OBJETIVO: Generar las 3-4 preguntas MÁS CRÍTICAS (esenciales, imposibles de omitir).
+
+REGLAS:
+1. Solo preguntas ESENCIALES - sin ellas no se puede deliberar
+2. Tipo de respuesta óptimo:
+   - "yes_no": Preguntas binarias
+   - "multiple_choice": Opciones limitadas (2-4)
+   - "free_text": Requiere explicación
+
+3. PRIORIZA:
+   - Objetivo/meta principal
+   - Contexto del negocio
+   - Restricciones críticas
+   - Estado actual vs deseado
+
+RESPONDE JSON (sin markdown):
+[
+  {
+    "id": "critical_1",
+    "priority": "critical",
+    "questionType": "yes_no" | "multiple_choice" | "free_text",
+    "content": "Pregunta clara",
+    "options": ["Op1", "Op2"]
+  }
+]`;
+
+        const response = await aiClient.generateWithSystem(
+          systemPrompt,
+          `Pregunta: "${input.question}"\n\nGenera 3-4 preguntas CRÍTICAS.`,
+          {
+            modelId: "gemini-2.0-flash-exp",
+            temperature: 0.7,
+            maxTokens: 800,
+            responseFormat: "json",
+          }
+        );
+
+        const questions = parseQuestions(response.text, "critical");
+        logger.info("[Context Phase 1] Success", { count: questions.length });
+        return questions;
+      } catch (error) {
+        logger.error("[Context Phase 1] Failed", { error });
+        return getFallbackCriticalQuestions();
+      }
+    }),
+
+  /**
+   * SISTEMA DE CONTEXTO INTELIGENTE - EVALUACIÓN
+   * Evalúa calidad (score 0-100) y genera follow-ups dinámicos
+   */
+  evaluateContextQuality: protectedProcedure
+    .input(
+      z.object({
+        question: z.string().min(10),
+        answers: z.record(z.string()),
+        currentPhase: z.enum(["critical", "deep", "refine"]).default("critical"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      logger.info("[Context Evaluation] Evaluating quality");
+
+      try {
+        const { getAIClient } = await import("@quoorum/ai");
+        const aiClient = getAIClient();
+
+        const contextSummary = Object.entries(input.answers)
+          .map(([id, answer]) => `${id}: ${answer}`)
+          .join("\n");
+
+        const systemPrompt = `Eres evaluador experto de contexto para decisiones estratégicas.
+
+TAREA:
+1. Evalúa calidad del contexto (score 0-100)
+2. Identifica qué FALTA o está incompleto
+3. Genera 2-3 preguntas follow-up
+
+SCORE 0-100:
+- 0-40: Insuficiente - faltan aspectos críticos
+- 40-60: Básico - suficiente para empezar
+- 60-80: Bueno - suficiente para deliberar
+- 80-100: Excelente - información completa
+
+FASE: ${input.currentPhase}
+
+RESPONDE JSON:
+{
+  "score": 75,
+  "reasoning": "Explicación breve",
+  "missingAspects": ["Falta X", "Falta Y"],
+  "shouldContinue": true,
+  "followUpQuestions": [
+    {
+      "id": "deep_1",
+      "priority": "high",
+      "questionType": "yes_no",
+      "content": "Pregunta",
+      "options": []
+    }
+  ]
+}`;
+
+        const response = await aiClient.generateWithSystem(
+          systemPrompt,
+          `Pregunta: "${input.question}"\n\nContexto:\n${contextSummary}\n\nEvalúa y genera 2-3 follow-ups.`,
+          {
+            modelId: "gemini-2.0-flash-exp",
+            temperature: 0.6,
+            maxTokens: 1000,
+            responseFormat: "json",
+          }
+        );
+
+        const evaluation = parseEvaluation(response.text);
+        logger.info("[Context Evaluation] Success", { score: evaluation.score });
+        return evaluation;
+      } catch (error) {
+        logger.error("[Context Evaluation] Failed", { error });
+        return getFallbackEvaluation();
+      }
+    }),
+
+  /**
+   * LEGACY: Generate dynamic contextual questions
+   * Mantener compatibilidad con código existente
    */
   generateContextualQuestions: protectedProcedure
     .input(
@@ -1544,4 +1681,114 @@ function estimateCost(rounds: number, experts: number): number {
   const outputCost = (totalOutputTokens / 1000) * 0.0006;
 
   return Number((inputCost + outputCost).toFixed(4));
+}
+
+// ═══════════════════════════════════════════════════════════
+// CONTEXT SYSTEM HELPERS
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Parse and validate questions from AI response
+ */
+function parseQuestions(text: string, priority: string): any[] {
+  try {
+    let cleanedText = text.trim();
+    if (cleanedText.startsWith("```json")) {
+      cleanedText = cleanedText.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+    } else if (cleanedText.startsWith("```")) {
+      cleanedText = cleanedText.replace(/```\n?/g, "");
+    }
+
+    const questions = JSON.parse(cleanedText);
+
+    if (!Array.isArray(questions)) {
+      throw new Error("Response is not an array");
+    }
+
+    return questions.map((q: any, index: number) => ({
+      id: q.id || `${priority}_${index + 1}`,
+      priority: q.priority || priority,
+      questionType: q.questionType || "free_text",
+      content: q.content || q.question || "",
+      options: q.questionType === "multiple_choice" ? q.options || [] : undefined,
+    }));
+  } catch (error) {
+    logger.error("[parseQuestions] Failed", { error });
+    throw error;
+  }
+}
+
+/**
+ * Parse and validate evaluation from AI response
+ */
+function parseEvaluation(text: string): any {
+  try {
+    let cleanedText = text.trim();
+    if (cleanedText.startsWith("```json")) {
+      cleanedText = cleanedText.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+    } else if (cleanedText.startsWith("```")) {
+      cleanedText = cleanedText.replace(/```\n?/g, "");
+    }
+
+    const evaluation = JSON.parse(cleanedText);
+
+    return {
+      score: Math.min(100, Math.max(0, evaluation.score || 60)),
+      reasoning: evaluation.reasoning || "Contexto evaluado",
+      missingAspects: Array.isArray(evaluation.missingAspects) ? evaluation.missingAspects : [],
+      shouldContinue: evaluation.shouldContinue !== false,
+      followUpQuestions: Array.isArray(evaluation.followUpQuestions)
+        ? evaluation.followUpQuestions.map((q: any, index: number) => ({
+            id: q.id || `followup_${index + 1}`,
+            priority: q.priority || "medium",
+            questionType: q.questionType || "free_text",
+            content: q.content || q.question || "",
+            options: q.questionType === "multiple_choice" ? q.options || [] : undefined,
+          }))
+        : [],
+    };
+  } catch (error) {
+    logger.error("[parseEvaluation] Failed", { error });
+    throw error;
+  }
+}
+
+/**
+ * Fallback critical questions if AI fails
+ */
+function getFallbackCriticalQuestions(): any[] {
+  return [
+    {
+      id: "critical_1",
+      priority: "critical",
+      questionType: "free_text",
+      content: "¿Cuál es el objetivo principal que quieres lograr con esta decisión?",
+    },
+    {
+      id: "critical_2",
+      priority: "critical",
+      questionType: "multiple_choice",
+      content: "¿En qué etapa está tu negocio/proyecto?",
+      options: ["Idea/Pre-lanzamiento", "MVP/Early stage", "Crecimiento", "Escalando", "Maduro"],
+    },
+    {
+      id: "critical_3",
+      priority: "critical",
+      questionType: "yes_no",
+      content: "¿Tienes restricciones críticas de presupuesto o tiempo?",
+    },
+  ];
+}
+
+/**
+ * Fallback evaluation if AI fails
+ */
+function getFallbackEvaluation(): any {
+  return {
+    score: 60,
+    reasoning: "Contexto básico recopilado. Suficiente para empezar.",
+    missingAspects: [],
+    shouldContinue: false,
+    followUpQuestions: [],
+  };
 }

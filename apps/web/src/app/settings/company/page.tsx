@@ -239,7 +239,7 @@ export default function CompanySetupPage() {
                   Crear {predefinedDepartments.length} Predefinidos
                 </Button>
               )}
-              <Button onClick={() => router.push('/company/departments/new')}>
+              <Button onClick={() => router.push('/settings/company/departments/new')}>
                 <Plus className="mr-2 h-4 w-4" />
                 Crear Departamento
               </Button>
@@ -278,7 +278,7 @@ export default function CompanySetupPage() {
                         variant="outline"
                         size="sm"
                         className="flex-1"
-                        onClick={() => router.push(`/company/departments/${dept.id}`)}
+                        onClick={() => router.push(`/settings/company/departments/${dept.id}`)}
                       >
                         <Edit2 className="mr-2 h-3 w-3" />
                         Editar
