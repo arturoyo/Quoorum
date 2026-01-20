@@ -22,12 +22,137 @@ import {
   X,
   Loader2,
 } from "lucide-react";
+import { IconType } from 'react-icons'
+import {
+  FaRocket,
+  FaChartLine,
+  FaUsers,
+  FaBullhorn,
+  FaLightbulb,
+  FaMoneyBillWave,
+  FaCog,
+  FaShoppingCart,
+  FaUserTie,
+  FaGlobe,
+  FaMobileAlt,
+  FaCode,
+  FaDatabase,
+  FaShieldAlt,
+  FaHeart,
+  FaGraduationCap,
+  FaBuilding,
+  FaTrophy,
+  FaComments,
+  FaPalette,
+  FaLeaf,
+  FaMedkit,
+  FaCar,
+  FaHome,
+  FaPlane,
+  FaUtensils,
+  FaGamepad,
+  FaMusic,
+  FaCamera,
+  FaBook,
+  FaFlask,
+  FaBriefcase,
+  FaHandshake,
+  FaChartPie,
+  FaEnvelope,
+  FaBell,
+  FaStar,
+  FaFire,
+  FaCloud,
+  FaLock,
+  FaSearch,
+  FaCheckCircle,
+  FaQuestionCircle,
+} from 'react-icons/fa'
 import { AppHeader } from '@/components/layout/app-header'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { toast } from 'sonner'
 
 interface DebatesLayoutProps {
   children: React.ReactNode
+}
+
+/**
+ * Selecciona un icono contextual basado en palabras clave de la pregunta del debate
+ */
+function getContextualIcon(question: string): IconType {
+  const lowerQuestion = question.toLowerCase()
+
+  // Categorías de iconos con palabras clave
+  const iconMap: Array<{ keywords: string[]; icon: IconType }> = [
+    // Negocios y ventas
+    { keywords: ['venta', 'vender', 'cliente', 'compra', 'comercial', 'revenue'], icon: FaShoppingCart },
+    { keywords: ['dinero', 'precio', 'costo', 'inversión', 'presupuesto', 'financ'], icon: FaMoneyBillWave },
+    { keywords: ['deal', 'negoci', 'acuerdo', 'contrato'], icon: FaHandshake },
+    { keywords: ['marketing', 'campaña', 'publicidad', 'promoción'], icon: FaBullhorn },
+    { keywords: ['crecimiento', 'escal', 'expansión', 'aumento'], icon: FaChartLine },
+    { keywords: ['éxito', 'logro', 'objetivo', 'meta', 'ganar'], icon: FaTrophy },
+
+    // Productos y desarrollo
+    { keywords: ['producto', 'feature', 'funcionalidad', 'desarrollo'], icon: FaRocket },
+    { keywords: ['diseño', 'ui', 'ux', 'interfaz', 'visual'], icon: FaPalette },
+    { keywords: ['código', 'programación', 'software', 'desarrollo'], icon: FaCode },
+    { keywords: ['datos', 'database', 'información', 'analytics'], icon: FaDatabase },
+    { keywords: ['mobile', 'móvil', 'app', 'aplicación'], icon: FaMobileAlt },
+    { keywords: ['web', 'sitio', 'website', 'online'], icon: FaGlobe },
+    { keywords: ['cloud', 'nube', 'servidor', 'hosting'], icon: FaCloud },
+    { keywords: ['seguridad', 'privacidad', 'protección', 'segur'], icon: FaShieldAlt },
+
+    // Equipo y organización
+    { keywords: ['equipo', 'team', 'colabor', 'grupo', 'personal'], icon: FaUsers },
+    { keywords: ['líder', 'management', 'gestión', 'dirección'], icon: FaUserTie },
+    { keywords: ['empresa', 'compañía', 'organización', 'negocio'], icon: FaBuilding },
+    { keywords: ['trabajo', 'empleo', 'carrera', 'profesional'], icon: FaBriefcase },
+
+    // Comunicación
+    { keywords: ['comunicación', 'mensaje', 'conversación', 'chat'], icon: FaComments },
+    { keywords: ['email', 'correo', 'mail'], icon: FaEnvelope },
+    { keywords: ['notificación', 'alerta', 'aviso'], icon: FaBell },
+
+    // Ideas e innovación
+    { keywords: ['idea', 'innovación', 'creativ', 'concept'], icon: FaLightbulb },
+    { keywords: ['estrategia', 'plan', 'táctica', 'approach'], icon: FaChartPie },
+    { keywords: ['investigación', 'research', 'estudio', 'análisis'], icon: FaFlask },
+    { keywords: ['aprendizaje', 'educación', 'formación', 'curso'], icon: FaGraduationCap },
+    { keywords: ['libro', 'contenido', 'documentación', 'guía'], icon: FaBook },
+
+    // Industrias específicas
+    { keywords: ['salud', 'médico', 'hospital', 'clínica'], icon: FaMedkit },
+    { keywords: ['coche', 'auto', 'vehículo', 'transporte'], icon: FaCar },
+    { keywords: ['casa', 'hogar', 'vivienda', 'inmobiliaria'], icon: FaHome },
+    { keywords: ['viaje', 'turismo', 'vuelo', 'destino'], icon: FaPlane },
+    { keywords: ['comida', 'restaurante', 'food', 'cocina'], icon: FaUtensils },
+    { keywords: ['juego', 'game', 'gaming', 'entretenimiento'], icon: FaGamepad },
+    { keywords: ['música', 'audio', 'sound', 'canción'], icon: FaMusic },
+    { keywords: ['foto', 'imagen', 'video', 'visual'], icon: FaCamera },
+    { keywords: ['sostenib', 'ecológico', 'verde', 'medio ambiente'], icon: FaLeaf },
+
+    // Acciones y estados
+    { keywords: ['configuración', 'ajuste', 'settings', 'config'], icon: FaCog },
+    { keywords: ['buscar', 'encontrar', 'search', 'explorar'], icon: FaSearch },
+    { keywords: ['importante', 'priority', 'destacado', 'crítico'], icon: FaStar },
+    { keywords: ['urgente', 'rápido', 'inmediato', 'hot'], icon: FaFire },
+    { keywords: ['completado', 'terminado', 'finished', 'done'], icon: FaCheckCircle },
+    { keywords: ['pregunta', 'duda', 'question', 'cómo'], icon: FaQuestionCircle },
+    { keywords: ['amor', 'pasión', 'love', 'favorito'], icon: FaHeart },
+    { keywords: ['privado', 'confidencial', 'secret'], icon: FaLock },
+  ]
+
+  // Buscar coincidencia de palabras clave
+  for (const { keywords, icon } of iconMap) {
+    for (const keyword of keywords) {
+      if (lowerQuestion.includes(keyword)) {
+        return icon
+      }
+    }
+  }
+
+  // Icono por defecto si no hay coincidencia
+  return MessageSquare
 }
 
 function DebatesLayoutInner({ children }: DebatesLayoutProps) {
@@ -536,6 +661,9 @@ function DebateListItem({
     setEditedTitle(debate.metadata?.title || debate.question)
   }
 
+  // Obtener icono contextual basado en la pregunta
+  const ContextualIcon = getContextualIcon(debate.question)
+
   return (
     <div
       onMouseEnter={() => setIsHovered(true)}
@@ -548,7 +676,7 @@ function DebateListItem({
           : 'hover:bg-[#2a3942]'
       )}
     >
-      {/* Icon/Checkbox - Icon by default, checkbox on hover or when selected */}
+      {/* Icon/Checkbox - Contextual icon by default, checkbox on hover or when selected */}
       <div
         className="absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-all cursor-pointer"
         onClick={onToggleSelect}
@@ -560,7 +688,7 @@ function DebateListItem({
             className="h-6 w-6 border-2 border-[#aebac1]/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 hover:border-purple-500"
           />
         ) : (
-          <MessageSquare className="h-6 w-6 text-[#aebac1]" />
+          <ContextualIcon className="h-6 w-6 text-[#aebac1]" />
         )}
       </div>
 

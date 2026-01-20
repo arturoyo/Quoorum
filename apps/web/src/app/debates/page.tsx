@@ -24,7 +24,54 @@ import {
   XCircle,
   Loader2,
   Trash2,
+  MessageSquare,
 } from "lucide-react";
+import { IconType } from 'react-icons'
+import {
+  FaRocket,
+  FaChartLine,
+  FaUsers,
+  FaBullhorn,
+  FaLightbulb,
+  FaMoneyBillWave,
+  FaCog,
+  FaShoppingCart,
+  FaUserTie,
+  FaGlobe,
+  FaMobileAlt,
+  FaCode,
+  FaDatabase,
+  FaShieldAlt,
+  FaHeart,
+  FaGraduationCap,
+  FaBuilding,
+  FaTrophy,
+  FaComments,
+  FaPalette,
+  FaLeaf,
+  FaMedkit,
+  FaCar,
+  FaHome,
+  FaPlane,
+  FaUtensils,
+  FaGamepad,
+  FaMusic,
+  FaCamera,
+  FaBook,
+  FaFlask,
+  FaBriefcase,
+  FaHandshake,
+  FaChartPie,
+  FaEnvelope,
+  FaBell,
+  FaStar,
+  FaFire,
+  FaCloud,
+  FaLock,
+  FaSearch,
+  FaCheckCircle,
+  FaQuestionCircle,
+} from 'react-icons/fa'
 import { AppHeader } from "@/components/layout/app-header";
 import { toast } from "sonner";
 import { QuoorumLogo } from "@/components/ui/quoorum-logo";
@@ -43,6 +90,85 @@ function getPatternLabel(pattern: string): string {
     hierarchical: 'Jerárquico',
   }
   return labels[pattern] || pattern
+}
+
+/**
+ * Selecciona un icono contextual basado en palabras clave de la pregunta del debate
+ */
+function getContextualIcon(question: string): IconType {
+  const lowerQuestion = question.toLowerCase()
+
+  // Categorías de iconos con palabras clave
+  const iconMap: Array<{ keywords: string[]; icon: IconType }> = [
+    // Negocios y ventas
+    { keywords: ['venta', 'vender', 'cliente', 'compra', 'comercial', 'revenue'], icon: FaShoppingCart },
+    { keywords: ['dinero', 'precio', 'costo', 'inversión', 'presupuesto', 'financ'], icon: FaMoneyBillWave },
+    { keywords: ['deal', 'negoci', 'acuerdo', 'contrato'], icon: FaHandshake },
+    { keywords: ['marketing', 'campaña', 'publicidad', 'promoción'], icon: FaBullhorn },
+    { keywords: ['crecimiento', 'escal', 'expansión', 'aumento'], icon: FaChartLine },
+    { keywords: ['éxito', 'logro', 'objetivo', 'meta', 'ganar'], icon: FaTrophy },
+
+    // Productos y desarrollo
+    { keywords: ['producto', 'feature', 'funcionalidad', 'desarrollo'], icon: FaRocket },
+    { keywords: ['diseño', 'ui', 'ux', 'interfaz', 'visual'], icon: FaPalette },
+    { keywords: ['código', 'programación', 'software', 'desarrollo'], icon: FaCode },
+    { keywords: ['datos', 'database', 'información', 'analytics'], icon: FaDatabase },
+    { keywords: ['mobile', 'móvil', 'app', 'aplicación'], icon: FaMobileAlt },
+    { keywords: ['web', 'sitio', 'website', 'online'], icon: FaGlobe },
+    { keywords: ['cloud', 'nube', 'servidor', 'hosting'], icon: FaCloud },
+    { keywords: ['seguridad', 'privacidad', 'protección', 'segur'], icon: FaShieldAlt },
+
+    // Equipo y organización
+    { keywords: ['equipo', 'team', 'colabor', 'grupo', 'personal'], icon: FaUsers },
+    { keywords: ['líder', 'management', 'gestión', 'dirección'], icon: FaUserTie },
+    { keywords: ['empresa', 'compañía', 'organización', 'negocio'], icon: FaBuilding },
+    { keywords: ['trabajo', 'empleo', 'carrera', 'profesional'], icon: FaBriefcase },
+
+    // Comunicación
+    { keywords: ['comunicación', 'mensaje', 'conversación', 'chat'], icon: FaComments },
+    { keywords: ['email', 'correo', 'mail'], icon: FaEnvelope },
+    { keywords: ['notificación', 'alerta', 'aviso'], icon: FaBell },
+
+    // Ideas e innovación
+    { keywords: ['idea', 'innovación', 'creativ', 'concept'], icon: FaLightbulb },
+    { keywords: ['estrategia', 'plan', 'táctica', 'approach'], icon: FaChartPie },
+    { keywords: ['investigación', 'research', 'estudio', 'análisis'], icon: FaFlask },
+    { keywords: ['aprendizaje', 'educación', 'formación', 'curso'], icon: FaGraduationCap },
+    { keywords: ['libro', 'contenido', 'documentación', 'guía'], icon: FaBook },
+
+    // Industrias específicas
+    { keywords: ['salud', 'médico', 'hospital', 'clínica'], icon: FaMedkit },
+    { keywords: ['coche', 'auto', 'vehículo', 'transporte'], icon: FaCar },
+    { keywords: ['casa', 'hogar', 'vivienda', 'inmobiliaria'], icon: FaHome },
+    { keywords: ['viaje', 'turismo', 'vuelo', 'destino'], icon: FaPlane },
+    { keywords: ['comida', 'restaurante', 'food', 'cocina'], icon: FaUtensils },
+    { keywords: ['juego', 'game', 'gaming', 'entretenimiento'], icon: FaGamepad },
+    { keywords: ['música', 'audio', 'sound', 'canción'], icon: FaMusic },
+    { keywords: ['foto', 'imagen', 'video', 'visual'], icon: FaCamera },
+    { keywords: ['sostenib', 'ecológico', 'verde', 'medio ambiente'], icon: FaLeaf },
+
+    // Acciones y estados
+    { keywords: ['configuración', 'ajuste', 'settings', 'config'], icon: FaCog },
+    { keywords: ['buscar', 'encontrar', 'search', 'explorar'], icon: FaSearch },
+    { keywords: ['importante', 'priority', 'destacado', 'crítico'], icon: FaStar },
+    { keywords: ['urgente', 'rápido', 'inmediato', 'hot'], icon: FaFire },
+    { keywords: ['completado', 'terminado', 'finished', 'done'], icon: FaCheckCircle },
+    { keywords: ['pregunta', 'duda', 'question', 'cómo'], icon: FaQuestionCircle },
+    { keywords: ['amor', 'pasión', 'love', 'favorito'], icon: FaHeart },
+    { keywords: ['privado', 'confidencial', 'secret'], icon: FaLock },
+  ]
+
+  // Buscar coincidencia de palabras clave
+  for (const { keywords, icon } of iconMap) {
+    for (const keyword of keywords) {
+      if (lowerQuestion.includes(keyword)) {
+        return icon
+      }
+    }
+  }
+
+  // Icono por defecto si no hay coincidencia
+  return MessageSquare
 }
 
 export default function DebatesPage() {
@@ -217,33 +343,49 @@ export default function DebatesPage() {
             </Card>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {debates.map((debate) => (
-                <Card
-                  key={debate.id}
-                  className="bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer transition-colors relative group"
-                  onClick={(e) => {
-                    // Si no estamos seleccionando, navegar
-                    if (selectedDebates.size === 0) {
-                      router.push(`/debates/${debate.id}`);
-                    }
-                  }}
-                >
-                  {/* Checkbox - Visible on hover or when selected */}
-                  <div
-                    className={`absolute top-4 left-4 z-10 transition-all ${
-                      selectedDebates.has(debate.id) || selectedDebates.size > 0
-                        ? 'opacity-100'
-                        : 'opacity-0 group-hover:opacity-100'
-                    }`}
-                    onClick={(e) => handleToggleSelect(debate.id, e)}
+              {debates.map((debate) => {
+                // Obtener icono contextual basado en la pregunta
+                const ContextualIcon = getContextualIcon(debate.question)
+
+                return (
+                  <Card
+                    key={debate.id}
+                    className="bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer transition-colors relative group"
+                    onClick={(e) => {
+                      // Si no estamos seleccionando, navegar
+                      if (selectedDebates.size === 0) {
+                        router.push(`/debates/${debate.id}`);
+                      }
+                    }}
                   >
-                    <div className="bg-slate-800/90 backdrop-blur-sm p-2 rounded-lg border-2 border-white/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all cursor-pointer">
-                      <Checkbox
-                        checked={selectedDebates.has(debate.id)}
-                        className="h-6 w-6 border-2 border-white/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
-                      />
+                    {/* Icon/Checkbox - Contextual icon by default, checkbox on hover or when in selection mode */}
+                    <div
+                      className="absolute top-4 left-4 z-10 transition-all cursor-pointer"
+                      onClick={(e) => handleToggleSelect(debate.id, e)}
+                    >
+                      {/* Show checkbox when any debate is selected or on hover, otherwise show contextual icon */}
+                      {(selectedDebates.size > 0 || selectedDebates.has(debate.id)) ? (
+                        <div className="bg-slate-800/90 backdrop-blur-sm p-2 rounded-lg border-2 border-white/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all">
+                          <Checkbox
+                            checked={selectedDebates.has(debate.id)}
+                            className="h-6 w-6 border-2 border-white/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          {/* Icon visible by default, checkbox on hover */}
+                          <div className="group-hover:hidden bg-purple-500/10 p-2 rounded-lg">
+                            <ContextualIcon className="h-6 w-6 text-purple-400" />
+                          </div>
+                          <div className="hidden group-hover:block bg-slate-800/90 backdrop-blur-sm p-2 rounded-lg border-2 border-white/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all">
+                            <Checkbox
+                              checked={false}
+                              className="h-6 w-6 border-2 border-white/60"
+                            />
+                          </div>
+                        </>
+                      )}
                     </div>
-                  </div>
 
                   <CardHeader className="pl-16 pr-6">
                     <CardTitle className="text-white line-clamp-2 break-words">
@@ -296,7 +438,8 @@ export default function DebatesPage() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
