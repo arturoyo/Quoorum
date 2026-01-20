@@ -91,7 +91,7 @@ export default function DashboardPage() {
 
   // Fetch recent debates via tRPC (with error handling)
   const { data: recentDebates = [], isLoading: debatesLoading, error: debatesError } = api.debates.list.useQuery(
-    { limit: 20, offset: 0 },
+    { limit: 8, offset: 0 },
     {
       enabled: !isAuthChecking && !!user,
       retry: false,
@@ -306,7 +306,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3 overflow-y-auto pr-2">
+                  <div className="space-y-3">
                     {recentDebates.map((debate) => (
                     <Link
                       key={debate.id}
