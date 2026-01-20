@@ -1,19 +1,8 @@
-'use client'
-
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Loader2, Building2, Plus, Edit2, Trash2, Check, Sparkles } from 'lucide-react'
-import { api } from '@/lib/trpc'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { toast } from 'sonner'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { CompanySection } from '@/components/settings/sections/company-section'
 
 export default function CompanySetupPage() {
+  return <CompanySection isInModal={false} />
+}
   const router = useRouter()
   const [isEditingCompany, setIsEditingCompany] = useState(false)
   const [companyName, setCompanyName] = useState('')

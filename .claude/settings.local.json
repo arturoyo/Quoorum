@@ -161,7 +161,8 @@
       "Bash(git log:*)",
       "Bash(git fetch:*)",
       "Bash(docker-compose ps:*)",
-      "Bash(npx drizzle-kit push)"
+      "Bash(npx drizzle-kit push)",
+      "Bash(npx drizzle-kit:*)"
     ]
   }
 }
