@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { AppHeader } from "@/components/layout/app-header";
 import { toast } from "sonner";
-import { QuoorumLogo } from "@/components/icons/quoorum-logo";
+import { QuoorumLogo } from "@/components/ui/quoorum-logo";
 
 // Pattern labels in Spanish
 function getPatternLabel(pattern: string): string {
@@ -149,11 +149,11 @@ export default function DebatesPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleSelectAll}
-                className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+                className="border-purple-500/30 bg-purple-500/10 text-white hover:bg-purple-500/20 hover:border-purple-500/50"
               >
                 <Checkbox
                   checked={selectedDebates.size === debates.length && debates.length > 0}
-                  className="mr-2"
+                  className="mr-2 border-white/40"
                 />
                 {selectedDebates.size === debates.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
               </Button>
@@ -220,17 +220,17 @@ export default function DebatesPage() {
               {debates.map((debate) => (
                 <Card
                   key={debate.id}
-                  className="bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer transition-colors relative"
+                  className="bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer transition-colors relative group"
                   onClick={() => router.push(`/debates/${debate.id}`)}
                 >
-                  {/* Checkbox */}
+                  {/* Checkbox - Always visible with highlight */}
                   <div
-                    className="absolute top-4 right-4 z-10"
+                    className="absolute top-4 right-4 z-10 bg-slate-800/80 backdrop-blur-sm p-2 rounded-lg border border-white/20 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all"
                     onClick={(e) => handleToggleSelect(debate.id, e)}
                   >
                     <Checkbox
                       checked={selectedDebates.has(debate.id)}
-                      className="h-5 w-5 border-white/20 bg-white/10 data-[state=checked]:bg-purple-600"
+                      className="h-5 w-5 border-white/40 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                     />
                   </div>
 
