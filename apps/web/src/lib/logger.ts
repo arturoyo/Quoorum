@@ -87,31 +87,6 @@ function addToBatch(entry: LogEntry) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// AUTO-CAPTURE DE ERRORES NO MANEJADOS
-// ═══════════════════════════════════════════════════════════
-if (typeof window !== "undefined") {
-  // Capturar errores no manejados
-  window.addEventListener("error", (event) => {
-    logger.error("Unhandled error", event.error, {
-      url: window.location.href,
-      userAgent: navigator.userAgent,
-    });
-  });
-
-  // Capturar promesas rechazadas sin catch
-  window.addEventListener("unhandledrejection", (event) => {
-    logger.error("Unhandled promise rejection", event.reason, {
-      url: window.location.href,
-    });
-  });
-
-  // Flush antes de cerrar la página
-  window.addEventListener("beforeunload", () => {
-    void flushBatch();
-  });
-}
-
-// ═══════════════════════════════════════════════════════════
 // LOGGER API
 // ═══════════════════════════════════════════════════════════
 class ClientLogger {
@@ -228,3 +203,29 @@ class ClientLogger {
 export const logger = new ClientLogger();
 
 export default logger;
+
+// ═══════════════════════════════════════════════════════════
+// AUTO-CAPTURE DE ERRORES NO MANEJADOS
+// ═══════════════════════════════════════════════════════════
+// IMPORTANTE: Esto debe ir DESPUÉS de la definición de logger
+if (typeof window !== "undefined") {
+  // Capturar errores no manejados
+  window.addEventListener("error", (event) => {
+    logger.error("Unhandled error", event.error, {
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+    });
+  });
+
+  // Capturar promesas rechazadas sin catch
+  window.addEventListener("unhandledrejection", (event) => {
+    logger.error("Unhandled promise rejection", event.reason, {
+      url: window.location.href,
+    });
+  });
+
+  // Flush antes de cerrar la página
+  window.addEventListener("beforeunload", () => {
+    void flushBatch();
+  });
+}

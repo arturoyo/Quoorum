@@ -9,8 +9,8 @@ import { TRPCError } from '@trpc/server'
 import { router, protectedProcedure } from '../trpc'
 import { db } from '@quoorum/db'
 import {
-  forumExpertFeedback,
-  forumExpertRatings,
+  quoorumExpertFeedback,
+  quoorumExpertRatings,
   quoorumDebates,
 } from '@quoorum/db/schema'
 import { eq, and, desc, sql, avg, count } from 'drizzle-orm'
@@ -49,20 +49,20 @@ export const quoorumFeedbackRouter = router({
 
       // Check if user already submitted feedback for this expert in this debate
       const [existing] = await db
-        .select({ id: forumExpertFeedback.id })
-        .from(forumExpertFeedback)
+        .select({ id: quoorumExpertFeedback.id })
+        .from(quoorumExpertFeedback)
         .where(
           and(
-            eq(forumExpertFeedback.debateId, input.debateId),
-            eq(forumExpertFeedback.expertId, input.expertId),
-            eq(forumExpertFeedback.userId, ctx.user.id)
+            eq(quoorumExpertFeedback.debateId, input.debateId),
+            eq(quoorumExpertFeedback.expertId, input.expertId),
+            eq(quoorumExpertFeedback.userId, ctx.user.id)
           )
         )
 
       if (existing) {
         // Update existing feedback
         const [updated] = await db
-          .update(forumExpertFeedback)
+          .update(quoorumExpertFeedback)
           .set({
             rating: input.rating,
             sentiment: input.sentiment,
@@ -76,7 +76,7 @@ export const quoorumFeedbackRouter = router({
             outcomeNotes: input.outcomeNotes,
             updatedAt: new Date(),
           })
-          .where(eq(forumExpertFeedback.id, existing.id))
+          .where(eq(quoorumExpertFeedback.id, existing.id))
           .returning()
 
         // Recalculate aggregated ratings
@@ -87,7 +87,7 @@ export const quoorumFeedbackRouter = router({
 
       // Create new feedback
       const [feedback] = await db
-        .insert(forumExpertFeedback)
+        .insert(quoorumExpertFeedback)
         .values({
           userId: ctx.user.id,
           debateId: input.debateId,
@@ -119,11 +119,11 @@ export const quoorumFeedbackRouter = router({
     .query(async ({ ctx, input }) => {
       const feedback = await db
         .select()
-        .from(forumExpertFeedback)
+        .from(quoorumExpertFeedback)
         .where(
           and(
-            eq(forumExpertFeedback.debateId, input.debateId),
-            eq(forumExpertFeedback.userId, ctx.user.id)
+            eq(quoorumExpertFeedback.debateId, input.debateId),
+            eq(quoorumExpertFeedback.userId, ctx.user.id)
           )
         )
 
@@ -138,8 +138,8 @@ export const quoorumFeedbackRouter = router({
     .query(async ({ input }) => {
       const [ratings] = await db
         .select()
-        .from(forumExpertRatings)
-        .where(eq(forumExpertRatings.expertId, input.expertId))
+        .from(quoorumExpertRatings)
+        .where(eq(quoorumExpertRatings.expertId, input.expertId))
 
       if (!ratings) {
         return null
@@ -167,9 +167,9 @@ export const quoorumFeedbackRouter = router({
     .query(async ({ input }) => {
       const experts = await db
         .select()
-        .from(forumExpertRatings)
-        .where(sql`${forumExpertRatings.totalRatings} >= 5`) // Min 5 ratings
-        .orderBy(desc(forumExpertRatings.avgRating))
+        .from(quoorumExpertRatings)
+        .where(sql`${quoorumExpertRatings.totalRatings} >= 5`) // Min 5 ratings
+        .orderBy(desc(quoorumExpertRatings.avgRating))
         .limit(input.limit)
 
       return experts.map((e) => ({
@@ -191,9 +191,9 @@ export const quoorumFeedbackRouter = router({
     .query(async ({ ctx, input }) => {
       const feedback = await db
         .select()
-        .from(forumExpertFeedback)
-        .where(eq(forumExpertFeedback.userId, ctx.user.id))
-        .orderBy(desc(forumExpertFeedback.createdAt))
+        .from(quoorumExpertFeedback)
+        .where(eq(quoorumExpertFeedback.userId, ctx.user.id))
+        .orderBy(desc(quoorumExpertFeedback.createdAt))
         .limit(input.limit)
         .offset(input.offset)
 
@@ -207,12 +207,12 @@ export const quoorumFeedbackRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const [feedback] = await db
-        .select({ id: forumExpertFeedback.id, expertId: forumExpertFeedback.expertId })
-        .from(forumExpertFeedback)
+        .select({ id: quoorumExpertFeedback.id, expertId: quoorumExpertFeedback.expertId })
+        .from(quoorumExpertFeedback)
         .where(
           and(
-            eq(forumExpertFeedback.id, input.id),
-            eq(forumExpertFeedback.userId, ctx.user.id)
+            eq(quoorumExpertFeedback.id, input.id),
+            eq(quoorumExpertFeedback.userId, ctx.user.id)
           )
         )
 
@@ -221,11 +221,11 @@ export const quoorumFeedbackRouter = router({
       }
 
       await db
-        .delete(forumExpertFeedback)
+        .delete(quoorumExpertFeedback)
         .where(
           and(
-            eq(forumExpertFeedback.id, input.id),
-            eq(forumExpertFeedback.userId, ctx.user.id)
+            eq(quoorumExpertFeedback.id, input.id),
+            eq(quoorumExpertFeedback.userId, ctx.user.id)
           )
         )
 
@@ -243,29 +243,29 @@ async function recalculateExpertRatings(expertId: string): Promise<void> {
   const [stats] = await db
     .select({
       totalRatings: count(),
-      avgRating: avg(forumExpertFeedback.rating),
-      avgInsightfulness: avg(forumExpertFeedback.insightfulness),
-      avgRelevance: avg(forumExpertFeedback.relevance),
-      avgClarity: avg(forumExpertFeedback.clarity),
-      avgActionability: avg(forumExpertFeedback.actionability),
-      helpfulCount: sql<number>`count(*) filter (where ${forumExpertFeedback.sentiment} = 'helpful')`,
-      neutralCount: sql<number>`count(*) filter (where ${forumExpertFeedback.sentiment} = 'neutral')`,
-      unhelpfulCount: sql<number>`count(*) filter (where ${forumExpertFeedback.sentiment} = 'unhelpful')`,
-      followedCount: sql<number>`count(*) filter (where ${forumExpertFeedback.wasFollowed} = true)`,
-      successCount: sql<number>`count(*) filter (where ${forumExpertFeedback.wasSuccessful} = true)`,
+      avgRating: avg(quoorumExpertFeedback.rating),
+      avgInsightfulness: avg(quoorumExpertFeedback.insightfulness),
+      avgRelevance: avg(quoorumExpertFeedback.relevance),
+      avgClarity: avg(quoorumExpertFeedback.clarity),
+      avgActionability: avg(quoorumExpertFeedback.actionability),
+      helpfulCount: sql<number>`count(*) filter (where ${quoorumExpertFeedback.sentiment} = 'helpful')`,
+      neutralCount: sql<number>`count(*) filter (where ${quoorumExpertFeedback.sentiment} = 'neutral')`,
+      unhelpfulCount: sql<number>`count(*) filter (where ${quoorumExpertFeedback.sentiment} = 'unhelpful')`,
+      followedCount: sql<number>`count(*) filter (where ${quoorumExpertFeedback.wasFollowed} = true)`,
+      successCount: sql<number>`count(*) filter (where ${quoorumExpertFeedback.wasSuccessful} = true)`,
     })
-    .from(forumExpertFeedback)
-    .where(eq(forumExpertFeedback.expertId, expertId))
+    .from(quoorumExpertFeedback)
+    .where(eq(quoorumExpertFeedback.expertId, expertId))
 
   if (!stats || stats.totalRatings === 0) {
     // Delete ratings record if no feedback
-    await db.delete(forumExpertRatings).where(eq(forumExpertRatings.expertId, expertId))
+    await db.delete(quoorumExpertRatings).where(eq(quoorumExpertRatings.expertId, expertId))
     return
   }
 
   // Upsert ratings record
   await db
-    .insert(forumExpertRatings)
+    .insert(quoorumExpertRatings)
     .values({
       expertId,
       totalRatings: stats.totalRatings,
@@ -282,7 +282,7 @@ async function recalculateExpertRatings(expertId: string): Promise<void> {
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
-      target: forumExpertRatings.expertId,
+      target: quoorumExpertRatings.expertId,
       set: {
         totalRatings: stats.totalRatings,
         avgRating: stats.avgRating ? Math.round(Number(stats.avgRating) * 100) : null,

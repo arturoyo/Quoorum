@@ -1,27 +1,13 @@
 /**
- * Inngest Client Stub
- * TODO: Configure actual Inngest client for production
+ * Inngest Client for API
+ *
+ * Re-exports the Inngest client from workers package.
+ * Used to send events from API routers.
  */
 
-const isDev = process.env.NODE_ENV === "development";
+// Try subpath export first, fallback to main export
+// This ensures compatibility with Next.js module resolution
+import { inngest } from '@quoorum/workers'
 
-export interface InngestEvent {
-  name: string;
-  data: Record<string, unknown>;
-}
-
-export const inngest = {
-  send: async (event: InngestEvent) => {
-    if (isDev) {
-      // Only log in development
-      // eslint-disable-next-line no-console
-      console.log("[Inngest] Event triggered:", event.name, event.data);
-    }
-    return { ids: [crypto.randomUUID()] };
-  },
-  createFunction: () => {
-    // Stub for function creation
-  },
-};
-
-export default inngest;
+export { inngest }
+export { inngest as default }

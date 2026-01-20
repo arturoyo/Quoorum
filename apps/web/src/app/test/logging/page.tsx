@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { api } from "@/lib/trpc/client";
-import { logger } from "@/lib/logger";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,8 +57,11 @@ export default function TestLoggingPage() {
     }
   };
 
-  const handleFrontendTest = () => {
+  const handleFrontendTest = async () => {
     try {
+      // Importar logger dinámicamente
+      const { logger } = await import("@/lib/logger");
+
       logger.debug("Frontend debug test", { test: true });
       logger.info("Frontend info test", { test: true });
       logger.warn("Frontend warn test", { test: true });

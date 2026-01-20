@@ -1,8 +1,10 @@
 /**
- * Forum Consultations Schema
+ * Quoorum Consultations Schema
  *
- * Tracks automatic Forum consultations that happen during Wallie response generation.
- * These are quick strategic advice lookups for complex conversations (negotiations, objections, VIP clients).
+ * Tracks automatic Quoorum consultations that happen during complex decision-making scenarios.
+ * These are quick strategic advice lookups for complex situations (negotiations, objections, VIP clients, strategic decisions).
+ * 
+ * Note: "Forum" was the previous name of Quoorum before rebranding (Jan 2026).
  */
 
 import { pgTable, uuid, text, timestamp, jsonb, real, integer, boolean, index, pgEnum } from 'drizzle-orm/pg-core'

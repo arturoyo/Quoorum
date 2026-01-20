@@ -1,7 +1,7 @@
 /**
- * Forum Public API Router
+ * Quoorum Public API Router
  *
- * Public API endpoints for Forum integrations.
+ * Public API endpoints for Quoorum integrations.
  * Requires API key authentication for external access.
  *
  * Endpoints:
@@ -19,7 +19,7 @@ import { router, protectedProcedure } from '../trpc'
 import { db } from '@quoorum/db'
 import {
   quoorumDebates,
-  forumWebhooks,
+  quoorumWebhooks,
   quoorumApiKeys,
 } from '@quoorum/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
@@ -92,12 +92,12 @@ async function sendWebhook(
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-Wallie-Event': event,
-    'X-Wallie-Timestamp': payload.timestamp,
+    'X-Quoorum-Event': event,
+    'X-Quoorum-Timestamp': payload.timestamp,
   }
 
   if (webhook.secret) {
-    headers['X-Wallie-Signature'] = `sha256=${signWebhookPayload(payload, webhook.secret)}`
+    headers['X-Quoorum-Signature'] = `sha256=${signWebhookPayload(payload, webhook.secret)}`
   }
 
   try {
@@ -140,12 +140,12 @@ export const quoorumPublicApiRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       // Generate a secure API key
-      const keyPrefix = 'wf_' // wallie forum
+      const keyPrefix = 'q_' // quoorum
       const keyValue = generateId(32)
       const fullKey = `${keyPrefix}${keyValue}`
 
       // Hash the key for storage (we'll only show the full key once)
-      const hashedKey = createHmac('sha256', 'wallie-forum-api')
+      const hashedKey = createHmac('sha256', 'quoorum-api')
         .update(fullKey)
         .digest('hex')
 
@@ -256,7 +256,7 @@ export const quoorumPublicApiRouter = router({
 
       // Trigger the debate to run
       await inngest.send({
-        name: 'forum/whatsapp-debate.created',
+        name: 'quoorum/debate.created',
         data: {
           debateId: debate.id,
           userId: ctx.user.id,
@@ -268,11 +268,11 @@ export const quoorumPublicApiRouter = router({
       // Trigger webhooks for debate.created
       const webhooks = await db
         .select()
-        .from(forumWebhooks)
+        .from(quoorumWebhooks)
         .where(
           and(
-            eq(forumWebhooks.userId, ctx.user.id),
-            eq(forumWebhooks.isActive, true)
+            eq(quoorumWebhooks.userId, ctx.user.id),
+            eq(quoorumWebhooks.isActive, true)
           )
         )
 
@@ -427,9 +427,9 @@ export const quoorumPublicApiRouter = router({
     .mutation(async ({ ctx, input }) => {
       // Check webhook limit (max 10 per user)
       const existingCount = await db
-        .select({ count: forumWebhooks.id })
-        .from(forumWebhooks)
-        .where(eq(forumWebhooks.userId, ctx.user.id))
+        .select({ count: quoorumWebhooks.id })
+        .from(quoorumWebhooks)
+        .where(eq(quoorumWebhooks.userId, ctx.user.id))
 
       if (existingCount.length >= 10) {
         throw new TRPCError({
@@ -442,7 +442,7 @@ export const quoorumPublicApiRouter = router({
       const secret = input.secret ?? generateId(32)
 
       const [webhook] = await db
-        .insert(forumWebhooks)
+        .insert(quoorumWebhooks)
         .values({
           userId: ctx.user.id,
           name: input.name ?? 'Webhook',
@@ -475,18 +475,18 @@ export const quoorumPublicApiRouter = router({
   listWebhooks: protectedProcedure.query(async ({ ctx }) => {
     const webhooks = await db
       .select({
-        id: forumWebhooks.id,
-        name: forumWebhooks.name,
-        url: forumWebhooks.url,
-        events: forumWebhooks.events,
-        isActive: forumWebhooks.isActive,
-        lastTriggeredAt: forumWebhooks.lastTriggeredAt,
-        failCount: forumWebhooks.failCount,
-        createdAt: forumWebhooks.createdAt,
+        id: quoorumWebhooks.id,
+        name: quoorumWebhooks.name,
+        url: quoorumWebhooks.url,
+        events: quoorumWebhooks.events,
+        isActive: quoorumWebhooks.isActive,
+        lastTriggeredAt: quoorumWebhooks.lastTriggeredAt,
+        failCount: quoorumWebhooks.failCount,
+        createdAt: quoorumWebhooks.createdAt,
       })
-      .from(forumWebhooks)
-      .where(eq(forumWebhooks.userId, ctx.user.id))
-      .orderBy(desc(forumWebhooks.createdAt))
+      .from(quoorumWebhooks)
+      .where(eq(quoorumWebhooks.userId, ctx.user.id))
+      .orderBy(desc(quoorumWebhooks.createdAt))
 
     return webhooks
   }),
@@ -500,15 +500,15 @@ export const quoorumPublicApiRouter = router({
       const { id, ...updates } = input
 
       const [webhook] = await db
-        .update(forumWebhooks)
+        .update(quoorumWebhooks)
         .set({
           ...updates,
           updatedAt: new Date(),
         })
         .where(
           and(
-            eq(forumWebhooks.id, id),
-            eq(forumWebhooks.userId, ctx.user.id)
+            eq(quoorumWebhooks.id, id),
+            eq(quoorumWebhooks.userId, ctx.user.id)
           )
         )
         .returning()
@@ -530,11 +530,11 @@ export const quoorumPublicApiRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       await db
-        .delete(forumWebhooks)
+        .delete(quoorumWebhooks)
         .where(
           and(
-            eq(forumWebhooks.id, input.id),
-            eq(forumWebhooks.userId, ctx.user.id)
+            eq(quoorumWebhooks.id, input.id),
+            eq(quoorumWebhooks.userId, ctx.user.id)
           )
         )
 
@@ -549,11 +549,11 @@ export const quoorumPublicApiRouter = router({
     .mutation(async ({ ctx, input }) => {
       const [webhook] = await db
         .select()
-        .from(forumWebhooks)
+        .from(quoorumWebhooks)
         .where(
           and(
-            eq(forumWebhooks.id, input.id),
-            eq(forumWebhooks.userId, ctx.user.id)
+            eq(quoorumWebhooks.id, input.id),
+            eq(quoorumWebhooks.userId, ctx.user.id)
           )
         )
 
@@ -568,7 +568,7 @@ export const quoorumPublicApiRouter = router({
         { url: webhook.url, secret: webhook.secret },
         'test',
         {
-          message: 'This is a test webhook from Wallie Forum API',
+          message: 'This is a test webhook from Quoorum API',
           timestamp: new Date().toISOString(),
         }
       )

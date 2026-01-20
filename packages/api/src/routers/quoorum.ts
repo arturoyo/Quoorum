@@ -1,7 +1,7 @@
 /**
- * Forum Router - Dynamic Expert System
+ * Quoorum Router - Dynamic Expert System
  *
- * Handles all Forum operations: debates, analytics, learning system,
+ * Handles all Quoorum operations: debates, analytics, learning system,
  * custom experts, templates, sharing, and more.
  */
 
@@ -10,12 +10,12 @@ import { db } from '@quoorum/db'
 import {
   adminRoles,
   adminUsers,
-  forumCustomExperts,
-  forumDebateComments,
-  forumDebateLikes,
+  quoorumCustomExperts,
+  quoorumDebateComments,
+  quoorumDebateLikes,
   quoorumDebates,
-  forumDebateTemplates,
-  forumExpertPerformance,
+  quoorumDebateTemplates,
+  quoorumExpertPerformance,
   profiles,
 } from '@quoorum/db/schema'
 import { runDynamicDebate } from '@quoorum/quoorum'
@@ -23,6 +23,7 @@ import { and, avg, count, desc, eq, like, or, sql, sum } from 'drizzle-orm'
 import { z } from 'zod'
 import { logger } from '../lib/logger'
 import { protectedProcedure, router, expensiveRateLimitedProcedure } from '../trpc'
+import { inngest } from '../lib/inngest-client'
 
 // ============================================
 // TYPES (from schema jsonb $type definitions)
@@ -85,7 +86,7 @@ interface DebateResult {
 }
 
 /**
- * Admin middleware - Only admins can access Forum
+ * Admin middleware - Only admins can access Quoorum
  */
 const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   const [adminUser] = await db
@@ -109,7 +110,7 @@ const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 })
 
 /**
- * Admin procedure with rate limiting for expensive operations (AI, Forum debates)
+ * Admin procedure with rate limiting for expensive operations (AI, Quoorum debates)
  */
 const adminWithRateLimitProcedure = expensiveRateLimitedProcedure.use(async ({ ctx, next }) => {
   const [adminUser] = await db
@@ -315,8 +316,8 @@ export const quoorumRouter = router({
   expertLeaderboard: adminProcedure.query(async () => {
     const experts = await db
       .select()
-      .from(forumExpertPerformance)
-      .orderBy(desc(forumExpertPerformance.avgQualityScore))
+      .from(quoorumExpertPerformance)
+      .orderBy(desc(quoorumExpertPerformance.avgQualityScore))
       .limit(20)
 
     return experts
@@ -339,7 +340,7 @@ export const quoorumRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const [comment] = await db
-        .insert(forumDebateComments)
+        .insert(quoorumDebateComments)
         .values({
           debateId: input.debateId,
           userId: ctx.user.id,
@@ -365,9 +366,9 @@ export const quoorumRouter = router({
     .query(async ({ input }) => {
       const comments = await db
         .select()
-        .from(forumDebateComments)
-        .where(eq(forumDebateComments.debateId, input.debateId))
-        .orderBy(desc(forumDebateComments.createdAt))
+        .from(quoorumDebateComments)
+        .where(eq(quoorumDebateComments.debateId, input.debateId))
+        .orderBy(desc(quoorumDebateComments.createdAt))
 
       return comments
     }),
@@ -381,22 +382,22 @@ export const quoorumRouter = router({
       // Check if already liked
       const [existing] = await db
         .select()
-        .from(forumDebateLikes)
+        .from(quoorumDebateLikes)
         .where(
           and(
-            eq(forumDebateLikes.debateId, input.debateId),
-            eq(forumDebateLikes.userId, ctx.user.id)
+            eq(quoorumDebateLikes.debateId, input.debateId),
+            eq(quoorumDebateLikes.userId, ctx.user.id)
           )
         )
 
       if (existing) {
         // Unlike
         await db
-          .delete(forumDebateLikes)
+          .delete(quoorumDebateLikes)
           .where(
             and(
-              eq(forumDebateLikes.debateId, input.debateId),
-              eq(forumDebateLikes.userId, ctx.user.id)
+              eq(quoorumDebateLikes.debateId, input.debateId),
+              eq(quoorumDebateLikes.userId, ctx.user.id)
             )
           )
 
@@ -408,7 +409,7 @@ export const quoorumRouter = router({
         return { liked: false }
       } else {
         // Like
-        await db.insert(forumDebateLikes).values({
+        await db.insert(quoorumDebateLikes).values({
           debateId: input.debateId,
           userId: ctx.user.id,
         })
@@ -450,7 +451,7 @@ export const quoorumRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const [expert] = await db
-        .insert(forumCustomExperts)
+        .insert(quoorumCustomExperts)
         .values({
           userId: ctx.user.id,
           name: input.name,
@@ -471,9 +472,9 @@ export const quoorumRouter = router({
   listCustomExperts: adminProcedure.query(async ({ ctx }) => {
     const experts = await db
       .select()
-      .from(forumCustomExperts)
-      .where(and(eq(forumCustomExperts.userId, ctx.user.id), eq(forumCustomExperts.isActive, true)))
-      .orderBy(desc(forumCustomExperts.usageCount))
+      .from(quoorumCustomExperts)
+      .where(and(eq(quoorumCustomExperts.userId, ctx.user.id), eq(quoorumCustomExperts.isActive, true)))
+      .orderBy(desc(quoorumCustomExperts.usageCount))
 
     return experts
   }),
@@ -506,21 +507,21 @@ export const quoorumRouter = router({
 
       // Verify ownership
       const [existing] = await db
-        .select({ id: forumCustomExperts.id })
-        .from(forumCustomExperts)
-        .where(and(eq(forumCustomExperts.id, id), eq(forumCustomExperts.userId, ctx.user.id)))
+        .select({ id: quoorumCustomExperts.id })
+        .from(quoorumCustomExperts)
+        .where(and(eq(quoorumCustomExperts.id, id), eq(quoorumCustomExperts.userId, ctx.user.id)))
 
       if (!existing) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Expert no encontrado' })
       }
 
       const [updated] = await db
-        .update(forumCustomExperts)
+        .update(quoorumCustomExperts)
         .set({
           ...updateData,
           updatedAt: new Date(),
         })
-        .where(and(eq(forumCustomExperts.id, id), eq(forumCustomExperts.userId, ctx.user.id)))
+        .where(and(eq(quoorumCustomExperts.id, id), eq(quoorumCustomExperts.userId, ctx.user.id)))
         .returning()
 
       return updated
@@ -534,9 +535,9 @@ export const quoorumRouter = router({
     .mutation(async ({ ctx, input }) => {
       // Verify ownership
       const [existing] = await db
-        .select({ id: forumCustomExperts.id })
-        .from(forumCustomExperts)
-        .where(and(eq(forumCustomExperts.id, input.id), eq(forumCustomExperts.userId, ctx.user.id)))
+        .select({ id: quoorumCustomExperts.id })
+        .from(quoorumCustomExperts)
+        .where(and(eq(quoorumCustomExperts.id, input.id), eq(quoorumCustomExperts.userId, ctx.user.id)))
 
       if (!existing) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Expert no encontrado' })
@@ -544,9 +545,9 @@ export const quoorumRouter = router({
 
       // Soft delete
       await db
-        .update(forumCustomExperts)
+        .update(quoorumCustomExperts)
         .set({ isActive: false, updatedAt: new Date() })
-        .where(and(eq(forumCustomExperts.id, input.id), eq(forumCustomExperts.userId, ctx.user.id)))
+        .where(and(eq(quoorumCustomExperts.id, input.id), eq(quoorumCustomExperts.userId, ctx.user.id)))
 
       return { success: true }
     }),
@@ -578,7 +579,7 @@ export const quoorumRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const [template] = await db
-        .insert(forumDebateTemplates)
+        .insert(quoorumDebateTemplates)
         .values({
           ...input,
           createdBy: ctx.user.id,
@@ -600,21 +601,21 @@ export const quoorumRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const conditions = [
-        or(eq(forumDebateTemplates.isPublic, true), eq(forumDebateTemplates.createdBy, ctx.user.id)),
+        or(eq(quoorumDebateTemplates.isPublic, true), eq(quoorumDebateTemplates.createdBy, ctx.user.id)),
       ]
 
       if (input.industry) {
-        conditions.push(eq(forumDebateTemplates.industry, input.industry))
+        conditions.push(eq(quoorumDebateTemplates.industry, input.industry))
       }
       if (input.category) {
-        conditions.push(eq(forumDebateTemplates.category, input.category))
+        conditions.push(eq(quoorumDebateTemplates.category, input.category))
       }
 
       const templates = await db
         .select()
-        .from(forumDebateTemplates)
+        .from(quoorumDebateTemplates)
         .where(and(...conditions))
-        .orderBy(desc(forumDebateTemplates.usageCount))
+        .orderBy(desc(quoorumDebateTemplates.usageCount))
 
       return templates
     }),
@@ -860,20 +861,20 @@ export const quoorumRouter = router({
       .query(async ({ input }) => {
         const comments = await db
           .select({
-            id: forumDebateComments.id,
-            debateId: forumDebateComments.debateId,
-            userId: forumDebateComments.userId,
-            content: forumDebateComments.content,
-            parentId: forumDebateComments.parentId,
-            createdAt: forumDebateComments.createdAt,
-            updatedAt: forumDebateComments.updatedAt,
+            id: quoorumDebateComments.id,
+            debateId: quoorumDebateComments.debateId,
+            userId: quoorumDebateComments.userId,
+            content: quoorumDebateComments.content,
+            parentId: quoorumDebateComments.parentId,
+            createdAt: quoorumDebateComments.createdAt,
+            updatedAt: quoorumDebateComments.updatedAt,
             authorName: profiles.fullName,
             authorAvatar: profiles.avatarUrl,
           })
-          .from(forumDebateComments)
-          .innerJoin(profiles, eq(forumDebateComments.userId, profiles.id))
-          .where(eq(forumDebateComments.debateId, input.debateId))
-          .orderBy(desc(forumDebateComments.createdAt))
+          .from(quoorumDebateComments)
+          .innerJoin(profiles, eq(quoorumDebateComments.userId, profiles.id))
+          .where(eq(quoorumDebateComments.debateId, input.debateId))
+          .orderBy(desc(quoorumDebateComments.createdAt))
 
         return comments.map((c) => ({
           id: c.id,
@@ -904,7 +905,7 @@ export const quoorumRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         const [comment] = await db
-          .insert(forumDebateComments)
+          .insert(quoorumDebateComments)
           .values({
             debateId: input.debateId,
             userId: ctx.user.id,
@@ -1101,6 +1102,16 @@ async function runDebateAsync(
         await updateExpertPerformance(expert.id, result as unknown as DebateResult)
       }
     }
+
+    // Trigger completion notification
+    try {
+      await inngest.send({
+        name: 'quoorum/debate.completed',
+        data: { debateId, userId },
+      })
+    } catch (error) {
+      logger.error('Failed to send debate completion event', error instanceof Error ? error : new Error(String(error)), { debateId, userId })
+    }
   } catch (error) {
     // Error running debate
     await db
@@ -1145,23 +1156,23 @@ async function updateExpertPerformance(expertId: string, result: DebateResult): 
   // Get or create expert performance record
   const [existing] = await db
     .select()
-    .from(forumExpertPerformance)
-    .where(eq(forumExpertPerformance.expertId, expertId))
+    .from(quoorumExpertPerformance)
+    .where(eq(quoorumExpertPerformance.expertId, expertId))
 
   if (existing) {
     // Update existing
     await db
-      .update(forumExpertPerformance)
+      .update(quoorumExpertPerformance)
       .set({
         totalDebates: existing.totalDebates + 1,
         avgQualityScore: result.qualityMetrics?.depth ?? existing.avgQualityScore,
         avgConsensusScore: result.consensusScore ?? existing.avgConsensusScore,
         updatedAt: new Date(),
       })
-      .where(eq(forumExpertPerformance.expertId, expertId))
+      .where(eq(quoorumExpertPerformance.expertId, expertId))
   } else {
     // Create new
-    await db.insert(forumExpertPerformance).values({
+    await db.insert(quoorumExpertPerformance).values({
       expertId,
       totalDebates: 1,
       avgQualityScore: result.qualityMetrics?.depth ?? 0,

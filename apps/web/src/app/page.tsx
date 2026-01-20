@@ -16,7 +16,7 @@ import {
   Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { AppHeader } from "@/components/layout/app-header";
 
 const features = [
   {
@@ -202,55 +202,10 @@ export default function HomePage() {
       <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
 
       {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-2xl bg-black/50">
-        <div className="container mx-auto px-4">
-          <div className="flex h-20 items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0A0A0F]">
-                  <QuoorumLogo size={48} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-                Quoorum
-              </span>
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="#features" className="text-sm text-gray-400 hover:text-white transition-colors relative group">
-                Características
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
-              </Link>
-              <Link href="#use-cases" className="text-sm text-gray-400 hover:text-white transition-colors relative group">
-                Casos de Uso
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
-              </Link>
-              <Link href="#pricing" className="text-sm text-gray-400 hover:text-white transition-colors relative group">
-                Precios
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Link href="/login">
-                <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/5">
-                  Iniciar Sesión
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button className="relative group overflow-hidden bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white border-0">
-                  <span className="relative z-10">Empezar Gratis</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader variant="landing" showAuth={true} />
 
       {/* Hero Section */}
-      <section className="pt-40 pb-32 px-4 relative">
+      <section className="pt-20 sm:pt-32 md:pt-40 pb-16 sm:pb-24 md:pb-32 px-4 relative">
         <div className="container mx-auto text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20 backdrop-blur-xl mb-8 group hover:border-purple-500/40 transition-all">
@@ -262,7 +217,7 @@ export default function HomePage() {
           </div>
 
           {/* Main headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white max-w-5xl mx-auto leading-[1.1] mb-8 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white max-w-5xl mx-auto leading-[1.1] mb-6 sm:mb-8 tracking-tight">
             Toma mejores decisiones
             <br />
             con{" "}
@@ -277,7 +232,7 @@ export default function HomePage() {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Ya usas varias IAs porque{" "}
             <span className="text-white font-medium">
               cada una tiene su especialidad.
@@ -337,10 +292,10 @@ export default function HomePage() {
       </section>
 
       {/* Why Multiple AIs */}
-      <section className="py-32 px-4 relative">
+      <section className="py-16 sm:py-24 md:py-32 px-4 relative">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
               ¿Por qué{" "}
               <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 múltiples IAs?
@@ -464,7 +419,7 @@ export default function HomePage() {
       <section id="features" className="py-32 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
               Todo lo que necesitas para{" "}
               <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 decidir con confianza
@@ -512,7 +467,7 @@ export default function HomePage() {
       <section id="use-cases" className="py-32 px-4 relative">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
               Casos de uso que{" "}
               <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 transforman negocios
@@ -560,7 +515,7 @@ export default function HomePage() {
       <section className="py-32 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
               Así de simple{" "}
               <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 funciona
@@ -613,10 +568,10 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-32 px-4 relative">
+      <section className="py-16 sm:py-24 md:py-32 px-4 relative">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
               Lo que dicen{" "}
               <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 nuestros usuarios
@@ -662,7 +617,7 @@ export default function HomePage() {
       <section id="pricing" className="py-32 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
               Precios{" "}
               <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 simples y transparentes
@@ -743,7 +698,7 @@ export default function HomePage() {
             <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-500/30 rounded-full blur-[100px]" />
 
             <div className="relative z-10">
-              <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
                 Empieza a tomar mejores decisiones hoy
               </h2>
               <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
@@ -812,7 +767,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-8 text-center text-gray-600 text-sm">
+          <div className="border-t border-white/5 pt-8 text-center text-gray-400 text-sm">
             <p>&copy; {new Date().getFullYear()} Quoorum. Todos los derechos reservados.</p>
           </div>
         </div>

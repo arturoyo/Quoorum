@@ -3,7 +3,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { AppHeader } from "@/components/layout/app-header";
 
 export const metadata = {
   title: "Términos de Servicio - Quoorum",
@@ -14,28 +14,7 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Navigation */}
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
-                  <QuoorumLogo size={24} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
-            </Link>
-
-            <Link href="/">
-              <Button variant="ghost" className="text-gray-300 hover:text-white">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <AppHeader variant="landing" showAuth={true} />
 
       {/* Content */}
       <main className="py-20 px-4">

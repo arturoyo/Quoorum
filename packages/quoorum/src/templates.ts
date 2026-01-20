@@ -41,7 +41,7 @@ export const SAAS_TEMPLATES: DebateTemplate[] = [
       background: 'Producto SaaS B2B con modelo de suscripción mensual',
     },
     examples: [
-      '¿Debo lanzar Wallie a 29€, 49€ o 79€?',
+      '¿Debo lanzar mi producto a 29€, 49€ o 79€?',
       '¿Debo cobrar $99, $199 o $299 por mi CRM?',
     ],
   },
@@ -62,7 +62,7 @@ export const SAAS_TEMPLATES: DebateTemplate[] = [
       ],
     },
     examples: [
-      '¿Cómo posicionar Wallie: WhatsApp CRM, AI Sales Assistant o Sales Automation Platform?',
+      '¿Cómo posicionar mi producto: Opción A, Opción B o Opción C?',
       '¿Posicionar como "CRM simple" o "Sales Intelligence Platform"?',
     ],
   },

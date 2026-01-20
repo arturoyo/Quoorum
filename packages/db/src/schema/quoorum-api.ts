@@ -48,9 +48,9 @@ export const quoorumApiKeys = pgTable('quoorum_api_keys', {
 // ============================================================================
 
 /**
- * Webhooks for Forum event notifications
+ * Webhooks for Quoorum event notifications
  */
-export const forumWebhooks = pgTable('quoorum_webhooks', {
+export const quoorumWebhooks = pgTable('quoorum_webhooks', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id')
     .notNull()
@@ -93,7 +93,7 @@ export const forumWebhookLogs = pgTable('quoorum_webhook_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
   webhookId: uuid('webhook_id')
     .notNull()
-    .references(() => forumWebhooks.id, { onDelete: 'cascade' }),
+    .references(() => quoorumWebhooks.id, { onDelete: 'cascade' }),
 
   // Event details
   event: varchar('event', { length: 50 }).notNull(),
@@ -120,8 +120,8 @@ export const forumWebhookLogs = pgTable('quoorum_webhook_logs', {
 export type ForumApiKey = typeof quoorumApiKeys.$inferSelect
 export type NewForumApiKey = typeof quoorumApiKeys.$inferInsert
 
-export type ForumWebhook = typeof forumWebhooks.$inferSelect
-export type NewForumWebhook = typeof forumWebhooks.$inferInsert
+export type QuoorumWebhook = typeof quoorumWebhooks.$inferSelect
+export type NewQuoorumWebhook = typeof quoorumWebhooks.$inferInsert
 
 export type ForumWebhookLog = typeof forumWebhookLogs.$inferSelect
 export type NewForumWebhookLog = typeof forumWebhookLogs.$inferInsert

@@ -1,7 +1,7 @@
 /**
  * AI Providers - Adapters for real LLM integration
  *
- * Conecta el AI Debate Engine con la infraestructura de LLMs de Wallie.
+ * Conecta el AI Debate Engine con la infraestructura de LLMs de Quoorum.
  */
 
 import type { AIProvider, GenerateOptions } from './ai-debate-types'

@@ -263,8 +263,8 @@ export function validateQuestion(question: string): ValidationResult {
   }
 
   // Suggestions for improvement
-  if (!question.toLowerCase().includes('wallie')) {
-    suggestions.push('Consider adding context about Wallie for more relevant advice')
+  if (!question.toLowerCase().includes('context')) {
+    suggestions.push('Consider adding context about your situation for more relevant advice')
   }
 
   if (question.split(' ').length < 5) {

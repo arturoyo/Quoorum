@@ -7,7 +7,7 @@
  */
 
 import { useState } from "react"
-import { api } from "@/lib/api"
+import { api } from "@/lib/trpc/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

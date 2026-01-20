@@ -95,6 +95,7 @@ async function executeScheduledDebate(id: string) {
   try {
     const result = await runDebate({
       sessionId: scheduled.id,
+      userId: scheduled.userId,
       question: scheduled.question,
       context: { sources: [], combinedContext: '' },
     })
@@ -240,6 +241,7 @@ async function executeRecurringDebate(id: string) {
   try {
     await runDebate({
       sessionId: `recurring-${id}-${Date.now()}`,
+      userId: recurring.userId,
       question: recurring.question,
       context: { sources: [], combinedContext: '' },
     })

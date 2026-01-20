@@ -4,13 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import {
-  DollarSign,
   MessageCircle,
   Award,
   Target,
   Clock,
   Zap,
-  Link2,
   FileText,
   Bell,
   Loader2,
@@ -20,7 +18,6 @@ import { api } from '@/lib/trpc/client'
 import { ConsensusTrendChart } from './advanced-charts'
 import { ReportsViewer } from './reports-viewer'
 import { NotificationsCenter } from './notifications-center'
-import { SuggestedDealsForForum } from './deal-debate-widget'
 
 export function AnalyticsDashboard() {
   // Fetch real analytics data
@@ -29,7 +26,6 @@ export function AnalyticsDashboard() {
 
   // Fetch Phase 4 data (topExperts not used yet - reserved for future feature)
   void api.quoorumFeedback.getTopExperts.useQuery({ limit: 5 })
-  const { data: influenceStats } = api.quoorumDeals.getInfluenceStats.useQuery()
   const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery()
 
   if (isLoadingAnalytics || isLoadingExperts) {
@@ -56,10 +52,6 @@ export function AnalyticsDashboard() {
           </TabsTrigger>
           <TabsTrigger value="experts" className="data-[state=active]:bg-[#00a884]">
             Expertos
-          </TabsTrigger>
-          <TabsTrigger value="deals" className="data-[state=active]:bg-[#00a884]">
-            <Link2 className="mr-1 h-4 w-4" />
-            Deals
           </TabsTrigger>
           <TabsTrigger value="quality" className="data-[state=active]:bg-[#00a884]">
             Calidad
@@ -229,83 +221,6 @@ export function AnalyticsDashboard() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Deals Tab */}
-        <TabsContent value="deals" className="space-y-4">
-          {/* Deal Influence Stats */}
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card className="border-[#2a3942] bg-[#202c33]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#8696a0]">
-                  Debates Vinculados
-                </CardTitle>
-                <Link2 className="h-4 w-4 text-[#8696a0]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#e9edef]">
-                  {influenceStats?.total ?? 0}
-                </div>
-                <p className="text-xs text-[#8696a0]">Total de vínculos debate-deal</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-[#2a3942] bg-[#202c33]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#8696a0]">
-                  Influencia Decisiva
-                </CardTitle>
-                <Target className="h-4 w-4 text-green-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-400">
-                  {influenceStats?.decisive ?? 0}
-                </div>
-                <p className="text-xs text-[#8696a0]">Debates que cerraron ventas</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-[#2a3942] bg-[#202c33]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#8696a0]">
-                  Recomendaciones Seguidas
-                </CardTitle>
-                <Award className="h-4 w-4 text-purple-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-400">
-                  {influenceStats?.recommendationsFollowed ?? 0}
-                </div>
-                <p className="text-xs text-[#8696a0]">Usuarios siguieron consejos</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-[#2a3942] bg-[#202c33]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#8696a0]">Sin Evaluar</CardTitle>
-                <Clock className="h-4 w-4 text-[#8696a0]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#8696a0]">
-                  {influenceStats?.unknown ?? 0}
-                </div>
-                <p className="text-xs text-[#8696a0]">Pendientes de evaluación</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Suggested Deals */}
-          <Card className="border-[#2a3942] bg-[#202c33]">
-            <CardHeader>
-              <CardTitle className="text-[#e9edef]">Oportunidades Sugeridas</CardTitle>
-              <CardDescription className="text-[#8696a0]">
-                Deals que podrían beneficiarse de un debate en Quoorum
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SuggestedDealsForForum />
             </CardContent>
           </Card>
         </TabsContent>

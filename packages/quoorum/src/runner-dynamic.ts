@@ -216,7 +216,8 @@ async function determineDebateMode(
           perspective: expert.description || expert.expertise || '',
           systemPrompt: expert.systemPrompt,
           temperature: expert.aiConfig.temperature ?? 0.7,
-          provider: expert.aiConfig.provider,
+          // Cast provider to ExpertProfile type (groq not supported in ExpertProfile yet)
+          provider: (expert.aiConfig.provider === 'groq' ? 'google' : expert.aiConfig.provider) as ExpertProfile['provider'],
           modelId: expert.aiConfig.model,
         }
 
@@ -447,7 +448,7 @@ async function runDynamicDebate(options: {
         quoorumLogger.info(`Debate paused at round ${roundNum}`, { sessionId })
         return {
           sessionId,
-          status: 'in_progress', // Keep in progress (paused state is in metadata)
+          status: 'running', // Keep running (paused state is in metadata)
           rounds,
           finalRanking: consensusResult?.topOptions ?? [],
           totalCostUsd: totalCost,

@@ -101,7 +101,7 @@ export const quoorumReports = pgTable('quoorum_reports', {
 // Scheduled Reports Table
 // ============================================================
 
-export const forumScheduledReports = pgTable('quoorum_scheduled_reports', {
+export const quoorumScheduledReports = pgTable('quoorum_scheduled_reports', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   // Owner
@@ -170,9 +170,9 @@ export const quoorumReportsRelations = relations(quoorumReports, ({ one }) => ({
   }),
 }))
 
-export const forumScheduledReportsRelations = relations(forumScheduledReports, ({ one }) => ({
+export const quoorumScheduledReportsRelations = relations(quoorumScheduledReports, ({ one }) => ({
   user: one(profiles, {
-    fields: [forumScheduledReports.userId],
+    fields: [quoorumScheduledReports.userId],
     references: [profiles.id],
   }),
 }))
@@ -183,8 +183,8 @@ export const forumScheduledReportsRelations = relations(forumScheduledReports, (
 
 export type ForumReport = typeof quoorumReports.$inferSelect
 export type NewForumReport = typeof quoorumReports.$inferInsert
-export type ForumScheduledReport = typeof forumScheduledReports.$inferSelect
-export type NewForumScheduledReport = typeof forumScheduledReports.$inferInsert
+export type ForumScheduledReport = typeof quoorumScheduledReports.$inferSelect
+export type NewForumScheduledReport = typeof quoorumScheduledReports.$inferInsert
 export type ForumReportType =
   | 'single_debate'
   | 'weekly_summary'

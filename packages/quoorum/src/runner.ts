@@ -11,6 +11,7 @@ import { checkConsensus } from './consensus'
 import { deductCredits, refundCredits, hasSufficientCredits } from './billing/credit-transactions'
 import { convertUsdToCredits } from './analytics/cost'
 import { selectTheme, assignDebateIdentities, type AssignedIdentity, type ThemeSelection } from './narrative/theme-engine'
+import { quoorumLogger } from './logger'
 import type {
   DebateMessage,
   DebateRound,
@@ -284,7 +285,10 @@ export async function executeRound(
       prompt,
     })
 
-    roundMessages.push(message)
+    // Skip null messages (agent failed)
+    if (message) {
+      roundMessages.push(message)
+    }
   }
 
   return {

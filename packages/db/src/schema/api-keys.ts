@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, timestamp, boolean, integer } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { users } from './users'
 
@@ -14,15 +14,16 @@ export const apiKeys = pgTable('api_keys', {
   // Key info
   name: varchar('name', { length: 100 }).notNull(),
   keyHash: varchar('key_hash', { length: 255 }).notNull(), // Hash SHA-256 de la key
-  prefix: varchar('prefix', { length: 20 }).notNull(), // quoorum_live_abc... (primeros 20 chars para mostrar)
+  prefix: varchar('key_prefix', { length: 20 }).notNull(), // quoorum_live_abc... (primeros 20 chars para mostrar)
 
   // Usage tracking
   lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
-  usageCount: uuid('usage_count').default('0'), // Contador de veces usado
+  usageCount: integer('usage_count').default(0).notNull(), // Contador de veces usado
+  isActive: boolean('is_active').default(true).notNull(), // Soft delete
 
   // Timestamps
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  revokedAt: timestamp('revoked_at', { withTimezone: true }), // Soft delete
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
 export const apiKeysRelations = relations(apiKeys, ({ one }) => ({

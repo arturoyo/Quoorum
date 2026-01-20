@@ -127,8 +127,8 @@ const formatLabels: Record<ReportFormat, { label: string; icon: typeof FileText 
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
-  pending: { label: 'Pendiente', color: 'bg-yellow-500/20 text-yellow-400', icon: Clock },
-  generating: { label: 'Generando...', color: 'bg-blue-500/20 text-blue-400', icon: Loader2 },
+  pending: { label: 'En progreso', color: 'bg-yellow-500/20 text-yellow-400', icon: Loader2 },
+  generating: { label: 'En progreso', color: 'bg-yellow-500/20 text-yellow-400', icon: Loader2 },
   completed: { label: 'Completado', color: 'bg-green-500/20 text-green-400', icon: CheckCircle },
   failed: { label: 'Error', color: 'bg-red-500/20 text-red-400', icon: AlertCircle },
 }

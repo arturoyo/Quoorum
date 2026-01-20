@@ -16,7 +16,8 @@
     "./quality-monitor": "./src/quality-monitor.ts",
     "./meta-moderator": "./src/meta-moderator.ts",
     "./learning-system": "./src/learning-system.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./billing/credit-transactions": "./src/billing/credit-transactions.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -294,7 +294,7 @@ function generateEmailHTML(debate: DebateResult, experts: ExpertProfile[]): stri
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="${process.env['NEXT_PUBLIC_APP_URL'] || 'https://wallie.app'}/quoorum/${debate.sessionId}" style="display: inline-block; background-color: ${brandingColor}; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+                    <a href="${process.env['NEXT_PUBLIC_APP_URL'] || 'https://quoorum.ai'}/quoorum/${debate.sessionId}" style="display: inline-block; background-color: ${brandingColor}; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600;">
                       Ver Debate Completo
                     </a>
                   </td>
@@ -348,7 +348,7 @@ function generateEmailText(debate: DebateResult, experts: ExpertProfile[]): stri
     text += `\n`
   }
 
-  text += `Ver debate completo: ${process.env['NEXT_PUBLIC_APP_URL'] || 'https://wallie.app'}/quoorum/${debate.sessionId}\n\n`
+  text += `Ver debate completo: ${process.env['NEXT_PUBLIC_APP_URL'] || 'https://quoorum.ai'}/quoorum/${debate.sessionId}\n\n`
 
   text += `---\n`
   text += `Forum - Sistema Dinámico de Expertos\n`

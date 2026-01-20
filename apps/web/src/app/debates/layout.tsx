@@ -362,17 +362,19 @@ function DebateListItem({
   })
 
   const statusColors = {
-    draft: 'bg-gray-500',
+    draft: 'bg-yellow-500',
     pending: 'bg-yellow-500',
-    in_progress: 'bg-blue-500',
+    in_progress: 'bg-yellow-500',
     completed: 'bg-green-500',
+    failed: 'bg-red-500',
   }
 
   const statusLabels = {
-    draft: 'Borrador',
-    pending: 'Pendiente',
-    in_progress: 'En curso',
+    draft: 'En progreso',
+    pending: 'En progreso',
+    in_progress: 'En progreso',
     completed: 'Completado',
+    failed: 'Error',
   }
 
   const handleEdit = (e: React.MouseEvent) => {

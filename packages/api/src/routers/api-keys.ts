@@ -55,7 +55,7 @@ export const apiKeysRouter = router({
       .where(
         and(
           eq(apiKeys.userId, ctx.userId),
-          isNull(apiKeys.revokedAt) // Solo keys activas
+          eq(apiKeys.isActive, true) // Solo keys activas
         )
       )
       .orderBy(desc(apiKeys.createdAt));
@@ -115,7 +115,7 @@ export const apiKeysRouter = router({
           and(
             eq(apiKeys.id, input.id),
             eq(apiKeys.userId, ctx.userId),
-            isNull(apiKeys.revokedAt)
+            eq(apiKeys.isActive, true)
           )
         );
 
@@ -150,7 +150,7 @@ export const apiKeysRouter = router({
         .where(
           and(
             eq(apiKeys.keyHash, hash),
-            isNull(apiKeys.revokedAt) // Solo keys activas
+            eq(apiKeys.isActive, true) // Solo keys activas
           )
         );
 

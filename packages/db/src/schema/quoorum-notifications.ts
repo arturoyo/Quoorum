@@ -1,7 +1,7 @@
 /**
- * Forum Notifications Schema
+ * Quoorum Notifications Schema
  *
- * Tracks notifications for Forum-related events:
+ * Tracks notifications for Quoorum-related events:
  * - Debate completed
  * - New comment on debate
  * - Expert consensus reached
@@ -113,7 +113,7 @@ export const quoorumNotifications = pgTable('quoorum_notifications', {
 // Notification Preferences Table
 // ============================================================
 
-export const forumNotificationPreferences = pgTable('quoorum_notification_preferences', {
+export const quoorumNotificationPreferences = pgTable('quoorum_notification_preferences', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   userId: uuid('user_id')
@@ -170,9 +170,9 @@ export const quoorumNotificationsRelations = relations(quoorumNotifications, ({ 
   }),
 }))
 
-export const forumNotificationPreferencesRelations = relations(forumNotificationPreferences, ({ one }) => ({
+export const quoorumNotificationPreferencesRelations = relations(quoorumNotificationPreferences, ({ one }) => ({
   user: one(profiles, {
-    fields: [forumNotificationPreferences.userId],
+    fields: [quoorumNotificationPreferences.userId],
     references: [profiles.id],
   }),
 }))
@@ -183,8 +183,8 @@ export const forumNotificationPreferencesRelations = relations(forumNotification
 
 export type ForumNotification = typeof quoorumNotifications.$inferSelect
 export type NewForumNotification = typeof quoorumNotifications.$inferInsert
-export type ForumNotificationPreference = typeof forumNotificationPreferences.$inferSelect
-export type NewForumNotificationPreference = typeof forumNotificationPreferences.$inferInsert
+export type ForumNotificationPreference = typeof quoorumNotificationPreferences.$inferSelect
+export type NewForumNotificationPreference = typeof quoorumNotificationPreferences.$inferInsert
 export type ForumNotificationType =
   | 'debate_completed'
   | 'debate_failed'

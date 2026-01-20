@@ -12,13 +12,13 @@ import {
   testLoggingRouter,
   // Quoorum routers
   quoorumRouter,
-  quoorumDealsRouter,
   quoorumFeedbackRouter,
   quoorumInsightsRouter,
   quoorumNotificationsRouter,
   quoorumReportsRouter,
   quoorumPublicApiRouter,
   adminQuoorumRouter,
+  adminRouter,
   contextAssessmentRouter,
   debatesRouter,
   debateStrategyRouter,
@@ -27,7 +27,6 @@ import {
   sessionsRouter,
   apiKeysRouter,
   notificationsRouter,
-  dealsRouter,
   contextFilesRouter,
   // Billing router
   billingRouter,
@@ -46,13 +45,13 @@ export const appRouter = router({
   testLogging: testLoggingRouter, // TODO: Remove in production
   // Quoorum routers
   quoorum: quoorumRouter,
-  quoorumDeals: quoorumDealsRouter,
   quoorumFeedback: quoorumFeedbackRouter,
   quoorumInsights: quoorumInsightsRouter,
   quoorumNotifications: quoorumNotificationsRouter,
   quoorumReports: quoorumReportsRouter,
   quoorumPublicApi: quoorumPublicApiRouter,
   adminQuoorum: adminQuoorumRouter,
+  admin: adminRouter,
   contextAssessment: contextAssessmentRouter,
   debates: debatesRouter,
   debateStrategy: debateStrategyRouter,
@@ -61,7 +60,6 @@ export const appRouter = router({
   sessions: sessionsRouter,
   apiKeys: apiKeysRouter,
   notifications: notificationsRouter,
-  deals: dealsRouter,
   contextFiles: contextFilesRouter,
   // Billing
   billing: billingRouter,

@@ -24,7 +24,7 @@ export const feedbackSentimentEnum = pgEnum('feedback_sentiment', [
 // Expert Feedback Table
 // ============================================================
 
-export const forumExpertFeedback = pgTable('quoorum_expert_feedback', {
+export const quoorumExpertFeedback = pgTable('quoorum_expert_feedback', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   // Owner
@@ -76,7 +76,7 @@ export const forumExpertFeedback = pgTable('quoorum_expert_feedback', {
 // Aggregated Expert Ratings (Materialized View Alternative)
 // ============================================================
 
-export const forumExpertRatings = pgTable('quoorum_expert_ratings', {
+export const quoorumExpertRatings = pgTable('quoorum_expert_ratings', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   // Expert identifier
@@ -109,13 +109,13 @@ export const forumExpertRatings = pgTable('quoorum_expert_ratings', {
 // Relations
 // ============================================================
 
-export const forumExpertFeedbackRelations = relations(forumExpertFeedback, ({ one }) => ({
+export const quoorumExpertFeedbackRelations = relations(quoorumExpertFeedback, ({ one }) => ({
   user: one(profiles, {
-    fields: [forumExpertFeedback.userId],
+    fields: [quoorumExpertFeedback.userId],
     references: [profiles.id],
   }),
   debate: one(quoorumDebates, {
-    fields: [forumExpertFeedback.debateId],
+    fields: [quoorumExpertFeedback.debateId],
     references: [quoorumDebates.id],
   }),
 }))
@@ -124,8 +124,8 @@ export const forumExpertFeedbackRelations = relations(forumExpertFeedback, ({ on
 // Types
 // ============================================================
 
-export type ForumExpertFeedback = typeof forumExpertFeedback.$inferSelect
-export type NewForumExpertFeedback = typeof forumExpertFeedback.$inferInsert
-export type ForumExpertRating = typeof forumExpertRatings.$inferSelect
-export type NewForumExpertRating = typeof forumExpertRatings.$inferInsert
+export type QuoorumExpertFeedback = typeof quoorumExpertFeedback.$inferSelect
+export type NewQuoorumExpertFeedback = typeof quoorumExpertFeedback.$inferInsert
+export type QuoorumExpertRating = typeof quoorumExpertRatings.$inferSelect
+export type NewQuoorumExpertRating = typeof quoorumExpertRatings.$inferInsert
 export type FeedbackSentiment = 'helpful' | 'neutral' | 'unhelpful'

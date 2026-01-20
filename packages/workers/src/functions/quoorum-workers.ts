@@ -1,26 +1,26 @@
 // @ts-nocheck
 /**
- * Forum Dynamic Expert System Workers
+ * Quoorum Dynamic Expert System Workers
  *
  * Background jobs for the Quoorum system:
- * - forumDebateCompleted: Process completed debates, send notifications, update stats
- * - forumDebateFailed: Handle failed debates, send error notifications
- * - forumSendNotification: Dispatch notifications via in-app, email, push
- * - forumWeeklyDigest: Generate and send weekly Forum summaries (Monday 9 AM)
- * - forumScheduledReports: Run scheduled report generation
- * - forumGenerateReport: Generate a specific report
- * - forumExpertPerformanceUpdate: Recalculate expert ratings
+ * - quoorumDebateCompleted: Process completed debates, send notifications, update stats
+ * - quoorumDebateFailed: Handle failed debates, send error notifications
+ * - quoorumSendNotification: Dispatch notifications via in-app, email, push
+ * - quoorumWeeklyDigest: Generate and send weekly Quoorum summaries (Monday 9 AM)
+ * - quoorumScheduledReports: Run scheduled report generation
+ * - quoorumGenerateReport: Generate a specific report
+ * - quoorumExpertPerformanceUpdate: Recalculate expert ratings
  */
 
 import { db } from '@quoorum/db'
 import {
   quoorumDebates,
-  forumExpertFeedback,
-  forumExpertRatings,
-  forumNotificationPreferences,
+  quoorumExpertFeedback,
+  quoorumExpertRatings,
+  quoorumNotificationPreferences,
   quoorumNotifications,
   quoorumReports,
-  forumScheduledReports,
+  quoorumScheduledReports,
   profiles,
 } from '@quoorum/db/schema'
 import { and, avg, count, desc, eq, gte, lt, sql } from 'drizzle-orm'
@@ -37,13 +37,13 @@ import { logger } from '../lib/logger'
  * - Update debate analytics
  * - Trigger expert performance update if feedback exists
  */
-export const forumDebateCompleted = inngest.createFunction(
+export const quoorumDebateCompleted = inngest.createFunction(
   {
-    id: 'forum-debate-completed',
-    name: 'Forum: Debate Completed',
+    id: 'quoorum-debate-completed',
+    name: 'Quoorum: Debate Completed',
     retries: 3,
   },
-  { event: 'forum/debate.completed' },
+  { event: 'quoorum/debate.completed' },
   async ({ event, step }) => {
     const { debateId, userId } = event.data
 
@@ -73,7 +73,7 @@ export const forumDebateCompleted = inngest.createFunction(
         debateId,
         title: 'Debate completado',
         message: topOption
-          ? `El Forum ha alcanzado consenso (${consensusScore.toFixed(0)}%): "${topOption.option.substring(0, 50)}..."`
+          ? `Quoorum ha alcanzado consenso (${consensusScore.toFixed(0)}%): "${topOption.option.substring(0, 50)}..."`
           : `El debate "${debate.question.substring(0, 50)}..." ha sido completado`,
         actionUrl: `/quoorum/debates/${debateId}`,
         actionLabel: 'Ver resultados',
@@ -87,8 +87,8 @@ export const forumDebateCompleted = inngest.createFunction(
     await step.run('check-email-notification', async () => {
       const [prefs] = await db
         .select()
-        .from(forumNotificationPreferences)
-        .where(eq(forumNotificationPreferences.userId, userId))
+        .from(quoorumNotificationPreferences)
+        .where(eq(quoorumNotificationPreferences.userId, userId))
 
       interface Prefs {
         debateCompleted?: { enabled: boolean; channels: string[] }
@@ -127,7 +127,7 @@ export const forumDebateCompleted = inngest.createFunction(
         .where(eq(quoorumDebates.id, debateId))
     })
 
-    logger.info('Forum debate completion processed', { debateId, userId })
+    logger.info('Quoorum debate completion processed', { debateId, userId })
     return { success: true, debateId }
   }
 )
@@ -141,13 +141,13 @@ export const forumDebateCompleted = inngest.createFunction(
  * - Send error notification to user
  * - Log failure for analytics
  */
-export const forumDebateFailed = inngest.createFunction(
+export const quoorumDebateFailed = inngest.createFunction(
   {
-    id: 'forum-debate-failed',
-    name: 'Forum: Debate Failed',
+    id: 'quoorum-debate-failed',
+    name: 'Quoorum: Debate Failed',
     retries: 2,
   },
-  { event: 'forum/debate.failed' },
+  { event: 'quoorum/debate.failed' },
   async ({ event, step }) => {
     const { debateId, userId, errorMessage } = event.data
 
@@ -183,13 +183,13 @@ export const forumDebateFailed = inngest.createFunction(
  * - Email (if enabled)
  * - Push (if enabled)
  */
-export const forumSendNotification = inngest.createFunction(
+export const quoorumSendNotification = inngest.createFunction(
   {
-    id: 'forum-send-notification',
-    name: 'Forum: Send Notification',
+    id: 'quoorum-send-notification',
+    name: 'Quoorum: Send Notification',
     retries: 3,
   },
-  { event: 'forum/send-notification' },
+  { event: 'quoorum/send-notification' },
   async ({ event, step }) => {
     const { userId, type, debateId, title, message, priority, actionUrl, actionLabel, metadata } =
       event.data
@@ -198,8 +198,8 @@ export const forumSendNotification = inngest.createFunction(
     const prefs = await step.run('get-preferences', async () => {
       const [result] = await db
         .select()
-        .from(forumNotificationPreferences)
-        .where(eq(forumNotificationPreferences.userId, userId))
+        .from(quoorumNotificationPreferences)
+        .where(eq(quoorumNotificationPreferences.userId, userId))
 
       return result
     })
@@ -266,7 +266,7 @@ export const forumSendNotification = inngest.createFunction(
       })
     }
 
-    logger.info('Forum notification dispatched', { userId, type, title })
+    logger.info('Quoorum notification dispatched', { userId, type, title })
     return { success: true }
   }
 )
@@ -279,10 +279,10 @@ export const forumSendNotification = inngest.createFunction(
  * Generate and send weekly Forum summaries
  * Runs every Monday at 9 AM
  */
-export const forumWeeklyDigest = inngest.createFunction(
+export const quoorumWeeklyDigest = inngest.createFunction(
   {
     id: 'forum-weekly-digest',
-    name: 'Forum: Weekly Digest',
+    name: 'Quoorum: Weekly Digest',
     retries: 2,
   },
   { cron: '0 9 * * 1' }, // Every Monday at 9 AM
@@ -300,8 +300,8 @@ export const forumWeeklyDigest = inngest.createFunction(
         })
         .from(profiles)
         .leftJoin(
-          forumNotificationPreferences,
-          eq(profiles.id, forumNotificationPreferences.userId)
+          quoorumNotificationPreferences,
+          eq(profiles.id, quoorumNotificationPreferences.userId)
         )
         .where(eq(profiles.role, 'user'))
         .limit(1000)
@@ -342,7 +342,7 @@ export const forumWeeklyDigest = inngest.createFunction(
           userId: user.userId,
           type: 'weekly_digest',
           priority: 'low',
-          title: 'Resumen semanal del Forum',
+          title: 'Resumen semanal de Quoorum',
           message: `Esta semana: ${totalDebates} debates creados, ${completedDebates} completados. Consenso promedio: ${avgConsensus}%`,
           actionUrl: '/quoorum/analytics',
           actionLabel: 'Ver analytics',
@@ -366,10 +366,10 @@ export const forumWeeklyDigest = inngest.createFunction(
  * Process scheduled report generation
  * Runs every hour to check for due reports
  */
-export const forumScheduledReportsWorker = inngest.createFunction(
+export const quoorumScheduledReportsWorker = inngest.createFunction(
   {
     id: 'forum-scheduled-reports',
-    name: 'Forum: Scheduled Reports',
+    name: 'Quoorum: Scheduled Reports',
     retries: 2,
   },
   { cron: '0 * * * *' }, // Every hour
@@ -380,9 +380,9 @@ export const forumScheduledReportsWorker = inngest.createFunction(
     const dueReports = await step.run('find-due-reports', async () => {
       return await db
         .select()
-        .from(forumScheduledReports)
+        .from(quoorumScheduledReports)
         .where(
-          and(eq(forumScheduledReports.isActive, true), lt(forumScheduledReports.nextRunAt, now))
+          and(eq(quoorumScheduledReports.isActive, true), lt(quoorumScheduledReports.nextRunAt, now))
         )
         .limit(50)
     })
@@ -420,22 +420,22 @@ export const forumScheduledReportsWorker = inngest.createFunction(
 
           // Update schedule
           await db
-            .update(forumScheduledReports)
+            .update(quoorumScheduledReports)
             .set({
               lastRunAt: now,
               lastReportId: report.id,
               nextRunAt,
               runCount: (schedule.runCount ?? 0) + 1,
             })
-            .where(eq(forumScheduledReports.id, schedule.id))
+            .where(eq(quoorumScheduledReports.id, schedule.id))
         } catch (error) {
           // Increment fail count
           await db
-            .update(forumScheduledReports)
+            .update(quoorumScheduledReports)
             .set({
               failCount: (schedule.failCount ?? 0) + 1,
             })
-            .where(eq(forumScheduledReports.id, schedule.id))
+            .where(eq(quoorumScheduledReports.id, schedule.id))
 
           logger.error('Failed to process scheduled report', { scheduleId: schedule.id, error })
         }
@@ -454,13 +454,13 @@ export const forumScheduledReportsWorker = inngest.createFunction(
  * Generate a specific Forum report
  * Called by scheduled reports or manual generation
  */
-export const forumGenerateReport = inngest.createFunction(
+export const quoorumGenerateReport = inngest.createFunction(
   {
     id: 'forum-generate-report',
-    name: 'Forum: Generate Report',
+    name: 'Quoorum: Generate Report',
     retries: 3,
   },
-  { event: 'forum/generate-report' },
+  { event: 'quoorum/generate-report' },
   async ({ event, step }) => {
     const { reportId, userId } = event.data
 
@@ -511,8 +511,8 @@ export const forumGenerateReport = inngest.createFunction(
         if (report.type === 'expert_performance') {
           const expertStats = await db
             .select()
-            .from(forumExpertRatings)
-            .orderBy(desc(forumExpertRatings.avgRating))
+            .from(quoorumExpertRatings)
+            .orderBy(desc(quoorumExpertRatings.avgRating))
             .limit(10)
 
           data.topExperts = expertStats
@@ -597,17 +597,17 @@ export const forumGenerateReport = inngest.createFunction(
  * Recalculate expert performance ratings
  * Called after feedback is submitted or periodically
  */
-export const forumExpertPerformanceUpdate = inngest.createFunction(
+export const quoorumExpertPerformanceUpdate = inngest.createFunction(
   {
     id: 'forum-expert-performance-update',
-    name: 'Forum: Expert Performance Update',
+    name: 'Quoorum: Expert Performance Update',
     retries: 2,
     debounce: {
       key: 'event.data.expertId',
       period: '5m', // Debounce updates within 5 minutes
     },
   },
-  { event: 'forum/expert-performance-update' },
+  { event: 'quoorum/expert-performance-update' },
   async ({ event, step }) => {
     const { expertId } = event.data
 
@@ -615,18 +615,18 @@ export const forumExpertPerformanceUpdate = inngest.createFunction(
       // Get all feedback for this expert
       const feedbackData = await db
         .select({
-          avgRating: avg(forumExpertFeedback.rating),
-          avgInsightfulness: avg(forumExpertFeedback.insightfulness),
-          avgRelevance: avg(forumExpertFeedback.relevance),
-          avgClarity: avg(forumExpertFeedback.clarity),
-          avgActionability: avg(forumExpertFeedback.actionability),
+          avgRating: avg(quoorumExpertFeedback.rating),
+          avgInsightfulness: avg(quoorumExpertFeedback.insightfulness),
+          avgRelevance: avg(quoorumExpertFeedback.relevance),
+          avgClarity: avg(quoorumExpertFeedback.clarity),
+          avgActionability: avg(quoorumExpertFeedback.actionability),
           totalRatings: count(),
-          positiveCount: sql<number>`count(*) filter (where ${forumExpertFeedback.sentiment} = 'positive')`,
-          followedCount: sql<number>`count(*) filter (where ${forumExpertFeedback.wasFollowed} = true)`,
-          successfulCount: sql<number>`count(*) filter (where ${forumExpertFeedback.wasSuccessful} = true)`,
+          positiveCount: sql<number>`count(*) filter (where ${quoorumExpertFeedback.sentiment} = 'positive')`,
+          followedCount: sql<number>`count(*) filter (where ${quoorumExpertFeedback.wasFollowed} = true)`,
+          successfulCount: sql<number>`count(*) filter (where ${quoorumExpertFeedback.wasSuccessful} = true)`,
         })
-        .from(forumExpertFeedback)
-        .where(eq(forumExpertFeedback.expertId, expertId))
+        .from(quoorumExpertFeedback)
+        .where(eq(quoorumExpertFeedback.expertId, expertId))
 
       const stats = feedbackData[0]
       if (!stats || stats.totalRatings === 0) return
@@ -649,7 +649,7 @@ export const forumExpertPerformanceUpdate = inngest.createFunction(
 
       // Upsert expert rating
       await db
-        .insert(forumExpertRatings)
+        .insert(quoorumExpertRatings)
         .values({
           expertId,
           totalRatings: stats.totalRatings,
@@ -670,7 +670,7 @@ export const forumExpertPerformanceUpdate = inngest.createFunction(
           lastFeedbackAt: new Date(),
         })
         .onConflictDoUpdate({
-          target: forumExpertRatings.expertId,
+          target: quoorumExpertRatings.expertId,
           set: {
             totalRatings: stats.totalRatings,
             avgRating: weightedScore,
@@ -697,168 +697,6 @@ export const forumExpertPerformanceUpdate = inngest.createFunction(
   }
 )
 
-// ============================================================================
-// WHATSAPP FORUM DEBATE WORKER
-// ============================================================================
-
-/**
- * Run Forum debate triggered from WhatsApp and send results back
- * - Runs the debate using QuoorumSystem
- * - Sends completion message back to WhatsApp conversation
- */
-export const forumWhatsAppDebate = inngest.createFunction(
-  {
-    id: 'forum-whatsapp-debate',
-    name: 'Forum: WhatsApp Debate',
-    retries: 2,
-    concurrency: {
-      key: 'event.data.userId',
-      limit: 2, // Max 2 concurrent debates per user
-    },
-  },
-  { event: 'forum/whatsapp-debate.created' },
-  async ({ event, step }) => {
-    const { debateId, userId, conversationId, question } = event.data
-
-    // Step 1: Update debate status to in_progress
-    await step.run('start-debate', async () => {
-      await db
-        .update(quoorumDebates)
-        .set({
-          status: 'in_progress',
-          startedAt: new Date(),
-        })
-        .where(eq(quoorumDebates.id, debateId))
-    })
-
-    try {
-      // Step 2: Run the debate using QuoorumSystem
-      const result = await step.run('run-debate', async () => {
-        // Dynamic import to avoid circular dependencies
-        const { QuoorumSystem } = await import('@quoorum/quoorum')
-
-        const quoorumSystem = new QuoorumSystem({
-          maxRounds: 3,
-          consensusThreshold: 0.7,
-        })
-
-        const debateResult = await quoorumSystem.runDebate(question, {
-          userId,
-          channel: 'whatsapp',
-        })
-
-        return debateResult
-      })
-
-      // Step 3: Update debate with results
-      await step.run('save-results', async () => {
-        await db
-          .update(quoorumDebates)
-          .set({
-            status: 'completed',
-            completedAt: new Date(),
-            consensusScore: result.consensusScore,
-            finalRanking: result.ranking,
-            synthesizedConclusion: result.conclusion,
-            metadata: {
-              source: 'whatsapp_command',
-              conversationId,
-              roundCount: result.rounds?.length ?? 0,
-              expertCount: result.experts?.length ?? 0,
-            },
-          })
-          .where(eq(quoorumDebates.id, debateId))
-      })
-
-      // Step 4: Format and send results back to WhatsApp
-      await step.run('send-whatsapp-response', async () => {
-        // TODO: WhatsApp service not yet migrated to @forum
-        // const { createWhatsAppService } = await import('@quoorum/whatsapp')
-        // const whatsappService = createWhatsAppService()
-        const whatsappService = { sendTextMessage: async (_id: string, _msg: string) => {} }
-
-        // Format the response
-        const consensusEmoji =
-          result.consensusScore >= 0.9 ? '🎯' : result.consensusScore >= 0.7 ? '✅' : '⚠️'
-        const topOption = result.ranking?.[0]
-
-        let response = `${consensusEmoji} *Debate completado*\n\n`
-        response += `*Tu pregunta:*\n"${question.substring(0, 100)}${question.length > 100 ? '...' : ''}"\n\n`
-        response += `*Consenso:* ${(result.consensusScore * 100).toFixed(0)}%\n\n`
-
-        if (topOption) {
-          response += `*Recomendación principal:*\n${topOption.option}\n\n`
-        }
-
-        if (result.conclusion) {
-          response += `*Conclusión:*\n${result.conclusion.substring(0, 500)}${result.conclusion.length > 500 ? '...' : ''}\n\n`
-        }
-
-        // Add top 3 options if available
-        if (result.ranking && result.ranking.length > 1) {
-          response += `*Ranking de opciones:*\n`
-          result.ranking.slice(0, 3).forEach((opt, i) => {
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'
-            response += `${medal} ${opt.option.substring(0, 60)}${opt.option.length > 60 ? '...' : ''}\n`
-          })
-          response += '\n'
-        }
-
-        response += `_Ver detalles completos en la app: /quoorum/debates/${debateId}_`
-
-        await whatsappService.sendTextMessage(conversationId, response)
-      })
-
-      // Step 5: Trigger completion notification
-      await step.run('trigger-completion', async () => {
-        await inngest.send({
-          name: 'forum/debate.completed',
-          data: { debateId, userId },
-        })
-      })
-
-      logger.info('WhatsApp Forum debate completed', { debateId, userId, conversationId })
-      return { success: true, debateId, consensusScore: result.consensusScore }
-    } catch (error) {
-      // Handle failure
-      await step.run('handle-failure', async () => {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-
-        // Update debate status
-        await db
-          .update(quoorumDebates)
-          .set({
-            status: 'failed',
-            errorMessage,
-          })
-          .where(eq(quoorumDebates.id, debateId))
-
-        // Send error message to WhatsApp
-        try {
-          // TODO: WhatsApp service not yet migrated to @forum
-          // const { createWhatsAppService } = await import('@quoorum/whatsapp')
-          // const whatsappService = createWhatsAppService()
-          // await whatsappService.sendTextMessage(
-          //   conversationId,
-          //   `❌ *Error en el debate*\n\nNo se pudo completar el debate.\n\n_${errorMessage.substring(0, 100)}_\n\nIntenta de nuevo con /forum [pregunta]`
-          // )
-          logger.warn('WhatsApp error notification skipped - service not available', { conversationId })
-        } catch {
-          logger.error('Failed to send WhatsApp error message', { debateId })
-        }
-
-        // Trigger failure notification
-        await inngest.send({
-          name: 'forum/debate.failed',
-          data: { debateId, userId, errorMessage },
-        })
-      })
-
-      logger.error('WhatsApp Forum debate failed', { debateId, userId, error })
-      throw error
-    }
-  }
-)
 
 // ============================================================================
 // HELPER FUNCTIONS

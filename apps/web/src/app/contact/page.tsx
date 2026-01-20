@@ -12,7 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { AppHeader } from "@/components/layout/app-header";
 
 const contactMethods = [
   {
@@ -108,61 +108,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
       {/* Header */}
-      <header className="fixed top-0 w-full z-50 border-b border-white/5 backdrop-blur-xl bg-[#0A0A0F]/80">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition" />
-              <div className="relative w-10 h-10 rounded-2xl flex items-center justify-center bg-[#0A0A0F]">
-                <QuoorumLogo size={40} showGradient={true} />
-              </div>
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-              Quoorum
-            </span>
-          </Link>
-
-          <nav className="flex items-center gap-8">
-            <Link
-              href="/"
-              className="text-gray-400 hover:text-white text-sm transition-colors"
-            >
-              Inicio
-            </Link>
-            <Link
-              href="/about"
-              className="text-gray-400 hover:text-white text-sm transition-colors"
-            >
-              Sobre Nosotros
-            </Link>
-            <Link
-              href="/blog"
-              className="text-gray-400 hover:text-white text-sm transition-colors"
-            >
-              Blog
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-gray-400 hover:text-white text-sm transition-colors"
-            >
-              Precios
-            </Link>
-            <Link href="/login">
-              <Button
-                variant="outline"
-                className="border-white/10 hover:bg-white/5 text-white"
-              >
-                Iniciar Sesión
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white border-0">
-                Comenzar Gratis
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <AppHeader variant="landing" showAuth={true} />
 
       {/* Hero */}
       <section className="pt-40 pb-24 px-4">

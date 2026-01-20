@@ -27,7 +27,7 @@ import {
   Save,
   Sparkles,
 } from "lucide-react";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { AppHeader } from "@/components/layout/app-header";
 import { getSettingsNav } from "@/lib/settings-nav";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -125,48 +125,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Header */}
-      <header className="relative border-b border-white/10 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
-        <div className="container mx-auto px-4">
-          <div className="relative flex h-16 items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
-                  <QuoorumLogo size={24} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-                Quoorum
-              </span>
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/dashboard" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
-                Dashboard
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
-              </Link>
-              <Link href="/debates" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
-                Debates
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
-              </Link>
-              <Link href="/settings" className="text-sm font-medium text-blue-300 relative group">
-                Configuración
-                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500" />
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Link href="/debates/new">
-                <Button className="bg-purple-600 hover:bg-purple-500 text-white border-0">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nuevo Debate
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader variant="app" />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

@@ -1,8 +1,8 @@
 /**
- * Forum Insights Router
+ * Quoorum Insights Router
  *
- * Provides API endpoints for Forum consultation insights (Phase 2).
- * Shows when Forum was consulted during Wallie responses and the advice given.
+ * Provides API endpoints for Quoorum consultation insights (Phase 2).
+ * Shows when Quoorum was consulted during complex decision-making scenarios and the advice given.
  */
 
 import { z } from 'zod'
@@ -14,7 +14,7 @@ import { logger } from '../lib/logger'
 
 export const quoorumInsightsRouter = router({
   /**
-   * Get recent Forum consultations for the dashboard widget
+   * Get recent Quoorum consultations for the dashboard widget
    */
   getRecent: protectedProcedure
     .input(
@@ -52,7 +52,7 @@ export const quoorumInsightsRouter = router({
       } catch (error) {
         // Si la tabla no existe o hay un error de DB, retornar array vacío
         // Esto permite que el widget funcione aunque la tabla no esté creada
-        logger.error('Forum Insights: Error fetching recent consultations', error as Error, {
+        logger.error('Quoorum Insights: Error fetching recent consultations', error as Error, {
           userId: ctx.user.id,
         })
         return []
@@ -60,7 +60,7 @@ export const quoorumInsightsRouter = router({
     }),
 
   /**
-   * Get Forum consultation stats for the dashboard
+   * Get Quoorum consultation stats for the dashboard
    */
   getStats: protectedProcedure.query(async ({ ctx }) => {
     try {
@@ -164,7 +164,7 @@ export const quoorumInsightsRouter = router({
     } catch (error) {
       // Si la tabla no existe o hay un error de DB, retornar stats vacíos
       // Esto permite que el widget funcione aunque la tabla no esté creada
-      logger.error('Forum Insights: Error fetching stats', error as Error, {
+      logger.error('Quoorum Insights: Error fetching stats', error as Error, {
         userId: ctx.user.id,
       })
       return {
@@ -183,7 +183,7 @@ export const quoorumInsightsRouter = router({
   }),
 
   /**
-   * Store a new Forum consultation (called after response generation)
+   * Store a new Quoorum consultation (called after response generation)
    */
   store: protectedProcedure
     .input(
@@ -267,7 +267,7 @@ export const quoorumInsightsRouter = router({
     }),
 
   /**
-   * Rate a Forum consultation (user feedback)
+   * Rate a Quoorum consultation (user feedback)
    */
   rate: protectedProcedure
     .input(

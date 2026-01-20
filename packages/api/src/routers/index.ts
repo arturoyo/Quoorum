@@ -11,13 +11,13 @@ export { testLoggingRouter } from "./test-logging.js";
 
 // Quoorum routers
 export { quoorumRouter } from "./quoorum.js";
-export { quoorumDealsRouter } from "./quoorum-deals.js";
 export { quoorumFeedbackRouter } from "./quoorum-feedback.js";
 export { quoorumInsightsRouter } from "./quoorum-insights.js";
 export { quoorumNotificationsRouter } from "./quoorum-notifications.js";
 export { quoorumReportsRouter } from "./quoorum-reports.js";
 export { quoorumPublicApiRouter } from "./quoorum-public-api.js";
 export { adminQuoorumRouter } from "./admin-quoorum.js";
+export { adminRouter } from "./admin.js";
 export { contextAssessmentRouter } from "./context-assessment.js";
 export { debatesRouter } from "./debates.js";
 export { debateStrategyRouter } from "./debate-strategy.js";
@@ -27,7 +27,6 @@ export { notificationSettingsRouter } from "./notification-settings.js";
 export { sessionsRouter } from "./sessions.js";
 export { apiKeysRouter } from "./api-keys.js";
 export { notificationsRouter } from "./notifications.js";
-export { dealsRouter } from "./deals.js";
 export { contextFilesRouter } from "./context-files.js";
 
 // Billing router

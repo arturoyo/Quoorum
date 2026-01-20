@@ -7,9 +7,6 @@
 import { createClient, type RedisClientType } from 'redis'
 import { quoorumLogger } from '../logger'
 import type { DebateResult } from '../types'
-import {
-  Map,
-} from "lucide-react";
 
 
 // ============================================================================

@@ -31,11 +31,11 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 const LEVEL_CONFIG = {
-  debug: { icon: Bug, color: "text-gray-500", bg: "bg-gray-100" },
-  info: { icon: Info, color: "text-blue-500", bg: "bg-blue-100" },
-  warn: { icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-100" },
-  error: { icon: AlertCircle, color: "text-red-500", bg: "bg-red-100" },
-  fatal: { icon: XCircle, color: "text-purple-500", bg: "bg-purple-100" },
+  debug: { icon: Bug, color: "text-gray-700", bg: "bg-gray-100" },
+  info: { icon: Info, color: "text-blue-600", bg: "bg-blue-100" },
+  warn: { icon: AlertTriangle, color: "text-yellow-700", bg: "bg-yellow-100" },
+  error: { icon: AlertCircle, color: "text-red-600", bg: "bg-red-100" },
+  fatal: { icon: XCircle, color: "text-purple-700", bg: "bg-purple-100" },
 };
 
 export default function LogsPage() {

@@ -398,7 +398,7 @@ export function generateSocialMetadata(result: DebateResult, url?: string): Soci
 
   const description = `After ${result.rounds.length} rounds of expert debate, the consensus is: ${consensus} (${(result.consensusScore * 100).toFixed(0)}% agreement)`
 
-  const hashtags = ['WallieForum', 'ExpertDebate', 'DecisionMaking', 'AI', 'Consensus']
+  const hashtags = ['Quoorum', 'ExpertDebate', 'DecisionMaking', 'AI', 'Consensus']
 
   return {
     title,

@@ -1,0 +1,40 @@
+{
+  "name": "@quoorum/workers",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
+    },
+    "./functions/quoorum-workers": {
+      "types": "./dist/functions/quoorum-workers.d.ts",
+      "import": "./dist/functions/quoorum-workers.js"
+    },
+    "./functions/nextjs-auto-healer": {
+      "types": "./dist/functions/nextjs-auto-healer.d.ts",
+      "import": "./dist/functions/nextjs-auto-healer.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "inngest": "^3.20.0",
+    "@quoorum/db": "workspace:*",
+    "drizzle-orm": "^0.38.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.2"
+  }
+}

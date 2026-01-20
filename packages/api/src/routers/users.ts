@@ -4,6 +4,19 @@ import { router, publicProcedure, protectedProcedure } from "../trpc.js";
 import { users } from "@quoorum/db";
 
 export const usersRouter = router({
+  /**
+   * Get current user profile (role, email, etc.)
+   */
+  getMe: protectedProcedure.query(async ({ ctx }) => {
+    return {
+      id: ctx.user.id,
+      email: ctx.user.email,
+      name: ctx.user.name,
+      role: ctx.user.role,
+      isAdmin: ctx.user.role === "admin" || ctx.user.role === "super_admin",
+    };
+  }),
+
   getById: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {

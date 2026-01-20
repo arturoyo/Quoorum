@@ -22,6 +22,8 @@
     "@quoorum/core": "workspace:*",
     "@quoorum/db": "workspace:*",
     "@quoorum/quoorum": "workspace:*",
+    "@quoorum/workers": "workspace:*",
+    "inngest": "^3.20.0",
     "@trpc/server": "^10.45.0",
     "drizzle-orm": "^0.38.0",
     "superjson": "^2.2.0",

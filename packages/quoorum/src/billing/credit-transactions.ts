@@ -76,11 +76,14 @@ export async function deductCredits(
 
     return { success: true, remainingCredits }
   } catch (error) {
-    quoorumLogger.error('Credit deduction error', {
-      userId,
-      amount,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    })
+    quoorumLogger.error(
+      'Credit deduction error',
+      error instanceof Error ? error : new Error('Unknown error'),
+      {
+        userId,
+        amount,
+      }
+    )
     return { success: false, error: 'Database error during credit deduction' }
   }
 }
@@ -122,7 +125,7 @@ export async function refundCredits(
       .returning({ credits: users.credits })
 
     if (result.length === 0) {
-      quoorumLogger.error('Refund failed - user not found', { userId })
+      quoorumLogger.error('Refund failed - user not found', new Error('User not found'), { userId })
       return { success: false, error: 'User not found' }
     }
 
@@ -137,11 +140,14 @@ export async function refundCredits(
 
     return { success: true, newBalance }
   } catch (error) {
-    quoorumLogger.error('Credit refund error', {
-      userId,
-      amount,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    })
+    quoorumLogger.error(
+      'Credit refund error',
+      error instanceof Error ? error : new Error('Unknown error'),
+      {
+        userId,
+        amount,
+      }
+    )
     return { success: false, error: 'Database error during refund' }
   }
 }
@@ -159,10 +165,13 @@ export async function getCreditBalance(userId: string): Promise<number | null> {
 
     return result[0]!.credits
   } catch (error) {
-    quoorumLogger.error('Error fetching credit balance', {
-      userId,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    })
+    quoorumLogger.error(
+      'Error fetching credit balance',
+      error instanceof Error ? error : new Error('Unknown error'),
+      {
+        userId,
+      }
+    )
     return null
   }
 }

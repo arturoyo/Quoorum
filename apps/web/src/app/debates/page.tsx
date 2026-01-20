@@ -239,16 +239,10 @@ export default function DebatesPage() {
                       {debate.question}
                     </CardTitle>
                     <CardDescription className="flex items-center gap-2 flex-wrap">
-                      {debate.status === "draft" && (
-                        <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/50">
-                          <Clock className="mr-1 h-3 w-3" />
-                          Borrador
-                        </Badge>
-                      )}
-                      {debate.status === "pending" && (
+                      {(debate.status === "draft" || debate.status === "pending" || debate.status === "in_progress") && (
                         <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50">
-                          <Clock className="mr-1 h-3 w-3" />
-                          Pendiente
+                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                          En progreso
                         </Badge>
                       )}
                       {debate.status === "completed" && (
@@ -257,16 +251,10 @@ export default function DebatesPage() {
                           Completado
                         </Badge>
                       )}
-                      {debate.status === "in_progress" && (
-                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50">
-                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                          En progreso
-                        </Badge>
-                      )}
                       {debate.status === "failed" && (
                         <Badge className="bg-red-500/20 text-red-400 border-red-500/50">
                           <XCircle className="mr-1 h-3 w-3" />
-                          Fallido
+                          Error
                         </Badge>
                       )}
                     </CardDescription>

@@ -37,7 +37,7 @@ export function renderDashboard(data: DashboardData): string {
 
   return `
 ╔══════════════════════════════════════════════════════════╗
-║  WALLIE FORUM - DYNAMIC EXPERT SYSTEM                   ║
+║  QUOORUM - DYNAMIC EXPERT SYSTEM                        ║
 ╠══════════════════════════════════════════════════════════╣
 ║  Mode: ${modeIcon} ${modeLabel.padEnd(47)}║
 ║  Complexity: ${complexityBar} ${data.complexity}/10${' '.repeat(30)}║

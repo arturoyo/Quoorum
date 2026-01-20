@@ -1,0 +1,8 @@
+{
+  "name": "quoorum",
+  "id": "quoorum",
+  "dev": {
+    "url": "http://localhost:3000/api/inngest",
+    "port": 8288
+  }
+}

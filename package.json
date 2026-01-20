@@ -22,6 +22,12 @@
     "check": "pnpm preflight && pnpm typecheck && pnpm lint",
     "fix:auto": "tsx scripts/auto-fix-errors.ts",
     "fix:check": "pnpm fix:auto && pnpm typecheck && pnpm lint",
+    "check:errors": "pwsh scripts/check-dev-errors.ps1",
+    "check:nextjs": "pwsh scripts/check-nextjs-errors.ps1",
+    "watch:errors": "pwsh scripts/monitor-dev-logs.ps1 -Watch",
+    "fix:errors": "pwsh scripts/auto-fix-dev-errors.ps1",
+    "fix:errors:dry": "pwsh scripts/auto-fix-dev-errors.ps1 -DryRun",
+    "monitor:smart": "pwsh scripts/smart-dev-monitor.ps1 -AutoFix",
     "prepare": "husky"
   },
   "devDependencies": {

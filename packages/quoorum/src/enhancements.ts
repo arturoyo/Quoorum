@@ -460,13 +460,13 @@ export function scoreQuestionQuality(question: string): QuestionQuality {
   }
 
   // Check for context keywords
-  const contextKeywords = ['wallie', 'porque', 'cómo', 'cuándo', 'dónde']
+  const contextKeywords = ['contexto', 'porque', 'cómo', 'cuándo', 'dónde']
   if (contextKeywords.some((k) => question.toLowerCase().includes(k))) {
     score += 1
     strengths.push('Has context')
   } else {
     improvements.push('Could include more context')
-    suggestions.push('Add context about Wallie or your situation')
+    suggestions.push('Add context about your situation or background')
   }
 
   // Check for options

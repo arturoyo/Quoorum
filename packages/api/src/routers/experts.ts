@@ -25,6 +25,44 @@ export const expertsRouter = router({
     }),
 
   /**
+   * Get category counts for library experts (fast, no full data)
+   */
+  libraryCategoryCounts: publicProcedure
+    .input(
+      z.object({
+        activeOnly: z.boolean().default(true),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const conditions = [isNull(experts.userId)]; // Only library experts
+
+      if (input.activeOnly) {
+        conditions.push(eq(experts.isActive, true));
+      }
+
+      // Get all experts with only id and category for counting
+      const results = await ctx.db
+        .select({
+          id: experts.id,
+          category: experts.category,
+        })
+        .from(experts)
+        .where(and(...conditions));
+
+      // Count by category
+      const counts: Record<string, number> = {};
+      results.forEach((expert) => {
+        const category = expert.category || 'general';
+        counts[category] = (counts[category] || 0) + 1;
+      });
+
+      return {
+        total: results.length,
+        byCategory: counts,
+      };
+    }),
+
+  /**
    * List library experts (shared, userId = null)
    */
   libraryList: publicProcedure
@@ -58,8 +96,15 @@ export const expertsRouter = router({
         );
       }
 
+      // Only select necessary fields for performance (id, name, expertise, description, category)
       const results = await ctx.db
-        .select()
+        .select({
+          id: experts.id,
+          name: experts.name,
+          expertise: experts.expertise,
+          description: experts.description,
+          category: experts.category,
+        })
         .from(experts)
         .where(and(...conditions))
         .limit(input.limit)
@@ -284,5 +329,44 @@ export const expertsRouter = router({
         .set({ isActive: false, updatedAt: new Date() })
         .where(eq(experts.id, input.id));
       return { success: true };
+    }),
+
+  /**
+   * Suggest experts automatically based on question context (like deliberation strategy)
+   * Analyzes the question and recommends experts using expert-matcher logic
+   */
+  suggest: protectedProcedure
+    .input(z.object({ question: z.string().min(10), context: z.string().optional() }))
+    .query(async ({ input }) => {
+      // Use the same logic as deliberation strategy
+      // Import from main package (these are exported from @quoorum/quoorum)
+      const { analyzeQuestion, matchExperts } = await import("@quoorum/quoorum");
+
+      // Analyze question to get areas, topics, complexity
+      const analysis = await analyzeQuestion(input.question, input.context);
+
+      // Match experts based on analysis (like in runner-dynamic.ts)
+      const matches = matchExperts(analysis, {
+        minExperts: 3,
+        maxExperts: 7,
+        minScore: 30,
+        alwaysIncludeCritic: false, // Core critic agent is separate
+      });
+
+      // Return suggested experts with match info
+      return matches.map((match) => ({
+        id: match.expert.id,
+        name: match.expert.name,
+        title: match.expert.title,
+        expertise: match.expert.expertise,
+        matchScore: match.score,
+        role: match.suggestedRole,
+        reasons: match.reasons,
+        analysis: {
+          complexity: analysis.complexity,
+          decisionType: analysis.decisionType,
+          areas: analysis.areas.slice(0, 3).map((a) => ({ name: a.area, weight: a.weight })),
+        },
+      }));
     }),
 });

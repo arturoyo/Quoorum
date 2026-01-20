@@ -5,7 +5,7 @@
  */
 
 import { db } from '@quoorum/db'
-import { forumNotificationPreferences, quoorumNotifications } from '@quoorum/db/schema'
+import { quoorumNotificationPreferences, quoorumNotifications } from '@quoorum/db/schema'
 import { and, count, desc, eq, lt } from 'drizzle-orm'
 import { z } from 'zod'
 import { adminProcedure, protectedProcedure, router } from '../trpc'
@@ -167,8 +167,8 @@ export const quoorumNotificationsRouter = router({
   getPreferences: protectedProcedure.query(async ({ ctx }) => {
     const [prefs] = await db
       .select()
-      .from(forumNotificationPreferences)
-      .where(eq(forumNotificationPreferences.userId, ctx.user.id))
+      .from(quoorumNotificationPreferences)
+      .where(eq(quoorumNotificationPreferences.userId, ctx.user.id))
 
     if (!prefs) {
       // Return defaults
@@ -236,18 +236,18 @@ export const quoorumNotificationsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const [existing] = await db
-        .select({ id: forumNotificationPreferences.id })
-        .from(forumNotificationPreferences)
-        .where(eq(forumNotificationPreferences.userId, ctx.user.id))
+        .select({ id: quoorumNotificationPreferences.id })
+        .from(quoorumNotificationPreferences)
+        .where(eq(quoorumNotificationPreferences.userId, ctx.user.id))
 
       if (existing) {
         const [updated] = await db
-          .update(forumNotificationPreferences)
+          .update(quoorumNotificationPreferences)
           .set({
             ...input,
             updatedAt: new Date(),
           })
-          .where(eq(forumNotificationPreferences.userId, ctx.user.id))
+          .where(eq(quoorumNotificationPreferences.userId, ctx.user.id))
           .returning()
 
         return updated
@@ -255,7 +255,7 @@ export const quoorumNotificationsRouter = router({
 
       // Create new preferences
       const [created] = await db
-        .insert(forumNotificationPreferences)
+        .insert(quoorumNotificationPreferences)
         .values({
           userId: ctx.user.id,
           ...input,
@@ -350,8 +350,8 @@ export async function sendForumNotification(params: {
   // Check user preferences (for future use with email/push)
   const [_prefs] = await db
     .select()
-    .from(forumNotificationPreferences)
-    .where(eq(forumNotificationPreferences.userId, params.userId))
+    .from(quoorumNotificationPreferences)
+    .where(eq(quoorumNotificationPreferences.userId, params.userId))
 
   // Default to enabled if no preferences set
   const channels: {

@@ -173,7 +173,7 @@ export const quoorumDebates = pgTable('quoorum_debates', {
 // Forum Debate Comments Table
 // ============================================================
 
-export const forumDebateComments = pgTable('quoorum_debate_comments', {
+export const quoorumDebateComments = pgTable('quoorum_debate_comments', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   debateId: uuid('debate_id')
@@ -187,7 +187,7 @@ export const forumDebateComments = pgTable('quoorum_debate_comments', {
   content: text('content').notNull(),
 
   // Optional: reply to another comment (self-reference)
-  parentId: uuid('parent_id').references((): AnyPgColumn => forumDebateComments.id, { onDelete: 'cascade' }),
+  parentId: uuid('parent_id').references((): AnyPgColumn => quoorumDebateComments.id, { onDelete: 'cascade' }),
 
   // Timestamps
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -198,7 +198,7 @@ export const forumDebateComments = pgTable('quoorum_debate_comments', {
 // Forum Debate Likes Table
 // ============================================================
 
-export const forumDebateLikes = pgTable('quoorum_debate_likes', {
+export const quoorumDebateLikes = pgTable('quoorum_debate_likes', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   debateId: uuid('debate_id')
@@ -216,7 +216,7 @@ export const forumDebateLikes = pgTable('quoorum_debate_likes', {
 // Expert Performance Table (Learning System)
 // ============================================================
 
-export const forumExpertPerformance = pgTable('quoorum_expert_performance', {
+export const quoorumExpertPerformance = pgTable('quoorum_expert_performance', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   expertId: varchar('expert_id', { length: 100 }).notNull(), // e.g., 'april_dunford'
@@ -259,7 +259,7 @@ export const forumExpertPerformance = pgTable('quoorum_expert_performance', {
 // Custom Experts Table (Premium Feature)
 // ============================================================
 
-export const forumCustomExperts = pgTable('quoorum_custom_experts', {
+export const quoorumCustomExperts = pgTable('quoorum_custom_experts', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   userId: uuid('user_id')
@@ -295,7 +295,7 @@ export const forumCustomExperts = pgTable('quoorum_custom_experts', {
 // Debate Templates Table (Industry-Specific)
 // ============================================================
 
-export const forumDebateTemplates = pgTable('quoorum_debate_templates', {
+export const quoorumDebateTemplates = pgTable('quoorum_debate_templates', {
   id: uuid('id').defaultRandom().primaryKey(),
 
   // Template info
@@ -334,46 +334,46 @@ export const quoorumDebatesRelations = relations(quoorumDebates, ({ one, many })
     fields: [quoorumDebates.userId],
     references: [profiles.id],
   }),
-  comments: many(forumDebateComments),
-  likes: many(forumDebateLikes),
+  comments: many(quoorumDebateComments),
+  likes: many(quoorumDebateLikes),
 }))
 
-export const forumDebateCommentsRelations = relations(forumDebateComments, ({ one }) => ({
+export const quoorumDebateCommentsRelations = relations(quoorumDebateComments, ({ one }) => ({
   debate: one(quoorumDebates, {
-    fields: [forumDebateComments.debateId],
+    fields: [quoorumDebateComments.debateId],
     references: [quoorumDebates.id],
   }),
   user: one(profiles, {
-    fields: [forumDebateComments.userId],
+    fields: [quoorumDebateComments.userId],
     references: [profiles.id],
   }),
-  parent: one(forumDebateComments, {
-    fields: [forumDebateComments.parentId],
-    references: [forumDebateComments.id],
+  parent: one(quoorumDebateComments, {
+    fields: [quoorumDebateComments.parentId],
+    references: [quoorumDebateComments.id],
   }),
 }))
 
-export const forumDebateLikesRelations = relations(forumDebateLikes, ({ one }) => ({
+export const quoorumDebateLikesRelations = relations(quoorumDebateLikes, ({ one }) => ({
   debate: one(quoorumDebates, {
-    fields: [forumDebateLikes.debateId],
+    fields: [quoorumDebateLikes.debateId],
     references: [quoorumDebates.id],
   }),
   user: one(profiles, {
-    fields: [forumDebateLikes.userId],
+    fields: [quoorumDebateLikes.userId],
     references: [profiles.id],
   }),
 }))
 
-export const forumCustomExpertsRelations = relations(forumCustomExperts, ({ one }) => ({
+export const quoorumCustomExpertsRelations = relations(quoorumCustomExperts, ({ one }) => ({
   user: one(profiles, {
-    fields: [forumCustomExperts.userId],
+    fields: [quoorumCustomExperts.userId],
     references: [profiles.id],
   }),
 }))
 
-export const forumDebateTemplatesRelations = relations(forumDebateTemplates, ({ one }) => ({
+export const quoorumDebateTemplatesRelations = relations(quoorumDebateTemplates, ({ one }) => ({
   creator: one(profiles, {
-    fields: [forumDebateTemplates.createdBy],
+    fields: [quoorumDebateTemplates.createdBy],
     references: [profiles.id],
   }),
 }))
@@ -384,16 +384,16 @@ export const forumDebateTemplatesRelations = relations(forumDebateTemplates, ({ 
 
 export type ForumDebate = typeof quoorumDebates.$inferSelect
 export type NewForumDebate = typeof quoorumDebates.$inferInsert
-export type ForumDebateComment = typeof forumDebateComments.$inferSelect
-export type NewForumDebateComment = typeof forumDebateComments.$inferInsert
-export type ForumDebateLike = typeof forumDebateLikes.$inferSelect
-export type NewForumDebateLike = typeof forumDebateLikes.$inferInsert
-export type ForumExpertPerformance = typeof forumExpertPerformance.$inferSelect
-export type NewForumExpertPerformance = typeof forumExpertPerformance.$inferInsert
-export type ForumCustomExpert = typeof forumCustomExperts.$inferSelect
-export type NewForumCustomExpert = typeof forumCustomExperts.$inferInsert
-export type ForumDebateTemplate = typeof forumDebateTemplates.$inferSelect
-export type NewForumDebateTemplate = typeof forumDebateTemplates.$inferInsert
+export type QuoorumDebateComment = typeof quoorumDebateComments.$inferSelect
+export type NewQuoorumDebateComment = typeof quoorumDebateComments.$inferInsert
+export type QuoorumDebateLike = typeof quoorumDebateLikes.$inferSelect
+export type NewQuoorumDebateLike = typeof quoorumDebateLikes.$inferInsert
+export type QuoorumExpertPerformance = typeof quoorumExpertPerformance.$inferSelect
+export type NewQuoorumExpertPerformance = typeof quoorumExpertPerformance.$inferInsert
+export type QuoorumCustomExpert = typeof quoorumCustomExperts.$inferSelect
+export type NewQuoorumCustomExpert = typeof quoorumCustomExperts.$inferInsert
+export type QuoorumDebateTemplate = typeof quoorumDebateTemplates.$inferSelect
+export type NewQuoorumDebateTemplate = typeof quoorumDebateTemplates.$inferInsert
 
 export type DebateMode = 'static' | 'dynamic'
 export type DebateStatus = 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled'

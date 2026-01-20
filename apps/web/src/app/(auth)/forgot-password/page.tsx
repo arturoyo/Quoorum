@@ -156,7 +156,7 @@ export default function ForgotPasswordPage() {
 
       <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-6">
         <Link href="/login">
-          <Button variant="ghost" className="text-gray-400 hover:text-white">
+          <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-white/10">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver al login
           </Button>

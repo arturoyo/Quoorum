@@ -10,7 +10,7 @@ import {
   ArrowRight,
   Zap,
 } from "lucide-react";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { AppHeader } from "@/components/layout/app-header";
 import { AnimatedBackground } from "@/components/layout/animated-background";
 import {
   Accordion,
@@ -145,34 +145,7 @@ export default function PricingPage() {
     <div className="min-h-screen bg-black relative overflow-hidden">
       <AnimatedBackground />
       {/* Navigation */}
-      <header className="border-b border-white/5 backdrop-blur-2xl bg-black/50">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
-                  <QuoorumLogo size={24} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
-            </Link>
-
-            <div className="flex items-center gap-3">
-              <Link href="/login">
-                <Button variant="ghost" className="text-gray-300 hover:text-white">
-                  Iniciar Sesión
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                  Empezar Gratis
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader variant="landing" showAuth={true} />
 
       {/* Header */}
       <section className="py-20 px-4 text-center">
@@ -290,7 +263,7 @@ export default function PricingPage() {
                       className={`w-full ${
                         plan.popular
                           ? "bg-purple-600 hover:bg-purple-700 text-white"
-                          : "bg-white/10 hover:bg-white/20 text-white"
+                          : "bg-slate-800/50 border-white/10 hover:bg-white/10 text-white"
                       }`}
                     >
                       {plan.cta}
@@ -421,7 +394,7 @@ export default function PricingPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10 px-8 h-12"
+                  className="border-white/20 bg-black/50 text-white hover:bg-white/10 px-8 h-12"
                 >
                   Hablar con Ventas
                 </Button>

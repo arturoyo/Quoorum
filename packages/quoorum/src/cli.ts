@@ -29,6 +29,7 @@ async function createDebate(question: string, mode: 'static' | 'dynamic' = 'dyna
     void mode // Mode parameter is available but runner auto-detects
     const result = await runDebate({
       sessionId: `cli-${Date.now()}`,
+      userId: 'cli-user', // CLI user ID for credit tracking
       question,
       context: { sources: [], combinedContext: '' },
     })
@@ -119,6 +120,7 @@ async function benchmarkExperts() {
     try {
       await runDebate({
         sessionId: `benchmark-${Date.now()}`,
+        userId: 'cli-user', // CLI user ID for credit tracking
         question,
         context: { sources: [], combinedContext: '' },
       })
@@ -268,7 +270,7 @@ OPTIONS:
   -h, --help               Show help
   -v, --version            Show version
 
-For more information, visit: https://github.com/arturoyo/Wallie
+For more information, visit: https://github.com/arturoyo/Quoorum
   `)
 }
 

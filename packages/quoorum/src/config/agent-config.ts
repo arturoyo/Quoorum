@@ -148,5 +148,6 @@ export function getConfigByUserTier(
   }
 
   // Pro/Business users get optimized paid tier per role
-  return getPaidTierConfig(role)
+  // getPaidTierConfig(role) returns ReturnType<typeof getAgentConfig> when role is provided
+  return getPaidTierConfig(role) as ReturnType<typeof getAgentConfig>
 }

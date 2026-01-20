@@ -6,7 +6,7 @@
 
 import { TRPCError } from '@trpc/server'
 import { db } from '@quoorum/db'
-import { quoorumDebates, quoorumReports, forumScheduledReports } from '@quoorum/db/schema'
+import { quoorumDebates, quoorumReports, quoorumScheduledReports } from '@quoorum/db/schema'
 import { and, desc, eq, gte, inArray, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { protectedProcedure, router } from '../trpc'
@@ -364,7 +364,7 @@ export const quoorumReportsRouter = router({
       const nextRunAt = calculateNextRunTime(input.schedule)
 
       const [schedule] = await db
-        .insert(forumScheduledReports)
+        .insert(quoorumScheduledReports)
         .values({
           userId: ctx.user.id,
           name: input.name,
@@ -386,9 +386,9 @@ export const quoorumReportsRouter = router({
   listSchedules: protectedProcedure.query(async ({ ctx }) => {
     const schedules = await db
       .select()
-      .from(forumScheduledReports)
-      .where(eq(forumScheduledReports.userId, ctx.user.id))
-      .orderBy(desc(forumScheduledReports.createdAt))
+      .from(quoorumScheduledReports)
+      .where(eq(quoorumScheduledReports.userId, ctx.user.id))
+      .orderBy(desc(quoorumScheduledReports.createdAt))
 
     return schedules
   }),
@@ -431,13 +431,13 @@ export const quoorumReportsRouter = router({
       }
 
       const [updated] = await db
-        .update(forumScheduledReports)
+        .update(quoorumScheduledReports)
         .set({
           ...updateData,
           nextRunAt,
           updatedAt: new Date(),
         })
-        .where(and(eq(forumScheduledReports.id, id), eq(forumScheduledReports.userId, ctx.user.id)))
+        .where(and(eq(quoorumScheduledReports.id, id), eq(quoorumScheduledReports.userId, ctx.user.id)))
         .returning()
 
       if (!updated) {
@@ -454,9 +454,9 @@ export const quoorumReportsRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       await db
-        .delete(forumScheduledReports)
+        .delete(quoorumScheduledReports)
         .where(
-          and(eq(forumScheduledReports.id, input.id), eq(forumScheduledReports.userId, ctx.user.id))
+          and(eq(quoorumScheduledReports.id, input.id), eq(quoorumScheduledReports.userId, ctx.user.id))
         )
 
       return { success: true }
@@ -470,9 +470,9 @@ export const quoorumReportsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const [schedule] = await db
         .select()
-        .from(forumScheduledReports)
+        .from(quoorumScheduledReports)
         .where(
-          and(eq(forumScheduledReports.id, input.id), eq(forumScheduledReports.userId, ctx.user.id))
+          and(eq(quoorumScheduledReports.id, input.id), eq(quoorumScheduledReports.userId, ctx.user.id))
         )
 
       if (!schedule) {
@@ -498,11 +498,11 @@ export const quoorumReportsRouter = router({
 
       // Update schedule
       await db
-        .update(forumScheduledReports)
+        .update(quoorumScheduledReports)
         .set({
           lastRunAt: new Date(),
           lastReportId: report.id,
-          runCount: sql`${forumScheduledReports.runCount} + 1`,
+          runCount: sql`${quoorumScheduledReports.runCount} + 1`,
           nextRunAt: calculateNextRunTime(
             schedule.schedule as {
               frequency: 'daily' | 'weekly' | 'monthly'
@@ -513,7 +513,7 @@ export const quoorumReportsRouter = router({
             }
           ),
         })
-        .where(eq(forumScheduledReports.id, input.id))
+        .where(eq(quoorumScheduledReports.id, input.id))
 
       // Generate report asynchronously
       // NOTE: In Vercel Serverless, we must await this or use a queue (Inngest/QStash).

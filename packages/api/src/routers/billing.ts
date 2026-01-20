@@ -9,6 +9,9 @@ import { TRPCError } from '@trpc/server'
 import Stripe from 'stripe'
 import { router, protectedProcedure } from '../trpc'
 import { env } from '../env'
+import { db } from '@quoorum/db'
+import { usage, subscriptions } from '@quoorum/db/schema'
+import { eq, desc, and, sql } from 'drizzle-orm'
 
 // ============================================================================
 // STRIPE CLIENT
@@ -231,4 +234,48 @@ export const billingRouter = router({
       credits: ctx.user.credits,
     }
   }),
+
+  // --------------------------------------------------------------------------
+  // GET MY USAGE HISTORY
+  // --------------------------------------------------------------------------
+  getMyUsageHistory: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const results = await db
+        .select()
+        .from(usage)
+        .where(eq(usage.userId, ctx.userId))
+        .orderBy(desc(usage.periodStart))
+        .limit(input.limit)
+        .offset(input.offset)
+
+      return results
+    }),
+
+  // --------------------------------------------------------------------------
+  // GET MY SUBSCRIPTIONS (Payment History)
+  // --------------------------------------------------------------------------
+  getMySubscriptions: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const results = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.userId, ctx.userId))
+        .orderBy(desc(subscriptions.createdAt))
+        .limit(input.limit)
+        .offset(input.offset)
+
+      return results
+    }),
 })

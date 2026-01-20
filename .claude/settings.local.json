@@ -134,7 +134,27 @@
       "Bash(lsof:*)",
       "Bash(ps:*)",
       "Bash(kill:*)",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(pnpm:*)",
+      "Bash(cmd.exe /c \"taskkill /F /PID 293008\")",
+      "Bash(powershell.exe -Command \"Stop-Process -Id 293008 -Force\")",
+      "Bash(powershell.exe -Command \"Stop-Process -Id 644044 -Force\")",
+      "Bash(powershell.exe -Command \"Stop-Process -Id 656312 -Force\")",
+      "Bash(powershell.exe -Command \"Stop-Process -Id 655780 -Force\")",
+      "Bash(git -C /c/Quoorum diff HEAD~1 apps/web/src/app/api/inngest/route.ts)",
+      "Bash(git -C /c/Quoorum status:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(npm install -g inngest-cli)",
+      "Bash(inngest:*)",
+      "Bash(powershell.exe -Command \"inngest --version\")",
+      "Bash(where.exe:*)",
+      "Bash(\"C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe\" ps)",
+      "Bash(\"C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe\" exec quoorum-postgres psql -U postgres -d quoorum -c \"\\\\dt\")",
+      "Bash(\"C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe\" exec quoorum-postgres psql -U postgres -d quoorum -c \"SELECT COUNT\\(*\\) as total_profiles FROM profiles;\")",
+      "Bash(\"C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe\" exec quoorum-postgres psql -U postgres -d quoorum -c \"SELECT id, user_id, email, name, role, is_active FROM profiles;\")",
+      "Bash(\"C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe\" exec quoorum-postgres psql -U postgres -d quoorum -c \"SELECT COUNT\\(*\\) as total_debates FROM quoorum_debates;\")",
+      "Bash(\"C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe\" exec quoorum-postgres psql -U postgres -d quoorum -c \"SELECT COUNT\\(*\\) as total_clients FROM clients;\")",
+      "Bash(\"C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe\" exec quoorum-postgres psql -U postgres -d quoorum -c \"SELECT COUNT\\(*\\) as total_experts FROM quoorum_custom_experts;\")"
     ]
   }
 }

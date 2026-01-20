@@ -20,7 +20,7 @@ import {
   ArrowLeft,
   Loader2,
 } from "lucide-react";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { AppHeader } from "@/components/layout/app-header";
 import { getSettingsNav } from "@/lib/settings-nav";
 
 export default function NotificationsPage() {
@@ -75,32 +75,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" className="text-gray-400 hover:text-white">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Dashboard
-                </Button>
-              </Link>
-            </div>
-
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg blur-lg opacity-50 group-hover:opacity-75 transition" />
-                <div className="relative w-8 h-8 rounded-lg flex items-center justify-center bg-purple-600">
-                  <QuoorumLogo size={24} showGradient={true} />
-                </div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
-            </Link>
-
-            <div className="w-32" />
-          </div>
-        </div>
-      </header>
+      <AppHeader variant="app" />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
