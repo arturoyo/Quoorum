@@ -10,7 +10,7 @@ import Stripe from 'stripe'
 import { router, protectedProcedure } from '../trpc'
 import { env } from '../env'
 import { db } from '@quoorum/db'
-import { usage, subscriptions } from '@quoorum/db/schema'
+import { usage, subscriptions, users, plans } from '@quoorum/db/schema'
 import { eq, desc, and, sql } from 'drizzle-orm'
 
 // ============================================================================
@@ -279,3 +279,280 @@ export const billingRouter = router({
       return results
     }),
 })
+
+// ============================================================================
+// WEBHOOK HANDLER (exported for Next.js API route)
+// ============================================================================
+
+/**
+ * Handles Stripe webhook events
+ * @param payload - Raw request body from Stripe
+ * @param signature - Stripe signature header
+ * @returns Success or error response
+ */
+export async function handleStripeWebhook(payload: string | Buffer, signature: string) {
+  let event: Stripe.Event
+
+  try {
+    // Verify webhook signature
+    event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_WEBHOOK_SECRET)
+  } catch (err) {
+    console.error('❌ Webhook signature verification failed:', err)
+    return { success: false, error: 'Invalid signature' }
+  }
+
+  console.log(`[Stripe Webhook] Received event: ${event.type}`)
+
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session
+
+        if (session.mode === 'subscription') {
+          // Handle subscription payment
+          await handleSubscriptionPayment(session)
+        } else if (session.mode === 'payment' && session.metadata?.type === 'credit_purchase') {
+          // Handle one-time credit purchase
+          await handleCreditPurchase(session)
+        }
+
+        break
+      }
+
+      case 'invoice.paid': {
+        const invoice = event.data.object as Stripe.Invoice
+
+        // Renew subscription credits
+        await handleInvoicePaid(invoice)
+
+        break
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription
+
+        // Downgrade user to free plan
+        await handleSubscriptionCanceled(subscription)
+
+        break
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription
+
+        // Update subscription status (e.g., past_due, canceled)
+        await handleSubscriptionUpdated(subscription)
+
+        break
+      }
+
+      default:
+        console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`)
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error(`[Stripe Webhook] Error processing ${event.type}:`, error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
+// ============================================================================
+// WEBHOOK EVENT HANDLERS
+// ============================================================================
+
+async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
+  const userId = session.metadata?.userId
+  const planId = session.metadata?.planId as keyof typeof PLAN_PRICES
+
+  if (!userId || !planId) {
+    throw new Error('Missing userId or planId in session metadata')
+  }
+
+  console.log(`[Webhook] Processing subscription payment for user ${userId}, plan ${planId}`)
+
+  const plan = PLAN_PRICES[planId]
+
+  // 1. Create or update subscription record
+  const stripeSubscriptionId = session.subscription as string
+  const stripeCustomerId = session.customer as string
+
+  const [existingSub] = await db
+    .select()
+    .from(subscriptions)
+    .where(and(eq(subscriptions.userId, userId), eq(subscriptions.stripeSubscriptionId, stripeSubscriptionId)))
+    .limit(1)
+
+  if (existingSub) {
+    // Update existing subscription
+    await db
+      .update(subscriptions)
+      .set({
+        status: 'active',
+        currentPeriodStart: new Date(session.created * 1000),
+        currentPeriodEnd: new Date((session.created + 30 * 24 * 60 * 60) * 1000), // Approx 30 days
+        updatedAt: new Date(),
+      })
+      .where(eq(subscriptions.id, existingSub.id))
+  } else {
+    // Get plan ID from DB (we need the actual UUID)
+    const [dbPlan] = await db.select().from(plans).where(eq(plans.tier, planId)).limit(1)
+
+    if (!dbPlan) {
+      throw new Error(`Plan ${planId} not found in database`)
+    }
+
+    // Create new subscription
+    await db.insert(subscriptions).values({
+      userId,
+      planId: dbPlan.id,
+      status: 'active',
+      stripeCustomerId,
+      stripeSubscriptionId,
+      currentPeriodStart: new Date(session.created * 1000),
+      currentPeriodEnd: new Date((session.created + 30 * 24 * 60 * 60) * 1000),
+      monthlyCredits: plan.credits,
+    })
+  }
+
+  // 2. Update user tier and add credits
+  await db
+    .update(users)
+    .set({
+      tier: planId,
+      credits: sql`${users.credits} + ${plan.credits}`,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
+
+  console.log(`✅ [Webhook] Subscription activated: user ${userId} → ${planId} (+${plan.credits} credits)`)
+}
+
+async function handleCreditPurchase(session: Stripe.Checkout.Session) {
+  const userId = session.metadata?.userId
+  const creditsStr = session.metadata?.credits
+
+  if (!userId || !creditsStr) {
+    throw new Error('Missing userId or credits in session metadata')
+  }
+
+  const credits = parseInt(creditsStr, 10)
+
+  console.log(`[Webhook] Processing credit purchase for user ${userId}, amount ${credits}`)
+
+  // Add credits to user account
+  await db
+    .update(users)
+    .set({
+      credits: sql`${users.credits} + ${credits}`,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
+
+  console.log(`✅ [Webhook] Credits added: user ${userId} +${credits} credits`)
+}
+
+async function handleInvoicePaid(invoice: Stripe.Invoice) {
+  const userId = invoice.subscription_details?.metadata?.userId
+
+  if (!userId) {
+    console.log('[Webhook] No userId found in invoice, skipping')
+    return
+  }
+
+  console.log(`[Webhook] Processing invoice paid for user ${userId}`)
+
+  // Get current subscription to know the monthly credit allocation
+  const [sub] = await db
+    .select()
+    .from(subscriptions)
+    .where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')))
+    .limit(1)
+
+  if (!sub) {
+    console.log('[Webhook] No active subscription found, skipping credit renewal')
+    return
+  }
+
+  // Renew monthly credits
+  await db
+    .update(users)
+    .set({
+      credits: sql`${users.credits} + ${sub.monthlyCredits}`,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
+
+  // Update subscription period
+  await db
+    .update(subscriptions)
+    .set({
+      currentPeriodStart: new Date(invoice.period_start * 1000),
+      currentPeriodEnd: new Date(invoice.period_end * 1000),
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptions.id, sub.id))
+
+  console.log(`✅ [Webhook] Credits renewed: user ${userId} +${sub.monthlyCredits} credits`)
+}
+
+async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
+  const userId = subscription.metadata.userId
+
+  if (!userId) {
+    throw new Error('Missing userId in subscription metadata')
+  }
+
+  console.log(`[Webhook] Processing subscription cancellation for user ${userId}`)
+
+  // Update subscription status
+  await db
+    .update(subscriptions)
+    .set({
+      status: 'canceled',
+      canceledAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptions.stripeSubscriptionId, subscription.id))
+
+  // Downgrade user to free tier (but keep their remaining credits)
+  await db
+    .update(users)
+    .set({
+      tier: 'free',
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
+
+  console.log(`✅ [Webhook] Subscription canceled: user ${userId} → free tier`)
+}
+
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  console.log(`[Webhook] Processing subscription update: ${subscription.id}`)
+
+  // Map Stripe status to our enum
+  const statusMap: Record<string, string> = {
+    active: 'active',
+    canceled: 'canceled',
+    past_due: 'past_due',
+    trialing: 'trialing',
+    paused: 'paused',
+    unpaid: 'unpaid',
+  }
+
+  const status = statusMap[subscription.status] || 'active'
+
+  // Update subscription status
+  await db
+    .update(subscriptions)
+    .set({
+      status: status as any,
+      currentPeriodStart: new Date(subscription.current_period_start * 1000),
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptions.stripeSubscriptionId, subscription.id))
+
+  console.log(`✅ [Webhook] Subscription updated: ${subscription.id} → ${status}`)
+}
