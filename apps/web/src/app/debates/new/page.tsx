@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import {
   CheckCircle2,
@@ -46,6 +47,13 @@ interface ContextState {
   debateTitle?: string
   optimizedPrompt?: string // Meta-prompt optimized by AI before deliberation
   isGeneratingPrompt?: boolean // Generating meta-prompt
+  showApprovalDialog?: boolean // Show meta-prompt approval dialog
+  // Structured prompting fields (from course)
+  userRole?: string // "Soy CEO de startup B2B SaaS"
+  budget?: string // "€50k - €100k"
+  deadline?: string // "3 meses"
+  teamSize?: string // "5-10 personas"
+  successCriteria?: string[] // ["ROI > 20%", "Churn < 5%"]
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -82,6 +90,7 @@ export default function NewDebatePage() {
   const [assessment, setAssessment] = useState<any>(null)
   const [selectedStrategy, setSelectedStrategy] = useState<string>('')
   const [selectedExpertIds, setSelectedExpertIds] = useState<string[]>([])
+  const [showStructuredFields, setShowStructuredFields] = useState(false)
   
   // File attachments state
   interface AttachedFile {
@@ -862,14 +871,53 @@ export default function NewDebatePage() {
       const metaPromptResult = await generateOptimizedPrompt(completeContext)
       console.log('[DEBUG] Generated optimized prompt:', metaPromptResult)
 
-      // Save optimized prompt (silently, no message shown)
+      // Save optimized prompt and show approval dialog
       setContextState((prev) => ({
         ...prev,
         optimizedPrompt: metaPromptResult,
         isGeneratingPrompt: false,
+        showApprovalDialog: true, // Show dialog to user
       }))
 
-      // STEP 2: Start deliberation with optimized prompt
+      setIsLoading(false) // Stop loading while waiting for user approval
+    } catch (error) {
+      console.error('[DEBUG] Error generating optimized prompt:', error)
+      toast.error(`Error al generar el prompt: ${String(error)}`)
+      setIsLoading(false)
+      setContextState((prev) => ({ ...prev, isGeneratingPrompt: false }))
+    }
+  }
+
+  // Handler to approve and start debate with optimized prompt
+  const handleApproveAndStart = async () => {
+    console.log('[DEBUG] handleApproveAndStart called')
+    setIsLoading(true)
+
+    try {
+      // Build enriched context with structured fields
+      const enrichedContext = Object.entries(contextState.responses)
+        .map(([id, value]) => {
+          const assumption = assessment?.assumptions.find((a: any) => a.id === id)
+          const question = assessment?.clarifyingQuestions.find((q: any) => q.id === id)
+          if (assumption) return `${assumption.assumption}: ${value ? 'Sí' : 'No'}`
+          if (question) return `${question.question}: ${value}`
+          return ''
+        })
+        .filter(Boolean)
+        .join('\n')
+
+      // Add structured fields to context
+      const structuredInfo: string[] = []
+      if (contextState.userRole) structuredInfo.push(`Rol: ${contextState.userRole}`)
+      if (contextState.teamSize) structuredInfo.push(`Equipo: ${contextState.teamSize}`)
+      if (contextState.budget) structuredInfo.push(`Presupuesto: ${contextState.budget}`)
+      if (contextState.deadline) structuredInfo.push(`Plazo: ${contextState.deadline}`)
+      if (contextState.successCriteria && contextState.successCriteria.length > 0) {
+        structuredInfo.push(`Criterios de éxito:\n- ${contextState.successCriteria.join('\n- ')}`)
+      }
+
+      const finalContext = [enrichedContext, ...structuredInfo].filter(Boolean).join('\n\n')
+
       console.log('[DEBUG] About to call createDebateMutation.mutate with optimized prompt')
 
       // Map strategy pattern to execution strategy (for simple pattern)
@@ -894,21 +942,32 @@ export default function NewDebatePage() {
 
       createDebateMutation.mutate({
         draftId: contextState.debateId, // Use existing draft if available
-        question: metaPromptResult, // Use optimized prompt instead of original
-        context: enrichedContext,
+        question: contextState.optimizedPrompt || contextState.question, // Use optimized prompt
+        context: finalContext,
         category: 'general',
         expertCount: 6, // Metadata only - not used by deliberation system
         maxRounds: 5, // Metadata only - not used by deliberation system
         executionStrategy, // Pass execution strategy (for simple pattern)
         pattern, // Pass orchestration pattern (if different from simple)
+        selectedExpertIds, // Pass selected experts
       })
       console.log('[DEBUG] createDebateMutation.mutate called successfully with draftId:', contextState.debateId)
     } catch (error) {
-      console.error('[DEBUG] Error generating optimized prompt or creating debate:', error)
-      toast.error(`Error al generar el prompt: ${String(error)}`)
+      console.error('[DEBUG] Error creating debate:', error)
+      toast.error(`Error al crear debate: ${String(error)}`)
       setIsLoading(false)
-      setContextState((prev) => ({ ...prev, isGeneratingPrompt: false }))
     }
+  }
+
+  // Handler to use original question without optimization
+  const handleUseOriginal = () => {
+    setContextState(prev => ({
+      ...prev,
+      showApprovalDialog: false,
+      optimizedPrompt: undefined,
+    }))
+    // Directly start with original
+    void handleApproveAndStart()
   }
 
   // Mutation for generating optimized meta-prompt
@@ -1000,12 +1059,21 @@ export default function NewDebatePage() {
   // File handling functions
   const MAX_FILES = 5
   const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-  const ALLOWED_TYPES = ['text/plain', 'application/pdf']
+  const ALLOWED_TYPES = [
+    'text/plain',
+    'application/pdf',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/csv'
+  ]
 
   const validateFile = (file: File): string | null => {
     // Check file type
-    if (!ALLOWED_TYPES.includes(file.type) && !file.name.endsWith('.txt') && !file.name.endsWith('.pdf')) {
-      return 'Solo se permiten archivos de texto (.txt) y PDFs (.pdf)'
+    const allowedExtensions = ['.txt', '.pdf', '.xls', '.xlsx', '.csv']
+    const hasValidExtension = allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+
+    if (!ALLOWED_TYPES.includes(file.type) && !hasValidExtension) {
+      return 'Solo se permiten archivos: TXT, PDF, Excel (.xls, .xlsx) y CSV'
     }
     
     // Check file size
@@ -1027,22 +1095,73 @@ export default function NewDebatePage() {
   }
 
   const extractTextFromFile = async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-        // Read text file
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          resolve(e.target?.result as string)
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt')) {
+          // Read text file
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            resolve(e.target?.result as string)
+          }
+          reader.onerror = () => reject(new Error('Error al leer el archivo'))
+          reader.readAsText(file, 'UTF-8')
+        } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          // Extract PDF text using pdfjs-dist
+          const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js')
+
+          // Configure worker
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+
+          const arrayBuffer = await file.arrayBuffer()
+          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer })
+          const pdf = await loadingTask.promise
+
+          const textParts: string[] = []
+
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum)
+            const textContent = await page.getTextContent()
+            const pageText = textContent.items
+              .map((item: any) => item.str)
+              .join(' ')
+
+            if (pageText.trim()) {
+              textParts.push(`\n--- Página ${pageNum} ---\n${pageText}`)
+            }
+          }
+
+          resolve(textParts.join('\n\n'))
+        } else if (
+          file.type === 'application/vnd.ms-excel' ||
+          file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+          file.type === 'text/csv' ||
+          file.name.toLowerCase().endsWith('.xls') ||
+          file.name.toLowerCase().endsWith('.xlsx') ||
+          file.name.toLowerCase().endsWith('.csv')
+        ) {
+          // Extract Excel/CSV data using xlsx
+          const XLSX = await import('xlsx')
+          const arrayBuffer = await file.arrayBuffer()
+          const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+
+          const textParts: string[] = []
+
+          for (const sheetName of workbook.SheetNames) {
+            const worksheet = workbook.Sheets[sheetName]
+            if (!worksheet) continue
+
+            const csv = XLSX.utils.sheet_to_csv(worksheet)
+            if (csv.trim()) {
+              textParts.push(`\n--- Hoja: ${sheetName} ---\n${csv}`)
+            }
+          }
+
+          resolve(textParts.join('\n\n'))
+        } else {
+          reject(new Error('Tipo de archivo no soportado'))
         }
-        reader.onerror = () => reject(new Error('Error al leer el archivo'))
-        reader.readAsText(file, 'UTF-8')
-      } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-        // For PDFs, we'll extract text using pdfjs-dist
-        // For now, return a placeholder - we'll need to install pdfjs-dist
-        // TODO: Implement PDF text extraction with pdfjs-dist
-        resolve(`[Contenido del PDF: ${file.name} - La extracción de texto de PDFs se implementará próximamente]`)
-      } else {
-        reject(new Error('Tipo de archivo no soportado'))
+      } catch (error) {
+        reject(new Error(`Error al procesar archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`))
       }
     })
   }
@@ -1343,19 +1462,19 @@ export default function NewDebatePage() {
                       <input
                         ref={fileInputRef}
                         type="file"
-                        accept=".txt,.pdf"
+                        accept=".txt,.pdf,.xls,.xlsx,.csv"
                         multiple
                         onChange={handleFileInputChange}
                         className="hidden"
-                        aria-label="Añadir archivos de texto o PDF"
-                        title="Añadir archivos (TXT, PDF)"
+                        aria-label="Añadir archivos de contexto"
+                        title="Añadir archivos (TXT, PDF, Excel, CSV)"
                       />
                       <Button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={attachedFiles.length >= MAX_FILES || isLoading}
                         className="bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white border-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all h-full min-w-[50px] w-[50px] flex items-center justify-center"
-                        title={attachedFiles.length >= MAX_FILES ? `Máximo ${MAX_FILES} archivos` : "Añadir archivos (TXT, PDF)"}
+                        title={attachedFiles.length >= MAX_FILES ? `Máximo ${MAX_FILES} archivos` : "Añadir archivos (TXT, PDF, Excel, CSV)"}
                       >
                         <Plus className="h-5 w-5" />
                       </Button>
@@ -1365,7 +1484,7 @@ export default function NewDebatePage() {
                           <div className="text-center">
                             <Upload className="h-8 w-8 text-purple-400 mx-auto mb-2" />
                             <p className="text-sm text-purple-300 font-medium">Suelta los archivos aquí</p>
-                            <p className="text-xs text-gray-400 mt-1">Solo TXT y PDF (máx. 10MB cada uno)</p>
+                            <p className="text-xs text-gray-400 mt-1">TXT, PDF, Excel, CSV (máx. 10MB c/u)</p>
                           </div>
                         </div>
                       )}
@@ -1410,6 +1529,82 @@ export default function NewDebatePage() {
                           <Send className="h-5 w-5" />
                         )}
                       </Button>
+                    </div>
+
+                    {/* Structured Fields (Optional) */}
+                    <div className="pt-4">
+                      <button
+                        onClick={() => setShowStructuredFields(!showStructuredFields)}
+                        className="flex items-center gap-2 text-sm text-gray-400 hover:text-purple-400 transition-colors"
+                      >
+                        <span>{showStructuredFields ? '▼' : '▶'}</span>
+                        <span>Información adicional (opcional)</span>
+                      </button>
+
+                      {showStructuredFields && (
+                        <div className="mt-4 space-y-4 p-4 rounded-lg border border-purple-500/20 bg-slate-900/40">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* User Role */}
+                            <div>
+                              <label className="text-xs text-gray-400 mb-1 block">Tu rol/contexto</label>
+                              <Input
+                                value={contextState.userRole || ''}
+                                onChange={(e) => setContextState(prev => ({ ...prev, userRole: e.target.value }))}
+                                placeholder="Ej: CEO de startup B2B SaaS"
+                                className="bg-slate-800/60 border-purple-500/20 text-white text-sm"
+                              />
+                            </div>
+
+                            {/* Team Size */}
+                            <div>
+                              <label className="text-xs text-gray-400 mb-1 block">Tamaño del equipo</label>
+                              <Input
+                                value={contextState.teamSize || ''}
+                                onChange={(e) => setContextState(prev => ({ ...prev, teamSize: e.target.value }))}
+                                placeholder="Ej: 5-10 personas"
+                                className="bg-slate-800/60 border-purple-500/20 text-white text-sm"
+                              />
+                            </div>
+
+                            {/* Budget */}
+                            <div>
+                              <label className="text-xs text-gray-400 mb-1 block">Presupuesto</label>
+                              <Input
+                                value={contextState.budget || ''}
+                                onChange={(e) => setContextState(prev => ({ ...prev, budget: e.target.value }))}
+                                placeholder="Ej: €50k - €100k"
+                                className="bg-slate-800/60 border-purple-500/20 text-white text-sm"
+                              />
+                            </div>
+
+                            {/* Deadline */}
+                            <div>
+                              <label className="text-xs text-gray-400 mb-1 block">Plazo</label>
+                              <Input
+                                value={contextState.deadline || ''}
+                                onChange={(e) => setContextState(prev => ({ ...prev, deadline: e.target.value }))}
+                                placeholder="Ej: 3 meses"
+                                className="bg-slate-800/60 border-purple-500/20 text-white text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Success Criteria */}
+                          <div>
+                            <label className="text-xs text-gray-400 mb-1 block">Criterios de éxito (uno por línea)</label>
+                            <textarea
+                              value={(contextState.successCriteria || []).join('\n')}
+                              onChange={(e) => setContextState(prev => ({
+                                ...prev,
+                                successCriteria: e.target.value.split('\n').filter(line => line.trim())
+                              }))}
+                              placeholder="ROI > 20%&#10;Churn < 5%&#10;Tiempo de implementación < 6 meses"
+                              rows={3}
+                              className="w-full bg-slate-800/60 border-2 border-purple-500/20 rounded-lg px-3 py-2 text-white text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Example Questions */}
@@ -1748,6 +1943,95 @@ export default function NewDebatePage() {
           </div>
         </div>
       )}
+
+      {/* Meta-Prompt Approval Dialog */}
+      <Dialog open={contextState.showApprovalDialog} onOpenChange={(open) => {
+        if (!open) {
+          setContextState(prev => ({ ...prev, showApprovalDialog: false }))
+        }
+      }}>
+        <DialogContent className="bg-slate-900 border border-purple-500/30 text-white max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            🔍 Prompt Optimizado por IA
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Hemos mejorado tu pregunta para obtener mejores resultados. Puedes aprobarla, editarla o usar la original.
+          </DialogDescription>
+
+          <div className="space-y-6 mt-6">
+            {/* Original Question */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-400 mb-2">Tu pregunta original:</h3>
+              <div className="p-4 rounded-lg bg-slate-800/60 border border-gray-700">
+                <p className="text-gray-300 whitespace-pre-wrap">{contextState.question}</p>
+              </div>
+            </div>
+
+            {/* Optimized Prompt */}
+            <div>
+              <h3 className="text-sm font-semibold text-purple-400 mb-2">✨ Prompt optimizado:</h3>
+              <div className="p-4 rounded-lg bg-purple-900/20 border-2 border-purple-500/30">
+                <textarea
+                  value={contextState.optimizedPrompt || ''}
+                  onChange={(e) => setContextState(prev => ({ ...prev, optimizedPrompt: e.target.value }))}
+                  className="w-full bg-transparent border-none text-white placeholder:text-gray-400 focus:ring-0 focus:outline-none resize-none"
+                  rows={6}
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">Puedes editar el prompt si lo deseas</p>
+            </div>
+
+            {/* Structured Fields Summary */}
+            {(contextState.userRole || contextState.budget || contextState.deadline || contextState.teamSize || (contextState.successCriteria && contextState.successCriteria.length > 0)) && (
+              <div>
+                <h3 className="text-sm font-semibold text-blue-400 mb-2">📋 Información adicional capturada:</h3>
+                <div className="p-4 rounded-lg bg-blue-900/10 border border-blue-500/20 space-y-2 text-sm">
+                  {contextState.userRole && <p><strong>Rol:</strong> {contextState.userRole}</p>}
+                  {contextState.teamSize && <p><strong>Equipo:</strong> {contextState.teamSize}</p>}
+                  {contextState.budget && <p><strong>Presupuesto:</strong> {contextState.budget}</p>}
+                  {contextState.deadline && <p><strong>Plazo:</strong> {contextState.deadline}</p>}
+                  {contextState.successCriteria && contextState.successCriteria.length > 0 && (
+                    <div>
+                      <strong>Criterios de éxito:</strong>
+                      <ul className="list-disc list-inside ml-4 mt-1">
+                        {contextState.successCriteria.map((criterion, idx) => (
+                          <li key={idx}>{criterion}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={() => {
+                  setContextState(prev => ({ ...prev, showApprovalDialog: false }))
+                  void handleApproveAndStart()
+                }}
+                className="flex-1 bg-purple-600 hover:bg-purple-500 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Iniciando...</>
+                ) : (
+                  <>✅ Usar optimizado</>
+                )}
+              </Button>
+              <Button
+                onClick={handleUseOriginal}
+                variant="outline"
+                className="flex-1 border-gray-600 text-gray-300 hover:bg-slate-800"
+                disabled={isLoading}
+              >
+                ← Usar original
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -30,6 +30,12 @@ interface DebateContext {
     readinessLevel: string;
     summary: string;
   };
+  // Structured prompting fields (from course - Fase de Contexto)
+  userRole?: string; // "Soy CEO de startup B2B SaaS"
+  teamSize?: string; // "5-10 personas"
+  budget?: string; // "€50k - €100k"
+  deadline?: string; // "3 meses"
+  successCriteria?: string[]; // ["ROI > 20%", "Churn < 5%"]
   [key: string]: unknown;
 }
 
