@@ -7,6 +7,7 @@ import { api } from '@/lib/trpc/client'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   ChevronLeft,
   ChevronRight,
@@ -19,9 +20,11 @@ import {
   Trash,
   Trash2,
   X,
+  Loader2,
 } from "lucide-react";
 import { AppHeader } from '@/components/layout/app-header'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { toast } from 'sonner'
 
 interface DebatesLayoutProps {
   children: React.ReactNode
@@ -36,6 +39,8 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
   const [showFilters, setShowFilters] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [debateToDelete, setDebateToDelete] = useState<string | null>(null)
+  const [selectedDebates, setSelectedDebates] = useState<Set<string>>(new Set())
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
 
   // Resizable columns
   const [leftColumnWidth, setLeftColumnWidth] = useState(400)
@@ -154,6 +159,52 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
     setSearch('')
   }
 
+  // Multi-select handlers
+  const utils = api.useUtils()
+
+  const deleteDebateMutation = api.debates.delete.useMutation({
+    onSuccess: () => {
+      void utils.debates.list.invalidate()
+    },
+  })
+
+  const handleToggleSelect = (debateId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSelectedDebates((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(debateId)) {
+        newSet.delete(debateId)
+      } else {
+        newSet.add(debateId)
+      }
+      return newSet
+    })
+  }
+
+  const handleSelectAll = () => {
+    if (selectedDebates.size === filteredDebates.length && filteredDebates.length > 0) {
+      setSelectedDebates(new Set())
+    } else {
+      setSelectedDebates(new Set(filteredDebates.map((d) => d.id)))
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    try {
+      const selectedIds = Array.from(selectedDebates)
+      await Promise.all(
+        selectedIds.map((id) => deleteDebateMutation.mutateAsync({ id }))
+      )
+      toast.success(
+        `${selectedIds.length} debate${selectedIds.length > 1 ? 's' : ''} eliminado${selectedIds.length > 1 ? 's' : ''}`
+      )
+      setSelectedDebates(new Set())
+      setBulkDeleteDialogOpen(false)
+    } catch (error) {
+      toast.error('Error al eliminar debates')
+    }
+  }
+
   return (
     <div className="flex h-screen flex-col relative bg-slate-950">
       {/* Animated gradient background */}
@@ -180,6 +231,20 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
           <div className="flex h-[60px] items-center justify-between border-b border-[#2a3942] bg-[#202c33] px-4">
             <h2 className="text-lg font-semibold text-white">Debates</h2>
             <div className="flex items-center gap-2">
+              {filteredDebates.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-9 px-2 text-xs text-[#aebac1] hover:bg-purple-500/20 hover:text-purple-300"
+                  onClick={handleSelectAll}
+                >
+                  <Checkbox
+                    checked={selectedDebates.size === filteredDebates.length && filteredDebates.length > 0}
+                    className="mr-1 h-4 w-4"
+                  />
+                  {selectedDebates.size === filteredDebates.length ? 'Deseleccionar' : 'Seleccionar'}
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="ghost"
@@ -275,7 +340,10 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
                   key={debate.id}
                   debate={debate}
                   isSelected={debate.id === selectedDebateId}
+                  isCheckboxSelected={selectedDebates.has(debate.id)}
+                  showCheckbox={selectedDebates.size > 0}
                   onClick={() => handleDebateClick(debate)}
+                  onToggleSelect={(e) => handleToggleSelect(debate.id, e)}
                 />
               ))}
             </div>
@@ -325,6 +393,58 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
           {isDebateSelected || isNewDebate ? children : <EmptyDebateState />}
         </div>
       </div>
+
+      {/* Floating Action Bar for bulk delete */}
+      {selectedDebates.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
+          <div className="border border-white/20 bg-slate-800/95 backdrop-blur-xl shadow-2xl rounded-lg p-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={selectedDebates.size === filteredDebates.length}
+                  onCheckedChange={handleSelectAll}
+                  className="h-5 w-5"
+                />
+                <span className="text-white font-medium text-sm">
+                  {selectedDebates.size} debate{selectedDebates.size > 1 ? 's' : ''} seleccionado{selectedDebates.size > 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="h-6 w-px bg-white/20" />
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setBulkDeleteDialogOpen(true)}
+                disabled={deleteDebateMutation.isPending}
+              >
+                {deleteDebateMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Eliminando...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Eliminar
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={bulkDeleteDialogOpen}
+        onOpenChange={setBulkDeleteDialogOpen}
+        title="¿Eliminar debates seleccionados?"
+        description={`Estás a punto de eliminar ${selectedDebates.size} debate${selectedDebates.size > 1 ? 's' : ''}. Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={handleBulkDelete}
+        variant="destructive"
+        isLoading={deleteDebateMutation.isPending}
+      />
     </div>
   )
 }
@@ -336,11 +456,17 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
 function DebateListItem({
   debate,
   isSelected,
+  isCheckboxSelected,
+  showCheckbox,
   onClick,
+  onToggleSelect,
 }: {
   debate: any
   isSelected: boolean
+  isCheckboxSelected: boolean
+  showCheckbox: boolean
   onClick: () => void
+  onToggleSelect: (e: React.MouseEvent) => void
 }) {
   const [isHovered, setIsHovered] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -416,13 +542,29 @@ function DebateListItem({
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       className={cn(
-        'relative w-full border-b border-[#2a3942] p-4 transition-all cursor-pointer',
+        'relative w-full border-b border-[#2a3942] p-4 transition-all cursor-pointer group',
         isSelected
           ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-l-4 border-l-purple-500 shadow-lg shadow-purple-500/10'
           : 'hover:bg-[#2a3942]'
       )}
     >
-      <div className="flex items-start justify-between gap-3">
+      {/* Checkbox - Visible on hover or when showCheckbox is true */}
+      <div
+        className={cn(
+          'absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-all',
+          isCheckboxSelected || showCheckbox ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        )}
+        onClick={onToggleSelect}
+      >
+        <div className="bg-[#202c33]/90 backdrop-blur-sm p-1.5 rounded border border-[#aebac1]/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all cursor-pointer">
+          <Checkbox
+            checked={isCheckboxSelected}
+            className="h-5 w-5 border-[#aebac1]/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-start justify-between gap-3 pl-12">
         <div className="flex-1 min-w-0">
           {isEditing ? (
             <form onSubmit={handleSave} className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
