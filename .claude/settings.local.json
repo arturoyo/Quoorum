@@ -159,7 +159,9 @@
       "Bash(npm --version)",
       "Bash(xargs kill -9)",
       "Bash(git log:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(npx drizzle-kit push)"
     ]
   }
 }
