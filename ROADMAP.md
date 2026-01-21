@@ -156,33 +156,114 @@
    - Landing: `/frameworks/second-order-thinking`
    - **SEO:** "second order thinking examples" (14K búsquedas/mes)
 
+4. **SWOT Analysis** (Semana 4-5)
+   - 📊 Strengths → Optimizer (qué hacemos bien)
+   - ⚠️ Weaknesses → Critic (qué debemos mejorar)
+   - 🎯 Opportunities → Analyst (qué podemos aprovechar)
+   - 🚨 Threats → Synthesizer (qué nos amenaza)
+   - Landing: `/frameworks/swot-analysis`
+   - **SEO:** "swot analysis template" (90K búsquedas/mes) 🔥🔥🔥
+   - **Target:** Strategy consultants, business owners, students, MBAs
+
+5. **Pros and Cons** (Semana 5-6)
+   - ✅ Pros → Optimizer (ventajas, beneficios, upside)
+   - ❌ Cons → Critic (desventajas, riesgos, downside)
+   - ⚖️ Balance → Synthesizer (weighted decision)
+   - Landing: `/frameworks/pros-and-cons`
+   - **SEO:** "pros and cons template" (60K búsquedas/mes) 🔥🔥🔥
+   - **Target:** Everyone (framework más universal y conocido)
+   - **Nota:** Framework más simple pero más buscado - ideal para first-time users
+
 **Frameworks Fase 2 (P1):**
-- Decision Matrix (scoring cuantitativo)
-- Eisenhower Matrix (urgente vs importante)
-- OODA Loop (decisiones rápidas con data incompleta)
-- Cynefin Framework (clasificación de contextos)
+- **Hedgehog Concept** (Jim Collins - Good to Great bestseller) - Strategy/PMF
+  - 3 círculos de Venn: ¿Qué te apasiona? + ¿En qué puedes ser #1? + ¿Qué impulsa tu economía?
+  - **SEO:** "hedgehog concept template" (12K búsquedas/mes)
+  - Target: Startups, founders, strategy consultants
+- **GROW Model** (coaching framework más popular)
+  - Goal → Reality → Options → Will (4 fases secuenciales)
+  - **SEO:** "grow model coaching" (18K búsquedas/mes)
+  - Target: Coaches, HR, personal development
+- **Pareto Principle** (regla 80/20)
+  - Identificar 20% de inputs que generan 80% de outputs
+  - **SEO:** "pareto principle examples" (27K búsquedas/mes)
+  - Target: Productividad, optimization, resource allocation
+- Eisenhower Matrix (urgente vs importante) - 49K búsquedas/mes
+- Decision Matrix (scoring cuantitativo) - 8K búsquedas/mes
+- OODA Loop (decisiones rápidas con data incompleta) - 5K búsquedas/mes
 
 **Frameworks Fase 3 (P2):**
-- Ishikawa Diagram (root cause analysis)
-- Iceberg Model (niveles de abstracción)
+- **Cynefin Framework** (Dave Snowden) - Clasificación de problemas
+  - Clear → Complicated → Complex → Chaotic (4 dominios)
+  - **SEO:** "cynefin framework examples" (8K búsquedas/mes)
+- **5Ws + How** - Análisis periodístico/investigación
+  - Who, What, When, Where, Why, How (6 interrogantes)
+  - **SEO:** "5w1h analysis" (6K búsquedas/mes)
+- **SMARTER Goals** - Extension de SMART
+  - Specific, Measurable, Attainable, Relevant, Time-bound, Evaluate, Re-evaluate
+  - **SEO:** "smarter goals template" (11K búsquedas/mes)
+- Ishikawa Diagram (fishbone - root cause analysis)
+- Iceberg Model (niveles de abstracción - systems thinking)
 - Conflict Resolution Diagram
-- Zwicky Box (soluciones creativas)
+- Zwicky Box (soluciones creativas - morphological analysis)
+
+**Taxonomía de Frameworks por CONTEXTO:**
+
+Basado en análisis de 36 frameworks del artículo de decision-making tools, clasificamos por **situación de uso** en lugar de categoría abstracta:
+
+1. **SIMPLE CHOICES** (decisiones rápidas, baja importancia)
+   - Pros and Cons, Coin Flip
+   - Triggers: low-stakes, reversible, quick
+
+2. **INFORMATION GATHERING** (falta data para decidir)
+   - 5Ws, SWOT Analysis
+   - Triggers: uncertainty, multi-factor, complex
+
+3. **STRATEGIC DECISIONS** (decisiones de negocio importantes)
+   - SWOT, Hedgehog Concept, Second-Order Thinking
+   - Triggers: business-strategy, competitive-analysis, long-term
+
+4. **CREATIVE THINKING** (generar opciones, innovación)
+   - Six Thinking Hats, First Principles
+   - Triggers: innovation, problem-solving, brainstorming
+
+5. **PRODUCTIVITY & PRIORITIZATION**
+   - Eisenhower Matrix, Pareto Principle
+   - Triggers: time-management, prioritization, resource-allocation
+
+6. **GOAL SETTING & COACHING**
+   - GROW Model, SMARTER Goals
+   - Triggers: career-planning, personal-development, coaching
+
+7. **FAST DECISIONS** (velocidad crítica)
+   - OODA Loop, Cynefin Framework
+   - Triggers: time-pressure, crisis, incomplete-data
+
+**Auto-detection del Framework:**
+El `classifier.ts` detectará automáticamente el contexto del usuario y recomendará el framework más apropiado según la taxonomía arriba.
 
 **Implementación Técnica:**
 
 ```typescript
 // Fase 1: Infrastructure (Semana 1)
 packages/db/src/schema/frameworks.ts
-- Tabla frameworks (slug, name, category, agent_mapping, phases)
+- Tabla frameworks (slug, name, category, agent_mapping, phases, seo_keywords)
 - Relación debates_frameworks (many-to-many)
 
+packages/quoorum/src/frameworks/taxonomy.ts (NEW)
+- FRAMEWORK_TAXONOMY object con 7 contextos
+- Mapeo de triggers → frameworks recomendados
+- Framework metadata (SEO keywords, target audience, complexity)
+
 packages/quoorum/src/frameworks/classifier.ts
-- Auto-detect decision type (strategic, tactical, operational)
-- Recommend best framework
+- classifyDecision(input) → FrameworkRecommendation
+- LLM call para detectar: context, complexity, timeframe, stakeholders, reversibility
+- Auto-select best framework desde taxonomy
+- Return: framework + reason + alternatives + confidence
 
 packages/quoorum/src/frameworks/selector.ts
-- Select framework rules
-- Explain recommendation
+- selectFramework(classification) → match con taxonomía
+- Explain why this framework fits the context
+- Provide 2-3 alternatives del mismo contexto
 
 // Fase 2: Six Thinking Hats Implementation (Semana 1-2)
 packages/quoorum/src/frameworks/six-thinking-hats.ts
@@ -206,6 +287,29 @@ packages/quoorum/src/frameworks/second-order-thinking.ts
 - First order effects
 - Second order consequences
 - Third order systemic changes
+
+// Fase 5: SWOT Analysis (Semana 4-5)
+packages/quoorum/src/frameworks/swot-analysis.ts
+- runSWOT(input)
+- 4 agentes = 4 cuadrantes (Strengths, Weaknesses, Opportunities, Threats)
+- Visual 2x2 matrix con color coding
+
+apps/web/src/app/frameworks/swot-analysis/page.tsx
+- Landing educativa + interactive demo
+- Template descargable (PDF/Excel)
+- Real business case study
+
+// Fase 6: Pros and Cons (Semana 5-6)
+packages/quoorum/src/frameworks/pros-and-cons.ts
+- runProsAndCons(input)
+- 2 agentes: Optimizer (Pros) + Critic (Cons)
+- Weighted scoring opcional
+- Visual balance scale
+
+apps/web/src/app/frameworks/pros-and-cons/page.tsx
+- Landing más simple (framework universal)
+- Examples para diferentes decisiones (job offer, relocation, purchase)
+- Mobile-first design (framework más usado en mobile)
 ```
 
 **UI/UX:**
@@ -227,28 +331,71 @@ Nuevo Debate → Framework Selector
 Dropdown "Elegir otro":
 - 🎩 Six Thinking Hats (multi-perspectiva)
 - 💡 First Principles (innovación radical)
+- 📊 SWOT Analysis (análisis estratégico)
+- ⚖️ Pros and Cons (decisión simple)
 - 🎯 Decision Matrix (scoring múltiple)
-- ⚖️ Eisenhower Matrix (priorización)
+- ⏰ Eisenhower Matrix (priorización)
 - 🔄 OODA Loop (velocidad con incertidumbre)
 - [Ver todos los frameworks...]
+
+Ejemplo visual SWOT Analysis:
+┌────────────────────────┬────────────────────────┐
+│ 📊 STRENGTHS           │ 🎯 OPPORTUNITIES       │
+│ (Qué hacemos bien)     │ (Qué podemos hacer)    │
+│                        │                        │
+│ Optimizer analiza...   │ Analyst identifica...  │
+└────────────────────────┴────────────────────────┘
+┌────────────────────────┬────────────────────────┐
+│ ⚠️ WEAKNESSES          │ 🚨 THREATS             │
+│ (Qué debemos mejorar)  │ (Qué nos amenaza)      │
+│                        │                        │
+│ Critic evalúa...       │ Synthesizer detecta... │
+└────────────────────────┴────────────────────────┘
+
+Ejemplo visual Pros and Cons:
+┌──────────────────────────────────────────────────────┐
+│                  BALANCE SCALE                       │
+│                                                      │
+│  ✅ PROS (Ventajas)        ❌ CONS (Desventajas)     │
+│  ────────────────          ────────────────          │
+│  Optimizer:                Critic:                   │
+│  • Benefit 1               • Risk 1                  │
+│  • Benefit 2               • Risk 2                  │
+│  • Benefit 3               • Risk 3                  │
+│                                                      │
+│  Peso total: 70%           Peso total: 30%           │
+│                                                      │
+│  ⚖️ RECOMENDACIÓN: ADELANTE (weighted 70/30)        │
+└──────────────────────────────────────────────────────┘
 ```
 
 **Landing Pages (SEO Critical):**
 
 ```
-/frameworks                         → Overview + grid de todos
+/frameworks                         → Overview + grid de todos (11+ frameworks)
 /frameworks/six-thinking-hats      → Educativo + demo interactivo
 /frameworks/first-principles       → Case study + CTA
 /frameworks/second-order-thinking  → Comparación con ChatGPT
+/frameworks/swot-analysis          → Template descargable + business case
+/frameworks/pros-and-cons          → Examples múltiples + mobile-first
 
 Cada landing incluye:
-✅ ¿Qué es el framework? (definición + historia)
-✅ ¿Cuándo usarlo? (casos de uso específicos)
-✅ ¿Cómo funciona? (diagrama visual)
-✅ Demo interactivo ("Try it now")
-✅ Case study real
-✅ Related frameworks (internal links)
+✅ ¿Qué es el framework? (definición + historia + autor)
+✅ ¿Cuándo usarlo? (casos de uso específicos + triggers)
+✅ ¿Cómo funciona? (diagrama visual + agent mapping)
+✅ Demo interactivo ("Try it now" con ejemplo pre-filled)
+✅ Case study real (startup/business ejemplo)
+✅ Related frameworks (internal links + "If you like X, try Y")
 ✅ Schema markup (Rich snippets en Google)
+✅ SEO metadata (keywords, description, OG tags)
+✅ "Powered by AI Debates" footer con link a homepage
+
+Prioridad de landing pages por SEO traffic:
+1. SWOT Analysis (90K búsquedas/mes) - MÁXIMA PRIORIDAD
+2. Pros and Cons (60K búsquedas/mes) - ALTA PRIORIDAD
+3. Eisenhower Matrix (49K búsquedas/mes) - P1
+4. Six Thinking Hats (33K búsquedas/mes) - P0
+5. Pareto Principle (27K búsquedas/mes) - P1
 ```
 
 **Consideraciones Legales:**
@@ -257,60 +404,94 @@ Cada landing incluye:
 - Dar crédito al autor original
 - No vender el framework, sino la "implementación con IA"
 
-**Esfuerzo Total:** 4 semanas (8 horas/día)
-- Week 1: Infrastructure + Six Thinking Hats
-- Week 2: First Principles + Landing pages
-- Week 3: Second-Order Thinking + SEO optimization
-- Week 4: Decision Matrix + Eisenhower + Polish
+**Esfuerzo Total:** 6 semanas (8 horas/día) - ACTUALIZADO
+- Week 1: Infrastructure + Taxonomy + Six Thinking Hats
+- Week 2: First Principles + Landing pages SEO
+- Week 3: Second-Order Thinking + Classifier implementation
+- Week 4: SWOT Analysis (PRIORIDAD SEO MÁXIMA - 90K búsquedas/mes)
+- Week 5: Pros and Cons + Mobile-first optimization
+- Week 6: Polish + A/B testing + Analytics setup
 
-**Impacto:** ALTO++
-- SEO traffic: Proyectado 50K+ visitas orgánicas/mes (suma de todos los frameworks)
-- Conversion: Frameworks = multiple entry points con trust preexistente
-- Diferenciación: ChatGPT no tiene frameworks estructurados
-- Legitimidad: "Quoorum = Six Thinking Hats con IA" > "Quoorum = debate IA abstracto"
+**Impacto:** ALTO+++ (actualizado con SWOT y Pros and Cons)
+- **SEO traffic:** Proyectado **380K+ visitas orgánicas/mes** (suma de 11+ frameworks)
+  - SWOT Analysis: 90K/mes
+  - Pros and Cons: 60K/mes
+  - Eisenhower Matrix: 49K/mes
+  - Six Thinking Hats: 33K/mes
+  - Pareto Principle: 27K/mes
+  - First Principles: 22K/mes
+  - GROW Model: 18K/mes
+  - Second-Order: 14K/mes
+  - Hedgehog Concept: 12K/mes
+  - SMARTER Goals: 11K/mes
+  - Resto: ~44K/mes
+- **Conversion:** Frameworks = 11 entry points diferentes con trust preexistente
+- **Diferenciación:** ChatGPT no tiene frameworks estructurados ni taxonomía contextual
+- **Legitimidad:** "Quoorum = SWOT con IA" / "Six Thinking Hats con IA" > "Debate IA abstracto"
+- **Viral potential:** SWOT y Pros and Cons son los frameworks más compartidos en redes sociales
 
 **Archivos afectados:**
 ```
 packages/db/src/schema/
-├── frameworks.ts (NEW)
-└── debate_frameworks.ts (NEW)
+├── frameworks.ts (NEW - tabla principal)
+└── debate_frameworks.ts (NEW - relación many-to-many)
 
 packages/quoorum/src/
 ├── frameworks/
-│   ├── classifier.ts (NEW)
-│   ├── selector.ts (NEW)
+│   ├── taxonomy.ts (NEW - 7 contextos + triggers)
+│   ├── classifier.ts (NEW - LLM-based classification)
+│   ├── selector.ts (NEW - framework recommendation)
 │   ├── six-thinking-hats.ts (NEW)
 │   ├── first-principles.ts (NEW)
 │   ├── second-order-thinking.ts (NEW)
-│   └── index.ts (NEW)
+│   ├── swot-analysis.ts (NEW - P0 PRIORITY)
+│   ├── pros-and-cons.ts (NEW - P0 PRIORITY)
+│   └── index.ts (NEW - exports)
 └── agents/
-    ├── intuitor.ts (NEW - Red Hat)
-    └── innovator.ts (NEW - Green Hat)
+    ├── intuitor.ts (NEW - Red Hat, emotional intelligence)
+    └── innovator.ts (NEW - Green Hat, creative alternatives)
 
 apps/web/src/app/
 ├── frameworks/
-│   ├── page.tsx (NEW - overview)
+│   ├── page.tsx (NEW - overview grid con 11+ frameworks)
 │   ├── six-thinking-hats/page.tsx (NEW)
 │   ├── first-principles/page.tsx (NEW)
-│   └── second-order-thinking/page.tsx (NEW)
-└── debates/new/page.tsx (MODIFY - add framework selector)
+│   ├── second-order-thinking/page.tsx (NEW)
+│   ├── swot-analysis/page.tsx (NEW - MÁXIMA PRIORIDAD SEO)
+│   ├── pros-and-cons/page.tsx (NEW - ALTA PRIORIDAD SEO)
+│   ├── hedgehog-concept/page.tsx (NEW - P1)
+│   ├── grow-model/page.tsx (NEW - P1)
+│   └── pareto-principle/page.tsx (NEW - P1)
+└── debates/new/page.tsx (MODIFY - add framework auto-selector)
 
 packages/api/src/routers/
-└── frameworks.ts (NEW - CRUD + recommendations)
+└── frameworks.ts (NEW - CRUD + recommendations + analytics)
 ```
 
 **Métricas de Éxito:**
-- [ ] 3 frameworks P0 implementados y funcionando
-- [ ] 3 landing pages con SEO optimizado (score 90+ en Lighthouse)
-- [ ] 1,000+ visitas orgánicas/mes desde "six thinking hats" searches
-- [ ] 20%+ de debates usan framework mode (vs free-form)
-- [ ] 2 nuevos agentes (Intuitor, Innovator) con temperature correcta
+- [ ] **5 frameworks P0 implementados** y funcionando (Six Hats, First Principles, Second-Order, SWOT, Pros/Cons)
+- [ ] **5 landing pages con SEO optimizado** (Lighthouse score 90+)
+- [ ] **10,000+ visitas orgánicas/mes** desde frameworks searches (conservative estimate)
+  - SWOT Analysis: 5,000+/mes
+  - Pros and Cons: 3,000+/mes
+  - Six Thinking Hats: 1,500+/mes
+  - Resto: 500+/mes
+- [ ] **30%+ de debates usan framework mode** (vs free-form)
+- [ ] **2 nuevos agentes** (Intuitor, Innovator) con temperature correcta
+- [ ] **Taxonomía de contextos** implementada con 90%+ accuracy en clasificación
+- [ ] **Framework auto-selector** con user satisfaction > 80%
+- [ ] **3+ frameworks P1** implementados (Hedgehog, GROW, Pareto)
+- [ ] **Schema markup** en todas las landing pages (Rich snippets enabled)
+- [ ] **Conversion rate landing → signup: 5%+** (benchmark: 2-3% industry average)
 
 **Referencias:**
 - [Untools.co](https://untools.co) - Biblioteca de frameworks (inspiración UX)
+- [36 Proven Decision-Making Tools](https://www.leadershipexpert.co.uk/decision-making-tools/) - Taxonomía por contexto
 - [Six Thinking Hats® by Edward de Bono](https://www.debono.com) - Licensing info
 - [First Principles: The Building Blocks of True Knowledge](https://fs.blog/first-principles/)
 - [Second-Order Thinking: What Smart People Use](https://fs.blog/second-order-thinking/)
+- [SWOT Analysis Guide](https://www.mindtools.com/swot-analysis) - Template reference
+- [Good to Great - Jim Collins](https://www.jimcollins.com/concepts/the-hedgehog-concept.html) - Hedgehog Concept
 
 ---
 
@@ -482,15 +663,20 @@ packages/api/src/routers/
 - [ ] 500+ debates completados
 - [ ] NPS score > 50
 - [ ] 20% de usuarios retornan en 7 días
-- [ ] 5,000+ visitas orgánicas/mes desde frameworks SEO
+- [ ] 10,000+ visitas orgánicas/mes desde frameworks SEO (conservative estimate)
+  - SWOT Analysis (90K búsquedas/mes) → 5,000 visitas/mes
+  - Pros and Cons (60K búsquedas/mes) → 3,000 visitas/mes
+  - Resto de frameworks → 2,000 visitas/mes
 
 ### Objetivo 2: Feature Completeness
 - [ ] Backstory del Usuario implementado
 - [ ] Flash Debate Mode funcionando
 - [ ] Serper API integrado (datos reales)
 - [ ] Export PDF operativo
-- [ ] 3 frameworks P0 implementados (Six Hats, First Principles, Second-Order)
-- [ ] Landing pages SEO para frameworks activas
+- [ ] **5 frameworks P0 implementados** (Six Hats, First Principles, Second-Order, SWOT, Pros/Cons)
+- [ ] **8+ landing pages SEO** para frameworks activas (P0 + P1)
+- [ ] Framework auto-selector con taxonomía de 7 contextos
+- [ ] 2 nuevos agentes (Intuitor, Innovator)
 
 ### Objetivo 3: Technical Excellence
 - [ ] Uptime 99.5%+
