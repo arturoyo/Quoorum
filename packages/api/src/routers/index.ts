@@ -38,3 +38,6 @@ export { departmentsRouter } from "./departments.js";
 
 // User Backstory (Onboarding)
 export { userBackstoryRouter } from "./user-backstory.js";
+
+// Decision-Making Frameworks
+export { frameworksRouter } from "./frameworks.js";

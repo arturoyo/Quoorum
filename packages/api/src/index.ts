@@ -35,6 +35,8 @@ import {
   departmentsRouter,
   // User Backstory
   userBackstoryRouter,
+  // Decision-Making Frameworks
+  frameworksRouter,
 } from "./routers/index.js";
 
 export const appRouter = router({
@@ -73,6 +75,8 @@ export const appRouter = router({
   departments: departmentsRouter,
   // User Backstory
   userBackstory: userBackstoryRouter,
+  // Decision-Making Frameworks
+  frameworks: frameworksRouter,
 });
 
 export type AppRouter = typeof appRouter;

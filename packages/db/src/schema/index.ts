@@ -95,3 +95,12 @@ export type { Company, NewCompany } from "./companies";
 
 export { departments, departmentsRelations, departmentTypeEnum } from "./departments";
 export type { Department, NewDepartment, DepartmentType } from "./departments";
+
+// Decision-Making Frameworks
+export {
+  frameworks,
+  debateFrameworks,
+  frameworksRelations,
+  debateFrameworksRelations,
+} from "./frameworks";
+export type { Framework, NewFramework, DebateFramework, NewDebateFramework } from "./frameworks";
