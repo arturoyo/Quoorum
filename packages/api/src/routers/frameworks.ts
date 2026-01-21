@@ -4,7 +4,11 @@ import { db } from "@quoorum/db/client.js";
 import { frameworks, debateFrameworks } from "@quoorum/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { runProsAndCons } from "@quoorum/quoorum/frameworks";
+import {
+  runProsAndCons,
+  runSWOTAnalysis,
+  runEisenhowerMatrix,
+} from "@quoorum/quoorum/frameworks";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -12,6 +16,31 @@ import { runProsAndCons } from "@quoorum/quoorum/frameworks";
 
 const prosAndConsInputSchema = z.object({
   question: z.string().min(10, "La pregunta debe tener al menos 10 caracteres").max(500),
+  context: z.string().max(2000).optional(),
+  userBackstory: z
+    .object({
+      role: z.string().optional(),
+      industry: z.string().optional(),
+      companyStage: z.string().optional(),
+    })
+    .optional(),
+});
+
+const swotAnalysisInputSchema = z.object({
+  question: z.string().min(10, "La pregunta debe tener al menos 10 caracteres").max(500),
+  context: z.string().max(2000).optional(),
+  userBackstory: z
+    .object({
+      role: z.string().optional(),
+      industry: z.string().optional(),
+      companyStage: z.string().optional(),
+    })
+    .optional(),
+});
+
+const eisenhowerMatrixInputSchema = z.object({
+  question: z.string().min(10, "La pregunta debe tener al menos 10 caracteres").max(500),
+  tasks: z.array(z.string()).max(20).optional(), // Max 20 tasks
   context: z.string().max(2000).optional(),
   userBackstory: z
     .object({
@@ -88,6 +117,65 @@ export const frameworksRouter = router({
             error instanceof Error
               ? error.message
               : "Error al ejecutar el análisis Pros and Cons",
+        });
+      }
+    }),
+
+  /**
+   * Run SWOT Analysis
+   */
+  runSWOTAnalysis: protectedProcedure
+    .input(swotAnalysisInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Get user backstory for context
+        const userBackstory = input.userBackstory || undefined;
+
+        // Run the framework
+        const result = await runSWOTAnalysis({
+          question: input.question,
+          context: input.context,
+          userBackstory,
+        });
+
+        return result;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al ejecutar el análisis SWOT",
+        });
+      }
+    }),
+
+  /**
+   * Run Eisenhower Matrix
+   */
+  runEisenhowerMatrix: protectedProcedure
+    .input(eisenhowerMatrixInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Get user backstory for context
+        const userBackstory = input.userBackstory || undefined;
+
+        // Run the framework
+        const result = await runEisenhowerMatrix({
+          question: input.question,
+          tasks: input.tasks,
+          context: input.context,
+          userBackstory,
+        });
+
+        return result;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al ejecutar la Matriz de Eisenhower",
         });
       }
     }),
