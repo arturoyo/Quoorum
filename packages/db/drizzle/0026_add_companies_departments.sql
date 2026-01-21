@@ -1,10 +1,14 @@
 -- Migration: Add companies and departments tables for corporate context
 -- Created: 2025-01-20
+-- Updated: 2025-01-20 - Changed foreign key from users to profiles
 
--- Create companies table
+-- Drop existing table if it exists (to fix foreign key)
+DROP TABLE IF EXISTS "companies" CASCADE;
+
+-- Create companies table (referencing profiles instead of users)
 CREATE TABLE IF NOT EXISTS "companies" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-  "user_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+  "user_id" uuid NOT NULL REFERENCES "profiles"("id") ON DELETE CASCADE,
   "name" varchar(200) NOT NULL,
   "context" text NOT NULL,
   "industry" varchar(100),

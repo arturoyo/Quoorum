@@ -33,6 +33,8 @@ import {
   // Corporate Intelligence
   companiesRouter,
   departmentsRouter,
+  // User Backstory
+  userBackstoryRouter,
 } from "./routers/index.js";
 
 export const appRouter = router({
@@ -69,6 +71,8 @@ export const appRouter = router({
   // Corporate Intelligence
   companies: companiesRouter,
   departments: departmentsRouter,
+  // User Backstory
+  userBackstory: userBackstoryRouter,
 });
 
 export type AppRouter = typeof appRouter;

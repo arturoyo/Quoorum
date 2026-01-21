@@ -5,17 +5,17 @@
 
 import { pgTable, uuid, varchar, text, timestamp, boolean } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { users } from './users'
+import { profiles } from './profiles'
 import { departments } from './departments'
 
 export const companies = pgTable('companies', {
   // Primary key
   id: uuid('id').defaultRandom().primaryKey(),
 
-  // Foreign keys
+  // Foreign keys (references profiles, not users, since auth context uses profiles)
   userId: uuid('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    .references(() => profiles.id, { onDelete: 'cascade' }),
 
   // Company information
   name: varchar('name', { length: 200 }).notNull(),
@@ -38,9 +38,9 @@ export const companies = pgTable('companies', {
 
 // Relations
 export const companiesRelations = relations(companies, ({ one, many }) => ({
-  user: one(users, {
+  profile: one(profiles, {
     fields: [companies.userId],
-    references: [users.id],
+    references: [profiles.id],
   }),
   departments: many(departments),
 }))

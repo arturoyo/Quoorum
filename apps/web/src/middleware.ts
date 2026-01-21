@@ -2,7 +2,9 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Routes that require authentication
-const protectedRoutes = ["/dashboard", "/debates", "/settings", "/api/trpc"];
+// NOTE: /api/trpc is NOT included here because tRPC routers handle their own auth
+// via protectedProcedure. Blocking at middleware level prevents public procedures.
+const protectedRoutes = ["/dashboard", "/debates", "/settings"];
 
 // Routes that should redirect to dashboard if already authenticated
 const authRoutes = ["/login", "/signup", "/forgot-password"];

@@ -1078,20 +1078,75 @@ RESPONDE JSON:
       z.object({
         question: z.string().min(10, "Question must be at least 10 characters"),
         context: z.string().optional(),
+        mode: z.enum(['quick', 'deep']).optional().default('deep'),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       logger.info("[Contextual Questions] Generating dynamic questions", {
+        userId: ctx.userId,
         questionLength: input.question.length,
+        mode: input.mode,
       });
 
       try {
         const { getAIClient } = await import("@quoorum/ai");
         const aiClient = getAIClient();
 
+        // Get user backstory for personalization
+        const { userBackstory } = await import("@quoorum/db/schema");
+        const [backstory] = await db
+          .select()
+          .from(userBackstory)
+          .where(eq(userBackstory.userId, ctx.userId))
+          .limit(1);
+
+        // Build backstory context string
+        let backstoryContext = "";
+        if (backstory) {
+          const parts: string[] = [];
+          if (backstory.role) {
+            parts.push(`Rol: ${backstory.role.replace(/_/g, ' ')}`);
+          }
+          if (backstory.companyName) {
+            parts.push(`Empresa: ${backstory.companyName}`);
+          }
+          if (backstory.industry) {
+            parts.push(`Industria: ${backstory.industry}`);
+          }
+          if (backstory.companySize) {
+            const sizeLabels: Record<string, string> = {
+              'solo': 'Solo (1 persona)',
+              'small_2_10': 'Pequeña (2-10)',
+              'medium_11_50': 'Mediana (11-50)',
+              'large_50_plus': 'Grande (50+)',
+            };
+            parts.push(`Tamaño: ${sizeLabels[backstory.companySize] || backstory.companySize}`);
+          }
+          if (backstory.companyStage) {
+            parts.push(`Etapa: ${backstory.companyStage.replace(/_/g, ' ')}`);
+          }
+          if (backstory.decisionStyle) {
+            parts.push(`Estilo de decisión: ${backstory.decisionStyle.replace(/_/g, ' ')}`);
+          }
+
+          if (parts.length > 0) {
+            backstoryContext = `\n\nPERFIL DEL USUARIO:\n${parts.join(' | ')}`;
+            if (backstory.additionalContext) {
+              backstoryContext += `\nContexto adicional: ${backstory.additionalContext}`;
+            }
+          }
+        }
+
+        const questionCount = input.mode === 'quick' ? '1 pregunta' : '3-5 preguntas';
+        const modeInstructions = input.mode === 'quick'
+          ? 'MODO RÁPIDO: Genera SOLO 1 pregunta, la más crítica y esencial para entender el contexto.'
+          : 'MODO PROFUNDO: Genera 3-5 preguntas para obtener contexto completo.';
+
         const systemPrompt = `Eres un asistente que ayuda a recopilar contexto para debates estratégicos.
 
-Analiza la pregunta del usuario y genera 3-5 preguntas contextuales DINÁMICAS:
+${modeInstructions}
+
+Analiza la pregunta del usuario y genera ${questionCount} contextual${input.mode === 'quick' ? '' : 'es'} DINÁMICA${input.mode === 'quick' ? '' : 'S'}:
 
 1. **Decide el tipo de interacción**:
    - "question": Pregunta directa que necesita respuesta
@@ -1109,6 +1164,11 @@ Analiza la pregunta del usuario y genera 3-5 preguntas contextuales DINÁMICAS:
 
 4. **Ordena por importancia**: Pregunta lo más crítico primero.
 
+5. **Personaliza según el perfil del usuario**: Usa la información del perfil para:
+   - NO preguntar lo que ya sabemos (industria, tamaño, etc.)
+   - Ajustar el lenguaje y nivel de detalle según su rol y estilo
+   - Hacer suposiciones inteligentes basadas en su contexto
+
 RESPONDE SOLO CON JSON VÁLIDO (sin markdown, sin explicaciones):
 [
   {
@@ -1117,12 +1177,14 @@ RESPONDE SOLO CON JSON VÁLIDO (sin markdown, sin explicaciones):
     "content": "Texto de la pregunta/suposición",
     "options": ["Opción 1", "Opción 2", ...] // Solo si questionType === "multiple_choice"
   }
-]`;
+]${backstoryContext}`;
 
         const userPrompt = `Pregunta del usuario: "${input.question}"
 ${input.context ? `\nContexto adicional: "${input.context}"` : ""}
 
-Genera 3-5 preguntas contextuales DINÁMICAS con tipos de respuesta óptimos.`;
+Genera ${questionCount} contextual${input.mode === 'quick' ? '' : 'es'} DINÁMICA${input.mode === 'quick' ? '' : 'S'} con tipos de respuesta óptimos.
+${input.mode === 'quick' ? 'Recuerda: SOLO 1 pregunta, la más esencial.' : ''}
+${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes lo obvio.' : ''}`;
 
         const response = await aiClient.generateWithSystem(
           systemPrompt,

@@ -156,6 +156,36 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       };
     }
 
+    // Sync profile to PostgreSQL local (for foreign key constraints)
+    try {
+      console.log("[tRPC Context] Syncing profile to PostgreSQL local...");
+      const [localProfile] = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.id, profile.id))
+        .limit(1);
+
+      if (!localProfile) {
+        console.log("[tRPC Context] Creating profile in PostgreSQL local...");
+        await db.insert(profiles).values({
+          id: profile.id,
+          userId: authUser.id,
+          email: profile.email,
+          name: profile.name || authUser.email?.split("@")[0] || "Usuario",
+          fullName: profile.full_name || null,
+          avatarUrl: profile.avatar_url || null,
+          role: profile.role || "user",
+          isActive: true,
+        }).onConflictDoNothing();
+        console.log("[tRPC Context] Profile synced to PostgreSQL local");
+      } else {
+        console.log("[tRPC Context] Profile already exists in PostgreSQL local");
+      }
+    } catch (syncError) {
+      console.error("[tRPC Context] Error syncing profile to local DB:", syncError);
+      // Continue anyway, most operations work with Supabase
+    }
+
     // Return context with profile as user AND Supabase client
     return {
       db,

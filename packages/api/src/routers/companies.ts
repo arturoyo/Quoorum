@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { router, protectedProcedure } from '../trpc'
 import { db } from '@quoorum/db'
-import { companies } from '@quoorum/db/schema'
+import { companies, profiles } from '@quoorum/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { logger } from '../lib/logger'
 
@@ -66,21 +66,74 @@ export const companiesRouter = router({
         })
       }
 
-      const [company] = await db
-        .insert(companies)
-        .values({
-          ...input,
+      try {
+        const [company] = await db
+          .insert(companies)
+          .values({
+            ...input,
+            userId: ctx.userId,
+          })
+          .returning()
+
+        logger.info('Company created', {
+          companyId: company.id,
           userId: ctx.userId,
+          name: company.name,
         })
-        .returning()
 
-      logger.info('Company created', {
-        companyId: company.id,
-        userId: ctx.userId,
-        name: company.name,
-      })
+        return company
+      } catch (error) {
+        // If foreign key constraint fails, try to create profile in PostgreSQL local
+        if (error instanceof Error && error.message.includes('companies_user_id_fkey')) {
+          logger.warn('Profile not found in PostgreSQL local, attempting to create...', {
+            userId: ctx.userId,
+          })
 
-      return company
+          // Get user data from context
+          if (ctx.user) {
+            try {
+              await db.insert(profiles).values({
+                id: ctx.userId,
+                userId: ctx.authUserId || ctx.userId,
+                email: ctx.user.email || 'unknown@example.com',
+                name: ctx.user.name || 'Usuario',
+                fullName: (ctx.user as any).fullName || null,
+                avatarUrl: (ctx.user as any).avatarUrl || null,
+                role: ctx.user.role || 'user',
+                isActive: true,
+              }).onConflictDoNothing()
+
+              logger.info('Profile created in PostgreSQL local, retrying company creation...')
+
+              // Retry company creation
+              const [company] = await db
+                .insert(companies)
+                .values({
+                  ...input,
+                  userId: ctx.userId,
+                })
+                .returning()
+
+              logger.info('Company created after profile sync', {
+                companyId: company.id,
+                userId: ctx.userId,
+                name: company.name,
+              })
+
+              return company
+            } catch (retryError) {
+              logger.error('Failed to create profile and retry company creation', {
+                error: retryError,
+                userId: ctx.userId,
+              })
+              throw retryError
+            }
+          }
+        }
+
+        // Re-throw original error if it's not the FK constraint
+        throw error
+      }
     }),
 
   /**

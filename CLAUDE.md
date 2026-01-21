@@ -114,6 +114,7 @@ grep -r "pattern" src/
 | **Escribir tests**             | [Testing](#-testing)                                                      | Coverage mínimo 80% + Test cases críticos                        |
 | **Usar `--no-verify`**         | [Cross-Platform Hooks](#️-compatibilidad-cross-platform-pre-commit-hooks)  | ⚠️ Solo si hook falla por entorno + verificar manualmente        |
 | **Verificar CI/CD**            | [CI/CD - GitHub Actions](#-cicd---github-actions)                         | ¿Pipeline pasó? ¿Qué job falló?                                  |
+| **Modificar cualquier UI**     | [Regla #13: UX/Design](#13--uxdesign-paleta-de-colores-y-estilos-oficiales) | ⚠️ Paleta oficial? Inputs text-white? Botones púrpura? Verificar dark mode |
 
 ### 🚨 PROCESO OBLIGATORIO:
 
@@ -803,6 +804,291 @@ Después de CADA modificación de código, actualización, o tarea completada:
 - Si algo falló, documentar QUÉ se intentó y POR QUÉ falló
 - Relacionar acciones con issues/PRs si aplica
 ```
+
+### 13. 🎨 UX/DESIGN: Paleta de Colores y Estilos Oficiales
+
+```
+⚠️ REGLA CRÍTICA DE CONSISTENCIA VISUAL
+
+"SIEMPRE usar la paleta de colores oficial de Quoorum.
+NUNCA usar clases genéricas de Tailwind (dark:bg-gray-800, etc.)
+sin verificar primero la paleta oficial."
+
+🎯 PROBLEMA COMÚN:
+- Desarrollador aplica clases genéricas: dark:bg-gray-800, dark:text-white
+- Resultado: UI con colores blancos que no coinciden con el diseño
+- Usuario tiene que corregir manualmente cada componente
+- Pérdida de tiempo y frustración
+
+✅ SOLUCIÓN:
+1. ANTES de aplicar cualquier clase de color, consultar esta sección
+2. Usar ÚNICAMENTE los colores documentados aquí
+3. Mantener consistencia visual en TODAS las páginas
+4. Verificar visualmente en modo oscuro SIEMPRE
+```
+
+#### 📐 PALETA DE COLORES OFICIAL (ÚNICA FUENTE DE VERDAD)
+
+**Esta es la paleta oficial extraída de `apps/web/src/app/debates/layout.tsx`**
+
+##### Fondos (Backgrounds)
+
+| Uso | Clase Tailwind | Hex | Cuándo usar |
+|-----|----------------|-----|-------------|
+| Fondo principal | `bg-[#0b141a]` | #0b141a | Body, contenedores principales |
+| Cards/Paneles principales | `bg-[#111b21]` | #111b21 | Cards grandes, paneles de contenido |
+| Cards secundarios | `bg-[#202c33]` | #202c33 | Headers, subsecciones, elementos elevados |
+| Inputs/Controles | `bg-[#2a3942]` | #2a3942 | Inputs, textareas, select, botones secundarios |
+| Hover púrpura oscuro | `bg-purple-900/10` | rgba purple | Estados hover en ejemplos |
+| Hover púrpura claro | `bg-purple-900/20` | rgba purple | Estados hover activos |
+
+##### Bordes (Borders)
+
+| Uso | Clase Tailwind | Hex | Cuándo usar |
+|-----|----------------|-----|-------------|
+| Bordes estándar | `border-[#2a3942]` | #2a3942 | TODOS los bordes de cards, inputs, divisores |
+| Bordes púrpura sutiles | `border-purple-500/20` | rgba purple | Elementos con acento púrpura (ejemplos) |
+| Bordes púrpura activos | `border-purple-500/40` | rgba purple | Estados hover de elementos púrpura |
+| Bordes púrpura intensos | `border-purple-500` | —  | Focus states, elementos activos |
+
+##### Texto (Text Colors)
+
+| Uso | Clase Tailwind | Hex | Cuándo usar |
+|-----|----------------|-----|-------------|
+| Texto primario | `text-white` | #ffffff | Títulos, texto importante, labels |
+| Texto secundario | `text-[#aebac1]` | #aebac1 | Descripciones, subtítulos, ayuda contextual |
+| Texto terciario | `text-[#8696a0]` | #8696a0 | Placeholders, texto de menor importancia |
+| Texto de acento | `text-purple-400` | — | Iconos, links, elementos interactivos |
+| Texto hover púrpura | `text-purple-300` | — | Estados hover de links/botones |
+| Texto en evaluación | `text-purple-200` | — | Mensajes especiales, estados de IA |
+
+##### Colores de Acento (Purple Theme)
+
+| Elemento | Clase Tailwind | Descripción |
+|----------|----------------|-------------|
+| Botón primario | `bg-purple-600 hover:bg-purple-700 text-white` | Botones de acción principal |
+| Botón secundario | `border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600` | Botones de opciones (Sí/No, opciones múltiples) |
+| Iconos destacados | `text-purple-400` | Iconos importantes, sparkles, indicadores |
+| Fondos de acento | `bg-purple-600` | Mensajes del usuario, elementos activos |
+| Focus ring | `focus-visible:ring-purple-500 focus-visible:border-purple-500` | Estados de focus en inputs |
+
+#### 🧩 REGLAS DE COMPONENTES POR TIPO
+
+##### Inputs (Input, Textarea)
+
+```typescript
+// ✅ CORRECTO - Template obligatorio para inputs
+<Input
+  className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+  placeholder="Escribe aquí..."
+/>
+
+// ❌ INCORRECTO - Colores por defecto
+<Input placeholder="Escribe aquí..." />
+// Resultado: Texto negro sobre fondo oscuro (ilegible)
+
+// ❌ INCORRECTO - Clases genéricas
+<Input className="dark:bg-gray-800 dark:text-white" />
+// Resultado: No coincide con el diseño oficial
+```
+
+##### Botones (Buttons)
+
+```typescript
+// ✅ CORRECTO - Botón primario (acción principal)
+<Button className="bg-purple-600 hover:bg-purple-700 text-white">
+  Comenzar Debate
+</Button>
+
+// ✅ CORRECTO - Botón secundario (opciones, alternativas)
+<Button
+  variant="outline"
+  className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+>
+  Sí / No / Opción
+</Button>
+
+// ❌ INCORRECTO - Sin clases explícitas
+<Button>Comenzar</Button>
+// Resultado: Botón blanco sobre fondo oscuro
+
+// ❌ INCORRECTO - Solo variant sin colores
+<Button variant="outline">Opción</Button>
+// Resultado: Bordes y colores incorrectos
+```
+
+##### Cards y Paneles
+
+```typescript
+// ✅ CORRECTO - Card principal
+<div className="rounded-lg border border-[#2a3942] bg-[#111b21] shadow-lg">
+  {/* Contenido */}
+</div>
+
+// ✅ CORRECTO - Header de card
+<div className="rounded-lg border border-[#2a3942] bg-[#202c33] p-4">
+  {/* Header content */}
+</div>
+
+// ✅ CORRECTO - Fondo de página
+<div className="h-full overflow-auto bg-[#0b141a]">
+  {/* Page content */}
+</div>
+
+// ❌ INCORRECTO - Clases genéricas
+<div className="bg-white dark:bg-gray-800">
+// Resultado: Colores que no coinciden con la app
+```
+
+##### Mensajes de Chat
+
+```typescript
+// ✅ CORRECTO - Mensaje del usuario
+<div className="max-w-[80%] rounded-lg px-4 py-3 bg-purple-600 text-white">
+  {userMessage}
+</div>
+
+// ✅ CORRECTO - Mensaje de la IA
+<div className="max-w-[80%] rounded-lg px-4 py-3 bg-[#202c33] text-white border border-[#2a3942]">
+  {aiMessage}
+</div>
+
+// ✅ CORRECTO - Mensaje de evaluación
+<div className="max-w-[80%] rounded-lg px-4 py-3 bg-purple-900/30 text-purple-200 border border-purple-500/30">
+  {evaluationMessage}
+</div>
+```
+
+##### Ejemplos Interactivos (Cards clicables)
+
+```typescript
+// ✅ CORRECTO - Card de ejemplo con tema púrpura
+<button className="group relative text-left p-4 rounded-lg border border-purple-500/20 bg-purple-900/10 hover:bg-purple-900/20 hover:border-purple-500/40 transition-all">
+  <div className="flex items-start gap-3">
+    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+      <Sparkles className="h-4 w-4 text-purple-400" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-medium text-white group-hover:text-purple-300 transition-colors">
+        {example.question}
+      </p>
+      <p className="text-xs text-[#aebac1] mt-1">
+        {example.description}
+      </p>
+    </div>
+  </div>
+</button>
+
+// ❌ INCORRECTO - Card genérico
+<button className="border rounded p-4">
+// Resultado: Bordes blancos, sin hover states, sin tema púrpura
+```
+
+##### File Upload / Drag & Drop
+
+```typescript
+// ✅ CORRECTO - Zona de drag & drop
+<div
+  className={cn(
+    "cursor-pointer rounded-lg border-2 border-dashed p-4 text-center transition-colors",
+    isDragging
+      ? "border-purple-500 bg-purple-900/20"
+      : "border-[#2a3942] hover:border-purple-500/50"
+  )}
+>
+  <Upload className="mx-auto mb-2 h-6 w-6 text-[#aebac1]" />
+  <p className="text-sm text-[#aebac1]">
+    Arrastra documentos aquí
+  </p>
+  <p className="text-xs text-[#8696a0] mt-1">
+    PDF, DOC, TXT (opcional)
+  </p>
+</div>
+```
+
+#### 🚨 ERRORES COMUNES Y CÓMO EVITARLOS
+
+##### Error 1: Usar clases genéricas de Tailwind
+
+```typescript
+// ❌ MAL - Clases genéricas
+className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700"
+
+// ✅ BIEN - Paleta oficial
+className="bg-[#111b21] text-white border-[#2a3942]"
+```
+
+**Por qué es un problema**: Las clases genéricas no coinciden con el diseño oficial y crean inconsistencia visual.
+
+##### Error 2: No especificar color de texto en inputs
+
+```typescript
+// ❌ MAL - Texto negro por defecto (ilegible en fondo oscuro)
+<Input className="bg-[#2a3942]" />
+
+// ✅ BIEN - Texto blanco explícito
+<Input className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0]" />
+```
+
+**Por qué es un problema**: El texto negro sobre fondo oscuro es ilegible.
+
+##### Error 3: Botones sin colores explícitos
+
+```typescript
+// ❌ MAL - Botón con fondo blanco por defecto
+<Button>Acción</Button>
+
+// ✅ BIEN - Colores explícitos
+<Button className="bg-purple-600 hover:bg-purple-700 text-white">Acción</Button>
+```
+
+**Por qué es un problema**: El botón blanco sobre fondo oscuro se ve mal y no sigue el tema púrpura.
+
+##### Error 4: No verificar visualmente en modo oscuro
+
+```typescript
+// ⚠️ SIEMPRE VERIFICAR:
+// 1. Que el texto sea visible (contraste suficiente)
+// 2. Que los bordes se vean (no se fundan con el fondo)
+// 3. Que los hover states funcionen correctamente
+// 4. Que coincida con otras páginas de Debates
+```
+
+#### ✅ CHECKLIST ANTES DE COMMIT (UI)
+
+Antes de hacer commit de cualquier cambio de UI, verificar:
+
+- [ ] **Colores de fondo**: ¿Todos usan la paleta oficial? (no `bg-white`, `dark:bg-gray-X`)
+- [ ] **Colores de texto**: ¿Todos los textos son `text-white`, `text-[#aebac1]` o `text-[#8696a0]`?
+- [ ] **Inputs**: ¿Tienen `text-white` explícito? ¿Placeholder es `text-[#8696a0]`?
+- [ ] **Botones**: ¿Primarios son `bg-purple-600`? ¿Secundarios son `bg-[#2a3942]`?
+- [ ] **Bordes**: ¿Todos usan `border-[#2a3942]` o variantes púrpura?
+- [ ] **Iconos**: ¿Los importantes son `text-purple-400`?
+- [ ] **Focus states**: ¿Tienen `focus-visible:ring-purple-500`?
+- [ ] **Hover states**: ¿Todos los elementos interactivos tienen hover definido?
+- [ ] **Verificación visual**: ¿Se ve bien en modo oscuro? ¿Todo es legible?
+- [ ] **Consistencia**: ¿Se ve como otras páginas de Debates?
+
+#### 📋 AÑADIR A CHECKPOINT PROTOCOL
+
+En la tabla de Checkpoints Obligatorios (sección 2 de CLAUDE.md), añadir:
+
+| 🎯 Acción que vas a hacer | 📖 Sección a consultar | 🔍 Qué verificar |
+|---------------------------|------------------------|------------------|
+| **Modificar cualquier UI** | [Regla #13: UX/Design](#13--uxdesign-paleta-de-colores-y-estilos-oficiales) | ⚠️ ¿Estoy usando la paleta oficial? ¿Los inputs tienen text-white? ¿Los botones son púrpura? |
+
+#### 🎯 FUENTE DE VERDAD
+
+**Archivo de referencia**: `apps/web/src/app/debates/layout.tsx`
+
+Si tienes dudas sobre un color específico, consultar este archivo que contiene el diseño oficial aprobado.
+
+#### 💡 MANTRA DEL EQUIPO
+
+"Si no está en la paleta oficial, no lo uses.
+Si el texto no es visible, está mal.
+Si los botones son blancos, está mal.
+Verificar SIEMPRE en modo oscuro."
 
 ---
 

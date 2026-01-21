@@ -224,7 +224,7 @@ export function DepartmentSelector({
                     <p className="font-medium leading-none">{dept.name}</p>
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">
-                    {dept.description || dept.departmentContext.substring(0, 80) + '...'}
+                    {dept.departmentContext.substring(0, 80) + '...'}
                   </p>
                   <div className="flex gap-2 pt-1">
                     <Badge variant="outline" className="text-xs">

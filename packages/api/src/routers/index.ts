@@ -35,3 +35,6 @@ export { billingRouter } from "./billing.js";
 // Corporate Intelligence
 export { companiesRouter } from "./companies.js";
 export { departmentsRouter } from "./departments.js";
+
+// User Backstory (Onboarding)
+export { userBackstoryRouter } from "./user-backstory.js";

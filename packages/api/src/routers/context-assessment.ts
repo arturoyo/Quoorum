@@ -156,16 +156,16 @@ async function detectDebateType(input: string): Promise<"business_decision" | "s
 }
 
 function getReadinessLevel(score: number): "insufficient" | "basic" | "good" | "excellent" {
-  if (score < 30) return "insufficient";
-  if (score < 50) return "basic";
-  if (score < 75) return "good";
+  if (score < 40) return "insufficient";
+  if (score < 60) return "basic";
+  if (score < 85) return "good"; // Subido de 75 a 85
   return "excellent";
 }
 
 function getRecommendedAction(score: number, criticalMissing: boolean): "proceed" | "clarify" | "refine" {
   if (criticalMissing) return "clarify";
-  if (score < 40) return "refine";
-  if (score < 60) return "clarify";
+  if (score < 60) return "refine"; // Subido de 40 a 60
+  if (score < 85) return "clarify"; // Subido de 60 a 85
   return "proceed";
 }
 
@@ -255,12 +255,13 @@ Debes responder SOLO con un JSON válido siguiendo exactamente este esquema:
   "summary": "resumen del contexto mencionando EXPLÍCITAMENTE qué información útil dio y qué falta"
 }
 
-Criterios de puntuación (sé GENEROSO con contexto rico):
-- 0-20: No se menciona nada sobre esta dimensión
-- 21-40: Se menciona brevemente pero falta detalle crítico
-- 41-60: Información parcial pero útil, podría ampliarse
-- 61-80: Información buena y suficiente para empezar, algunos detalles faltan
-- 81-100: Información completa, exhaustiva y detallada
+Criterios de puntuación (sé EXIGENTE, el objetivo es 85%+ para continuar):
+- 0-30: No se menciona nada o información muy vaga
+- 31-50: Se menciona brevemente pero falta detalle crítico y específico
+- 51-70: Información parcial útil, pero requiere más profundidad
+- 71-85: Información buena y detallada, podría mejorarse con algunos datos concretos
+- 86-95: Información muy completa con datos específicos y medibles
+- 96-100: Información exhaustiva, detallada, con datos cuantitativos y cualitativos
 
 REGLAS PARA ASSUMPTIONS (globos sonda inteligentes):
 - Genera 3-5 assumptions variando los tipos de pregunta
@@ -272,14 +273,17 @@ REGLAS PARA ASSUMPTIONS (globos sonda inteligentes):
   * free_text: "Asumo competidores locales" → ¿Quiénes son exactamente?
 
 REGLAS PARA QUESTIONS (varía el tipo inteligentemente):
-- Genera 3-5 preguntas máximo, priorizando las MÁS impactantes
-- NO preguntes lo obvio. Pregunta lo ESPECÍFICO.
+- SIEMPRE genera 3-5 preguntas (nunca menos de 3), priorizando las MÁS impactantes
+- Las preguntas deben mostrarse SIMULTÁNEAMENTE al usuario (no una por una)
+- Ordena por prioridad: critical > important > nice-to-have
+- NO preguntes lo obvio. Pregunta lo ESPECÍFICO y accionable
 - Elige el tipo que mejor capture la información:
   * yes_no para validaciones rápidas ("¿Tienes clientes actualmente?")
   * multiple_choice para rangos/categorías ("¿Cuántos clientes?" → ["0-10", "10-50", "50+"])
   * free_text para información única ("¿Cuál es tu propuesta de valor única?")
 - Si el usuario ya mencionó algo, PROFUNDIZA en ello, no lo repitas
 - Las preguntas con weight > 0.15 son "critical", el resto "important"
+- Cada pregunta debe atacar una dimensión diferente (no redundantes)
 
 Ejemplos BUENOS de variedad:
 ✅ ASSUMPTION yes_no: {"assumption": "Tienes equipo técnico interno", "questionType": "yes_no", "alternatives": []}
@@ -745,6 +749,245 @@ Responde SOLO con el JSON.`;
           summary: aiResult.summary,
           recommendedAction: getRecommendedAction(overallScore, false),
         };
+      }
+    }),
+
+  /**
+   * Auto-Research: Perform automatic research for debate context
+   */
+  autoResearch: protectedProcedure
+    .input(z.object({
+      question: z.string().min(10, "Question too short"),
+    }))
+    .mutation(async ({ input }) => {
+      const { performAutoResearch } = await import("../lib/auto-research.js");
+
+      try {
+        const result = await performAutoResearch(input.question);
+        return result;
+      } catch (error) {
+        console.error("[Auto-Research] Failed:", error);
+        return {
+          question: input.question,
+          researchResults: [],
+          suggestedContext: {},
+          executionTimeMs: 0,
+        };
+      }
+    }),
+
+  /**
+   * Find Similar Debates: Get similar debates that succeeded
+   */
+  findSimilarDebates: protectedProcedure
+    .input(z.object({
+      question: z.string().min(10),
+      limit: z.number().min(1).max(10).default(3),
+    }))
+    .query(async ({ input }) => {
+      const { findSimilarDebates } = await import("../lib/auto-research.js");
+
+      try {
+        const debates = await findSimilarDebates(input.question, input.limit);
+        return debates;
+      } catch (error) {
+        console.error("[Similar Debates] Failed:", error);
+        return [];
+      }
+    }),
+
+  /**
+   * Generate Coaching: Get AI coaching suggestions for missing dimensions
+   */
+  generateCoaching: protectedProcedure
+    .input(z.object({
+      question: z.string().min(10),
+      currentContext: z.record(z.unknown()),
+      missingDimensions: z.array(z.string()),
+    }))
+    .mutation(async ({ input }) => {
+      const { generateCoachingSuggestions } = await import("../lib/auto-research.js");
+
+      try {
+        const suggestions = await generateCoachingSuggestions(
+          input.question,
+          input.currentContext,
+          input.missingDimensions
+        );
+        return suggestions;
+      } catch (error) {
+        console.error("[Coaching] Failed:", error);
+        return [];
+      }
+    }),
+
+  /**
+   * Debate Preview: Generate preview of what experts will debate about
+   */
+  debatePreview: protectedProcedure
+    .input(z.object({
+      question: z.string().min(10),
+      context: z.record(z.unknown()),
+      dimensions: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+        score: z.number(),
+      })),
+    }))
+    .mutation(async ({ input }) => {
+      const { generateDebatePreview } = await import("../lib/debate-preview.js");
+
+      try {
+        const preview = await generateDebatePreview(
+          input.question,
+          input.context,
+          input.dimensions
+        );
+        return preview;
+      } catch (error) {
+        console.error("[Debate Preview] Failed:", error);
+        return {
+          hotPoints: [],
+          weakPoints: [],
+          estimatedRounds: 10,
+          consensusLikelihood: 50,
+          recommendedExperts: [],
+          contextStrength: { overall: 50, dimensions: {} },
+        };
+      }
+    }),
+
+  /**
+   * Quality Benchmark: Compare context quality against historical debates
+   */
+  qualityBenchmark: protectedProcedure
+    .input(z.object({
+      overallScore: z.number().min(0).max(100),
+      dimensions: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+        score: z.number(),
+      })),
+    }))
+    .mutation(async ({ input }) => {
+      const { benchmarkContextQuality } = await import("../lib/quality-benchmark.js");
+
+      try {
+        const benchmark = await benchmarkContextQuality(
+          input.overallScore,
+          input.dimensions
+        );
+        return benchmark;
+      } catch (error) {
+        console.error("[Quality Benchmark] Failed:", error);
+        return {
+          overall: {
+            percentile: 50,
+            tier: 'average' as const,
+            score: input.overallScore,
+            avgScore: 65,
+            topScore: 85,
+          },
+          dimensions: [],
+          recommendations: [],
+          estimatedSuccessRate: 50,
+          comparisonInsights: [],
+        };
+      }
+    }),
+
+  /**
+   * Context Snapshots: Save current context version
+   */
+  saveSnapshot: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1).max(100),
+      question: z.string(),
+      context: z.record(z.unknown()),
+      score: z.number(),
+      dimensions: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+        score: z.number(),
+      })),
+      tags: z.array(z.string()).default([]),
+    }))
+    .mutation(async ({ input }) => {
+      const { createSnapshot } = await import("../lib/context-snapshots.js");
+
+      try {
+        const snapshot = createSnapshot(
+          input.question,
+          input.context,
+          input.score,
+          input.dimensions,
+          input.name,
+          input.tags
+        );
+        return snapshot;
+      } catch (error) {
+        console.error("[Snapshot Save] Failed:", error);
+        throw new Error("Failed to save snapshot");
+      }
+    }),
+
+  /**
+   * List Snapshots: Get all saved snapshots
+   */
+  listSnapshots: protectedProcedure
+    .input(z.object({
+      questionFilter: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const { listSnapshots } = await import("../lib/context-snapshots.js");
+
+      try {
+        const snapshots = listSnapshots(input.questionFilter);
+        return snapshots;
+      } catch (error) {
+        console.error("[Snapshot List] Failed:", error);
+        return [];
+      }
+    }),
+
+  /**
+   * Restore Snapshot: Load a saved snapshot
+   */
+  restoreSnapshot: protectedProcedure
+    .input(z.object({
+      snapshotId: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const { getSnapshot } = await import("../lib/context-snapshots.js");
+
+      try {
+        const snapshot = getSnapshot(input.snapshotId);
+        if (!snapshot) {
+          throw new Error("Snapshot not found");
+        }
+        return snapshot;
+      } catch (error) {
+        console.error("[Snapshot Restore] Failed:", error);
+        throw new Error("Failed to restore snapshot");
+      }
+    }),
+
+  /**
+   * Delete Snapshot: Remove a saved snapshot
+   */
+  deleteSnapshot: protectedProcedure
+    .input(z.object({
+      snapshotId: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const { deleteSnapshot } = await import("../lib/context-snapshots.js");
+
+      try {
+        const success = deleteSnapshot(input.snapshotId);
+        return { success };
+      } catch (error) {
+        console.error("[Snapshot Delete] Failed:", error);
+        return { success: false };
       }
     }),
 });

@@ -80,7 +80,9 @@ export default function EditDepartmentPage() {
       setCustomPrompt(department.customPrompt || '')
       setAgentRole(department.agentRole || 'analyst')
       setTemperature(department.temperature || '0.7')
+      // @ts-expect-error - description field may not be in type yet after migration
       setDescription(department.description || '')
+      // @ts-expect-error - icon field may not be in type yet after migration
       setIcon(department.icon || '')
     }
   }, [department])

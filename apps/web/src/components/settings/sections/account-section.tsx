@@ -39,8 +39,10 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
   const [isSaving, setIsSaving] = useState(false)
 
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
+    phone: '',
     role: '',
   })
 
@@ -58,10 +60,19 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
       }
 
       setUser(user)
+
+      // Split full_name into first and last name if it exists
+      const fullName = user.user_metadata?.full_name || ''
+      const nameParts = fullName.split(' ')
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
+
       setFormData({
-        fullName: user.user_metadata?.full_name || '',
-        email: user.email || '',
-        role: user.user_metadata?.role || '',
+        firstName: (user.user_metadata?.first_name || firstName || ''),
+        lastName: (user.user_metadata?.last_name || lastName || ''),
+        email: (user.email || ''),
+        phone: (user.user_metadata?.phone || user.phone || ''),
+        role: (user.user_metadata?.role || ''),
       })
       setIsLoading(false)
     }
@@ -75,7 +86,10 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
     try {
       const { error } = await supabase.auth.updateUser({
         data: {
-          full_name: formData.fullName,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          full_name: `${formData.firstName} ${formData.lastName}`.trim(),
+          phone: formData.phone,
           role: formData.role,
         },
       })
@@ -121,15 +135,31 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
         <CardContent className="relative space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-blue-200">
-                Nombre completo
+              <Label htmlFor="firstName" className="text-blue-200">
+                Nombre
               </Label>
               <Input
-                id="fullName"
-                value={formData.fullName}
+                id="firstName"
+                value={formData.firstName || ''}
                 onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
+                  setFormData({ ...formData, firstName: e.target.value })
                 }
+                placeholder="Ej: Juan"
+                className="bg-slate-900/60 backdrop-blur-sm border-purple-500/30 text-white focus:border-blue-500/50 focus:ring-blue-500/20"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-blue-200">
+                Apellidos
+              </Label>
+              <Input
+                id="lastName"
+                value={formData.lastName || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, lastName: e.target.value })
+                }
+                placeholder="Ej: García López"
                 className="bg-slate-900/60 backdrop-blur-sm border-purple-500/30 text-white focus:border-blue-500/50 focus:ring-blue-500/20"
               />
             </div>
@@ -154,22 +184,40 @@ export function AccountSection({ isInModal = false }: AccountSectionProps) {
               </div>
               <Input
                 id="email"
-                value={formData.email}
+                type="email"
+                value={formData.email || ''}
                 disabled
                 className="bg-slate-900/40 backdrop-blur-sm border-purple-500/20 text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="phone" className="text-blue-200">
+                Teléfono
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                placeholder="Ej: +34 600 000 000"
+                className="bg-slate-900/60 backdrop-blur-sm border-purple-500/30 text-white focus:border-blue-500/50 focus:ring-blue-500/20"
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="role" className="text-blue-200">
                 Cargo
               </Label>
               <Input
                 id="role"
-                value={formData.role}
+                value={formData.role || ''}
                 onChange={(e) =>
                   setFormData({ ...formData, role: e.target.value })
                 }
+                placeholder="Ej: CEO, Director Comercial, Sales Manager..."
                 className="bg-slate-900/60 backdrop-blur-sm border-purple-500/30 text-white focus:border-blue-500/50 focus:ring-blue-500/20"
               />
             </div>

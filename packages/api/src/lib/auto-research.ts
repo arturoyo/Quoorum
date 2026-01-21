@@ -1,0 +1,570 @@
+/**
+ * Auto-Research System
+ * Automatically researches context for debates using Serper API
+ */
+
+import { SerperAPI } from '@quoorum/quoorum/integrations/serper'
+import { getAIClient } from '@quoorum/ai'
+import type { AIProvider } from '@quoorum/ai'
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export interface ResearchResult {
+  category: string
+  title: string
+  summary: string
+  sources: Array<{
+    title: string
+    url: string
+    snippet: string
+  }>
+  confidence: number
+}
+
+export interface AutoResearchOutput {
+  question: string
+  researchResults: ResearchResult[]
+  suggestedContext: Record<string, unknown>
+  executionTimeMs: number
+}
+
+// ============================================================================
+// RESEARCH QUERIES GENERATOR
+// ============================================================================
+
+async function generateResearchQueries(question: string): Promise<string[]> {
+  const prompt = `Given this debate question: "${question}"
+
+Generate 3-5 Google search queries that would help gather critical context.
+Focus on:
+- Market data and trends
+- Competitor information
+- Industry benchmarks
+- Success factors
+- Recent news/developments
+
+Return ONLY a JSON array of search queries, no additional text.
+
+Example output:
+["SaaS CRM market size 2024", "top CRM competitors pricing", "SaaS launch success factors"]`
+
+  try {
+    const aiClient = getAIClient()
+    const response = await aiClient.generate(prompt, {
+      modelId: 'gemini-2.0-flash-exp',
+      systemPrompt: 'You are a research query generator. Output ONLY valid JSON.',
+      temperature: 0.3,
+      maxTokens: 500,
+    })
+
+    const queries = JSON.parse(response.text) as string[]
+    return queries.slice(0, 5)
+  } catch (error) {
+    console.error('Failed to generate research queries:', error)
+    // Fallback queries based on question keywords
+    return [
+      `${question} market trends 2024`,
+      `${question} competitors analysis`,
+      `${question} best practices`,
+    ]
+  }
+}
+
+// ============================================================================
+// RESEARCH EXECUTOR
+// ============================================================================
+
+async function executeResearch(queries: string[]): Promise<Map<string, ResearchResult>> {
+  const results = new Map<string, ResearchResult>()
+
+  // Execute searches in parallel with rate limiting
+  const searchPromises = queries.map(async (query, index) => {
+    // Delay to respect rate limits (200ms between requests)
+    await new Promise((resolve) => setTimeout(resolve, index * 250))
+
+    const searchResults = await SerperAPI.searchWebCached(query, { num: 5 })
+
+    if (searchResults.length === 0) {
+      return null
+    }
+
+    // Synthesize results with AI
+    const synthesis = await synthesizeSearchResults(query, searchResults)
+
+    const result: ResearchResult = {
+      category: categorizeQuery(query),
+      title: query,
+      summary: synthesis.summary,
+      sources: searchResults.slice(0, 3).map((r) => ({
+        title: r.title,
+        url: r.link,
+        snippet: r.snippet,
+      })),
+      confidence: searchResults.length >= 3 ? 0.9 : 0.6,
+    }
+
+    return { query, result }
+  })
+
+  const completedSearches = await Promise.all(searchPromises)
+
+  completedSearches.forEach((item) => {
+    if (item) {
+      results.set(item.query, item.result)
+    }
+  })
+
+  return results
+}
+
+function categorizeQuery(query: string): string {
+  const lowerQuery = query.toLowerCase()
+
+  if (lowerQuery.includes('market') || lowerQuery.includes('size') || lowerQuery.includes('trend')) {
+    return 'Market Data'
+  }
+  if (lowerQuery.includes('competitor') || lowerQuery.includes('pricing')) {
+    return 'Competitive Intelligence'
+  }
+  if (lowerQuery.includes('best practice') || lowerQuery.includes('success factor')) {
+    return 'Best Practices'
+  }
+  if (lowerQuery.includes('news') || lowerQuery.includes('recent')) {
+    return 'Recent Developments'
+  }
+
+  return 'General Research'
+}
+
+// ============================================================================
+// SYNTHESIS WITH AI
+// ============================================================================
+
+interface SynthesisResult {
+  summary: string
+  keyPoints: string[]
+}
+
+async function synthesizeSearchResults(
+  query: string,
+  results: Array<{ title: string; snippet: string; link: string }>
+): Promise<SynthesisResult> {
+  const resultsText = results
+    .map((r, i) => `${i + 1}. ${r.title}\n   ${r.snippet}\n   Source: ${r.link}`)
+    .join('\n\n')
+
+  const prompt = `Query: "${query}"
+
+Search Results:
+${resultsText}
+
+Synthesize these search results into:
+1. A concise 2-3 sentence summary of key findings
+2. 3-5 bullet points with the most important data points
+
+Focus on quantitative data (numbers, percentages, dates) when available.
+
+Output as JSON:
+{
+  "summary": "...",
+  "keyPoints": ["...", "..."]
+}`
+
+  try {
+    const aiClient = getAIClient()
+    const response = await aiClient.generate(prompt, {
+      modelId: 'gemini-2.0-flash-exp',
+      systemPrompt: 'You are a research synthesizer. Extract key data and insights. Output ONLY valid JSON.',
+      temperature: 0.2,
+      maxTokens: 1000,
+    })
+
+    const parsed = JSON.parse(response.text) as SynthesisResult
+    return parsed
+  } catch (error) {
+    console.error('Failed to synthesize results:', error)
+    // Fallback to simple concatenation
+    return {
+      summary: results
+        .slice(0, 2)
+        .map((r) => r.snippet)
+        .join(' '),
+      keyPoints: results.slice(0, 3).map((r) => r.title),
+    }
+  }
+}
+
+// ============================================================================
+// CONTEXT PRE-FILL GENERATOR
+// ============================================================================
+
+async function generatePreFilledContext(
+  question: string,
+  researchResults: Map<string, ResearchResult>
+): Promise<Record<string, unknown>> {
+  const researchSummary = Array.from(researchResults.values())
+    .map((r) => `**${r.category}**: ${r.summary}`)
+    .join('\n\n')
+
+  const prompt = `Debate Question: "${question}"
+
+Research Findings:
+${researchSummary}
+
+Based on this research, generate a pre-filled context object for the debate.
+Extract concrete data points that would be useful for experts to debate.
+
+Output as JSON with this structure:
+{
+  "market": {
+    "size": "...",
+    "growth": "...",
+    "trends": ["..."]
+  },
+  "competitors": {
+    "main": ["..."],
+    "pricing": "..."
+  },
+  "benchmarks": {
+    "...": "..."
+  }
+}
+
+Only include fields where you have concrete data from research.`
+
+  try {
+    const aiClient = getAIClient()
+    const response = await aiClient.generate(prompt, {
+      modelId: 'gemini-2.0-flash-exp',
+      systemPrompt:
+        'You are a context generator. Extract structured data from research. Output ONLY valid JSON.',
+      temperature: 0.2,
+      maxTokens: 1500,
+    })
+
+    return JSON.parse(response.text) as Record<string, unknown>
+  } catch (error) {
+    console.error('Failed to generate pre-filled context:', error)
+    return {}
+  }
+}
+
+// ============================================================================
+// AI-ONLY RESEARCH (Fallback sin Serper)
+// ============================================================================
+
+async function generateAIOnlyResearch(question: string): Promise<ResearchResult[]> {
+  const aiClient = getAIClient()
+
+  const prompt = `Analiza esta pregunta de decisión de negocio: "${question}"
+
+Genera 4-5 áreas de investigación clave con insights relevantes basados en tu conocimiento.
+
+Para cada área, proporciona:
+1. Categoría (Market Data, Competitive Intelligence, Best Practices, etc.)
+2. Título descriptivo
+3. Resumen con insights concretos y datos relevantes
+4. 2-3 puntos clave accionables
+
+Output como JSON array:
+[
+  {
+    "category": "Market Data",
+    "title": "...",
+    "summary": "...",
+    "keyPoints": ["...", "..."],
+    "confidence": 0.75
+  }
+]
+
+IMPORTANTE: Proporciona información concreta, específica y útil para tomar la decisión.`
+
+  try {
+    const response = await aiClient.generate(prompt, {
+      modelId: 'gemini-2.0-flash-exp',
+      systemPrompt:
+        'You are a business research analyst. Provide concrete, actionable insights. Output ONLY valid JSON.',
+      temperature: 0.6,
+      maxTokens: 2500,
+    })
+
+    const aiResearch = JSON.parse(response.text) as Array<{
+      category: string
+      title: string
+      summary: string
+      keyPoints: string[]
+      confidence: number
+    }>
+
+    return aiResearch.map((item) => ({
+      category: item.category,
+      title: item.title,
+      summary: item.summary,
+      sources: [
+        {
+          title: 'Generado por IA',
+          url: '#',
+          snippet: item.keyPoints.join(' • '),
+        },
+      ],
+      confidence: item.confidence,
+    }))
+  } catch (error) {
+    console.error('[AI-Only Research] Failed:', error)
+    // Return basic template
+    return [
+      {
+        category: 'Market Context',
+        title: 'Contexto de mercado relevante',
+        summary:
+          'Considera el tamaño del mercado, tendencias actuales y factores macroeconómicos que podrían afectar esta decisión.',
+        sources: [
+          {
+            title: 'Sugerencia de IA',
+            url: '#',
+            snippet: 'Investiga tamaño de mercado, crecimiento proyectado y competidores principales',
+          },
+        ],
+        confidence: 0.6,
+      },
+      {
+        category: 'Competitive Intelligence',
+        title: 'Análisis competitivo',
+        summary:
+          'Evalúa qué están haciendo tus competidores principales en situaciones similares y qué puedes aprender de sus éxitos y fracasos.',
+        sources: [
+          {
+            title: 'Sugerencia de IA',
+            url: '#',
+            snippet: 'Identifica 3-5 competidores clave y analiza sus estrategias',
+          },
+        ],
+        confidence: 0.6,
+      },
+      {
+        category: 'Best Practices',
+        title: 'Mejores prácticas de la industria',
+        summary:
+          'Revisa casos de éxito en tu industria y frameworks probados para tomar este tipo de decisiones.',
+        sources: [
+          {
+            title: 'Sugerencia de IA',
+            url: '#',
+            snippet: 'Busca case studies y frameworks de referencia en tu vertical',
+          },
+        ],
+        confidence: 0.6,
+      },
+    ]
+  }
+}
+
+async function generateContextFromAIResearch(
+  question: string,
+  researchResults: ResearchResult[]
+): Promise<Record<string, unknown>> {
+  const aiClient = getAIClient()
+
+  const researchSummary = researchResults
+    .map((r) => `**${r.category}**: ${r.summary}`)
+    .join('\n\n')
+
+  const prompt = `Pregunta de debate: "${question}"
+
+Insights de investigación:
+${researchSummary}
+
+Genera un objeto de contexto estructurado con datos concretos para iniciar el debate.
+
+Output como JSON con estructura flexible adaptada a la pregunta:
+{
+  "contexto_clave": "...",
+  "datos_mercado": {...},
+  "consideraciones": [...],
+  "opciones_identificadas": [...],
+  "criterios_evaluacion": [...]
+}
+
+Solo incluye campos relevantes para esta decisión específica.`
+
+  try {
+    const response = await aiClient.generate(prompt, {
+      modelId: 'gemini-2.0-flash-exp',
+      systemPrompt:
+        'You are a context generator. Create structured, actionable context. Output ONLY valid JSON.',
+      temperature: 0.3,
+      maxTokens: 1500,
+    })
+
+    return JSON.parse(response.text) as Record<string, unknown>
+  } catch (error) {
+    console.error('[AI Context Generation] Failed:', error)
+    return {
+      contexto_clave: researchSummary,
+    }
+  }
+}
+
+// ============================================================================
+// MAIN AUTO-RESEARCH FUNCTION
+// ============================================================================
+
+export async function performAutoResearch(question: string): Promise<AutoResearchOutput> {
+  const startTime = Date.now()
+
+  try {
+    // Check if Serper API key is available
+    const hasSerperKey = !!process.env.SERPER_API_KEY
+
+    if (!hasSerperKey) {
+      console.log('[Auto-Research] No Serper API key found, using AI-only mode')
+      // Fallback to AI-only research (no external searches)
+      const aiResults = await generateAIOnlyResearch(question)
+      const executionTimeMs = Date.now() - startTime
+      return {
+        question,
+        researchResults: aiResults,
+        suggestedContext: await generateContextFromAIResearch(question, aiResults),
+        executionTimeMs,
+      }
+    }
+
+    // Step 1: Generate research queries
+    const queries = await generateResearchQueries(question)
+    console.log(`[Auto-Research] Generated ${queries.length} queries for: "${question}"`)
+
+    // Step 2: Execute research
+    const researchResults = await executeResearch(queries)
+    console.log(`[Auto-Research] Completed ${researchResults.size} searches`)
+
+    // If no results from Serper, fallback to AI-only
+    if (researchResults.size === 0) {
+      console.log('[Auto-Research] No Serper results, using AI-only mode')
+      const aiResults = await generateAIOnlyResearch(question)
+      const executionTimeMs = Date.now() - startTime
+      return {
+        question,
+        researchResults: aiResults,
+        suggestedContext: await generateContextFromAIResearch(question, aiResults),
+        executionTimeMs,
+      }
+    }
+
+    // Step 3: Generate pre-filled context
+    const suggestedContext = await generatePreFilledContext(question, researchResults)
+
+    const executionTimeMs = Date.now() - startTime
+
+    return {
+      question,
+      researchResults: Array.from(researchResults.values()),
+      suggestedContext,
+      executionTimeMs,
+    }
+  } catch (error) {
+    console.error('[Auto-Research] Failed:', error)
+    // Fallback to AI-only on any error
+    try {
+      const aiResults = await generateAIOnlyResearch(question)
+      return {
+        question,
+        researchResults: aiResults,
+        suggestedContext: await generateContextFromAIResearch(question, aiResults),
+        executionTimeMs: Date.now() - startTime,
+      }
+    } catch {
+      return {
+        question,
+        researchResults: [],
+        suggestedContext: {},
+        executionTimeMs: Date.now() - startTime,
+      }
+    }
+  }
+}
+
+// ============================================================================
+// SIMILAR DEBATES FINDER
+// ============================================================================
+
+export interface SimilarDebate {
+  id: string
+  question: string
+  contextQuality: number
+  successfulDimensions: string[]
+  expertCount: number
+  createdAt: Date
+}
+
+export async function findSimilarDebates(
+  question: string,
+  limit = 3
+): Promise<SimilarDebate[]> {
+  // TODO: Implement with vector search (Pinecone)
+  // For now, return empty array
+  // This will be implemented when we have debate history
+  return []
+}
+
+// ============================================================================
+// COACHING SUGGESTIONS
+// ============================================================================
+
+export interface CoachingSuggestion {
+  dimensionId: string
+  dimensionName: string
+  importance: 'critical' | 'important' | 'nice-to-have'
+  suggestion: string
+  example: string
+  percentageOfSuccessfulDebates: number
+}
+
+export async function generateCoachingSuggestions(
+  question: string,
+  currentContext: Record<string, unknown>,
+  missingDimensions: string[]
+): Promise<CoachingSuggestion[]> {
+  if (missingDimensions.length === 0) {
+    return []
+  }
+
+  const prompt = `Debate Question: "${question}"
+
+Current Context: ${JSON.stringify(currentContext, null, 2)}
+
+Missing Dimensions: ${missingDimensions.join(', ')}
+
+For each missing dimension, generate a coaching suggestion with:
+1. Why it's important for this debate
+2. A specific example of what to add
+3. How critical it is (critical/important/nice-to-have)
+
+Output as JSON array:
+[
+  {
+    "dimensionId": "...",
+    "dimensionName": "...",
+    "importance": "critical",
+    "suggestion": "...",
+    "example": "...",
+    "percentageOfSuccessfulDebates": 87
+  }
+]`
+
+  try {
+    const aiClient = getAIClient()
+    const response = await aiClient.generate(prompt, {
+      modelId: 'gemini-2.0-flash-exp',
+      systemPrompt: 'You are an AI debate coach. Provide actionable suggestions. Output ONLY valid JSON.',
+      temperature: 0.5,
+      maxTokens: 2000,
+    })
+
+    return JSON.parse(response.text) as CoachingSuggestion[]
+  } catch (error) {
+    console.error('Failed to generate coaching suggestions:', error)
+    return []
+  }
+}

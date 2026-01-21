@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2, Building2, Plus, Edit2, Trash2, Check, Sparkles } from 'lucide-react'
+import { Loader2, Building2, Plus, Edit2, Trash2, Check, Sparkles, ChevronDown } from 'lucide-react'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,6 +12,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 
 interface CompanySectionProps {
   isInModal?: boolean
@@ -20,6 +25,7 @@ interface CompanySectionProps {
 export function CompanySection({ isInModal = false }: CompanySectionProps) {
   const router = useRouter()
   const [isEditingCompany, setIsEditingCompany] = useState(false)
+  const [isCompanyOpen, setIsCompanyOpen] = useState(false) // Collapsible state - cerrado por defecto
   const [companyName, setCompanyName] = useState('')
   const [companyContext, setCompanyContext] = useState('')
   const [companyIndustry, setCompanyIndustry] = useState('')
@@ -102,6 +108,18 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
     }
   }
 
+  const handleCancelEdit = () => {
+    if (company) {
+      // Reset to original values
+      setCompanyName(company.name)
+      setCompanyContext(company.context)
+      setCompanyIndustry(company.industry || '')
+      setCompanySize(company.size || '')
+      setCompanyDescription(company.description || '')
+    }
+    setIsEditingCompany(false)
+  }
+
   const handleSeedDepartments = () => {
     if (!company) {
       toast.error('Primero configura tu empresa')
@@ -117,14 +135,26 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
     }
   }
 
-  // Auto-load company data when editing
-  if (company && !isEditingCompany && !companyName) {
-    setCompanyName(company.name)
-    setCompanyContext(company.context)
-    setCompanyIndustry(company.industry || '')
-    setCompanySize(company.size || '')
-    setCompanyDescription(company.description || '')
-  }
+  // Auto-expand if no company exists (first time setup)
+  useEffect(() => {
+    if (!loadingCompany && !company) {
+      // Si no hay empresa configurada, abrir para que el usuario la configure
+      setIsCompanyOpen(true)
+    }
+  }, [loadingCompany, company])
+
+  // Auto-load company data when component mounts, company changes, or editing mode changes
+  useEffect(() => {
+    if (company && isEditingCompany) {
+      setCompanyName(company.name)
+      setCompanyContext(company.context)
+      setCompanyIndustry(company.industry || '')
+      setCompanySize(company.size || '')
+      setCompanyDescription(company.description || '')
+      // Auto-expand when entering edit mode
+      setIsCompanyOpen(true)
+    }
+  }, [company, isEditingCompany])
 
   if (loadingCompany) {
     return (
@@ -147,27 +177,38 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
       )}
 
       {/* Company Configuration */}
-      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Building2 className="h-5 w-5" />
-                Configuración de Empresa
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                Capa 2: Contexto Maestro (misión, visión, valores)
-              </CardDescription>
+      <Collapsible open={isCompanyOpen} onOpenChange={setIsCompanyOpen}>
+        <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CollapsibleTrigger asChild>
+                <button className="flex flex-1 items-center gap-2 text-left">
+                  <ChevronDown
+                    className={`h-5 w-5 text-gray-400 transition-transform ${
+                      isCompanyOpen ? 'rotate-0' : '-rotate-90'
+                    }`}
+                  />
+                  <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-white">
+                      <Building2 className="h-5 w-5" />
+                      Configuración de Empresa
+                    </CardTitle>
+                    <CardDescription className="text-gray-400">
+                      Capa 2: Contexto Maestro (misión, visión, valores)
+                    </CardDescription>
+                  </div>
+                </button>
+              </CollapsibleTrigger>
+              {company && !isEditingCompany && (
+                <Button variant="outline" size="sm" onClick={() => setIsEditingCompany(true)} className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800">
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Editar
+                </Button>
+              )}
             </div>
-            {company && !isEditingCompany && (
-              <Button variant="outline" size="sm" onClick={() => setIsEditingCompany(true)} className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800">
-                <Edit2 className="mr-2 h-4 w-4" />
-                Editar
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent className="space-y-4">
           {company && !isEditingCompany ? (
             // Display mode
             <div className="space-y-4">
@@ -256,14 +297,28 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
                   onChange={(e) => setCompanyContext(e.target.value)}
                   className="resize-none border-white/10 bg-slate-800/50 text-white"
                 />
-                <p className="text-xs text-gray-400">
-                  Este contexto se inyectará en todos los debates para alinear las decisiones con la identidad de tu empresa
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-400">
+                    Este contexto se inyectará en todos los debates para alinear las decisiones con la identidad de tu empresa
+                  </p>
+                  <p className={`text-xs font-medium ${
+                    companyContext.length < 10
+                      ? 'text-red-400'
+                      : 'text-green-400'
+                  }`}>
+                    {companyContext.length} / 10 caracteres mínimos
+                  </p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button
                   onClick={handleSaveCompany}
-                  disabled={createCompanyMutation.isPending || updateCompanyMutation.isPending}
+                  disabled={
+                    createCompanyMutation.isPending ||
+                    updateCompanyMutation.isPending ||
+                    companyName.trim().length === 0 ||
+                    companyContext.trim().length < 10
+                  }
                   className="bg-purple-600 hover:bg-purple-700"
                 >
                   {(createCompanyMutation.isPending || updateCompanyMutation.isPending) && (
@@ -273,15 +328,17 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
                   Guardar
                 </Button>
                 {company && (
-                  <Button variant="outline" onClick={() => setIsEditingCompany(false)} className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800">
+                  <Button variant="outline" onClick={handleCancelEdit} className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800">
                     Cancelar
                   </Button>
                 )}
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       <Separator />
 
@@ -338,7 +395,7 @@ export function CompanySection({ isInModal = false }: CompanySectionProps) {
                           <div className={`h-2 w-2 rounded-full ${dept.isActive ? 'bg-green-500' : 'bg-gray-500'}`} title={dept.isActive ? 'Activo' : 'Inactivo'} />
                         </div>
                         <CardDescription className="line-clamp-2 text-gray-400">
-                          {dept.description || dept.departmentContext.substring(0, 100) + '...'}
+                          {dept.departmentContext.substring(0, 100) + '...'}
                         </CardDescription>
                       </div>
                     </div>

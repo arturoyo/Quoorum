@@ -165,7 +165,10 @@
       "Bash(npx drizzle-kit:*)",
       "Bash(git merge-base:*)",
       "Bash(xargs git log --oneline -1)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(Get-Content 'C:\\\\Quoorum\\\\packages\\\\db\\\\drizzle\\\\0026_add_companies_departments.sql')",
+      "Bash(Select-Object -First 20)",
+      "Bash(cmd /c \"pnpm dev 2>&1 | head -20\")"
     ]
   }
 }

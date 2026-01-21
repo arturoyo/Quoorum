@@ -18,11 +18,21 @@ import {
   FileText,
   X,
   Upload,
+  ChevronDown,
+  Lock,
 } from "lucide-react";
 import { cn } from '@/lib/utils'
 import { StrategySelector } from '@/components/quoorum/strategy-selector'
 import { ExpertSelector } from '@/components/quoorum/expert-selector'
 import { DepartmentSelector } from '@/components/quoorum/department-selector'
+import { ContextDimensionsPanel } from '@/components/quoorum/context-dimensions-panel'
+import { MultiQuestionForm } from '@/components/quoorum/multi-question-form'
+import { ResearchResults } from '@/components/quoorum/research-results'
+import { SmartTemplates } from '@/components/quoorum/smart-templates'
+import { AICoaching } from '@/components/quoorum/ai-coaching'
+import { DebatePreview } from '@/components/quoorum/debate-preview'
+import { QualityBenchmark } from '@/components/quoorum/quality-benchmark'
+import { ContextSnapshots } from '@/components/quoorum/context-snapshots'
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -92,7 +102,22 @@ export default function NewDebatePage() {
   const [selectedStrategy, setSelectedStrategy] = useState<string>('')
   const [selectedExpertIds, setSelectedExpertIds] = useState<string[]>([])
   const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>([])
+
+  // Auto-Research states (Fase 2)
+  const [autoResearchResults, setAutoResearchResults] = useState<any>(null)
+  const [similarDebates, setSimilarDebates] = useState<any[]>([])
+  const [coachingSuggestions, setCoachingSuggestions] = useState<any[]>([])
+  const [isResearching, setIsResearching] = useState(false)
+
+  // Fase 3 states
+  const [debatePreview, setDebatePreview] = useState<any>(null)
+  const [qualityBenchmark, setQualityBenchmark] = useState<any>(null)
+  const [snapshots, setSnapshots] = useState<any[]>([])
+  const [showSnapshots, setShowSnapshots] = useState(false)
   const [showStructuredFields, setShowStructuredFields] = useState(false)
+
+  // Analysis mode: 'quick' (1 question, fast) or 'deep' (3-5 questions, thorough)
+  const [analysisMode, setAnalysisMode] = useState<'quick' | 'deep'>('deep')
   
   // File attachments state
   interface AttachedFile {
@@ -351,15 +376,95 @@ export default function NewDebatePage() {
     return () => clearTimeout(timeoutId)
   }, [input, messages.length, contextState.debateId])
 
+  // Auto-Research mutation (Fase 2)
+  const autoResearchMutation = api.contextAssessment.autoResearch.useMutation({
+    onSuccess: (data) => {
+      console.log('[Auto-Research] Results:', data)
+      setAutoResearchResults(data)
+      setIsResearching(false)
+      toast.success(`Auto-research completado en ${(data.executionTimeMs / 1000).toFixed(1)}s`)
+    },
+    onError: (error) => {
+      console.error('[Auto-Research] Error:', error)
+      setIsResearching(false)
+      toast.error('Error en auto-research')
+    },
+  })
+
+  // Similar Debates query (Fase 2)
+  const similarDebatesQuery = api.contextAssessment.findSimilarDebates.useQuery(
+    { question: input, limit: 3 },
+    { enabled: false } // Manual trigger
+  )
+
+  // Coaching mutation (Fase 2)
+  const coachingMutation = api.contextAssessment.generateCoaching.useMutation({
+    onSuccess: (data) => {
+      console.log('[Coaching] Suggestions:', data)
+      setCoachingSuggestions(data)
+    },
+    onError: (error) => {
+      console.error('[Coaching] Error:', error)
+    },
+  })
+
+  // Debate Preview mutation (Fase 3)
+  const debatePreviewMutation = api.contextAssessment.debatePreview.useMutation({
+    onSuccess: (data) => {
+      console.log('[Debate Preview] Generated:', data)
+      setDebatePreview(data)
+    },
+    onError: (error) => {
+      console.error('[Debate Preview] Error:', error)
+    },
+  })
+
+  // Quality Benchmark mutation (Fase 3)
+  const qualityBenchmarkMutation = api.contextAssessment.qualityBenchmark.useMutation({
+    onSuccess: (data) => {
+      console.log('[Quality Benchmark] Results:', data)
+      setQualityBenchmark(data)
+    },
+    onError: (error) => {
+      console.error('[Quality Benchmark] Error:', error)
+    },
+  })
+
+  // Snapshots queries and mutations (Fase 3)
+  const snapshotsQuery = api.contextAssessment.listSnapshots.useQuery(
+    { questionFilter: input },
+    { enabled: showSnapshots }
+  )
+
+  const saveSnapshotMutation = api.contextAssessment.saveSnapshot.useMutation({
+    onSuccess: () => {
+      void snapshotsQuery.refetch()
+      toast.success('Snapshot guardado')
+    },
+    onError: () => {
+      toast.error('Error al guardar snapshot')
+    },
+  })
+
+  const deleteSnapshotMutation = api.contextAssessment.deleteSnapshot.useMutation({
+    onSuccess: () => {
+      void snapshotsQuery.refetch()
+      toast.success('Snapshot eliminado')
+    },
+    onError: () => {
+      toast.error('Error al eliminar snapshot')
+    },
+  })
+
   const analyzeMutation = api.contextAssessment.analyze.useMutation({
     onSuccess: (data) => {
       console.log('[DEBUG] analyzeMutation.onSuccess', data)
       setAssessment(data)
       setContextState((prev) => ({ ...prev, currentScore: data.overallScore }))
 
-      // Only show assumptions/questions if context score is insufficient (< 70%)
+      // Only show assumptions/questions if context score is insufficient (< 85%)
       // If score is high enough, skip to ready state directly
-      if (data.overallScore >= 70) {
+      if (data.overallScore >= 85) {
         // Context is sufficient, ready to start
         setContextState((prev) => ({ ...prev, readyToStart: true }))
         const newMsg: Message = {
@@ -439,14 +544,159 @@ export default function NewDebatePage() {
     },
   })
 
+  // Handler for multi-question form submission
+  const handleMultiQuestionSubmit = async (answers: Record<string, string | string[] | boolean>) => {
+    if (!assessment) return
+
+    setIsLoading(true)
+
+    // Convert answers to refinement answers format
+    const refinementAnswers = Object.entries(answers).map(([questionId, answer]) => {
+      const question = assessment.clarifyingQuestions.find(q => q.id === questionId)
+      return {
+        questionId,
+        answer: typeof answer === 'boolean' ? (answer ? 'Sí' : 'No') :
+                Array.isArray(answer) ? answer.join(', ') :
+                answer,
+        dimension: question?.dimension || 'general',
+      }
+    })
+
+    refineMutation.mutate({
+      debateId: contextState.debateId!,
+      answers: refinementAnswers,
+    })
+  }
+
+  // Fase 2 Handlers
+  const handleAcceptAutoResearch = () => {
+    if (!autoResearchResults?.suggestedContext) return
+
+    // Merge suggested context into current context
+    setContextState((prev) => ({
+      ...prev,
+      responses: {
+        ...prev.responses,
+        ...autoResearchResults.suggestedContext,
+      },
+    }))
+
+    toast.success('Contexto de auto-research añadido')
+    setAutoResearchResults(null)
+  }
+
+  const handleSkipAutoResearch = () => {
+    setAutoResearchResults(null)
+  }
+
+  const handleUseTemplate = (debateId: string) => {
+    // TODO: Load template context from debate ID
+    console.log('[Template] Using debate:', debateId)
+    toast.success('Template aplicado (pendiente implementación completa)')
+  }
+
+  const handleSkipTemplates = () => {
+    setSimilarDebates([])
+  }
+
+  const handleAddContextFromCoaching = (dimensionId: string, example: string) => {
+    // Add example to context
+    setContextState((prev) => ({
+      ...prev,
+      responses: {
+        ...prev.responses,
+        [dimensionId]: example,
+      },
+    }))
+
+    toast.success('Contexto añadido desde coaching')
+
+    // Remove this suggestion
+    setCoachingSuggestions((prev) => prev.filter((s) => s.dimensionId !== dimensionId))
+  }
+
+  const handleDismissCoaching = () => {
+    setCoachingSuggestions([])
+  }
+
+  // Fase 3 Handlers
+  const handleGeneratePreview = () => {
+    if (!assessment) return
+
+    debatePreviewMutation.mutate({
+      question: contextState.question,
+      context: contextState.responses,
+      dimensions: assessment.dimensions,
+    })
+  }
+
+  const handleGenerateBenchmark = () => {
+    if (!assessment) return
+
+    qualityBenchmarkMutation.mutate({
+      overallScore: assessment.overallScore,
+      dimensions: assessment.dimensions,
+    })
+  }
+
+  const handleSaveSnapshot = (name: string) => {
+    if (!assessment) return
+
+    saveSnapshotMutation.mutate({
+      name,
+      question: contextState.question,
+      context: contextState.responses,
+      score: assessment.overallScore,
+      dimensions: assessment.dimensions,
+      tags: [],
+    })
+  }
+
+  const handleRestoreSnapshot = async (snapshotId: string) => {
+    try {
+      const snapshot = await api.contextAssessment.restoreSnapshot.useQuery({ snapshotId })
+      if (snapshot.data) {
+        setContextState((prev) => ({
+          ...prev,
+          responses: snapshot.data.context,
+          currentScore: snapshot.data.score,
+        }))
+        setAssessment({
+          ...assessment,
+          overallScore: snapshot.data.score,
+          dimensions: snapshot.data.dimensions,
+        })
+        toast.success('Snapshot restaurado')
+      }
+    } catch (error) {
+      toast.error('Error al restaurar snapshot')
+    }
+  }
+
+  const handleDeleteSnapshot = (snapshotId: string) => {
+    deleteSnapshotMutation.mutate({ snapshotId })
+  }
+
+  const handleClosePreview = () => {
+    setDebatePreview(null)
+  }
+
+  const handleCloseBenchmark = () => {
+    setQualityBenchmark(null)
+  }
+
+  const handleCloseSnapshots = () => {
+    setShowSnapshots(false)
+  }
+
   const refineMutation = api.contextAssessment.refine.useMutation({
     onSuccess: (data) => {
       console.log('[DEBUG] refineMutation.onSuccess', data)
       setAssessment(data)
       setContextState((prev) => ({ ...prev, currentScore: data.overallScore }))
 
-      // If score is sufficient (>= 70%), mark as ready without showing more questions
-      if (data.overallScore >= 70) {
+      // If score is sufficient (>= 85%), mark as ready without showing more questions
+      if (data.overallScore >= 85) {
         setContextState((prev) => ({ ...prev, readyToStart: true }))
         const newMsg: Message = {
           id: `msg-${Date.now()}`,
@@ -588,11 +838,26 @@ export default function NewDebatePage() {
       setContextState((prev) => ({ ...prev, question: input }))
       setIsGeneratingQuestions(true)
 
+      // Fase 2: Trigger auto-research in parallel
+      setIsResearching(true)
+      void autoResearchMutation.mutateAsync({ question: input }).catch((err) => {
+        console.error('[Auto-Research] Failed:', err)
+        setIsResearching(false)
+      })
+
+      // Fase 2: Fetch similar debates
+      void similarDebatesQuery.refetch().then((result) => {
+        if (result.data) {
+          setSimilarDebates(result.data)
+        }
+      })
+
       // Generate dynamic contextual questions
       try {
         const questions = await generateQuestionsMutation.mutateAsync({
           question: input,
           context: fullContent !== input ? fullContent : undefined,
+          mode: analysisMode,
         })
 
         // Add IDs to questions
@@ -1111,6 +1376,7 @@ export default function NewDebatePage() {
   // Phase management
   type Phase = 'contexto' | 'expertos' | 'estrategia' | 'debate' | 'conclusion'
   const [currentPhase, setCurrentPhase] = useState<Phase>('contexto')
+  const [expandedPhase, setExpandedPhase] = useState<Phase>('contexto')
   
   // Auto-open ExpertSelector when entering expertos phase
   useEffect(() => {
@@ -1127,6 +1393,11 @@ export default function NewDebatePage() {
       // The component handles this internally via api.debateStrategy.analyzeStrategy
     }
   }, [currentPhase, selectedStrategy])
+
+  // Sync expandedPhase with currentPhase
+  useEffect(() => {
+    setExpandedPhase(currentPhase)
+  }, [currentPhase])
   
   // Determine phase display state
   const getPhaseState = (phase: Phase): 'active' | 'completed' | 'pending' => {
@@ -1136,6 +1407,50 @@ export default function NewDebatePage() {
     if (phase === 'estrategia' && (currentPhase === 'debate' || currentPhase === 'conclusion')) return 'completed'
     if (phase === 'debate' && currentPhase === 'conclusion') return 'completed'
     return 'pending'
+  }
+
+  // Calculate progress for each phase
+  const getPhaseProgress = (phase: Phase): number => {
+    switch (phase) {
+      case 'contexto':
+        return contextState.currentScore
+      case 'expertos':
+        return selectedExpertIds.length > 0 ? 100 : 0
+      case 'estrategia':
+        return selectedStrategy ? 100 : 0
+      case 'debate':
+        return 0 // Will be calculated during debate
+      case 'conclusion':
+        return 0 // Will be calculated at end
+      default:
+        return 0
+    }
+  }
+
+  // Calculate global progress across all phases
+  const getGlobalProgress = (): number => {
+    const phases: Phase[] = ['contexto', 'expertos', 'estrategia', 'debate', 'conclusion']
+    const completedPhases = phases.filter(p => getPhaseState(p) === 'completed').length
+    const activePhaseProgress = getPhaseProgress(currentPhase)
+    return Math.round((completedPhases * 20) + (activePhaseProgress * 0.2))
+  }
+
+  // Check if phase has minimum requirements to continue
+  const canContinueFromPhase = (phase: Phase): boolean => {
+    switch (phase) {
+      case 'contexto':
+        return contextState.readyToStart && contextState.currentScore >= 85
+      case 'expertos':
+        return selectedExpertIds.length > 0
+      case 'estrategia':
+        return !!selectedStrategy
+      case 'debate':
+        return false // Cannot continue from debate (auto-redirects)
+      case 'conclusion':
+        return false // Final phase
+      default:
+        return false
+    }
   }
   
   // Handle phase transitions
@@ -1359,64 +1674,87 @@ export default function NewDebatePage() {
 
   return (
     <div className="flex h-full flex-col relative bg-slate-950">
-      {/* Phase Indicator - 5 Phases */}
-      <div className="relative border-b border-white/10 bg-slate-900/40 backdrop-blur-xl px-4 py-3">
+      {/* Global Progress Bar */}
+      <div className="relative bg-[#111b21] border-b border-[#2a3942] px-4 py-3">
         <div className="container mx-auto max-w-6xl">
-          <div className="flex items-center justify-center gap-2 sm:gap-4">
-            {(['contexto', 'expertos', 'estrategia', 'debate', 'conclusion'] as Phase[]).map((phase, index) => {
-              const phaseState = getPhaseState(phase)
-              const phaseLabels: Record<Phase, string> = {
-                contexto: 'Contexto',
-                expertos: 'Expertos',
-                estrategia: 'Estrategia',
-                debate: 'Debate',
-                conclusion: 'Conclusión',
-              }
-              
-              return (
-                <div key={phase} className="flex items-center flex-1 max-w-[120px]">
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className={cn(
-                      "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all flex-shrink-0",
-                      phaseState === 'active'
-                        ? "bg-purple-600 border-purple-400 text-white"
-                        : phaseState === 'completed'
-                        ? "bg-purple-600/50 border-purple-600/50 text-purple-300"
-                        : "bg-slate-800/50 border-slate-600/50 text-slate-500"
-                    )}>
-                      <span className="text-xs font-bold">{index + 1}</span>
-                    </div>
-                    <span className={cn(
-                      "text-xs sm:text-sm font-medium transition-colors truncate",
-                      phaseState === 'active'
-                        ? "text-white"
-                        : phaseState === 'completed'
-                        ? "text-purple-300"
-                        : "text-slate-500"
-                    )}>
-                      {phaseLabels[phase]}
-                    </span>
-                  </div>
-                  {index < 4 && (
-                    <div className={cn(
-                      "flex-1 h-0.5 mx-2 transition-colors min-w-[20px]",
-                      phaseState === 'completed' || (phaseState === 'active' && currentPhase !== phase)
-                        ? "bg-purple-600/50"
-                        : "bg-slate-700/50"
-                    )} />
-                  )}
-                </div>
-              )
-            })}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-[#aebac1]">Progreso Total de Creación</span>
+            <span className="text-xs font-bold text-white">{getGlobalProgress()}%</span>
+          </div>
+          <div className="h-2 bg-[#2a3942] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-purple-600 to-blue-500 transition-all duration-500"
+              style={{ width: `${getGlobalProgress()}%` }}
+            />
           </div>
         </div>
       </div>
 
-      {/* Phase Content - Show only active phase, each phase occupies full screen/centered */}
-      
-      {/* PHASE 1: CONTEXTO */}
-      {currentPhase === 'contexto' && (
-        <div className="flex-1 flex items-start justify-center px-4 py-6 overflow-auto">
+      {/* Phase Content - Accordion Style */}
+      <div className="flex-1 overflow-auto">
+        <div className="container mx-auto max-w-6xl p-4 space-y-4">
+          {/* PHASE 1: CONTEXTO */}
+          <div className="border border-[#2a3942] rounded-lg bg-[#111b21] overflow-hidden">
+            {/* Phase Header - Clickable */}
+            <button
+              onClick={() => {
+                if (getPhaseState('contexto') !== 'pending') {
+                  setExpandedPhase(expandedPhase === 'contexto' ? currentPhase : 'contexto')
+                }
+              }}
+              disabled={getPhaseState('contexto') === 'pending'}
+              className={cn(
+                "w-full px-6 py-4 flex items-center justify-between transition-colors",
+                getPhaseState('contexto') === 'active' && "bg-[#202c33]",
+                getPhaseState('contexto') === 'completed' && "hover:bg-[#202c33]/50",
+                getPhaseState('contexto') === 'pending' && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all",
+                  getPhaseState('contexto') === 'active'
+                    ? "bg-purple-600 border-purple-400 text-white"
+                    : getPhaseState('contexto') === 'completed'
+                    ? "bg-purple-600/50 border-purple-600/50 text-purple-300"
+                    : "bg-slate-800/50 border-slate-600/50 text-slate-500"
+                )}>
+                  {getPhaseState('contexto') === 'completed' ? (
+                    <CheckCircle2 className="h-5 w-5" />
+                  ) : (
+                    <span className="text-sm font-bold">1</span>
+                  )}
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-semibold text-white">Contexto</h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex-1 h-1.5 bg-[#2a3942] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-purple-600 to-blue-500 transition-all duration-500"
+                        style={{ width: `${getPhaseProgress('contexto')}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-[#aebac1] min-w-[45px]">
+                      {getPhaseProgress('contexto')}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {getPhaseState('contexto') === 'pending' && (
+                  <Lock className="h-5 w-5 text-slate-500" />
+                )}
+                <ChevronDown className={cn(
+                  "h-5 w-5 text-[#aebac1] transition-transform",
+                  expandedPhase === 'contexto' && "rotate-180"
+                )} />
+              </div>
+            </button>
+
+            {/* Phase Content - Expandable */}
+            {expandedPhase === 'contexto' && (
+              <div className="border-t border-[#2a3942]">
+                <div className="flex-1 flex items-start justify-center px-4 py-6 overflow-auto">
           <div className="w-full max-w-4xl space-y-6">
             {/* Compact Header with Progress */}
             {contextState.currentScore > 0 && (
@@ -1442,7 +1780,7 @@ export default function NewDebatePage() {
                     <div className="relative h-10 w-10">
                       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 opacity-20 blur-sm" />
                       <div className="relative h-10 w-10 rounded-full border-4 border-white/10 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center">
-                        {contextState.currentScore >= 70 ? (
+                        {contextState.currentScore >= 85 ? (
                           <CheckCircle2 className="h-5 w-5 text-blue-400" />
                         ) : (
                           <span className="text-xs font-bold bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
@@ -1507,6 +1845,34 @@ export default function NewDebatePage() {
                     <p className="text-gray-400 text-sm sm:text-base">
                       Escribe tu pregunta o describe la situación que necesitas analizar
                     </p>
+
+                    {/* Analysis Mode Toggle */}
+                    <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-[#111b21] border border-[#2a3942]">
+                      <button
+                        onClick={() => setAnalysisMode('quick')}
+                        className={cn(
+                          "flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all",
+                          analysisMode === 'quick'
+                            ? "bg-purple-600 text-white"
+                            : "text-[#aebac1] hover:bg-[#2a3942]"
+                        )}
+                      >
+                        ⚡ Análisis Rápido
+                        <span className="block text-xs opacity-75 mt-0.5">1 pregunta · 5 seg</span>
+                      </button>
+                      <button
+                        onClick={() => setAnalysisMode('deep')}
+                        className={cn(
+                          "flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all",
+                          analysisMode === 'deep'
+                            ? "bg-purple-600 text-white"
+                            : "text-[#aebac1] hover:bg-[#2a3942]"
+                        )}
+                      >
+                        🔬 Análisis Profundo
+                        <span className="block text-xs opacity-75 mt-0.5">3-5 preguntas · detallado</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Input Section */}
@@ -1751,77 +2117,253 @@ export default function NewDebatePage() {
                 </div>
               </div>
             ) : (
-              /* Messages View - Context gathering */
-              <div className="space-y-4">
-                {/* Messages */}
-                <div className="space-y-4">
-                  {messages.map((msg, index) => {
-                    const isLastMessage = index === messages.length - 1
-                    const hasQuestionType = msg.questionType && msg.role === 'ai' && isLastMessage && !isLoading
+              /* Enhanced Context View - Multi-question system */
+              <div className="space-y-6">
+                {/* Fase 2: Auto-Research Loading Indicator */}
+                {isResearching && (
+                  <div className="rounded-lg border border-purple-500/30 bg-purple-900/20 p-4">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
+                      <div>
+                        <p className="text-sm font-medium text-white">
+                          🔍 Investigando automáticamente...
+                        </p>
+                        <p className="text-xs text-[#aebac1]">
+                          Buscando contexto relevante en Google, Crunchbase y otras fuentes
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-                    return (
-                      <div key={msg.id} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
-                        <div className={cn(
-                          'rounded-lg px-4 py-3 relative max-w-[80%]',
-                          msg.role === 'user'
-                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                            : 'bg-blue-700 text-white shadow-md'
-                        )}>
-                          {/* Badge for assumptions */}
-                          {msg.type === 'assumption' && (
-                            <div className="mb-2 flex items-center gap-2">
-                              <MessageSquare className="h-4 w-4 text-blue-200" />
-                              <span className="text-xs text-blue-200 font-medium">Suposición</span>
-                            </div>
-                          )}
+                {/* Fase 2: Auto-Research Results */}
+                {autoResearchResults && autoResearchResults.researchResults.length > 0 && (
+                  <ResearchResults
+                    results={autoResearchResults.researchResults}
+                    suggestedContext={autoResearchResults.suggestedContext}
+                    executionTimeMs={autoResearchResults.executionTimeMs}
+                    onAcceptAll={handleAcceptAutoResearch}
+                    onAcceptPartial={(ctx) => {
+                      // TODO: Allow partial acceptance
+                      handleAcceptAutoResearch()
+                    }}
+                    onSkip={handleSkipAutoResearch}
+                  />
+                )}
 
-                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                {/* Fase 2: Similar Debates Templates */}
+                {similarDebates.length > 0 && (
+                  <SmartTemplates
+                    similarDebates={similarDebates}
+                    onUseTemplate={handleUseTemplate}
+                    onSkip={handleSkipTemplates}
+                  />
+                )}
 
-                          {/* Dynamic buttons for yes/no questions */}
-                          {hasQuestionType && msg.questionType === 'yes_no' && (
-                            <div className="mt-4 flex gap-2">
-                              <Button
-                                onClick={() => void handleButtonResponse(true)}
-                                disabled={isLoading}
-                                className="flex-1 bg-green-600 hover:bg-green-500 text-white border-0"
-                              >
-                                Sí
-                              </Button>
-                              <Button
-                                onClick={() => void handleButtonResponse(false)}
-                                disabled={isLoading}
-                                className="flex-1 bg-red-600 hover:bg-red-500 text-white border-0"
-                              >
-                                No
-                              </Button>
-                            </div>
-                          )}
+                {/* Fase 2: AI Coaching Suggestions */}
+                {coachingSuggestions.length > 0 && (
+                  <AICoaching
+                    suggestions={coachingSuggestions}
+                    onAddContext={handleAddContextFromCoaching}
+                    onDismiss={handleDismissCoaching}
+                  />
+                )}
 
-                          {/* Dynamic buttons for multiple choice */}
-                          {hasQuestionType && msg.questionType === 'multiple_choice' && msg.options && (
-                            <div className="mt-4 flex flex-col gap-2">
-                              {msg.options.map((option, optIdx) => (
+                {/* Fase 3: Debate Preview */}
+                {debatePreview && (
+                  <DebatePreview
+                    hotPoints={debatePreview.hotPoints}
+                    weakPoints={debatePreview.weakPoints}
+                    estimatedRounds={debatePreview.estimatedRounds}
+                    consensusLikelihood={debatePreview.consensusLikelihood}
+                    onAddContext={(suggestion) => {
+                      // Add suggestion to context
+                      toast.success('Contexto añadido desde preview')
+                    }}
+                    onClose={handleClosePreview}
+                  />
+                )}
+
+                {/* Fase 3: Quality Benchmark */}
+                {qualityBenchmark && (
+                  <QualityBenchmark
+                    overall={qualityBenchmark.overall}
+                    dimensions={qualityBenchmark.dimensions}
+                    recommendations={qualityBenchmark.recommendations}
+                    estimatedSuccessRate={qualityBenchmark.estimatedSuccessRate}
+                    comparisonInsights={qualityBenchmark.comparisonInsights}
+                    onClose={handleCloseBenchmark}
+                  />
+                )}
+
+                {/* Fase 3: Context Snapshots */}
+                {showSnapshots && (
+                  <ContextSnapshots
+                    snapshots={snapshotsQuery.data || []}
+                    currentScore={contextState.currentScore}
+                    onSave={handleSaveSnapshot}
+                    onRestore={handleRestoreSnapshot}
+                    onDelete={handleDeleteSnapshot}
+                    onClose={handleCloseSnapshots}
+                  />
+                )}
+
+                {/* Context Dimensions Panel */}
+                {assessment && assessment.dimensions && (
+                  <ContextDimensionsPanel
+                    dimensions={assessment.dimensions}
+                    overallScore={assessment.overallScore}
+                  />
+                )}
+
+                {/* Fase 3: Action Buttons */}
+                {assessment && assessment.overallScore > 0 && (
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      onClick={handleGeneratePreview}
+                      variant="outline"
+                      size="sm"
+                      disabled={debatePreviewMutation.isLoading}
+                      className="border-purple-500/30 bg-purple-900/10 text-purple-300 hover:bg-purple-900/20"
+                    >
+                      🎭 Ver Preview del Debate
+                    </Button>
+                    <Button
+                      onClick={handleGenerateBenchmark}
+                      variant="outline"
+                      size="sm"
+                      disabled={qualityBenchmarkMutation.isLoading}
+                      className="border-blue-500/30 bg-blue-900/10 text-blue-300 hover:bg-blue-900/20"
+                    >
+                      📊 Ver Benchmarking
+                    </Button>
+                    <Button
+                      onClick={() => setShowSnapshots(!showSnapshots)}
+                      variant="outline"
+                      size="sm"
+                      className="border-green-500/30 bg-green-900/10 text-green-300 hover:bg-green-900/20"
+                    >
+                      💾 {showSnapshots ? 'Cerrar' : 'Abrir'} Snapshots
+                    </Button>
+                  </div>
+                )}
+
+                {/* Multi-Question Form - Show if we have 3+ questions */}
+                {assessment && assessment.clarifyingQuestions && assessment.clarifyingQuestions.length >= 3 && !contextState.readyToStart && (
+                  <MultiQuestionForm
+                    questions={assessment.clarifyingQuestions}
+                    onSubmit={handleMultiQuestionSubmit}
+                    isLoading={isLoading}
+                  />
+                )}
+
+                {/* Fallback: Conversational Messages (for edge cases with < 3 questions) */}
+                {messages.length > 0 && (!assessment || !assessment.clarifyingQuestions || assessment.clarifyingQuestions.length < 3) && (
+                  <div className="space-y-4">
+                    {messages.map((msg, index) => {
+                      const isLastMessage = index === messages.length - 1
+                      const hasQuestionType = msg.questionType && msg.role === 'ai' && isLastMessage && !isLoading
+
+                      return (
+                        <div key={msg.id} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                          <div className={cn(
+                            'rounded-lg px-4 py-3 relative max-w-[80%]',
+                            msg.role === 'user'
+                              ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
+                              : 'bg-blue-700 text-white shadow-md'
+                          )}>
+                            {msg.type === 'assumption' && (
+                              <div className="mb-2 flex items-center gap-2">
+                                <MessageSquare className="h-4 w-4 text-blue-200" />
+                                <span className="text-xs text-blue-200 font-medium">Suposición</span>
+                              </div>
+                            )}
+
+                            <p className="whitespace-pre-wrap">{msg.content}</p>
+
+                            {hasQuestionType && msg.questionType === 'yes_no' && (
+                              <div className="mt-4 flex gap-2">
                                 <Button
-                                  key={optIdx}
-                                  onClick={() => void handleButtonResponse(option)}
+                                  onClick={() => void handleButtonResponse(true)}
                                   disabled={isLoading}
-                                  className="w-full bg-purple-600 hover:bg-purple-500 text-white border-0 justify-start"
+                                  className="flex-1 bg-green-600 hover:bg-green-500 text-white border-0"
                                 >
-                                  {option}
+                                  Sí
                                 </Button>
-                              ))}
-                            </div>
-                          )}
+                                <Button
+                                  onClick={() => void handleButtonResponse(false)}
+                                  disabled={isLoading}
+                                  className="flex-1 bg-red-600 hover:bg-red-500 text-white border-0"
+                                >
+                                  No
+                                </Button>
+                              </div>
+                            )}
 
-                          {/* Timestamp */}
-                          <div className="mt-1 text-xs text-gray-300">
-                            {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                            {hasQuestionType && msg.questionType === 'multiple_choice' && msg.options && (
+                              <div className="mt-4 flex flex-col gap-2">
+                                {msg.options.map((option, optIdx) => (
+                                  <Button
+                                    key={optIdx}
+                                    onClick={() => void handleButtonResponse(option)}
+                                    disabled={isLoading}
+                                    className="w-full bg-purple-600 hover:bg-purple-500 text-white border-0 justify-start"
+                                  >
+                                    {option}
+                                  </Button>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="mt-1 text-xs text-gray-300">
+                              {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                            </div>
                           </div>
                         </div>
+                      )
+                    })}
+
+                    {/* Input for free text responses */}
+                    {!isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'ai' &&
+                     messages[messages.length - 1]?.questionType === 'free_text' && (
+                      <div className="border-t border-white/10 pt-4">
+                        <div className="flex gap-2 items-stretch">
+                          <Input
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                void handleTextResponse()
+                              }
+                            }}
+                            placeholder="Escribe tu respuesta..."
+                            disabled={isLoading}
+                            className="flex-1 border-2 bg-slate-900/60 backdrop-blur-sm text-white placeholder:text-gray-400 focus:ring-2 focus:ring-purple-500/20 border-purple-500/30 h-full"
+                            autoFocus
+                          />
+                          <Button
+                            onClick={() => void handleTextResponse()}
+                            disabled={isLoading || !input.trim()}
+                            className="bg-purple-600 hover:bg-purple-500 text-white border-0 h-full min-w-[60px] w-[60px] flex items-center justify-center"
+                          >
+                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </div>
-                    )
-                  })}
-                </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Loading State */}
+                {isLoading && (
+                  <div className="flex justify-center py-8">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
+                      <span className="text-sm text-[#aebac1]">Analizando contexto...</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Continue Button when ready */}
                 {contextState.readyToStart && (
@@ -1837,45 +2379,76 @@ export default function NewDebatePage() {
                     </Button>
                   </div>
                 )}
-
-                {/* Input for free text responses or when no buttons needed */}
-                {!isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'ai' &&
-                 messages[messages.length - 1]?.questionType === 'free_text' && (
-                  <div className="border-t border-white/10 pt-4">
-                    <div className="flex gap-2 items-stretch">
-                      <Input
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault()
-                            void handleTextResponse()
-                          }
-                        }}
-                        placeholder="Escribe tu respuesta..."
-                        disabled={isLoading}
-                        className="flex-1 border-2 bg-slate-900/60 backdrop-blur-sm text-white placeholder:text-gray-400 focus:ring-2 focus:ring-purple-500/20 border-purple-500/30 h-full"
-                        autoFocus
-                      />
-                      <Button
-                        onClick={() => void handleTextResponse()}
-                        disabled={isLoading || !input.trim()}
-                        className="bg-purple-600 hover:bg-purple-500 text-white border-0 h-full min-w-[60px] w-[60px] flex items-center justify-center"
-                      >
-                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
-        </div>
-      )}
+                </div>
+              </div>
+            )}
+          </div>
 
-      {/* PHASE 2: EXPERTOS */}
-      {currentPhase === 'expertos' && (
-        <div className="flex-1 flex items-center justify-center px-4 py-6 overflow-auto">
+          {/* PHASE 2: EXPERTOS */}
+          <div className="border border-[#2a3942] rounded-lg bg-[#111b21] overflow-hidden">
+            {/* Phase Header - Clickable */}
+            <button
+              onClick={() => {
+                if (getPhaseState('expertos') !== 'pending') {
+                  setExpandedPhase(expandedPhase === 'expertos' ? currentPhase : 'expertos')
+                }
+              }}
+              disabled={getPhaseState('expertos') === 'pending'}
+              className={cn(
+                "w-full px-6 py-4 flex items-center justify-between transition-colors",
+                getPhaseState('expertos') === 'active' && "bg-[#202c33]",
+                getPhaseState('expertos') === 'completed' && "hover:bg-[#202c33]/50",
+                getPhaseState('expertos') === 'pending' && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all",
+                  getPhaseState('expertos') === 'active'
+                    ? "bg-purple-600 border-purple-400 text-white"
+                    : getPhaseState('expertos') === 'completed'
+                    ? "bg-purple-600/50 border-purple-600/50 text-purple-300"
+                    : "bg-slate-800/50 border-slate-600/50 text-slate-500"
+                )}>
+                  {getPhaseState('expertos') === 'completed' ? (
+                    <CheckCircle2 className="h-5 w-5" />
+                  ) : (
+                    <span className="text-sm font-bold">2</span>
+                  )}
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-semibold text-white">Expertos</h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex-1 h-1.5 bg-[#2a3942] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-purple-600 to-blue-500 transition-all duration-500"
+                        style={{ width: `${getPhaseProgress('expertos')}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-[#aebac1] min-w-[45px]">
+                      {getPhaseProgress('expertos')}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {getPhaseState('expertos') === 'pending' && (
+                  <Lock className="h-5 w-5 text-slate-500" />
+                )}
+                <ChevronDown className={cn(
+                  "h-5 w-5 text-[#aebac1] transition-transform",
+                  expandedPhase === 'expertos' && "rotate-180"
+                )} />
+              </div>
+            </button>
+
+            {/* Phase Content - Expandable */}
+            {expandedPhase === 'expertos' && (
+              <div className="border-t border-[#2a3942]">
+                <div className="flex-1 flex items-center justify-center px-4 py-6 overflow-auto">
           <div className="w-full max-w-4xl space-y-6">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Selecciona los Expertos</h2>
@@ -1914,12 +2487,73 @@ export default function NewDebatePage() {
               </Button>
             </div>
           </div>
-        </div>
-      )}
+                </div>
+              </div>
+            )}
+          </div>
 
-      {/* PHASE 3: ESTRATEGIA */}
-      {currentPhase === 'estrategia' && (
-        <div className="flex-1 flex items-center justify-center px-4 py-6 overflow-auto">
+          {/* PHASE 3: ESTRATEGIA */}
+          <div className="border border-[#2a3942] rounded-lg bg-[#111b21] overflow-hidden">
+            {/* Phase Header - Clickable */}
+            <button
+              onClick={() => {
+                if (getPhaseState('estrategia') !== 'pending') {
+                  setExpandedPhase(expandedPhase === 'estrategia' ? currentPhase : 'estrategia')
+                }
+              }}
+              disabled={getPhaseState('estrategia') === 'pending'}
+              className={cn(
+                "w-full px-6 py-4 flex items-center justify-between transition-colors",
+                getPhaseState('estrategia') === 'active' && "bg-[#202c33]",
+                getPhaseState('estrategia') === 'completed' && "hover:bg-[#202c33]/50",
+                getPhaseState('estrategia') === 'pending' && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all",
+                  getPhaseState('estrategia') === 'active'
+                    ? "bg-purple-600 border-purple-400 text-white"
+                    : getPhaseState('estrategia') === 'completed'
+                    ? "bg-purple-600/50 border-purple-600/50 text-purple-300"
+                    : "bg-slate-800/50 border-slate-600/50 text-slate-500"
+                )}>
+                  {getPhaseState('estrategia') === 'completed' ? (
+                    <CheckCircle2 className="h-5 w-5" />
+                  ) : (
+                    <span className="text-sm font-bold">3</span>
+                  )}
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-semibold text-white">Estrategia</h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex-1 h-1.5 bg-[#2a3942] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-purple-600 to-blue-500 transition-all duration-500"
+                        style={{ width: `${getPhaseProgress('estrategia')}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-[#aebac1] min-w-[45px]">
+                      {getPhaseProgress('estrategia')}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {getPhaseState('estrategia') === 'pending' && (
+                  <Lock className="h-5 w-5 text-slate-500" />
+                )}
+                <ChevronDown className={cn(
+                  "h-5 w-5 text-[#aebac1] transition-transform",
+                  expandedPhase === 'estrategia' && "rotate-180"
+                )} />
+              </div>
+            </button>
+
+            {/* Phase Content - Expandable */}
+            {expandedPhase === 'estrategia' && (
+              <div className="border-t border-[#2a3942]">
+                <div className="flex-1 flex items-center justify-center px-4 py-6 overflow-auto">
           <div className="w-full max-w-4xl space-y-6">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Selecciona la Estrategia</h2>
@@ -1947,12 +2581,73 @@ export default function NewDebatePage() {
               </Button>
             </div>
           </div>
-        </div>
-      )}
+                </div>
+              </div>
+            )}
+          </div>
 
-      {/* PHASE 4: DEBATE - Keep existing view */}
-      {currentPhase === 'debate' && (
-        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* PHASE 4: DEBATE */}
+          <div className="border border-[#2a3942] rounded-lg bg-[#111b21] overflow-hidden">
+            {/* Phase Header - Clickable */}
+            <button
+              onClick={() => {
+                if (getPhaseState('debate') !== 'pending') {
+                  setExpandedPhase(expandedPhase === 'debate' ? currentPhase : 'debate')
+                }
+              }}
+              disabled={getPhaseState('debate') === 'pending'}
+              className={cn(
+                "w-full px-6 py-4 flex items-center justify-between transition-colors",
+                getPhaseState('debate') === 'active' && "bg-[#202c33]",
+                getPhaseState('debate') === 'completed' && "hover:bg-[#202c33]/50",
+                getPhaseState('debate') === 'pending' && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all",
+                  getPhaseState('debate') === 'active'
+                    ? "bg-purple-600 border-purple-400 text-white"
+                    : getPhaseState('debate') === 'completed'
+                    ? "bg-purple-600/50 border-purple-600/50 text-purple-300"
+                    : "bg-slate-800/50 border-slate-600/50 text-slate-500"
+                )}>
+                  {getPhaseState('debate') === 'completed' ? (
+                    <CheckCircle2 className="h-5 w-5" />
+                  ) : (
+                    <span className="text-sm font-bold">4</span>
+                  )}
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-semibold text-white">Debate</h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex-1 h-1.5 bg-[#2a3942] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-purple-600 to-blue-500 transition-all duration-500"
+                        style={{ width: `${getPhaseProgress('debate')}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-[#aebac1] min-w-[45px]">
+                      {getPhaseProgress('debate')}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {getPhaseState('debate') === 'pending' && (
+                  <Lock className="h-5 w-5 text-slate-500" />
+                )}
+                <ChevronDown className={cn(
+                  "h-5 w-5 text-[#aebac1] transition-transform",
+                  expandedPhase === 'debate' && "rotate-180"
+                )} />
+              </div>
+            </button>
+
+            {/* Phase Content - Expandable */}
+            {expandedPhase === 'debate' && (
+              <div className="border-t border-[#2a3942]">
+                <div className="flex-1 flex flex-col overflow-hidden">
           {/* Compact Header with Progress */}
           <div className="relative border-b border-white/10 bg-slate-900/60 backdrop-blur-xl px-4 py-3">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
@@ -2114,8 +2809,37 @@ export default function NewDebatePage() {
               </div>
             </div>
           </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* PHASE 5: CONCLUSION - Placeholder for future */}
+          <div className="border border-[#2a3942] rounded-lg bg-[#111b21] overflow-hidden opacity-50">
+            {/* Phase Header - Locked */}
+            <div className="w-full px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 bg-slate-800/50 border-slate-600/50 text-slate-500">
+                  <span className="text-sm font-bold">5</span>
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-semibold text-white">Conclusión</h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex-1 h-1.5 bg-[#2a3942] rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-purple-600 to-blue-500 transition-all duration-500" style={{ width: '0%' }} />
+                    </div>
+                    <span className="text-xs font-medium text-[#aebac1] min-w-[45px]">0%</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Lock className="h-5 w-5 text-slate-500" />
+                <ChevronDown className="h-5 w-5 text-[#aebac1]" />
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Meta-Prompt Approval Dialog */}
       <Dialog open={contextState.showApprovalDialog} onOpenChange={(open) => {

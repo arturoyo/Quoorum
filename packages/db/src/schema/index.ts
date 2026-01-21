@@ -37,6 +37,18 @@ export type { NewUser, User } from "./users";
 export { votes } from "./votes";
 export type { NewVote, Vote } from "./votes";
 
+// User Backstory (onboarding context)
+export {
+  userBackstory,
+  userBackstoryRelations,
+  roleEnum,
+  industryEnum,
+  companySizeEnum,
+  companyStageEnum,
+  decisionStyleEnum,
+} from "./user-backstory";
+export type { UserBackstory, NewUserBackstory, BackstoryFormData } from "./user-backstory";
+
 // Quoorum-specific schemas
 export * from "./quoorum";
 export * from "./quoorum-api";

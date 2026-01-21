@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { api } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -22,75 +23,131 @@ import {
   Loader2,
   User,
   Building,
-  Target,
-  Sparkles,
+  Briefcase,
+  TrendingUp,
+  Zap,
   CheckCircle,
+  Sparkles,
 } from "lucide-react";
 import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { motion, AnimatePresence } from "framer-motion";
 
 const STEPS = [
-  { id: 1, title: "Perfil", icon: User },
-  { id: 2, title: "Empresa", icon: Building },
-  { id: 3, title: "Objetivos", icon: Target },
+  { id: 1, title: "Tu Empresa", icon: Building },
+  { id: 2, title: "Tu Rol", icon: Briefcase },
+  { id: 3, title: "Tu Estilo", icon: Zap },
   { id: 4, title: "¡Listo!", icon: Sparkles },
 ];
 
-const OBJECTIVES = [
-  { id: "strategy", label: "Estrategia de negocio" },
-  { id: "decisions", label: "Toma de decisiones" },
-  { id: "negotiations", label: "Negociaciones" },
-  { id: "investments", label: "Análisis de inversiones" },
-  { id: "product", label: "Decisiones de producto" },
-  { id: "other", label: "Otro" },
-];
+const ROLES = [
+  { value: "founder", label: "Fundador/a", emoji: "🚀" },
+  { value: "ceo", label: "CEO", emoji: "👔" },
+  { value: "cto", label: "CTO", emoji: "💻" },
+  { value: "product_manager", label: "Product Manager", emoji: "📱" },
+  { value: "investor", label: "Inversor/a", emoji: "💰" },
+  { value: "consultant", label: "Consultor/a", emoji: "🎯" },
+  { value: "team_lead", label: "Team Lead", emoji: "👥" },
+  { value: "individual_contributor", label: "Individual Contributor", emoji: "⚡" },
+  { value: "other", label: "Otro", emoji: "🔧" },
+] as const;
+
+const INDUSTRIES = [
+  { value: "saas", label: "SaaS", emoji: "☁️" },
+  { value: "ecommerce", label: "E-commerce", emoji: "🛒" },
+  { value: "fintech", label: "Fintech", emoji: "💳" },
+  { value: "healthtech", label: "Healthtech", emoji: "🏥" },
+  { value: "edtech", label: "Edtech", emoji: "📚" },
+  { value: "marketplace", label: "Marketplace", emoji: "🏪" },
+  { value: "consumer", label: "Consumer", emoji: "🎨" },
+  { value: "enterprise", label: "Enterprise", emoji: "🏢" },
+  { value: "hardware", label: "Hardware", emoji: "🔌" },
+  { value: "services", label: "Services", emoji: "🤝" },
+  { value: "other", label: "Otro", emoji: "📦" },
+] as const;
+
+const COMPANY_SIZES = [
+  { value: "solo", label: "Solo (1 persona)", emoji: "👤" },
+  { value: "small_2_10", label: "Pequeña (2-10)", emoji: "👥" },
+  { value: "medium_11_50", label: "Mediana (11-50)", emoji: "👨‍👩‍👧‍👦" },
+  { value: "large_50_plus", label: "Grande (50+)", emoji: "🏢" },
+] as const;
+
+const COMPANY_STAGES = [
+  { value: "idea", label: "Idea", description: "Validando la idea" },
+  { value: "mvp", label: "MVP", description: "Construyendo el producto" },
+  { value: "early_revenue", label: "Early Revenue", description: "Primeros clientes" },
+  { value: "growth", label: "Growth", description: "Escalando ventas" },
+  { value: "scale", label: "Scale", description: "Optimizando operaciones" },
+  { value: "mature", label: "Mature", description: "Empresa establecida" },
+] as const;
+
+const DECISION_STYLES = [
+  {
+    value: "fast_intuitive",
+    label: "Rápido e Intuitivo",
+    description: "Prefiero decidir rápido basándome en mi intuición",
+    emoji: "⚡",
+  },
+  {
+    value: "balanced",
+    label: "Equilibrado",
+    description: "Combino análisis con intuición según la situación",
+    emoji: "⚖️",
+  },
+  {
+    value: "thorough_analytical",
+    label: "Analítico y Exhaustivo",
+    description: "Prefiero analizar todos los datos antes de decidir",
+    emoji: "🔬",
+  },
+] as const;
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    fullName: "",
-    role: "",
-    company: "",
-    companySize: "",
-    objective: "",
+    companyName: "",
+    role: "" as typeof ROLES[number]["value"] | "",
+    industry: "" as typeof INDUSTRIES[number]["value"] | "",
+    companySize: "" as typeof COMPANY_SIZES[number]["value"] | "",
+    companyStage: "" as typeof COMPANY_STAGES[number]["value"] | "",
+    decisionStyle: "" as typeof DECISION_STYLES[number]["value"] | "",
+    additionalContext: "",
   });
 
-  const supabase = createClient();
+  const upsertBackstory = api.userBackstory.upsert.useMutation({
+    onSuccess: () => {
+      toast.success("¡Perfil completado!");
+      router.push("/dashboard");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al guardar tu información");
+    },
+  });
+
+  // Check if already completed
+  const { data: backstoryCheck } = api.userBackstory.hasCompleted.useQuery();
 
   useEffect(() => {
-    async function checkUser() {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/login");
-        return;
-      }
-
-      // Pre-fill from user metadata
-      if (user.user_metadata?.full_name) {
-        setFormData((prev) => ({
-          ...prev,
-          fullName: user.user_metadata.full_name,
-        }));
-      }
+    if (backstoryCheck?.completed) {
+      router.push("/dashboard");
     }
-
-    checkUser();
-  }, [router, supabase.auth]);
+  }, [backstoryCheck, router]);
 
   const handleNext = () => {
-    if (currentStep === 1 && !formData.fullName) {
-      toast.error("Por favor, introduce tu nombre");
+    if (currentStep === 1) {
+      if (!formData.companyName || !formData.industry || !formData.companySize || !formData.companyStage) {
+        toast.error("Por favor, completa todos los campos obligatorios");
+        return;
+      }
+    }
+    if (currentStep === 2 && !formData.role) {
+      toast.error("Por favor, selecciona tu rol");
       return;
     }
-    if (currentStep === 2 && !formData.company) {
-      toast.error("Por favor, introduce el nombre de tu empresa");
-      return;
-    }
-    if (currentStep === 3 && !formData.objective) {
-      toast.error("Por favor, selecciona un objetivo");
+    if (currentStep === 3 && !formData.decisionStyle) {
+      toast.error("Por favor, selecciona tu estilo de decisión");
       return;
     }
 
@@ -106,46 +163,35 @@ export default function OnboardingPage() {
   };
 
   const handleComplete = async () => {
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          full_name: formData.fullName,
-          role: formData.role,
-          company: formData.company,
-          company_size: formData.companySize,
-          objective: formData.objective,
-          onboarding_completed: true,
-        },
-      });
-
-      if (error) {
-        toast.error("Error al guardar tu información");
-        return;
-      }
-
-      toast.success("¡Perfil completado!");
-      router.push("/dashboard");
-    } catch {
-      toast.error("Error al completar el onboarding");
-    } finally {
-      setIsLoading(false);
-    }
+    await upsertBackstory.mutateAsync({
+      companyName: formData.companyName,
+      role: formData.role || undefined,
+      industry: formData.industry || undefined,
+      companySize: formData.companySize || undefined,
+      companyStage: formData.companyStage || undefined,
+      decisionStyle: formData.decisionStyle || undefined,
+      additionalContext: formData.additionalContext || undefined,
+      preferences: {
+        defaultMode: "deep",
+        focusAreas: [],
+      },
+    });
   };
 
   const progress = (currentStep / STEPS.length) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2">
             <div className="relative w-10 h-10 rounded-xl flex items-center justify-center bg-purple-600">
               <QuoorumLogo size={40} showGradient={true} />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Quoorum</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+              Quoorum
+            </span>
           </div>
         </div>
 
@@ -160,202 +206,322 @@ export default function OnboardingPage() {
                 }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                     step.id < currentStep
                       ? "bg-purple-600"
                       : step.id === currentStep
-                      ? "bg-purple-500/30 border border-purple-500"
+                      ? "bg-purple-500/30 border-2 border-purple-500"
                       : "bg-white/5 border border-white/10"
                   }`}
                 >
                   {step.id < currentStep ? (
-                    <CheckCircle className="w-4 h-4 text-white" />
+                    <CheckCircle className="w-5 h-5 text-white" />
                   ) : (
-                    <step.icon className="w-4 h-4" />
+                    <step.icon className="w-5 h-5" />
                   )}
                 </div>
+                <span className="text-sm font-medium hidden sm:block">
+                  {step.title}
+                </span>
               </div>
             ))}
           </div>
-          <Progress value={progress} className="h-1" />
+          <Progress value={progress} className="h-2" />
         </div>
 
         {/* Card */}
         <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
-          {/* Step 1: Profile */}
-          {currentStep === 1 && (
-            <>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl text-white">
-                  ¡Bienvenido a Quoorum!
-                </CardTitle>
-                <CardDescription>
-                  Cuéntanos un poco sobre ti
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-gray-300">
-                    ¿Cómo te llamas?
-                  </Label>
-                  <Input
-                    id="fullName"
-                    placeholder="Tu nombre completo"
-                    value={formData.fullName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, fullName: e.target.value })
-                    }
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
+          <AnimatePresence mode="wait">
+            {/* Step 1: Company */}
+            {currentStep === 1 && (
+              <motion.div
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl text-white">
+                    Cuéntanos sobre tu empresa
+                  </CardTitle>
+                  <CardDescription>
+                    Esto nos ayuda a personalizar los debates para tu contexto
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Company Name */}
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName" className="text-gray-300">
+                      Nombre de tu empresa
+                    </Label>
+                    <Input
+                      id="companyName"
+                      placeholder="Ej: Acme Inc."
+                      value={formData.companyName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, companyName: e.target.value })
+                      }
+                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="role" className="text-gray-300">
-                    ¿Cuál es tu cargo? (opcional)
-                  </Label>
-                  <Input
-                    id="role"
-                    placeholder="Ej: CEO, Director, Manager..."
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
-                    }
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-              </CardContent>
-            </>
-          )}
+                  {/* Industry */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Industria</Label>
+                    <RadioGroup
+                      value={formData.industry}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, industry: value as typeof INDUSTRIES[number]["value"] })
+                      }
+                      className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                    >
+                      {INDUSTRIES.map((industry) => (
+                        <div key={industry.value}>
+                          <RadioGroupItem
+                            value={industry.value}
+                            id={industry.value}
+                            className="peer sr-only"
+                          />
+                          <Label
+                            htmlFor={industry.value}
+                            className="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-gray-300 hover:bg-white/10 transition-colors"
+                          >
+                            <span className="text-2xl mb-1">{industry.emoji}</span>
+                            <span className="text-xs">{industry.label}</span>
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
 
-          {/* Step 2: Company */}
-          {currentStep === 2 && (
-            <>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl text-white">
-                  Tu empresa
-                </CardTitle>
-                <CardDescription>
-                  Esto nos ayuda a personalizar las recomendaciones
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="company" className="text-gray-300">
-                    Nombre de tu empresa
-                  </Label>
-                  <Input
-                    id="company"
-                    placeholder="Nombre de la empresa"
-                    value={formData.company}
-                    onChange={(e) =>
-                      setFormData({ ...formData, company: e.target.value })
-                    }
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
+                  {/* Company Size */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Tamaño del equipo</Label>
+                    <RadioGroup
+                      value={formData.companySize}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, companySize: value as typeof COMPANY_SIZES[number]["value"] })
+                      }
+                      className="grid grid-cols-2 gap-3"
+                    >
+                      {COMPANY_SIZES.map((size) => (
+                        <div key={size.value}>
+                          <RadioGroupItem
+                            value={size.value}
+                            id={size.value}
+                            className="peer sr-only"
+                          />
+                          <Label
+                            htmlFor={size.value}
+                            className="flex items-center gap-2 p-3 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-gray-300 hover:bg-white/10 transition-colors"
+                          >
+                            <span className="text-xl">{size.emoji}</span>
+                            <span className="text-sm">{size.label}</span>
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-gray-300">
-                    Tamaño del equipo
-                  </Label>
+                  {/* Company Stage */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Etapa de la empresa</Label>
+                    <RadioGroup
+                      value={formData.companyStage}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, companyStage: value as typeof COMPANY_STAGES[number]["value"] })
+                      }
+                      className="space-y-2"
+                    >
+                      {COMPANY_STAGES.map((stage) => (
+                        <div key={stage.value}>
+                          <RadioGroupItem
+                            value={stage.value}
+                            id={stage.value}
+                            className="peer sr-only"
+                          />
+                          <Label
+                            htmlFor={stage.value}
+                            className="flex items-start gap-3 p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-gray-300 hover:bg-white/10 transition-colors"
+                          >
+                            <div className="flex-1">
+                              <div className="font-medium text-white">{stage.label}</div>
+                              <div className="text-xs text-gray-400 mt-1">{stage.description}</div>
+                            </div>
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+                </CardContent>
+              </motion.div>
+            )}
+
+            {/* Step 2: Role */}
+            {currentStep === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl text-white">
+                    ¿Cuál es tu rol?
+                  </CardTitle>
+                  <CardDescription>
+                    Esto nos ayuda a seleccionar los expertos más relevantes
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
                   <RadioGroup
-                    value={formData.companySize}
+                    value={formData.role}
                     onValueChange={(value) =>
-                      setFormData({ ...formData, companySize: value })
+                      setFormData({ ...formData, role: value as typeof ROLES[number]["value"] })
                     }
-                    className="grid grid-cols-2 gap-3"
+                    className="grid grid-cols-2 sm:grid-cols-3 gap-3"
                   >
-                    {[
-                      { value: "1-10", label: "1-10" },
-                      { value: "11-50", label: "11-50" },
-                      { value: "51-200", label: "51-200" },
-                      { value: "200+", label: "200+" },
-                    ].map((size) => (
-                      <div key={size.value}>
+                    {ROLES.map((role) => (
+                      <div key={role.value}>
                         <RadioGroupItem
-                          value={size.value}
-                          id={size.value}
+                          value={role.value}
+                          id={role.value}
                           className="peer sr-only"
                         />
                         <Label
-                          htmlFor={size.value}
-                          className="flex items-center justify-center p-3 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-gray-300"
+                          htmlFor={role.value}
+                          className="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-gray-300 hover:bg-white/10 transition-colors min-h-[100px]"
                         >
-                          {size.label}
+                          <span className="text-2xl mb-2">{role.emoji}</span>
+                          <span className="text-xs text-center">{role.label}</span>
                         </Label>
                       </div>
                     ))}
                   </RadioGroup>
-                </div>
-              </CardContent>
-            </>
-          )}
+                </CardContent>
+              </motion.div>
+            )}
 
-          {/* Step 3: Objectives */}
-          {currentStep === 3 && (
-            <>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl text-white">
-                  Tu objetivo principal
-                </CardTitle>
-                <CardDescription>
-                  ¿Para qué usarás Quoorum principalmente?
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup
-                  value={formData.objective}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, objective: value })
-                  }
-                  className="space-y-3"
-                >
-                  {OBJECTIVES.map((obj) => (
-                    <div key={obj.id}>
-                      <RadioGroupItem
-                        value={obj.id}
-                        id={obj.id}
-                        className="peer sr-only"
-                      />
-                      <Label
-                        htmlFor={obj.id}
-                        className="flex items-center p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-gray-300"
-                      >
-                        {obj.label}
-                      </Label>
+            {/* Step 3: Decision Style */}
+            {currentStep === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl text-white">
+                    ¿Cómo tomas decisiones?
+                  </CardTitle>
+                  <CardDescription>
+                    Adaptaremos el análisis a tu estilo preferido
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <RadioGroup
+                    value={formData.decisionStyle}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, decisionStyle: value as typeof DECISION_STYLES[number]["value"] })
+                    }
+                    className="space-y-3"
+                  >
+                    {DECISION_STYLES.map((style) => (
+                      <div key={style.value}>
+                        <RadioGroupItem
+                          value={style.value}
+                          id={style.value}
+                          className="peer sr-only"
+                        />
+                        <Label
+                          htmlFor={style.value}
+                          className="flex items-start gap-4 p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-gray-300 hover:bg-white/10 transition-colors"
+                        >
+                          <span className="text-3xl flex-shrink-0">{style.emoji}</span>
+                          <div className="flex-1">
+                            <div className="font-medium text-white text-base">{style.label}</div>
+                            <div className="text-sm text-gray-400 mt-1">{style.description}</div>
+                          </div>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+
+                  {/* Additional Context */}
+                  <div className="space-y-2 pt-4 border-t border-white/10">
+                    <Label htmlFor="additionalContext" className="text-gray-300">
+                      Contexto adicional (opcional)
+                    </Label>
+                    <Textarea
+                      id="additionalContext"
+                      placeholder="¿Hay algo más que quieras que sepamos? Ej: industrias específicas, tipos de decisiones que tomas frecuentemente..."
+                      value={formData.additionalContext}
+                      onChange={(e) =>
+                        setFormData({ ...formData, additionalContext: e.target.value })
+                      }
+                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 min-h-[100px]"
+                    />
+                  </div>
+                </CardContent>
+              </motion.div>
+            )}
+
+            {/* Step 4: Complete */}
+            {currentStep === 4 && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <CardHeader className="text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring" }}
+                    className="mx-auto w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mb-4"
+                  >
+                    <Sparkles className="w-10 h-10 text-purple-400" />
+                  </motion.div>
+                  <CardTitle className="text-3xl text-white">
+                    ¡Todo listo!
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Ya puedes empezar a usar Quoorum para tomar mejores decisiones
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-center space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <div className="text-2xl mb-2">🧠</div>
+                      <div className="text-sm text-gray-300">4 expertos IA</div>
                     </div>
-                  ))}
-                </RadioGroup>
-              </CardContent>
-            </>
-          )}
+                    <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <div className="text-2xl mb-2">⚡</div>
+                      <div className="text-sm text-gray-300">Análisis en 30s</div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <div className="text-2xl mb-2">🎯</div>
+                      <div className="text-sm text-gray-300">Personalizado</div>
+                    </div>
+                  </div>
 
-          {/* Step 4: Complete */}
-          {currentStep === 4 && (
-            <>
-              <CardHeader className="text-center">
-                <div className="mx-auto w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-4">
-                  <Sparkles className="w-8 h-8 text-purple-400" />
-                </div>
-                <CardTitle className="text-2xl text-white">
-                  ¡Todo listo!
-                </CardTitle>
-                <CardDescription>
-                  Ya puedes empezar a usar Quoorum para tomar mejores decisiones
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="space-y-4 mb-6">
-                  <div className="p-4 rounded-lg bg-white/5">
-                    <p className="text-gray-400 text-sm">Tu primer debate es gratis</p>
-                    <p className="text-white font-medium">
-                      Prueba Quoorum con una pregunta de estrategia
+                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                    <TrendingUp className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                    <p className="text-white font-medium mb-1">
+                      Tu primer debate es gratis
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                      Prueba Quoorum con cualquier decisión estratégica
                     </p>
                   </div>
-                </div>
-              </CardContent>
-            </>
-          )}
+                </CardContent>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Navigation */}
           <div className="flex items-center justify-between p-6 border-t border-white/10">
@@ -363,7 +529,7 @@ export default function OnboardingPage() {
               <Button
                 variant="ghost"
                 onClick={handleBack}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-white hover:bg-white/5"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Atrás
@@ -375,7 +541,7 @@ export default function OnboardingPage() {
             {currentStep < 4 ? (
               <Button
                 onClick={handleNext}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-purple-600 hover:bg-purple-700 ml-auto"
               >
                 Continuar
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -383,10 +549,10 @@ export default function OnboardingPage() {
             ) : (
               <Button
                 onClick={handleComplete}
-                disabled={isLoading}
+                disabled={upsertBackstory.isPending}
                 className="w-full bg-purple-600 hover:bg-purple-700"
               >
-                {isLoading ? (
+                {upsertBackstory.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Completando...

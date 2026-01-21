@@ -165,7 +165,7 @@ export function DepartmentsLibrarySection({ isInModal = false }: DepartmentsLibr
                       {dept.name}
                     </CardTitle>
                     <CardDescription className="line-clamp-3 text-gray-400">
-                      {dept.description || dept.departmentContext.substring(0, 100) + '...'}
+                      {dept.departmentContext.substring(0, 100) + '...'}
                     </CardDescription>
                   </div>
                 </div>
