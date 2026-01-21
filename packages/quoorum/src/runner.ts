@@ -14,6 +14,7 @@ import { selectTheme, assignDebateIdentities, type AssignedIdentity, type ThemeS
 import { determineAgentOrder, getActiveRuleDescription } from './router-engine'
 import { generateFinalSynthesis } from './final-synthesis'
 import { quoorumLogger } from './logger'
+import { buildFourLayerPrompt, extractDepartmentContext } from './prompt-builder'
 import type {
   DebateMessage,
   DebateRound,
@@ -40,12 +41,20 @@ export interface RunDebateOptions {
   userId: string // Required for credit deduction
   question: string
   context: LoadedContext
+  corporateContext?: {
+    companyContext?: string // Layer 2: Mission, vision, values
+    departmentContexts?: Array<{
+      departmentName: string
+      departmentContext: string // Layer 3: KPIs, processes, reports
+      customPrompt?: string // Layer 4: Personality/style customization
+    }>
+  }
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
 }
 
 export async function runDebate(options: RunDebateOptions): Promise<DebateResult> {
-  const { sessionId, userId, question, context, onRoundComplete, onMessageGenerated } = options
+  const { sessionId, userId, question, context, corporateContext, onRoundComplete, onMessageGenerated } = options
 
   const rounds: DebateRound[] = []
   let totalCost = 0
@@ -176,8 +185,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
         // Get assigned identity for this agent
         const identity = identityMap.get(agentKey)
 
-        // Build prompt with debate history
-        const prompt = buildAgentPrompt(agent, question, contextPrompt, rounds, roundMessages)
+        // Build prompt with debate history (4-layer system)
+        const prompt = buildAgentPrompt(agent, question, contextPrompt, rounds, roundMessages, corporateContext)
 
         // Generate response with identity
         const message = await generateAgentResponse({
@@ -322,7 +331,15 @@ export async function executeRound(
   roundNum: number,
   question: string,
   context: string,
-  previousRounds: DebateRound[]
+  previousRounds: DebateRound[],
+  corporateContext?: {
+    companyContext?: string
+    departmentContexts?: Array<{
+      departmentName: string
+      departmentContext: string
+      customPrompt?: string
+    }>
+  }
 ): Promise<DebateRound> {
   const roundMessages: DebateMessage[] = []
 
@@ -330,7 +347,7 @@ export async function executeRound(
     const agent = QUOORUM_AGENTS[agentKey]
     if (!agent) continue
 
-    const prompt = buildAgentPrompt(agent, question, context, previousRounds, roundMessages)
+    const prompt = buildAgentPrompt(agent, question, context, previousRounds, roundMessages, corporateContext)
 
     const message = await generateAgentResponse({
       sessionId,
@@ -387,6 +404,7 @@ export async function generateAgentResponse(
       round,
       agentKey: agent.key,
       agentName: identity?.displayNameUser ?? agent.name, // Use narrative name or fallback to technical name
+      narrativeId: identity?.characterId, // Character ID for UI (e.g., 'atenea', 'arturo')
       content,
       isCompressed: true,
       tokensUsed,
@@ -451,16 +469,35 @@ function buildAgentPrompt(
   _question: string, // Included in contextPrompt already
   contextPrompt: string,
   previousRounds: DebateRound[],
-  currentRoundMessages: DebateMessage[]
+  currentRoundMessages: DebateMessage[],
+  corporateContext?: {
+    companyContext?: string
+    departmentContexts?: Array<{
+      departmentName: string
+      departmentContext: string
+      customPrompt?: string
+    }>
+  }
 ): string {
   const parts: string[] = []
 
   // System prompt for ultra-optimization
   parts.push(ULTRA_OPTIMIZED_PROMPT)
 
-  // Agent role
-  parts.push(`\nTU ROL: ${agent.name} (${agent.role})`)
-  parts.push(agent.prompt)
+  // ============================================================================
+  // 4-LAYER PROMPT SYSTEM
+  // ============================================================================
+  // Extract department context for this agent
+  const deptContext = extractDepartmentContext(corporateContext?.departmentContexts)
+
+  // Build 4-layer prompt (Layer 1-4)
+  const fourLayerPrompt = buildFourLayerPrompt(agent, {
+    companyContext: corporateContext?.companyContext,
+    departmentContext: deptContext.departmentContext,
+    customPrompt: deptContext.customPrompt,
+  })
+
+  parts.push(fourLayerPrompt)
 
   // Context
   parts.push(`\n--- CONTEXTO ---\n${contextPrompt}`)

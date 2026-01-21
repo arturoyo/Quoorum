@@ -7,6 +7,8 @@
 
 import { pgTable, uuid, varchar, text, timestamp, jsonb, pgEnum, integer, boolean, real, type AnyPgColumn } from 'drizzle-orm/pg-core'
 import { profiles } from './profiles'
+import { companies } from './companies'
+import { departments } from './departments'
 import { relations } from 'drizzle-orm'
 
 // ============================================================
@@ -43,6 +45,10 @@ export const quoorumDebates = pgTable('quoorum_debates', {
   mode: debateModeEnum('mode').notNull().default('dynamic'),
   status: debateStatusEnum('status').notNull().default('pending'),
   visibility: debateVisibilityEnum('visibility').notNull().default('private'),
+
+  // Intelligence layers (4-layer prompt system)
+  companyId: uuid('company_id').references(() => companies.id, { onDelete: 'set null' }), // Layer 2: Master context
+  departmentId: uuid('department_id').references(() => departments.id, { onDelete: 'set null' }), // Layer 3-4: Department context + personality
 
   // Context
   context: jsonb('context').$type<{
@@ -333,6 +339,14 @@ export const quoorumDebatesRelations = relations(quoorumDebates, ({ one, many })
   user: one(profiles, {
     fields: [quoorumDebates.userId],
     references: [profiles.id],
+  }),
+  company: one(companies, {
+    fields: [quoorumDebates.companyId],
+    references: [companies.id],
+  }),
+  department: one(departments, {
+    fields: [quoorumDebates.departmentId],
+    references: [departments.id],
   }),
   comments: many(quoorumDebateComments),
   likes: many(quoorumDebateLikes),

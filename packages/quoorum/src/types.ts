@@ -48,6 +48,7 @@ export interface DebateMessage {
   round: number
   agentKey: string
   agentName: string
+  narrativeId?: string // Narrative character ID (e.g., 'atenea', 'arturo') - for UI anonymization
   content: string
   isCompressed: boolean
   tokensUsed: number
