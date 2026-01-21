@@ -1,11 +1,11 @@
 # 🗺️ QUOORUM ROADMAP
 
 > **Última actualización:** 21 Enero 2026
-> **Versión actual:** v1.5.0 (Smart Context System completo)
+> **Versión actual:** v1.6.0 (Decision-Making Frameworks Library completa)
 
 ---
 
-## ✅ COMPLETADO (v1.5.0 - Enero 2026)
+## ✅ COMPLETADO (v1.6.0 - Enero 2026)
 
 ### Smart Context System (Fases 1-3)
 - ✅ **Fase 1**: Multi-question form (3-5 preguntas simultáneas) + Umbral 85%
@@ -17,84 +17,46 @@
 - ✅ Toggle Análisis Rápido/Profundo (1 pregunta vs 3-5)
 - ✅ Badge "Consenso Científico" con tooltip explicativo
 
-**Total implementado hoy:** ~3,500 líneas de código
+### Decision-Making Frameworks Library (Semanas 1-6 - 21 Ene 2026)
+- ✅ **Week 1**: User Backstory System + Serper API Integration + UI Polish
+- ✅ **Week 2-3**: Pros and Cons Framework + Landing page SEO
+- ✅ **Week 4-5**: SWOT Analysis Framework + Landing page SEO
+- ✅ **Week 6**: Eisenhower Matrix Framework + Export PDF + Analytics
+
+**Frameworks Implementados:**
+1. ✅ Pros and Cons (2 agentes: Optimizer + Critic + Analyst + Synthesizer)
+2. ✅ SWOT Analysis (4 agentes: Strengths + Weaknesses + Opportunities + Threats + Strategist)
+3. ✅ Eisenhower Matrix (2 agentes: Classifier + Priority Strategist)
+
+**Total implementado:** ~6,000 líneas de código
+**SEO Coverage:** 199K búsquedas/mes
 **Estado:** Funcionando en producción
 
 ---
 
-## 🎯 EN DESARROLLO (Semana 1 - 21-27 Ene 2026)
+## 🎯 NEXT PRIORITIES (Febrero 2026)
 
-### 1. Backstory del Usuario (3 días) 📋
-**Inspirado en:** Rationale ("Backstory")
-**Prioridad:** ALTA
+### Optimization & Growth
+- [ ] A/B testing de landing pages
+- [ ] SEO optimization y link building
+- [ ] User feedback loops y feature requests
+- [ ] Performance optimization (Lighthouse score 90+)
 
-**Features:**
-- [ ] Onboarding flow (3-4 preguntas)
-- [ ] Capturar: empresa, rol, industria, estilo de decisión
-- [ ] Almacenar en perfil de usuario
-- [ ] Usar para personalizar preguntas y expertos
-- [ ] UI: Modal post-registro + settings page para editar
-
-**Impacto:** Alto - Personalización de debates
-**Esfuerzo:** 3 días
-**Archivos afectados:**
-- `packages/db/src/schema/users.ts` (añadir campos)
-- `apps/web/src/app/onboarding/page.tsx` (nuevo)
-- `packages/api/src/routers/users.ts` (endpoints)
-- `apps/web/src/components/onboarding/` (componentes)
+### Feature Enhancements
+- [ ] Framework results sharing (social media cards)
+- [ ] Save & revisit previous analyses
+- [ ] Compare multiple framework results
+- [ ] Templates library expansion
 
 ---
 
-### 2. Serper API Integration (1 día) 🔍
-**Estado actual:** Fallback a AI-only
-**Prioridad:** ALTA
+## 📅 ARCHIVED ITEMS
 
-**Features:**
-- [ ] Configurar SERPER_API_KEY en .env
-- [ ] Verificar integración existente en auto-research.ts
-- [ ] Testing con búsquedas reales
-- [ ] Comparar resultados AI-only vs Serper
-
-**Impacto:** Medio-Alto - Datos reales vs conocimiento de IA
-**Esfuerzo:** 1 día
-**Archivos afectados:**
-- `packages/api/src/lib/auto-research.ts` (ya implementado)
-- `.env.example` (documentar variable)
-
-**Nota:** El código ya existe, solo falta API key. Free tier: 100 búsquedas/mes
-
----
-
-### 3. UI Polish (1 día) 🎨
-**Prioridad:** MEDIA
-
-**Features:**
-- [ ] Mejorar loading states en Phase 2/3 components
-- [ ] Añadir empty states con ilustraciones
-- [ ] Mejorar responsive de todos los componentes nuevos
-- [ ] Añadir micro-interactions (hover, transitions)
-- [ ] Verificar dark mode consistency
-
-**Impacto:** Medio - UX más pulida
-**Esfuerzo:** 1 día
-**Archivos afectados:**
-- `apps/web/src/components/quoorum/research-results.tsx`
-- `apps/web/src/components/quoorum/debate-preview.tsx`
-- `apps/web/src/components/quoorum/quality-benchmark.tsx`
-- `apps/web/src/components/quoorum/context-snapshots.tsx`
-
----
-
-## 📅 ROADMAP (Por Prioridad)
-
-### PRIORIDAD ALTA (Semana 2-3)
-
-#### 4. ~~Flash Debate Mode~~ ❌ ELIMINADO
+#### ~~Flash Debate Mode~~ ❌ ELIMINADO
 **Por qué eliminado:**
 - ❌ **Contradice value proposition:** Quoorum = profundidad y calidad, no velocidad
 - ❌ **Si quieren velocidad:** Ya existe ChatGPT y perplexity.ai
 - ❌ **Quick Analysis ya existe:** Toggle 1 pregunta vs 3-5 (suficiente)
-- ❌ **Prioridad incorrecta:** Mejor pulir core experience que añadir modo rápido
 
 **Decisión:**
 - ✅ Mantener SOLO Quick Analysis (1 pregunta) vs Deep Analysis (3-5 preguntas)
@@ -102,7 +64,9 @@
 
 ---
 
-#### 5. Decision-Making Frameworks Library 🧠
+## 📚 FRAMEWORKS REFERENCE
+
+#### Decision-Making Frameworks Library 🧠
 **Inspirado en:** Untools.co + Análisis crítico de 36 frameworks
 
 **⚠️ REALITY CHECK APLICADO:**
