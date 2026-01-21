@@ -9,6 +9,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Quoorum Dark Theme (WhatsApp-inspired)
+        quoorum: {
+          bg: {
+            primary: '#0b141a',    // Fondo principal
+            secondary: '#111b21',  // Cards/Paneles
+            tertiary: '#202c33',   // Headers/Subsecciones
+            input: '#2a3942',      // Inputs/Controles
+          },
+          border: {
+            DEFAULT: '#2a3942',    // Bordes estándar
+            subtle: 'rgb(147 51 234 / 0.2)',  // purple-500/20
+            active: 'rgb(147 51 234 / 0.4)',  // purple-500/40
+          },
+          text: {
+            primary: '#ffffff',    // Texto principal
+            secondary: '#aebac1',  // Texto secundario
+            tertiary: '#8696a0',   // Placeholders
+          },
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

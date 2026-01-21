@@ -822,10 +822,96 @@ sin verificar primero la paleta oficial."
 
 ✅ SOLUCIÓN:
 1. ANTES de aplicar cualquier clase de color, consultar esta sección
-2. Usar ÚNICAMENTE los colores documentados aquí
+2. Usar ÚNICAMENTE los colores documentados aquí (o clases quoorum-* de Tailwind)
 3. Mantener consistencia visual en TODAS las páginas
 4. Verificar visualmente en modo oscuro SIEMPRE
 ```
+
+#### 🚀 SNIPPETS DE COPIAR-PEGAR (Usar SIEMPRE)
+
+**⚡ Forma RÁPIDA - Clases de Tailwind personalizadas:**
+```tsx
+// Configuración en tailwind.config.ts:
+// quoorum.bg.primary    = #0b141a (fondo principal)
+// quoorum.bg.secondary  = #111b21 (cards)
+// quoorum.bg.tertiary   = #202c33 (headers)
+// quoorum.bg.input      = #2a3942 (inputs/controles)
+// quoorum.border        = #2a3942 (todos los bordes)
+// quoorum.text.primary  = #ffffff (texto principal)
+// quoorum.text.secondary = #aebac1 (texto secundario)
+// quoorum.text.tertiary = #8696a0 (placeholders)
+
+// EJEMPLOS DE USO:
+<div className="bg-quoorum-bg-primary text-quoorum-text-primary">
+<Card className="bg-quoorum-bg-secondary border-quoorum-border">
+<Input className="bg-quoorum-bg-input border-quoorum-border text-quoorum-text-primary placeholder:text-quoorum-text-tertiary" />
+```
+
+**📋 Templates obligatorios por componente:**
+
+```tsx
+// ═══════════════════════════════════════════════════════════
+// INPUT / TEXTAREA - COPIAR SIEMPRE
+// ═══════════════════════════════════════════════════════════
+<Input
+  className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+/>
+
+<Textarea
+  className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500 min-h-[100px]"
+/>
+
+// ═══════════════════════════════════════════════════════════
+// BUTTON - COPIAR SIEMPRE
+// ═══════════════════════════════════════════════════════════
+// Primario (acción principal)
+<Button className="bg-purple-600 hover:bg-purple-700 text-white">
+  Acción Principal
+</Button>
+
+// Secundario (opciones, alternativas)
+<Button
+  variant="outline"
+  className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+>
+  Opción
+</Button>
+
+// ═══════════════════════════════════════════════════════════
+// CARD - COPIAR SIEMPRE
+// ═══════════════════════════════════════════════════════════
+<Card className="bg-[#111b21] border-[#2a3942]">
+  <CardHeader className="bg-[#202c33]">
+    <CardTitle className="text-white">Título</CardTitle>
+    <CardDescription className="text-[#aebac1]">Descripción</CardDescription>
+  </CardHeader>
+  <CardContent>
+    {/* Contenido */}
+  </CardContent>
+</Card>
+
+// ═══════════════════════════════════════════════════════════
+// LABEL - COPIAR SIEMPRE
+// ═══════════════════════════════════════════════════════════
+<Label className="text-[#aebac1]">Etiqueta del campo</Label>
+
+// ═══════════════════════════════════════════════════════════
+// RADIO GROUP ITEM - COPIAR SIEMPRE
+// ═══════════════════════════════════════════════════════════
+<RadioGroupItem value="option" id="option" className="peer sr-only" />
+<Label
+  htmlFor="option"
+  className="flex items-center p-3 rounded-lg border border-[#2a3942] bg-[#111b21] cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-white hover:bg-[#202c33] transition-colors"
+>
+  Opción
+</Label>
+```
+
+**✅ REGLA DE ORO:**
+- Si vas a crear un Input → Copia el snippet de Input
+- Si vas a crear un Button → Copia el snippet de Button
+- Si vas a crear un Card → Copia el snippet de Card
+- **NO INVENTES** clases genéricas, **USA LOS SNIPPETS**
 
 #### 📐 PALETA DE COLORES OFICIAL (ÚNICA FUENTE DE VERDAD)
 

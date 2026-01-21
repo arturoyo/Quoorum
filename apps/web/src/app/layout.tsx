@@ -28,8 +28,8 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-black antialiased">
+    <html lang="en" className="dark">
+      <body className="min-h-screen bg-[#0b141a] text-white antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>
