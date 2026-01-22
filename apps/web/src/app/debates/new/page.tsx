@@ -20,6 +20,10 @@ import {
   Upload,
   ChevronDown,
   Lock,
+  Settings,
+  Brain,
+  Target,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from '@/lib/utils'
 import { StrategySelector } from '@/components/quoorum/strategy-selector'
@@ -116,8 +120,28 @@ export default function NewDebatePage() {
   const [showSnapshots, setShowSnapshots] = useState(false)
   const [showStructuredFields, setShowStructuredFields] = useState(false)
 
+  // Memorable Summary - shown when context is ready
+  interface MemorableSummary {
+    headline: string
+    companyProfile: string
+    decisionContext: string
+    dataPoints: string[]
+    missingForExperts: string
+    readyMessage: string
+    score: number
+  }
+  const [memorableSummary, setMemorableSummary] = useState<MemorableSummary | null>(null)
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
+
   // Analysis mode: 'quick' (1 question, fast) or 'deep' (3-5 questions, thorough)
   const [analysisMode, setAnalysisMode] = useState<'quick' | 'deep'>('deep')
+
+  // ITERATIVE FLOW STATE
+  const [iterativeMode, setIterativeMode] = useState(true) // Use new iterative flow
+  const [iterationCount, setIterationCount] = useState(0)
+  const [lastQuestionAsked, setLastQuestionAsked] = useState<string | null>(null)
+  const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null)
+  const [detectedDomain, setDetectedDomain] = useState<string | null>(null)
   
   // File attachments state
   interface AttachedFile {
@@ -456,21 +480,222 @@ export default function NewDebatePage() {
     },
   })
 
+  // Memorable Summary mutation - generates rich summary when context is ready
+  const memorableSummaryMutation = api.contextAssessment.generateMemorableSummary.useMutation({
+    onSuccess: (data) => {
+      console.log('[DEBUG] memorableSummaryMutation.onSuccess', data)
+      setMemorableSummary(data)
+      setIsGeneratingSummary(false)
+    },
+    onError: (error) => {
+      console.error('[Memorable Summary] Failed:', error)
+      setIsGeneratingSummary(false)
+      // Don't show error toast - fall back to simple message
+    },
+  })
+
+  // Function to generate memorable summary when context is ready
+  const generateMemorableSummary = async (assessmentData: any) => {
+    if (!contextState.question || !assessmentData) return
+
+    setIsGeneratingSummary(true)
+    try {
+      memorableSummaryMutation.mutate({
+        question: contextState.question,
+        context: contextState.context || undefined,
+        dimensions: assessmentData.dimensions.map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          score: d.score,
+          status: d.status,
+        })),
+        responses: contextState.responses,
+        overallScore: assessmentData.overallScore,
+        summary: assessmentData.summary || '',
+      })
+    } catch (error) {
+      console.error('[Memorable Summary] Error calling mutation:', error)
+      setIsGeneratingSummary(false)
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ITERATIVE FLOW - Main handler using getNextAction
+  // ═══════════════════════════════════════════════════════════
+  const getNextActionMutation = api.contextAssessment.getNextAction.useMutation({
+    onSuccess: (data) => {
+      console.log('[ITERATIVE] getNextAction response:', data)
+
+      // Update score
+      setContextState((prev) => ({ ...prev, currentScore: data.score }))
+
+      // Show reflection if available
+      if (data.reflection) {
+        const reflectionMsg: Message = {
+          id: `msg-reflection-${Date.now()}`,
+          role: 'ai',
+          content: data.reflection,
+          type: 'info',
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, reflectionMsg])
+      }
+
+      // Handle different actions
+      switch (data.action) {
+        case 'ready':
+          // Context is sufficient! Generate memorable summary and proceed
+          setContextState((prev) => ({ ...prev, readyToStart: true }))
+          const readyMsg: Message = {
+            id: `msg-ready-${Date.now()}`,
+            role: 'ai',
+            content: data.message,
+            type: 'summary',
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, readyMsg])
+          // Generate memorable summary
+          if (assessment) {
+            void generateMemorableSummary(assessment)
+          }
+          break
+
+        case 'ask_question':
+          // Ask the next domain-specific question
+          const questionMsg: Message = {
+            id: `msg-question-${Date.now()}`,
+            role: 'ai',
+            content: data.message,
+            type: 'question',
+            questionType: 'free_text',
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, questionMsg])
+          setLastQuestionAsked(data.message)
+          setCurrentQuestionId(data.questionId || `q-${Date.now()}`)
+          setPendingQuestionId(data.questionId || `q-${Date.now()}`)
+          break
+
+        case 'request_depth':
+          // User gave a short answer, ask for more detail
+          const depthMsg: Message = {
+            id: `msg-depth-${Date.now()}`,
+            role: 'ai',
+            content: data.message,
+            type: 'question',
+            questionType: 'free_text',
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, depthMsg])
+          setLastQuestionAsked(data.followUpQuestion || data.message)
+          setPendingQuestionId(`depth-${Date.now()}`)
+          break
+
+        case 'challenge_inconsistency':
+          // Found an inconsistency, challenge the user
+          const challengeMsg: Message = {
+            id: `msg-challenge-${Date.now()}`,
+            role: 'ai',
+            content: data.message,
+            type: 'question',
+            questionType: 'free_text',
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, challengeMsg])
+          setLastQuestionAsked(data.message)
+          setPendingQuestionId(`challenge-${Date.now()}`)
+          break
+      }
+
+      setIterationCount(data.iterationCount + 1)
+      setIsLoading(false)
+    },
+    onError: (error) => {
+      console.error('[ITERATIVE] getNextAction error:', error)
+      toast.error(`Error: ${error.message}`)
+      setIsLoading(false)
+    },
+  })
+
+  // Handler for iterative flow - called after each user response
+  // NOTE: User message is already added by handleSendMessage, so we don't add it here
+  const handleIterativeResponse = async (userAnswer: string) => {
+    if (!contextState.question) return
+
+    // setIsLoading already set by handleSendMessage
+
+    // Store the response
+    const responseKey = currentQuestionId || `response-${iterationCount}`
+    setContextState((prev) => ({
+      ...prev,
+      responses: { ...prev.responses, [responseKey]: userAnswer },
+    }))
+
+    // Call getNextAction to determine what to do next
+    getNextActionMutation.mutate({
+      question: contextState.question,
+      currentResponses: { ...contextState.responses, [responseKey]: userAnswer },
+      previousAssessment: assessment,
+      lastAnswer: userAnswer,
+      lastQuestionAsked: lastQuestionAsked || undefined,
+      iterationCount,
+    })
+  }
+
+  // Start iterative flow after initial question
+  const startIterativeFlow = async (initialQuestion: string) => {
+    setIsLoading(true)
+    setContextState((prev) => ({ ...prev, question: initialQuestion }))
+
+    // Add user's initial question as message
+    const userMsg: Message = {
+      id: `msg-user-initial-${Date.now()}`,
+      role: 'user',
+      content: initialQuestion,
+      timestamp: new Date(),
+    }
+    setMessages((prev) => [...prev, userMsg])
+
+    // First, run analyze to get initial assessment and domain detection
+    analyzeMutation.mutate({
+      userInput: initialQuestion,
+    })
+  }
+
   const analyzeMutation = api.contextAssessment.analyze.useMutation({
     onSuccess: (data) => {
       console.log('[DEBUG] analyzeMutation.onSuccess', data)
       setAssessment(data)
       setContextState((prev) => ({ ...prev, currentScore: data.overallScore }))
 
-      // Only show assumptions/questions if context score is insufficient (< 85%)
-      // If score is high enough, skip to ready state directly
+      // Store detected domain for iterative flow
+      if (data.detectedDomain) {
+        setDetectedDomain(data.detectedDomain)
+      }
+
+      // Show reflection first if available (shows we understood)
+      if (data.reflection) {
+        const domainLabel = data.detectedDomain && data.detectedDomain !== 'general'
+          ? ` [${data.detectedDomain.replace('_', ' ')}]`
+          : '';
+        const reflectionMsg: Message = {
+          id: `msg-reflection-${Date.now()}`,
+          role: 'ai',
+          content: `${data.reflection}${domainLabel}`,
+          type: 'info',
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, reflectionMsg])
+      }
+
+      // If score is already high enough, we're ready
       if (data.overallScore >= 85) {
-        // Context is sufficient, ready to start
         setContextState((prev) => ({ ...prev, readyToStart: true }))
+        void generateMemorableSummary(data)
         const newMsg: Message = {
           id: `msg-${Date.now()}`,
           role: 'ai',
-          content: `¡Perfecto! Tengo suficiente contexto (${data.overallScore}% de calidad). ¿Quieres que empiece la deliberación con los expertos?`,
+          content: `¡Excelente! He captado tu situación.`,
           type: 'summary',
           timestamp: new Date(),
         }
@@ -479,7 +704,21 @@ export default function NewDebatePage() {
         return
       }
 
-      // Context insufficient - show assumptions/questions
+      // ═══════════════════════════════════════════════════════════
+      // USE ITERATIVE FLOW - Call getNextAction to get first question
+      // ═══════════════════════════════════════════════════════════
+      if (iterativeMode) {
+        console.log('[ITERATIVE] Starting iterative flow after initial analysis')
+        getNextActionMutation.mutate({
+          question: contextState.question,
+          currentResponses: contextState.responses,
+          previousAssessment: data,
+          iterationCount: 0,
+        })
+        return
+      }
+
+      // LEGACY: Context insufficient - show assumptions/questions (old flow)
       if (data.assumptions.length > 0) {
         const firstAssumption = data.assumptions[0]
         if (firstAssumption) {
@@ -525,10 +764,12 @@ export default function NewDebatePage() {
       } else {
         // No more questions, ready to start
         setContextState((prev) => ({ ...prev, readyToStart: true }))
+        // Generate memorable summary for rich display
+        void generateMemorableSummary(data)
         const newMsg: Message = {
           id: `msg-${Date.now()}`,
           role: 'ai',
-          content: `¡Perfecto! Tengo suficiente contexto (${data.overallScore}% de calidad). Puedes continuar a la selección de expertos o añadir más contexto si lo deseas.`,
+          content: `¡Excelente! He captado tu situación.`,
           type: 'summary',
           timestamp: new Date(),
         }
@@ -695,13 +936,27 @@ export default function NewDebatePage() {
       setAssessment(data)
       setContextState((prev) => ({ ...prev, currentScore: data.overallScore }))
 
+      // Show reflection after each refinement (shows we're building understanding)
+      if (data.reflection) {
+        const reflectionMsg: Message = {
+          id: `msg-reflection-${Date.now()}`,
+          role: 'ai',
+          content: data.reflection,
+          type: 'info',
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, reflectionMsg])
+      }
+
       // If score is sufficient (>= 85%), mark as ready without showing more questions
       if (data.overallScore >= 85) {
         setContextState((prev) => ({ ...prev, readyToStart: true }))
+        // Generate memorable summary for rich display
+        void generateMemorableSummary(data)
         const newMsg: Message = {
           id: `msg-${Date.now()}`,
           role: 'ai',
-          content: `¡Excelente! Tengo toda la información necesaria (${data.overallScore}% de calidad). Puedes iniciar la deliberación ahora, o si prefieres, añadir más contexto escribiendo abajo.`,
+          content: `¡Excelente! He captado tu situación.`,
           type: 'summary',
           timestamp: new Date(),
         }
@@ -762,10 +1017,12 @@ export default function NewDebatePage() {
         // All answered
         console.log('[DEBUG] All questions answered, ready to start')
         setContextState((prev) => ({ ...prev, readyToStart: true }))
+        // Generate memorable summary for rich display
+        void generateMemorableSummary(data)
         const newMsg: Message = {
           id: `msg-${Date.now()}`,
           role: 'ai',
-          content: `¡Excelente! Tengo toda la información necesaria (${data.overallScore}% de calidad). Puedes continuar a la selección de expertos o añadir más contexto si lo deseas.`,
+          content: `¡Excelente! He captado tu situación.`,
           type: 'summary',
           timestamp: new Date(),
         }
@@ -836,7 +1093,6 @@ export default function NewDebatePage() {
     // First message is the main question
     if (messages.length === 0) {
       setContextState((prev) => ({ ...prev, question: input }))
-      setIsGeneratingQuestions(true)
 
       // Fase 2: Trigger auto-research in parallel
       setIsResearching(true)
@@ -852,13 +1108,40 @@ export default function NewDebatePage() {
         }
       })
 
-      // Generate dynamic contextual questions
-      try {
-        const questions = await generateQuestionsMutation.mutateAsync({
-          question: input,
-          context: fullContent !== input ? fullContent : undefined,
-          mode: analysisMode,
+      // ═══════════════════════════════════════════════════════════
+      // ITERATIVE MODE: Use getNextAction flow for intelligent questioning
+      // ═══════════════════════════════════════════════════════════
+      if (iterativeMode) {
+        console.log('[ITERATIVE] First message - starting iterative flow')
+        setIterationCount(0)
+
+        // Only run analyze (domain detection + initial assessment)
+        // The iterative flow handles questions via getNextAction
+        analyzeMutation.mutate({
+          userInput: fullContent,
         })
+        // analyzeMutation.onSuccess will trigger getNextActionMutation
+        return
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // LEGACY MODE: Generate all questions upfront
+      // ═══════════════════════════════════════════════════════════
+      setIsGeneratingQuestions(true)
+
+      // Generate dynamic contextual questions AND get initial assessment in parallel
+      try {
+        // Run both in parallel for faster response
+        const [questions, initialAssessment] = await Promise.all([
+          generateQuestionsMutation.mutateAsync({
+            question: input,
+            context: fullContent !== input ? fullContent : undefined,
+            mode: analysisMode,
+          }),
+          analyzeMutation.mutateAsync({
+            userInput: fullContent,
+          }),
+        ])
 
         // Add IDs to questions
         const questionsWithIds = questions.map((q: any, index: number) => ({
@@ -870,7 +1153,31 @@ export default function NewDebatePage() {
         setCurrentQuestionIndex(0)
         setIsGeneratingQuestions(false)
 
-        // Show first question
+        // Set the initial assessment (this enables the progress bar!)
+        setAssessment(initialAssessment)
+        setContextState((prev) => ({
+          ...prev,
+          currentScore: initialAssessment.overallScore
+        }))
+
+        // If initial assessment shows high score, skip to ready state
+        if (initialAssessment.overallScore >= 85) {
+          setContextState((prev) => ({ ...prev, readyToStart: true }))
+          // Generate memorable summary for rich display
+          void generateMemorableSummary(initialAssessment)
+          const readyMsg: Message = {
+            id: `msg-${Date.now()}`,
+            role: 'ai',
+            content: `¡Excelente! He captado tu situación.`,
+            type: 'summary',
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, readyMsg])
+          setIsLoading(false)
+          return
+        }
+
+        // Show first question if score needs improvement
         if (questionsWithIds.length > 0) {
           const firstQuestion = questionsWithIds[0]
           const questionMsg: Message = {
@@ -883,16 +1190,33 @@ export default function NewDebatePage() {
             timestamp: new Date(),
           }
           setMessages((prev) => [...prev, questionMsg])
+          setPendingQuestionId(firstQuestion.id)
         }
 
         setIsLoading(false)
       } catch (error) {
+        console.error('[DEBUG] Error generating questions/assessment:', error)
         setIsGeneratingQuestions(false)
         setIsLoading(false)
         toast.error('Error al generar preguntas. Intenta de nuevo.')
       }
     } else if (pendingQuestionId) {
-      // Check if pending is an assumption or a question
+      // ═══════════════════════════════════════════════════════════
+      // ITERATIVE MODE: Use handleIterativeResponse for smart follow-up
+      // ═══════════════════════════════════════════════════════════
+      if (iterativeMode) {
+        console.log('[ITERATIVE] Responding to question:', pendingQuestionId)
+        setCurrentQuestionId(pendingQuestionId)
+        setPendingQuestionId(null)
+
+        // Use the iterative handler - it calls getNextAction with context
+        void handleIterativeResponse(input)
+        return
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // LEGACY MODE: Check if pending is an assumption or a question
+      // ═══════════════════════════════════════════════════════════
       const isAssumption = assessment?.assumptions.some((a: any) => a.id === pendingQuestionId)
 
       if (isAssumption) {
@@ -1108,8 +1432,8 @@ export default function NewDebatePage() {
     }
   }
 
-  const handleStartDeliberation = async () => {
-    console.log('[DEBUG] handleStartDeliberation called')
+  const handleStartDeliberation = async (skipOptimization = false) => {
+    console.log('[DEBUG] handleStartDeliberation called', { skipOptimization })
     console.log('[DEBUG] contextState:', contextState)
     console.log('[DEBUG] messages.length:', messages.length)
 
@@ -1121,7 +1445,59 @@ export default function NewDebatePage() {
       return
     }
 
-    console.log('[DEBUG] Validation passed, starting meta-prompt generation')
+    // Si skipOptimization es true, ir directo a crear debate (flujo rápido)
+    if (skipOptimization) {
+      console.log('[DEBUG] Quick flow: skipping optimization, creating debate directly')
+      setIsLoading(true)
+      
+      try {
+        // Build enriched context
+        const enrichedContext = Object.entries(contextState.responses)
+          .map(([id, value]) => {
+            const assumption = assessment?.assumptions.find((a: any) => a.id === id)
+            const question = assessment?.clarifyingQuestions.find((q: any) => q.id === id)
+            if (assumption) return `${assumption.assumption}: ${value ? 'Sí' : 'No'}`
+            if (question) return `${question.question}: ${value}`
+            return ''
+          })
+          .filter(Boolean)
+          .join('\n')
+
+        // Add structured fields to context
+        const structuredInfo: string[] = []
+        if (contextState.userRole) structuredInfo.push(`Rol: ${contextState.userRole}`)
+        if (contextState.teamSize) structuredInfo.push(`Equipo: ${contextState.teamSize}`)
+        if (contextState.budget) structuredInfo.push(`Presupuesto: ${contextState.budget}`)
+        if (contextState.deadline) structuredInfo.push(`Plazo: ${contextState.deadline}`)
+        if (contextState.successCriteria && contextState.successCriteria.length > 0) {
+          structuredInfo.push(`Criterios de éxito:\n- ${contextState.successCriteria.join('\n- ')}`)
+        }
+
+        const finalContext = [enrichedContext, ...structuredInfo].filter(Boolean).join('\n\n')
+
+        // Use defaults: sequential execution, simple pattern, auto-select experts
+        createDebateMutation.mutate({
+          draftId: contextState.debateId,
+          question: contextState.question, // Use original question (no optimization)
+          context: finalContext,
+          category: 'general',
+          expertCount: 6,
+          maxRounds: 5,
+          executionStrategy: 'sequential', // Default
+          pattern: undefined, // Let system auto-determine
+          selectedExpertIds: [], // Auto-select based on question
+          selectedDepartmentIds, // Pass selected corporate departments
+        })
+      } catch (error) {
+        console.error('[DEBUG] Error creating debate:', error)
+        toast.error(`Error al crear debate: ${String(error)}`)
+        setIsLoading(false)
+      }
+      return
+    }
+
+    // Flujo completo: generar meta-prompt optimizado
+    console.log('[DEBUG] Full flow: generating optimized meta-prompt')
     setIsLoading(true)
     setContextState((prev) => ({ ...prev, isGeneratingPrompt: true }))
 
@@ -1324,6 +1700,29 @@ export default function NewDebatePage() {
     }
     setMessages((prev) => [...prev, userMsg])
 
+    // Update score after each answer by calling refine with the new context
+    if (assessment) {
+      const answeredQuestions: Record<string, string> = {}
+      updatedQuestions.forEach((q) => {
+        if (q.answer !== undefined) {
+          answeredQuestions[q.id] = typeof q.answer === 'boolean'
+            ? (q.answer ? 'Sí' : 'No')
+            : q.answer
+        }
+      })
+
+      // Call refine to update the score
+      refineMutation.mutate({
+        originalInput: contextState.question,
+        answers: {
+          assumptionResponses: {},
+          questionResponses: answeredQuestions,
+          additionalContext: '',
+        },
+        previousAssessment: assessment,
+      })
+    }
+
     // Move to next question or finish
     if (currentQuestionIndex < contextualQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
@@ -1343,16 +1742,14 @@ export default function NewDebatePage() {
             timestamp: new Date(),
           }
           setMessages((prev) => [...prev, questionMsg])
+          setPendingQuestionId(nextQuestion.id)
         }
         setIsLoading(false)
       }, 800)
     } else {
-      // All questions answered, move to experts phase
-      setContextState(prev => ({ ...prev, readyToStart: true }))
-      setCurrentPhase('expertos')
-      setIsLoading(false)
-
-      toast.success('¡Contexto completado! Ahora selecciona los expertos.')
+      // All questions answered - the refineMutation.onSuccess will handle setting readyToStart
+      // based on the score, so we just wait for it
+      setIsLoading(true) // Keep loading until refine completes
     }
   }
 
@@ -1531,30 +1928,44 @@ export default function NewDebatePage() {
           reader.readAsText(file, 'UTF-8')
         } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
           // Extract PDF text using pdfjs-dist
-          const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js')
+          try {
+            const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
 
-          // Configure worker
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
-
-          const arrayBuffer = await file.arrayBuffer()
-          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer })
-          const pdf = await loadingTask.promise
-
-          const textParts: string[] = []
-
-          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const page = await pdf.getPage(pageNum)
-            const textContent = await page.getTextContent()
-            const pageText = textContent.items
-              .map((item: any) => item.str)
-              .join(' ')
-
-            if (pageText.trim()) {
-              textParts.push(`\n--- Página ${pageNum} ---\n${pageText}`)
+            // Configure worker (check if GlobalWorkerOptions exists)
+            if (pdfjsLib.GlobalWorkerOptions) {
+              pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
             }
-          }
 
-          resolve(textParts.join('\n\n'))
+            const arrayBuffer = await file.arrayBuffer()
+            const loadingTask = pdfjsLib.getDocument({
+              data: arrayBuffer,
+              // Disable worker if there are issues
+              useWorkerFetch: false,
+              isEvalSupported: false,
+              useSystemFonts: true,
+            })
+            const pdf = await loadingTask.promise
+
+            const textParts: string[] = []
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+              const page = await pdf.getPage(pageNum)
+              const textContent = await page.getTextContent()
+              const pageText = textContent.items
+                .map((item: any) => ('str' in item ? item.str : ''))
+                .join(' ')
+
+              if (pageText.trim()) {
+                textParts.push(`\n--- Página ${pageNum} ---\n${pageText}`)
+              }
+            }
+
+            resolve(textParts.join('\n\n'))
+          } catch (pdfError) {
+            // If PDF parsing fails, return a placeholder message
+            console.error('PDF parsing error:', pdfError)
+            resolve(`[PDF: ${file.name}]\nNo se pudo extraer el texto del PDF. El archivo se adjuntará como referencia.`)
+          }
         } else if (
           file.type === 'application/vnd.ms-excel' ||
           file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
@@ -1564,23 +1975,33 @@ export default function NewDebatePage() {
           file.name.toLowerCase().endsWith('.csv')
         ) {
           // Extract Excel/CSV data using xlsx
-          const XLSX = await import('xlsx')
-          const arrayBuffer = await file.arrayBuffer()
-          const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+          try {
+            const XLSX = await import('xlsx')
+            const arrayBuffer = await file.arrayBuffer()
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' })
 
-          const textParts: string[] = []
+            const textParts: string[] = []
 
-          for (const sheetName of workbook.SheetNames) {
-            const worksheet = workbook.Sheets[sheetName]
-            if (!worksheet) continue
+            for (const sheetName of workbook.SheetNames) {
+              const worksheet = workbook.Sheets[sheetName]
+              if (!worksheet) continue
 
-            const csv = XLSX.utils.sheet_to_csv(worksheet)
-            if (csv.trim()) {
-              textParts.push(`\n--- Hoja: ${sheetName} ---\n${csv}`)
+              const csv = XLSX.utils.sheet_to_csv(worksheet)
+              if (csv.trim()) {
+                textParts.push(`\n--- Hoja: ${sheetName} ---\n${csv}`)
+              }
             }
-          }
 
-          resolve(textParts.join('\n\n'))
+            if (textParts.length === 0) {
+              resolve(`[Excel/CSV: ${file.name}]\nArchivo vacío o sin datos procesables.`)
+            } else {
+              resolve(textParts.join('\n\n'))
+            }
+          } catch (xlsxError) {
+            // If Excel/CSV parsing fails, return a placeholder message
+            console.error('Excel/CSV parsing error:', xlsxError)
+            resolve(`[Excel/CSV: ${file.name}]\nNo se pudo extraer los datos. El archivo se adjuntará como referencia.`)
+          }
         } else {
           reject(new Error('Tipo de archivo no soportado'))
         }
@@ -1768,11 +2189,20 @@ export default function NewDebatePage() {
                       </div>
                     </div>
                     <div>
-                      <h1 className="text-sm font-semibold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-                        {contextState.debateTitle || 'Nueva Deliberación'}
-                      </h1>
+                      <div className="flex items-center gap-2">
+                        <h1 className="text-sm font-semibold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                          {contextState.debateTitle || 'Nueva Deliberación'}
+                        </h1>
+                        {detectedDomain && detectedDomain !== 'general' && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            {detectedDomain.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
-                        {contextState.currentScore > 0 ? `${contextState.currentScore}% contexto` : 'Responde las preguntas'}
+                        {contextState.currentScore > 0
+                          ? `${contextState.currentScore}% contexto${iterativeMode && iterationCount > 0 ? ` · Iteración ${iterationCount}/10` : ''}`
+                          : 'Responde las preguntas'}
                       </p>
                     </div>
                   </div>
@@ -2365,18 +2795,114 @@ export default function NewDebatePage() {
                   </div>
                 )}
 
-                {/* Continue Button when ready */}
+                {/* Memorable Summary - Rich context display when ready */}
                 {contextState.readyToStart && (
-                  <div className="flex justify-center pt-4">
-                    <Button
-                      onClick={handleContinueToExpertos}
-                      className="bg-purple-600 hover:bg-purple-500 text-white border-0 shadow-lg shadow-purple-500/30 px-8 py-6 text-lg"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5" />
-                        Continuar a Selección de Expertos
-                      </span>
-                    </Button>
+                  <div className="space-y-4">
+                    {/* Loading state while generating summary */}
+                    {isGeneratingSummary && !memorableSummary && (
+                      <div className="rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-900/20 to-purple-800/10 p-6">
+                        <div className="flex items-center gap-3">
+                          <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
+                          <span className="text-sm text-purple-200">Preparando resumen de tu situación...</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Rich summary display - HONEST and GROUNDED */}
+                    {memorableSummary && (
+                      <div className="rounded-xl border border-[#2a3942] bg-[#111b21] overflow-hidden">
+                        {/* Header with headline */}
+                        <div className="px-6 py-5 border-b border-[#2a3942] bg-[#202c33]">
+                          <div className="flex items-start gap-3">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-600/20 border border-purple-500/30 flex-shrink-0">
+                              <Brain className="h-5 w-5 text-purple-400" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-[#8696a0] uppercase tracking-wider font-medium mb-1">Entendí esto</p>
+                              <h3 className="text-base font-medium text-white leading-snug">{memorableSummary.headline}</h3>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Company profile - what we KNOW */}
+                        {memorableSummary.companyProfile && (
+                          <div className="px-6 py-4 border-b border-[#2a3942]">
+                            <p className="text-sm text-[#aebac1] leading-relaxed">{memorableSummary.companyProfile}</p>
+                          </div>
+                        )}
+
+                        {/* Decision context */}
+                        {memorableSummary.decisionContext && (
+                          <div className="px-6 py-4 border-b border-[#2a3942]">
+                            <h4 className="text-xs font-medium text-[#8696a0] uppercase tracking-wider mb-2">La decisión</h4>
+                            <p className="text-sm text-white">{memorableSummary.decisionContext}</p>
+                          </div>
+                        )}
+
+                        {/* Data points - CONCRETE facts mentioned */}
+                        {memorableSummary.dataPoints.length > 0 && (
+                          <div className="px-6 py-4 border-b border-[#2a3942]">
+                            <h4 className="text-xs font-medium text-[#8696a0] uppercase tracking-wider mb-3 flex items-center gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                              Datos concretos que capté
+                            </h4>
+                            <ul className="space-y-2">
+                              {memorableSummary.dataPoints.map((point, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm text-[#aebac1]">
+                                  <span className="text-green-500 mt-0.5">✓</span>
+                                  <span>{point}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Missing for experts - HONEST about what we don't know */}
+                        {memorableSummary.missingForExperts && (
+                          <div className="px-6 py-4 border-b border-[#2a3942] bg-amber-900/10">
+                            <h4 className="text-xs font-medium text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                              <AlertCircle className="h-3.5 w-3.5" />
+                              Para ayudarte mejor, sería útil saber
+                            </h4>
+                            <p className="text-sm text-amber-200/80">{memorableSummary.missingForExperts}</p>
+                          </div>
+                        )}
+
+                        {/* Ready message */}
+                        <div className="px-6 py-4 bg-[#202c33]">
+                          <p className="text-sm text-[#aebac1] flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-purple-400" />
+                            {memorableSummary.readyMessage}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col gap-3 justify-center pt-2">
+                      {/* Primary: Direct Start (Quick Flow) */}
+                      <Button
+                        onClick={() => void handleStartDeliberation(false)}
+                        className="bg-purple-600 hover:bg-purple-500 text-white border-0 shadow-lg shadow-purple-500/30 px-8 py-6 text-lg"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Sparkles className="h-5 w-5" />
+                          Iniciar Deliberación
+                        </span>
+                      </Button>
+
+                      {/* Secondary: Full Flow (with phases) */}
+                      <Button
+                        onClick={handleContinueToExpertos}
+                        variant="outline"
+                        className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600 px-8 py-6 text-lg"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Settings className="h-5 w-5" />
+                          Personalizar (Expertos y Estrategia)
+                        </span>
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>

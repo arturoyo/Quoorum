@@ -1,11 +1,9 @@
 /**
  * Auto-Research System
- * Automatically researches context for debates using Serper API
+ * Automatically researches context for debates using Google Custom Search API or Serper API
  */
 
-import { SerperAPI } from '@quoorum/quoorum/integrations/serper'
 import { getAIClient } from '@quoorum/ai'
-import type { AIProvider } from '@quoorum/ai'
 
 // ============================================================================
 // TYPES
@@ -79,12 +77,58 @@ Example output:
 async function executeResearch(queries: string[]): Promise<Map<string, ResearchResult>> {
   const results = new Map<string, ResearchResult>()
 
+  // Try Google Custom Search API first, then Serper as fallback
+  const { GoogleSearchAPI } = await import('@quoorum/quoorum/integrations/google-search')
+  const { SerperAPI } = await import('@quoorum/quoorum/integrations/serper')
+  
+  const useGoogleSearch = GoogleSearchAPI.isConfigured()
+  const useSerper = SerperAPI.isConfigured()
+
+  if (!useGoogleSearch && !useSerper) {
+    return results // Return empty if no search API configured
+  }
+
   // Execute searches in parallel with rate limiting
   const searchPromises = queries.map(async (query, index) => {
     // Delay to respect rate limits (200ms between requests)
     await new Promise((resolve) => setTimeout(resolve, index * 250))
 
-    const searchResults = await SerperAPI.searchWebCached(query, { num: 5 })
+    let searchResults: Array<{ title: string; link: string; snippet: string; position: number }> = []
+
+    // Try Google Custom Search first, fallback to Serper if it fails
+    if (useGoogleSearch) {
+      try {
+        searchResults = await GoogleSearchAPI.searchWebCached(query, { num: 5 })
+        if (searchResults.length > 0) {
+          // Success with Google, continue
+        } else if (useSerper) {
+          // Google returned empty, try Serper as fallback
+          console.log(`[Auto-Research] Google returned no results for "${query}", trying Serper...`)
+          searchResults = await SerperAPI.searchWebCached(query, { num: 5 })
+        }
+      } catch (error) {
+        // Google failed, try Serper as fallback
+        console.warn(`[Auto-Research] Google Custom Search failed for "${query}", trying Serper fallback:`, error)
+        if (useSerper) {
+          try {
+            searchResults = await SerperAPI.searchWebCached(query, { num: 5 })
+          } catch (serperError) {
+            console.error(`[Auto-Research] Both Google and Serper failed for "${query}"`, serperError)
+            return null
+          }
+        } else {
+          return null
+        }
+      }
+    } else if (useSerper) {
+      // Only Serper available
+      try {
+        searchResults = await SerperAPI.searchWebCached(query, { num: 5 })
+      } catch (error) {
+        console.error(`[Auto-Research] Serper failed for "${query}"`, error)
+        return null
+      }
+    }
 
     if (searchResults.length === 0) {
       return null
@@ -415,11 +459,16 @@ export async function performAutoResearch(question: string): Promise<AutoResearc
   const startTime = Date.now()
 
   try {
-    // Check if Serper API key is available
-    const hasSerperKey = !!process.env.SERPER_API_KEY
+    // Check if any search API is available (Google Custom Search or Serper)
+    const { GoogleSearchAPI } = await import('@quoorum/quoorum/integrations/google-search')
+    const { SerperAPI } = await import('@quoorum/quoorum/integrations/serper')
+    
+    const hasGoogleSearch = GoogleSearchAPI.isConfigured()
+    const hasSerper = SerperAPI.isConfigured()
+    const hasSearchAPI = hasGoogleSearch || hasSerper
 
-    if (!hasSerperKey) {
-      console.log('[Auto-Research] No Serper API key found, using AI-only mode')
+    if (!hasSearchAPI) {
+      console.log('[Auto-Research] No search API configured (Google Custom Search or Serper), using AI-only mode')
       // Fallback to AI-only research (no external searches)
       const aiResults = await generateAIOnlyResearch(question)
       const executionTimeMs = Date.now() - startTime
@@ -431,6 +480,8 @@ export async function performAutoResearch(question: string): Promise<AutoResearc
       }
     }
 
+    console.log(`[Auto-Research] Using ${hasGoogleSearch ? 'Google Custom Search API' : 'Serper API'}`)
+
     // Step 1: Generate research queries
     const queries = await generateResearchQueries(question)
     console.log(`[Auto-Research] Generated ${queries.length} queries for: "${question}"`)
@@ -439,9 +490,9 @@ export async function performAutoResearch(question: string): Promise<AutoResearc
     const researchResults = await executeResearch(queries)
     console.log(`[Auto-Research] Completed ${researchResults.size} searches`)
 
-    // If no results from Serper, fallback to AI-only
+    // If no results from search API, fallback to AI-only
     if (researchResults.size === 0) {
-      console.log('[Auto-Research] No Serper results, using AI-only mode')
+      console.log('[Auto-Research] No search results, using AI-only mode')
       const aiResults = await generateAIOnlyResearch(question)
       const executionTimeMs = Date.now() - startTime
       return {
@@ -502,10 +553,81 @@ export async function findSimilarDebates(
   question: string,
   limit = 3
 ): Promise<SimilarDebate[]> {
-  // TODO: Implement with vector search (Pinecone)
-  // For now, return empty array
-  // This will be implemented when we have debate history
-  return []
+  try {
+    // Use Pinecone integration for vector search
+    const { searchSimilarDebates } = await import('@quoorum/quoorum/integrations/pinecone')
+    
+    // Search for similar debates using vector similarity
+    const results = await searchSimilarDebates(question, {
+      topK: limit,
+      minConsensus: 0.5, // Only return debates with at least 50% consensus
+    })
+
+    if (results.length === 0) {
+      return []
+    }
+
+    // Fetch full debate details from database to get context quality and dimensions
+    const { db } = await import('@quoorum/db')
+    const { quoorumDebates } = await import('@quoorum/db/schema')
+    const { inArray } = await import('drizzle-orm')
+
+    const debateIds = results.map((r) => r.id)
+    const debates = await db
+      .select({
+        id: quoorumDebates.id,
+        question: quoorumDebates.question,
+        consensusScore: quoorumDebates.consensusScore,
+        context: quoorumDebates.context,
+        finalRanking: quoorumDebates.finalRanking,
+        createdAt: quoorumDebates.createdAt,
+      })
+      .from(quoorumDebates)
+      .where(inArray(quoorumDebates.id, debateIds))
+
+    // Map results to SimilarDebate format
+    return results
+      .map((result) => {
+        const debate = debates.find((d) => d.id === result.id)
+        if (!debate) return null
+
+        // Extract successful dimensions from context
+        const context = debate.context as Record<string, unknown> | undefined
+        const successfulDimensions: string[] = []
+        
+        if (context) {
+          // Check which dimensions have data
+          const dimensionKeys = ['market', 'competitors', 'benchmarks', 'risks', 'opportunities', 'constraints']
+          dimensionKeys.forEach((key) => {
+            if (context[key] && Object.keys(context[key] as Record<string, unknown>).length > 0) {
+              successfulDimensions.push(key)
+            }
+          })
+        }
+
+        // Calculate context quality (0-100) based on number of dimensions filled
+        const contextQuality = Math.min(100, (successfulDimensions.length / 6) * 100)
+
+        // Extract expert count from rounds if available
+        const rounds = debate.finalRanking as Array<{ option: string; score: number }> | undefined
+        const expertCount = rounds?.length || 0
+
+        return {
+          id: debate.id,
+          question: debate.question,
+          contextQuality,
+          successfulDimensions,
+          expertCount,
+          createdAt: debate.createdAt,
+        }
+      })
+      .filter((debate): debate is SimilarDebate => debate !== null)
+      .slice(0, limit)
+  } catch (error) {
+    console.error('[findSimilarDebates] Failed:', error)
+    // Fallback: return empty array if Pinecone is not available
+    return []
+  }
 }
 
 // ============================================================================

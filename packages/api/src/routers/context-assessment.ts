@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "../trpc.js";
+import { router, protectedProcedure } from "../trpc";
 import { getAIClient } from "@quoorum/ai";
 
 /**
@@ -54,6 +54,9 @@ const contextAssessmentSchema = z.object({
   clarifyingQuestions: z.array(clarifyingQuestionSchema),
   summary: z.string(),
   recommendedAction: z.enum(["proceed", "clarify", "refine"]),
+  // NEW: Domain-specific enhancements
+  reflection: z.string().optional(), // Shows we understood their situation
+  detectedDomain: z.string().optional(), // hiring, pricing, growth, etc.
 });
 
 const contextAnswersSchema = z.object({
@@ -100,6 +103,502 @@ const DIMENSION_TEMPLATES: Record<string, { id: string; name: string; descriptio
     { id: "criteria", name: "Criterios", description: "Cómo evaluar resultados", weight: 0.15 },
   ],
 };
+
+// ============================================
+// DOMAIN-SPECIFIC INTELLIGENT QUESTIONING
+// ============================================
+
+// Specific business domains with targeted questions
+type BusinessDomain =
+  | 'hiring' | 'firing' | 'team'
+  | 'pricing' | 'revenue' | 'costs'
+  | 'product_launch' | 'product_pivot' | 'features'
+  | 'fundraising' | 'investment' | 'exit'
+  | 'growth' | 'marketing' | 'sales'
+  | 'partnerships' | 'acquisitions'
+  | 'operations' | 'processes'
+  | 'culture' | 'leadership'
+  | 'general';
+
+// Domain detection patterns
+const DOMAIN_PATTERNS: Record<BusinessDomain, { keywords: string[]; phrases: string[] }> = {
+  hiring: {
+    keywords: ['contratar', 'hiring', 'reclutar', 'candidato', 'vacante', 'puesto', 'rol', 'perfil'],
+    phrases: ['nuevo empleado', 'ampliar equipo', 'buscar persona', 'incorporar', 'fichar']
+  },
+  firing: {
+    keywords: ['despedir', 'prescindir', 'desvincular', 'despido', 'reducir plantilla'],
+    phrases: ['dejar ir', 'no funciona', 'bajo rendimiento', 'recortar equipo']
+  },
+  team: {
+    keywords: ['equipo', 'organización', 'estructura', 'roles', 'responsabilidades'],
+    phrases: ['organizar equipo', 'definir roles', 'cultura equipo', 'colaboración']
+  },
+  pricing: {
+    keywords: ['precio', 'pricing', 'tarifa', 'coste', 'cobrar', 'monetizar'],
+    phrases: ['modelo de precios', 'cuánto cobrar', 'subir precio', 'bajar precio', 'freemium']
+  },
+  revenue: {
+    keywords: ['ingresos', 'revenue', 'facturación', 'ventas', 'mrr', 'arr'],
+    phrases: ['aumentar ingresos', 'modelo de negocio', 'fuente de ingresos']
+  },
+  costs: {
+    keywords: ['costes', 'gastos', 'burn', 'runway', 'reducir costes'],
+    phrases: ['recortar gastos', 'optimizar costes', 'cash flow']
+  },
+  product_launch: {
+    keywords: ['lanzar', 'lanzamiento', 'launch', 'salir al mercado', 'go-to-market'],
+    phrases: ['primer producto', 'sacar al mercado', 'fecha de lanzamiento']
+  },
+  product_pivot: {
+    keywords: ['pivotar', 'pivot', 'cambiar dirección', 'reorientar'],
+    phrases: ['cambiar modelo', 'no funciona', 'nuevo enfoque']
+  },
+  features: {
+    keywords: ['feature', 'funcionalidad', 'característica', 'roadmap', 'priorizar'],
+    phrases: ['qué construir', 'próxima feature', 'backlog']
+  },
+  fundraising: {
+    keywords: ['inversión', 'ronda', 'levantar capital', 'funding', 'inversores', 'vc'],
+    phrases: ['buscar inversión', 'serie a', 'seed', 'angel']
+  },
+  investment: {
+    keywords: ['invertir', 'oportunidad inversión', 'deal', 'due diligence'],
+    phrases: ['debo invertir', 'evaluar startup', 'términos']
+  },
+  exit: {
+    keywords: ['exit', 'vender empresa', 'adquisición', 'ipo', 'salida'],
+    phrases: ['vender mi empresa', 'oferta de compra', 'valoración exit']
+  },
+  growth: {
+    keywords: ['crecer', 'escalar', 'growth', 'expansión', 'scale'],
+    phrases: ['cómo crecer', 'siguiente fase', 'escalar negocio']
+  },
+  marketing: {
+    keywords: ['marketing', 'marca', 'branding', 'awareness', 'posicionamiento'],
+    phrases: ['estrategia marketing', 'canal adquisición', 'llegar a clientes']
+  },
+  sales: {
+    keywords: ['ventas', 'comercial', 'cerrar deals', 'pipeline', 'leads'],
+    phrases: ['proceso ventas', 'equipo comercial', 'ciclo venta']
+  },
+  partnerships: {
+    keywords: ['partnership', 'alianza', 'socio', 'colaboración', 'joint venture'],
+    phrases: ['buscar socio', 'alianza estratégica']
+  },
+  acquisitions: {
+    keywords: ['adquirir', 'comprar empresa', 'merger', 'fusión', 'm&a'],
+    phrases: ['comprar competidor', 'integrar empresa']
+  },
+  operations: {
+    keywords: ['operaciones', 'procesos', 'eficiencia', 'automatizar', 'sistemas'],
+    phrases: ['mejorar procesos', 'optimizar operaciones']
+  },
+  processes: {
+    keywords: ['proceso', 'workflow', 'procedimiento', 'metodología'],
+    phrases: ['definir proceso', 'mejorar workflow']
+  },
+  culture: {
+    keywords: ['cultura', 'valores', 'ambiente', 'remote', 'oficina'],
+    phrases: ['cultura empresa', 'forma de trabajar', 'valores equipo']
+  },
+  leadership: {
+    keywords: ['liderazgo', 'liderar', 'management', 'gestión', 'ceo', 'founder'],
+    phrases: ['ser mejor líder', 'gestionar equipo', 'tomar decisiones']
+  },
+  general: {
+    keywords: [],
+    phrases: []
+  }
+};
+
+// Domain-specific question banks - TARGETED, not generic
+const DOMAIN_QUESTIONS: Record<BusinessDomain, {
+  critical: { question: string; why: string }[];
+  important: { question: string; why: string }[];
+}> = {
+  hiring: {
+    critical: [
+      { question: "¿Qué rol específico necesitas cubrir y qué haría esta persona en el día a día?", why: "Sin saber el rol concreto, no podemos evaluar fit" },
+      { question: "¿Cuántas personas tienes ahora en ese área y cómo está funcionando?", why: "Contexto del equipo actual" },
+      { question: "¿Qué 3 cualidades son innegociables para este puesto?", why: "Criterios de selección claros" },
+    ],
+    important: [
+      { question: "¿Qué ha funcionado y qué no con contrataciones anteriores similares?", why: "Aprender del pasado" },
+      { question: "¿Cómo describirías la cultura de tu equipo en 2-3 frases?", why: "Para evaluar fit cultural" },
+      { question: "¿Tienes presupuesto definido o es flexible según el candidato?", why: "Restricciones salariales" },
+      { question: "¿Para cuándo necesitas a esta persona incorporada?", why: "Urgencia" },
+    ]
+  },
+  firing: {
+    critical: [
+      { question: "¿Qué situación específica te ha llevado a considerar esto?", why: "Entender el problema raíz" },
+      { question: "¿Has tenido conversaciones directas sobre el rendimiento con esta persona?", why: "Proceso previo" },
+      { question: "¿Qué impacto tendría en el equipo y en el trabajo?", why: "Consecuencias" },
+    ],
+    important: [
+      { question: "¿Has explorado alternativas (cambio de rol, coaching, etc.)?", why: "Opciones" },
+      { question: "¿Qué aspectos legales o contractuales hay que considerar?", why: "Riesgos" },
+    ]
+  },
+  team: {
+    critical: [
+      { question: "¿Cuántas personas hay en el equipo y qué hace cada una?", why: "Estructura actual" },
+      { question: "¿Qué problema específico quieres resolver con la reorganización?", why: "Objetivo" },
+      { question: "¿Cómo se toman las decisiones actualmente?", why: "Proceso actual" },
+    ],
+    important: [
+      { question: "¿Hay conflictos o fricciones que debamos conocer?", why: "Dinámicas" },
+      { question: "¿Qué habilidades faltan en el equipo actual?", why: "Gaps" },
+    ]
+  },
+  pricing: {
+    critical: [
+      { question: "¿Qué precio tienes ahora y cómo llegaste a él?", why: "Punto de partida" },
+      { question: "¿Cuánto están pagando tus clientes actuales y qué dicen del precio?", why: "Feedback real" },
+      { question: "¿Qué cobran tus competidores directos por algo similar?", why: "Contexto mercado" },
+    ],
+    important: [
+      { question: "¿Cuál es tu coste de adquisición y margen actual?", why: "Unit economics" },
+      { question: "¿Has probado diferentes precios? ¿Qué pasó?", why: "Experimentos" },
+      { question: "¿Qué segmentos de cliente tienes y cuánto paga cada uno?", why: "Segmentación" },
+    ]
+  },
+  revenue: {
+    critical: [
+      { question: "¿Cuál es tu revenue actual mensual/anual y cómo ha evolucionado?", why: "Baseline" },
+      { question: "¿De dónde vienen los ingresos (qué productos, qué clientes)?", why: "Mix" },
+      { question: "¿Cuál es tu objetivo de revenue y para cuándo?", why: "Meta" },
+    ],
+    important: [
+      { question: "¿Cuál es tu churn rate?", why: "Retención" },
+      { question: "¿Qué palancas has identificado para crecer?", why: "Opciones" },
+    ]
+  },
+  costs: {
+    critical: [
+      { question: "¿Cuáles son tus principales costes y cuánto representan?", why: "Desglose" },
+      { question: "¿Cuál es tu runway actual?", why: "Urgencia" },
+      { question: "¿Qué costes son fijos vs variables?", why: "Flexibilidad" },
+    ],
+    important: [
+      { question: "¿Qué has intentado recortar ya?", why: "Acciones previas" },
+      { question: "¿Qué costes son intocables?", why: "Restricciones" },
+    ]
+  },
+  product_launch: {
+    critical: [
+      { question: "¿Qué producto/servicio vas a lanzar y qué problema resuelve?", why: "Propuesta valor" },
+      { question: "¿Has validado la demanda con clientes reales? ¿Cómo?", why: "Validación" },
+      { question: "¿Quién es tu cliente ideal y cómo vas a llegar a él?", why: "GTM" },
+    ],
+    important: [
+      { question: "¿Qué fecha de lanzamiento tienes en mente y por qué?", why: "Timeline" },
+      { question: "¿Qué competidores existen y cómo te diferencias?", why: "Posicionamiento" },
+      { question: "¿Qué métricas definirán si el lanzamiento fue exitoso?", why: "Criterios éxito" },
+    ]
+  },
+  product_pivot: {
+    critical: [
+      { question: "¿Qué está fallando con el enfoque actual? Datos concretos.", why: "Diagnóstico" },
+      { question: "¿Hacia dónde quieres pivotar y por qué crees que funcionará mejor?", why: "Nueva dirección" },
+      { question: "¿Qué feedback de clientes te ha llevado a considerar el pivot?", why: "Evidencia" },
+    ],
+    important: [
+      { question: "¿Qué recursos tienes para el pivot (tiempo, dinero, equipo)?", why: "Viabilidad" },
+      { question: "¿Qué del producto actual podrías mantener?", why: "Assets" },
+    ]
+  },
+  features: {
+    critical: [
+      { question: "¿Qué features estás considerando y qué problema resuelve cada una?", why: "Opciones" },
+      { question: "¿Qué piden más tus usuarios actuales?", why: "Demanda" },
+      { question: "¿Cuál es tu capacidad de desarrollo (personas, tiempo)?", why: "Restricciones" },
+    ],
+    important: [
+      { question: "¿Qué impacto tendría cada feature en retención o conversión?", why: "Priorización" },
+      { question: "¿Hay deuda técnica que debas considerar?", why: "Dependencias" },
+    ]
+  },
+  fundraising: {
+    critical: [
+      { question: "¿Cuánto quieres levantar y para qué lo usarías específicamente?", why: "Ask y use of funds" },
+      { question: "¿Cuáles son tus métricas actuales (revenue, growth, usuarios)?", why: "Tracción" },
+      { question: "¿Qué valoración tienes en mente y en qué la basas?", why: "Expectativas" },
+    ],
+    important: [
+      { question: "¿Has hablado con inversores? ¿Qué feedback has recibido?", why: "Señales mercado" },
+      { question: "¿Cuánto runway tienes sin levantar?", why: "Urgencia" },
+      { question: "¿Qué tipo de inversor buscas (VC, angel, strategic)?", why: "Fit" },
+    ]
+  },
+  investment: {
+    critical: [
+      { question: "¿Qué startup/deal estás evaluando? Describe brevemente.", why: "Contexto" },
+      { question: "¿Qué términos te están proponiendo?", why: "Deal" },
+      { question: "¿Cuál es tu tesis de inversión y cómo encaja esto?", why: "Fit estratégico" },
+    ],
+    important: [
+      { question: "¿Qué due diligence has hecho?", why: "Proceso" },
+      { question: "¿Qué te preocupa del deal?", why: "Red flags" },
+    ]
+  },
+  exit: {
+    critical: [
+      { question: "¿Tienes una oferta concreta o estás explorando?", why: "Estado" },
+      { question: "¿Qué valoración tienes en mente o te han ofrecido?", why: "Números" },
+      { question: "¿Por qué ahora? ¿Qué te motiva a considerar la salida?", why: "Motivación" },
+    ],
+    important: [
+      { question: "¿Qué pasaría con el equipo?", why: "Responsabilidades" },
+      { question: "¿Tienes obligaciones con inversores actuales?", why: "Restricciones" },
+    ]
+  },
+  growth: {
+    critical: [
+      { question: "¿Cuál es tu crecimiento actual (%, absoluto) y objetivo?", why: "Baseline y meta" },
+      { question: "¿Cuáles son tus principales canales de adquisición hoy?", why: "Estado actual" },
+      { question: "¿Qué limitantes ves para crecer más rápido?", why: "Cuellos de botella" },
+    ],
+    important: [
+      { question: "¿Qué experimentos de growth has probado?", why: "Aprendizajes" },
+      { question: "¿Tu unit economics mejora o empeora con escala?", why: "Sostenibilidad" },
+    ]
+  },
+  marketing: {
+    critical: [
+      { question: "¿Quién es tu cliente ideal y cómo lo describes?", why: "Target" },
+      { question: "¿Qué canales usas ahora y cuáles funcionan mejor?", why: "Mix actual" },
+      { question: "¿Cuál es tu presupuesto de marketing?", why: "Recursos" },
+    ],
+    important: [
+      { question: "¿Cómo te posicionas vs competidores?", why: "Diferenciación" },
+      { question: "¿Qué CAC tienes por canal?", why: "Eficiencia" },
+    ]
+  },
+  sales: {
+    critical: [
+      { question: "¿Cómo es tu proceso de ventas actual paso a paso?", why: "Proceso" },
+      { question: "¿Cuántos vendedores tienes y qué resultados dan?", why: "Equipo" },
+      { question: "¿Cuál es tu ciclo de venta y ticket promedio?", why: "Métricas" },
+    ],
+    important: [
+      { question: "¿Dónde pierdes más deals y por qué?", why: "Problemas" },
+      { question: "¿Tienes CRM? ¿Qué datos tienes?", why: "Herramientas" },
+    ]
+  },
+  partnerships: {
+    critical: [
+      { question: "¿Qué tipo de partner buscas y para qué?", why: "Objetivo" },
+      { question: "¿Tienes algún partner en mente o candidatos?", why: "Opciones" },
+      { question: "¿Qué ofreces tú al partner?", why: "Value prop" },
+    ],
+    important: [
+      { question: "¿Has tenido partnerships antes? ¿Cómo funcionaron?", why: "Experiencia" },
+    ]
+  },
+  acquisitions: {
+    critical: [
+      { question: "¿Qué empresa estás considerando adquirir y por qué?", why: "Target" },
+      { question: "¿Qué sinergias esperas conseguir?", why: "Razón estratégica" },
+      { question: "¿Tienes capacidad financiera para la adquisición?", why: "Viabilidad" },
+    ],
+    important: [
+      { question: "¿Cómo integrarías la empresa adquirida?", why: "Plan" },
+    ]
+  },
+  operations: {
+    critical: [
+      { question: "¿Qué proceso u operación quieres mejorar específicamente?", why: "Foco" },
+      { question: "¿Cuál es el problema actual? Datos concretos.", why: "Diagnóstico" },
+      { question: "¿Quiénes están involucrados en este proceso?", why: "Stakeholders" },
+    ],
+    important: [
+      { question: "¿Qué has intentado antes para mejorarlo?", why: "Historia" },
+    ]
+  },
+  processes: {
+    critical: [
+      { question: "¿Qué proceso necesitas definir o mejorar?", why: "Objetivo" },
+      { question: "¿Cómo se hace actualmente (si existe)?", why: "As-is" },
+      { question: "¿Qué resultado esperas del nuevo proceso?", why: "To-be" },
+    ],
+    important: [
+      { question: "¿Quién ejecutará este proceso?", why: "Responsables" },
+    ]
+  },
+  culture: {
+    critical: [
+      { question: "¿Cómo describirías tu cultura actual en 3 palabras?", why: "Baseline" },
+      { question: "¿Qué aspecto de la cultura quieres cambiar o preservar?", why: "Objetivo" },
+      { question: "¿Por qué surge esto ahora?", why: "Trigger" },
+    ],
+    important: [
+      { question: "¿Cómo es el día a día de trabajo en tu empresa?", why: "Realidad" },
+    ]
+  },
+  leadership: {
+    critical: [
+      { question: "¿Qué situación de liderazgo te preocupa o quieres mejorar?", why: "Problema" },
+      { question: "¿Cuántas personas lideras directamente?", why: "Contexto" },
+      { question: "¿Qué feedback has recibido de tu equipo?", why: "Perspectiva otros" },
+    ],
+    important: [
+      { question: "¿Qué tipo de decisiones te cuestan más?", why: "Puntos débiles" },
+    ]
+  },
+  general: {
+    critical: [
+      { question: "¿Puedes describir la situación con más detalle?", why: "Contexto" },
+      { question: "¿Qué opciones estás considerando?", why: "Alternativas" },
+      { question: "¿Qué te impide tomar la decisión ahora?", why: "Blockers" },
+    ],
+    important: [
+      { question: "¿Para cuándo necesitas decidir?", why: "Urgencia" },
+    ]
+  }
+};
+
+// Detect specific business domain from input
+function detectBusinessDomain(input: string): BusinessDomain {
+  const inputLower = input.toLowerCase();
+  let bestMatch: BusinessDomain = 'general';
+  let highestScore = 0;
+
+  for (const [domain, patterns] of Object.entries(DOMAIN_PATTERNS) as [BusinessDomain, typeof DOMAIN_PATTERNS[BusinessDomain]][]) {
+    if (domain === 'general') continue;
+
+    let score = 0;
+
+    // Check keywords (1 point each)
+    for (const keyword of patterns.keywords) {
+      if (inputLower.includes(keyword)) {
+        score += 1;
+      }
+    }
+
+    // Check phrases (2 points each - more specific)
+    for (const phrase of patterns.phrases) {
+      if (inputLower.includes(phrase)) {
+        score += 2;
+      }
+    }
+
+    if (score > highestScore) {
+      highestScore = score;
+      bestMatch = domain;
+    }
+  }
+
+  return bestMatch;
+}
+
+// Generate reflection based on what user said - shows we understood
+function generateReflection(
+  userInput: string,
+  previousContext: string,
+  domain: BusinessDomain,
+  extractedData: Record<string, string>
+): string {
+  const dataPoints = Object.entries(extractedData)
+    .filter(([_, v]) => v && v.length > 0)
+    .map(([k, v]) => `${k}: ${v}`);
+
+  if (dataPoints.length === 0) {
+    return "";
+  }
+
+  // Build a reflection that connects the dots
+  const reflection = `Entiendo: ${dataPoints.join('. ')}.`;
+  return reflection;
+}
+
+// Check for inconsistencies between data points
+function findInconsistencies(data: Record<string, string>): { field1: string; field2: string; issue: string }[] {
+  const inconsistencies: { field1: string; field2: string; issue: string }[] = [];
+
+  // Example checks - add more as needed
+  const urgency = data['urgencia'] || data['timeline'] || '';
+  const resources = data['recursos'] || data['presupuesto'] || '';
+
+  if (urgency.toLowerCase().includes('urgente') && resources.toLowerCase().includes('limitado')) {
+    inconsistencies.push({
+      field1: 'urgencia',
+      field2: 'recursos',
+      issue: 'Mencionas urgencia pero recursos limitados - ¿cómo planeas resolverlo?'
+    });
+  }
+
+  return inconsistencies;
+}
+
+// ADAPTIVE DEPTH: Generate follow-up question for short answers
+function generateFollowUpQuestion(
+  shortAnswer: string,
+  originalQuestion: string,
+  domain: BusinessDomain
+): string | null {
+  // Only trigger for answers shorter than 30 characters (excluding yes/no)
+  const isShortAnswer = shortAnswer.length < 30;
+  const isYesNo = /^(sí|si|no|yes|maybe|quizás|tal vez)$/i.test(shortAnswer.trim());
+
+  if (!isShortAnswer || isYesNo) {
+    return null; // No need for follow-up
+  }
+
+  // Domain-specific follow-up templates
+  const followUpTemplates: Record<BusinessDomain, string[]> = {
+    hiring: [
+      "¿Puedes describir más el perfil que buscas?",
+      "¿Qué experiencia previa debería tener?",
+      "¿Hay algún skill técnico específico que sea crítico?",
+    ],
+    pricing: [
+      "¿Puedes dar un rango numérico más específico?",
+      "¿Cómo se compara esto con lo que cobran tus competidores?",
+      "¿Qué margen necesitas para ser rentable?",
+    ],
+    growth: [
+      "¿Cuántos usuarios/clientes tienes actualmente?",
+      "¿Qué canales has probado y con qué resultados?",
+      "¿Cuál es tu objetivo de crecimiento específico?",
+    ],
+    fundraising: [
+      "¿Puedes especificar la cantidad que buscas?",
+      "¿Qué valoración esperas?",
+      "¿Has hablado con inversores? ¿Qué feedback recibiste?",
+    ],
+    general: [
+      "¿Puedes dar más detalle sobre eso?",
+      "¿Qué significa eso concretamente para tu situación?",
+      "¿Puedes poner un ejemplo específico?",
+    ],
+    firing: ["¿Cuánto tiempo llevas considerando esto?", "¿Has tenido conversaciones previas?"],
+    team: ["¿Cuántas personas hay actualmente?", "¿Qué roles específicos?"],
+    revenue: ["¿Cuál es tu facturación actual?", "¿Qué objetivo tienes?"],
+    costs: ["¿Cuál es el desglose de costes?", "¿Qué es fijo vs variable?"],
+    product_launch: ["¿Qué fecha tienes en mente?", "¿Has validado la demanda?"],
+    product_pivot: ["¿Qué datos concretos te llevan a esto?", "¿Qué has aprendido?"],
+    features: ["¿Qué impacto esperas?", "¿Cuántos usuarios lo piden?"],
+    investment: ["¿Qué términos te proponen?", "¿Qué due diligence has hecho?"],
+    exit: ["¿Tienes una oferta concreta?", "¿Qué valoración?"],
+    marketing: ["¿Qué presupuesto tienes?", "¿Qué canales usas?"],
+    sales: ["¿Cuál es tu ciclo de venta?", "¿Cuántos leads tienes?"],
+    partnerships: ["¿Qué buscas en un partner?", "¿Qué ofreces tú?"],
+    acquisitions: ["¿Qué sinergias esperas?", "¿Tienes capacidad financiera?"],
+    operations: ["¿Cuál es el cuello de botella?", "¿Quiénes están involucrados?"],
+    processes: ["¿Cómo se hace actualmente?", "¿Quién lo ejecutará?"],
+    culture: ["¿Cómo describirías tu cultura actual?", "¿Qué quieres cambiar?"],
+    leadership: ["¿Cuántas personas lideras?", "¿Qué feedback has recibido?"],
+  };
+
+  const templates = followUpTemplates[domain] || followUpTemplates.general;
+
+  // Pick a random follow-up
+  const followUp = templates[Math.floor(Math.random() * templates.length)];
+
+  return followUp;
+}
 
 // Helper functions
 async function detectDebateType(input: string): Promise<"business_decision" | "strategy" | "product" | "general"> {
@@ -194,13 +693,30 @@ const aiAnalysisSchema = z.object({
   summary: z.string(),
 });
 
-// AI-powered analysis function
+// AI-powered analysis function with DOMAIN-SPECIFIC questions
 async function analyzeWithAI(
   userInput: string,
   debateType: string,
-  dimensions: { id: string; name: string; description: string; weight: number }[]
-): Promise<z.infer<typeof aiAnalysisSchema>> {
+  dimensions: { id: string; name: string; description: string; weight: number }[],
+  businessDomain?: BusinessDomain
+): Promise<z.infer<typeof aiAnalysisSchema> & { reflection?: string; domain?: BusinessDomain }> {
   const aiClient = getAIClient();
+
+  // Detect business domain for targeted questions
+  const domain = businessDomain || detectBusinessDomain(userInput);
+  const domainQuestions = DOMAIN_QUESTIONS[domain];
+
+  // Build domain-specific question bank for the AI
+  const questionBank = [
+    ...domainQuestions.critical.map(q => ({ ...q, priority: 'critical' as const })),
+    ...domainQuestions.important.map(q => ({ ...q, priority: 'important' as const })),
+  ];
+
+  const domainInfo = domain !== 'general'
+    ? `\n\nDOMINIO DETECTADO: ${domain.toUpperCase()}
+Usa PREFERENTEMENTE estas preguntas específicas del dominio (adaptándolas al contexto):
+${questionBank.map((q, i) => `${i + 1}. [${q.priority}] "${q.question}" - Razón: ${q.why}`).join('\n')}`
+    : '';
 
   const systemPrompt = `Eres un experto en análisis de contexto para debates estratégicos.
 Tu trabajo es analizar el input del usuario y evaluar qué tan completo es el contexto proporcionado.
@@ -293,9 +809,14 @@ Ejemplos BUENOS de variedad:
 ✅ QUESTION free_text: {"question": "Describe tu propuesta de valor única", "questionType": "free_text"}
 
 ❌ MALO: Todas las preguntas son multiple_choice con 3 opciones (patrón rígido)
-✅ BUENO: Mezcla inteligente de yes_no, multiple_choice y free_text según lo que maximice contexto`;
+✅ BUENO: Mezcla inteligente de yes_no, multiple_choice y free_text según lo que maximice contexto
+${domainInfo}
+
+IMPORTANTE: Al final del summary, incluye una REFLECTION que demuestre que entendiste la situación del usuario.
+Formato: "Entiendo que [parafrasear su situación]. [Conectar puntos]. Por eso pregunto sobre [tema]."`;
 
   const userPrompt = `Tipo de debate: ${debateType}
+Dominio de negocio detectado: ${domain}
 
 Dimensiones a evaluar:
 ${dimensions.map(d => `- ${d.id} (${d.name}): ${d.description} [peso: ${d.weight}]`).join("\n")}
@@ -330,14 +851,23 @@ Analiza el contexto y devuelve el JSON con tu evaluación.`;
     console.log("[Context Assessment] AI analysis successful:", {
       dimensionsCount: validated.dimensions.length,
       assumptionsCount: validated.assumptions.length,
-      questionsCount: validated.questions.length
+      questionsCount: validated.questions.length,
+      domain
     });
 
-    return validated;
+    // Extract reflection from summary if present (after "Entiendo que")
+    let reflection: string | undefined;
+    const reflectionMatch = validated.summary.match(/Entiendo que[^.]+\./i);
+    if (reflectionMatch) {
+      reflection = reflectionMatch[0];
+    }
+
+    return { ...validated, reflection, domain };
   } catch (error) {
     console.error("[Context Assessment] AI analysis failed, using fallback:", error instanceof Error ? error.message : error);
     // Fallback to keyword-based analysis if AI fails
-    return fallbackAnalysis(userInput, dimensions);
+    const fallback = fallbackAnalysis(userInput, dimensions);
+    return { ...fallback, domain };
   }
 }
 
@@ -534,6 +1064,9 @@ export const contextAssessmentRouter = router({
         clarifyingQuestions: questions,
         summary: aiResult.summary,
         recommendedAction: getRecommendedAction(overallScore, hasCriticalMissing),
+        // NEW: Domain-specific context
+        reflection: aiResult.reflection,
+        detectedDomain: aiResult.domain,
       };
     }),
 
@@ -693,6 +1226,16 @@ Responde SOLO con el JSON.`;
           freeText: q.questionType === "free_text",
         }));
 
+        // Generate a reflection that connects the dots from user responses
+        const responseSummary = Object.values(input.answers.questionResponses)
+          .filter(r => r && (typeof r === 'string' ? r.length > 0 : r.length > 0))
+          .slice(0, 3)
+          .join(', ');
+
+        const refinedReflection = responseSummary.length > 0
+          ? `Entiendo mejor tu situación: ${responseSummary.substring(0, 100)}${responseSummary.length > 100 ? '...' : ''}.`
+          : undefined;
+
         return {
           overallScore,
           readinessLevel: getReadinessLevel(overallScore),
@@ -701,6 +1244,9 @@ Responde SOLO con el JSON.`;
           clarifyingQuestions: questions,
           summary: aiResult.summary,
           recommendedAction: getRecommendedAction(overallScore, false),
+          // Carry forward domain and add refined reflection
+          reflection: refinedReflection,
+          detectedDomain: input.previousAssessment.detectedDomain,
         };
       } catch (error) {
         console.error("[Context Assessment - Refine] AI failed, using fallback:", error);
@@ -748,23 +1294,49 @@ Responde SOLO con el JSON.`;
           clarifyingQuestions: questions,
           summary: aiResult.summary,
           recommendedAction: getRecommendedAction(overallScore, false),
+          // Carry forward domain
+          detectedDomain: input.previousAssessment.detectedDomain,
         };
       }
     }),
 
   /**
    * Auto-Research: Perform automatic research for debate context
+   * Now enhanced with domain-specific search queries
    */
   autoResearch: protectedProcedure
     .input(z.object({
       question: z.string().min(10, "Question too short"),
+      detectedDomain: z.string().optional(), // hiring, pricing, growth, etc.
     }))
     .mutation(async ({ input }) => {
       const { performAutoResearch } = await import("../lib/auto-research.js");
 
+      // Add domain context to improve search queries
+      const domain = input.detectedDomain || detectBusinessDomain(input.question);
+
+      // Domain-specific search prefixes to improve relevance
+      const domainPrefixes: Record<string, string> = {
+        hiring: "best practices hiring",
+        firing: "how to handle employee termination",
+        pricing: "SaaS pricing strategy",
+        fundraising: "startup fundraising",
+        growth: "growth strategies startups",
+        marketing: "digital marketing strategy",
+        sales: "B2B sales process",
+        product_launch: "product launch strategy",
+        product_pivot: "startup pivot strategy",
+      };
+
+      const prefix = domainPrefixes[domain] || '';
+      const enhancedQuestion = prefix ? `${prefix}: ${input.question}` : input.question;
+
       try {
-        const result = await performAutoResearch(input.question);
-        return result;
+        const result = await performAutoResearch(enhancedQuestion);
+        return {
+          ...result,
+          detectedDomain: domain, // Include domain in response
+        };
       } catch (error) {
         console.error("[Auto-Research] Failed:", error);
         return {
@@ -772,6 +1344,7 @@ Responde SOLO con el JSON.`;
           researchResults: [],
           suggestedContext: {},
           executionTimeMs: 0,
+          detectedDomain: domain,
         };
       }
     }),
@@ -990,4 +1563,372 @@ Responde SOLO con el JSON.`;
         return { success: false };
       }
     }),
+
+  /**
+   * Generate Memorable Summary: Create a rich, personalized summary that makes users feel understood
+   * This is shown when context is ready (score >= 85%) before proceeding to the next phase
+   */
+  generateMemorableSummary: protectedProcedure
+    .input(z.object({
+      question: z.string().min(10),
+      context: z.string().optional(),
+      dimensions: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+        score: z.number(),
+        status: z.enum(["missing", "partial", "complete"]),
+      })),
+      responses: z.record(z.union([z.string(), z.boolean()])), // User's answers to questions/assumptions
+      overallScore: z.number(),
+      summary: z.string(), // The AI-generated summary from assessment
+    }))
+    .mutation(async ({ input }) => {
+      const aiClient = getAIClient();
+
+      // Build context from responses
+      const responsesSummary = Object.entries(input.responses)
+        .filter(([_, value]) => value !== null && value !== undefined && value !== '')
+        .map(([key, value]) => {
+          if (typeof value === 'boolean') {
+            return `• ${key}: ${value ? 'Sí' : 'No'}`;
+          }
+          return `• ${value}`;
+        })
+        .join('\n');
+
+      // Get completed and partial dimensions
+      const completedDimensions = input.dimensions.filter(d => d.status === 'complete');
+      const partialDimensions = input.dimensions.filter(d => d.status === 'partial');
+      const strongestDimensions = [...input.dimensions].sort((a, b) => b.score - a.score).slice(0, 3);
+
+      const systemPrompt = `Eres un analista de contexto empresarial. Tu trabajo es sintetizar EXACTAMENTE lo que el usuario dijo, sin inventar ni asumir nada.
+
+REGLA DE ORO: Solo menciona lo que REALMENTE se dijo. Si algo no se mencionó, NO lo incluyas.
+
+PROHIBIDO:
+❌ Inventar datos que no se proporcionaron ("recursos limitados" si no lo dijo)
+❌ Obviedades vacías ("cada contratación cuenta", "la cultura es importante")
+❌ Frases de relleno empático ("estás en un punto de inflexión...")
+❌ Asumir emociones o preocupaciones no expresadas
+❌ Generalidades que aplican a cualquier empresa
+
+OBLIGATORIO:
+✅ Citar o parafrasear datos CONCRETOS que el usuario proporcionó
+✅ Ser específico: nombres, números, roles, características mencionadas
+✅ Ser honesto: si falta información, decirlo claramente
+✅ Ir al grano: qué sabemos, qué decisión enfrenta, qué necesitamos
+
+FORMATO DE RESPUESTA (JSON exacto):
+{
+  "headline": "La decisión en sus propias palabras (extraída del input, no inventada)",
+  "companyProfile": "Lo que SÉ de tu empresa/situación basado en lo que dijiste: [solo datos mencionados]",
+  "decisionContext": "La decisión que enfrentas: [parafrasear lo que dijo]",
+  "dataPoints": [
+    "Dato concreto 1 que mencionaste",
+    "Dato concreto 2 que proporcionaste"
+  ],
+  "missingForExperts": "Para que los expertos te ayuden mejor, sería útil saber: [qué información específica falta]",
+  "readyMessage": "Con esta información podemos empezar. Los expertos analizarán [el tema concreto]."
+}
+
+EJEMPLOS:
+
+Si el usuario dice: "Quiero contratar más vendedores pero manteniendo nuestra cultura de startup"
+
+✅ BIEN:
+{
+  "headline": "Contratar vendedores manteniendo la cultura de startup",
+  "companyProfile": "Sé que eres una startup que quiere crecer en ventas y valora su cultura actual.",
+  "decisionContext": "Buscas expandir tu equipo comercial sin perder la esencia que os hace diferentes.",
+  "dataPoints": [
+    "Quieres contratar en el área de ventas",
+    "Tu cultura de startup es algo que quieres preservar"
+  ],
+  "missingForExperts": "¿Cuántas personas tienes actualmente en ventas? ¿Qué define tu cultura (valores, forma de trabajar)? ¿Qué perfil de vendedor buscas?",
+  "readyMessage": "Con esta información podemos empezar. Los expertos analizarán cómo escalar ventas preservando cultura."
+}
+
+❌ MAL (inventando):
+{
+  "headline": "Escalar sin perder la esencia",
+  "companyProfile": "Estás en un momento de crecimiento con recursos limitados", // ← NO DIJO ESTO
+  "dataPoints": [
+    "Cada contratación es crítica", // ← OBVIO, NO APORTA
+    "La cultura es tu prioridad" // ← NO LO DIJO ASÍ
+  ]
+}`;
+
+      const userPrompt = `PREGUNTA/DECISIÓN DEL USUARIO:
+"${input.question}"
+
+${input.context ? `CONTEXTO ADICIONAL:
+${input.context}
+
+` : ''}INFORMACIÓN PROPORCIONADA POR EL USUARIO:
+${responsesSummary || 'Sin respuestas adicionales'}
+
+DIMENSIONES MEJOR CUBIERTAS:
+${strongestDimensions.map(d => `- ${d.name}: ${d.score}%`).join('\n')}
+
+RESUMEN DEL ANÁLISIS:
+${input.summary}
+
+PUNTUACIÓN GENERAL: ${input.overallScore}%
+
+Genera el JSON con el resumen memorable.`;
+
+      try {
+        const response = await aiClient.generate(userPrompt, {
+          systemPrompt,
+          modelId: "gemini-2.0-flash-exp",
+          temperature: 0.3, // Bajo para ser fiel a los datos
+          maxTokens: 1000,
+        });
+
+        console.log("[Memorable Summary] AI response received, parsing JSON...");
+
+        const jsonMatch = response.text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          console.error("[Memorable Summary] No JSON found in AI response");
+          throw new Error("No JSON found in AI response");
+        }
+
+        const parsed = JSON.parse(jsonMatch[0]);
+
+        // Validate and map to new structure
+        const result = {
+          headline: parsed.headline || input.question.substring(0, 60),
+          companyProfile: parsed.companyProfile || "",
+          decisionContext: parsed.decisionContext || "",
+          dataPoints: Array.isArray(parsed.dataPoints) ? parsed.dataPoints.slice(0, 5) : [],
+          missingForExperts: parsed.missingForExperts || "",
+          readyMessage: parsed.readyMessage || "Los expertos analizarán tu situación.",
+          score: input.overallScore,
+        };
+
+        console.log("[Memorable Summary] Generated successfully:", {
+          headline: result.headline,
+          dataPointsCount: result.dataPoints.length,
+          hasMissing: !!result.missingForExperts,
+        });
+
+        return result;
+      } catch (error) {
+        console.error("[Memorable Summary] AI failed, using fallback:", error);
+
+        // Fallback: extract what we can directly from the input
+        return {
+          headline: input.question.length > 60
+            ? `${input.question.substring(0, 60)}...`
+            : input.question,
+          companyProfile: "Basándome en lo que compartiste:",
+          decisionContext: input.question,
+          dataPoints: Object.entries(input.responses)
+            .filter(([_, v]) => v && typeof v === 'string' && v.length > 0)
+            .slice(0, 4)
+            .map(([_, v]) => String(v)),
+          missingForExperts: "",
+          readyMessage: "Tu contexto está listo. Los expertos pueden comenzar el análisis.",
+          score: input.overallScore,
+        };
+      }
+    }),
+
+  /**
+   * Generate Follow-Up Question: When user gives a short answer, probe deeper
+   * This enables "adaptive depth" - getting more detail when needed
+   */
+  generateFollowUp: protectedProcedure
+    .input(z.object({
+      shortAnswer: z.string(),
+      originalQuestion: z.string(),
+      detectedDomain: z.string().optional(),
+    }))
+    .mutation(({ input }) => {
+      const domain = (input.detectedDomain || 'general') as BusinessDomain;
+      const followUp = generateFollowUpQuestion(
+        input.shortAnswer,
+        input.originalQuestion,
+        domain
+      );
+
+      return {
+        needsFollowUp: followUp !== null,
+        followUpQuestion: followUp,
+        reason: followUp ? `Tu respuesta "${input.shortAnswer}" es un poco breve. Para darte mejores recomendaciones...` : null,
+      };
+    }),
+
+  /**
+   * Check Inconsistencies: Detect conflicts in user-provided data
+   * Enables "challenge mode" to clarify contradictions
+   */
+  checkInconsistencies: protectedProcedure
+    .input(z.object({
+      data: z.record(z.string()),
+    }))
+    .mutation(({ input }) => {
+      const inconsistencies = findInconsistencies(input.data);
+
+      return {
+        hasInconsistencies: inconsistencies.length > 0,
+        inconsistencies,
+      };
+    }),
+
+  /**
+   * ITERATIVE CONTEXT GATHERING
+   * Main entry point for the iterative flow that keeps asking until context is sufficient
+   * Returns: next action to take (ask_question, challenge_inconsistency, request_depth, ready)
+   */
+  getNextAction: protectedProcedure
+    .input(z.object({
+      question: z.string().min(10),
+      currentResponses: z.record(z.union([z.string(), z.boolean()])),
+      previousAssessment: contextAssessmentSchema.optional(),
+      lastAnswer: z.string().optional(), // The most recent answer from user
+      lastQuestionAsked: z.string().optional(), // What we asked
+      iterationCount: z.number().default(0),
+    }))
+    .mutation(async ({ input }) => {
+      const MAX_ITERATIONS = 10; // Safety limit to avoid infinite loops
+      const TARGET_SCORE = 85;
+
+      // If we've hit max iterations, force ready
+      if (input.iterationCount >= MAX_ITERATIONS) {
+        return {
+          action: 'ready' as const,
+          message: 'Tenemos suficiente contexto para comenzar. Los expertos trabajarán con la información disponible.',
+          score: input.previousAssessment?.overallScore || 70,
+          iterationCount: input.iterationCount,
+        };
+      }
+
+      // Detect domain from original question
+      const domain = detectBusinessDomain(input.question);
+      const domainQuestions = DOMAIN_QUESTIONS[domain];
+
+      // 1. CHECK FOR SHORT ANSWER (Adaptive Depth)
+      if (input.lastAnswer && input.lastQuestionAsked) {
+        const isShortAnswer = input.lastAnswer.length < 30;
+        const isYesNo = /^(sí|si|no|yes|maybe|quizás|tal vez)$/i.test(input.lastAnswer.trim());
+
+        if (isShortAnswer && !isYesNo) {
+          const followUp = generateFollowUpQuestion(input.lastAnswer, input.lastQuestionAsked, domain);
+          if (followUp) {
+            return {
+              action: 'request_depth' as const,
+              message: `Tu respuesta es un poco breve. ${followUp}`,
+              followUpQuestion: followUp,
+              score: input.previousAssessment?.overallScore || 50,
+              iterationCount: input.iterationCount,
+              reflection: `Entiendo: "${input.lastAnswer}". Pero necesito más detalle...`,
+            };
+          }
+        }
+      }
+
+      // 2. CHECK FOR INCONSISTENCIES
+      const stringResponses: Record<string, string> = {};
+      for (const [k, v] of Object.entries(input.currentResponses)) {
+        if (typeof v === 'string') stringResponses[k] = v;
+      }
+      const inconsistencies = findInconsistencies(stringResponses);
+
+      if (inconsistencies.length > 0) {
+        const firstInconsistency = inconsistencies[0];
+        return {
+          action: 'challenge_inconsistency' as const,
+          message: `He detectado algo que me gustaría clarificar: ${firstInconsistency.issue}`,
+          inconsistency: firstInconsistency,
+          score: input.previousAssessment?.overallScore || 50,
+          iterationCount: input.iterationCount,
+        };
+      }
+
+      // 3. CHECK SCORE - If sufficient, we're ready
+      if (input.previousAssessment && input.previousAssessment.overallScore >= TARGET_SCORE) {
+        return {
+          action: 'ready' as const,
+          message: '¡Excelente! Tengo suficiente contexto para que los expertos te ayuden.',
+          score: input.previousAssessment.overallScore,
+          iterationCount: input.iterationCount,
+        };
+      }
+
+      // 4. FIND NEXT QUESTION TO ASK
+      // Prioritize: critical questions > important questions > domain-specific
+
+      // Get questions not yet answered
+      const answeredKeys = new Set(Object.keys(input.currentResponses));
+
+      // First try domain-specific critical questions
+      const unansweredCritical = domainQuestions.critical.filter((q, i) =>
+        !answeredKeys.has(`domain-critical-${i}`)
+      );
+
+      if (unansweredCritical.length > 0) {
+        const nextQ = unansweredCritical[0];
+        return {
+          action: 'ask_question' as const,
+          message: nextQ.question,
+          questionId: `domain-critical-${domainQuestions.critical.indexOf(nextQ)}`,
+          priority: 'critical' as const,
+          reason: nextQ.why,
+          score: input.previousAssessment?.overallScore || 30,
+          iterationCount: input.iterationCount,
+          reflection: generateReflectionFromResponses(input.currentResponses, domain),
+        };
+      }
+
+      // Then try important questions
+      const unansweredImportant = domainQuestions.important.filter((q, i) =>
+        !answeredKeys.has(`domain-important-${i}`)
+      );
+
+      if (unansweredImportant.length > 0) {
+        const nextQ = unansweredImportant[0];
+        return {
+          action: 'ask_question' as const,
+          message: nextQ.question,
+          questionId: `domain-important-${domainQuestions.important.indexOf(nextQ)}`,
+          priority: 'important' as const,
+          reason: nextQ.why,
+          score: input.previousAssessment?.overallScore || 50,
+          iterationCount: input.iterationCount,
+          reflection: generateReflectionFromResponses(input.currentResponses, domain),
+        };
+      }
+
+      // 5. NO MORE QUESTIONS - Calculate final score and decide
+      // If we've asked all domain questions but score is still low, we proceed anyway
+      const finalScore = Math.min(85, (input.previousAssessment?.overallScore || 60) + 10);
+
+      return {
+        action: 'ready' as const,
+        message: 'Tenemos buen contexto. Los expertos pueden comenzar el análisis.',
+        score: finalScore,
+        iterationCount: input.iterationCount,
+      };
+    }),
 });
+
+// Helper: Generate reflection from accumulated responses
+function generateReflectionFromResponses(
+  responses: Record<string, string | boolean>,
+  domain: BusinessDomain
+): string {
+  const stringResponses = Object.entries(responses)
+    .filter(([_, v]) => typeof v === 'string' && v.length > 0)
+    .map(([_, v]) => v as string);
+
+  if (stringResponses.length === 0) {
+    return '';
+  }
+
+  // Take last 2-3 responses to build reflection
+  const recent = stringResponses.slice(-3);
+  const summary = recent.map(r => r.length > 50 ? r.substring(0, 50) + '...' : r).join('. ');
+
+  return `Hasta ahora entiendo: ${summary}`;
+}
