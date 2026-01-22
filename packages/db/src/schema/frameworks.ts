@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, uuid, varchar, boolean } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { quoorumDebates } from "./quoorum-debates.js";
+import { quoorumDebates } from "./quoorum-debates";
 
 // ============================================================================
 // FRAMEWORKS TABLE
