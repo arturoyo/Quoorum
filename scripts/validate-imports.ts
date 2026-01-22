@@ -156,12 +156,27 @@ function suggestFix(filePath: string, importPath: string): string | undefined {
   const importBase = basename(importPath, extname(importPath))
 
   // Check for common mistakes
-  // 1. .js extension when file is .ts
+  // 1. .js extension when file is .ts (and should be without extension)
   if (importPath.endsWith('.js')) {
-    const tsPath = importPath.replace(/\.js$/, '.ts')
-    const resolvedTs = resolve(fileDir, tsPath)
-    if (existsSync(resolvedTs)) {
-      return tsPath
+    // Check if removing .js resolves to a .ts file
+    const pathWithoutExt = importPath.replace(/\.js$/, '')
+    const resolvedWithoutExt = resolve(fileDir, pathWithoutExt + '.ts')
+    if (existsSync(resolvedWithoutExt)) {
+      // Check if other imports in same directory use extension or not
+      const parentContent = existsSync(filePath) ? readFileSync(filePath, 'utf-8') : ''
+      const otherImports = extractImports(parentContent)
+      const relativeImports = otherImports.filter(imp => imp.importPath.startsWith('.'))
+
+      // Count imports with/without extensions
+      const withExtension = relativeImports.filter(imp => /\.(js|ts|tsx|jsx)$/.test(imp.importPath)).length
+      const withoutExtension = relativeImports.length - withExtension
+
+      // If majority doesn't use extensions, suggest removing it
+      if (withoutExtension > withExtension) {
+        return pathWithoutExt // Remove .js extension
+      }
+
+      return pathWithoutExt + '.ts' // Keep extension but change to .ts
     }
 
     const tsxPath = importPath.replace(/\.js$/, '.tsx')
@@ -229,6 +244,26 @@ function validateFile(filePath: string): void {
           error: 'File not found',
           fix,
         })
+      } else {
+        // File exists, but check for style inconsistencies
+        // Check if using .js extension for a .ts file
+        if (importPath.endsWith('.js') && resolvedPath.endsWith('.ts')) {
+          // Check if other imports in same file use extensions
+          const relativeImports = imports.filter(imp => imp.importPath.startsWith('.'))
+          const withExtension = relativeImports.filter(imp => /\.(js|ts|tsx|jsx)$/.test(imp.importPath)).length
+          const withoutExtension = relativeImports.length - withExtension
+
+          // If majority doesn't use extensions, flag as inconsistent
+          if (withoutExtension > withExtension) {
+            errors.push({
+              file: filePath,
+              line,
+              importPath,
+              error: 'Inconsistent import style: using .js extension when others use no extension',
+              fix: importPath.replace(/\.js$/, ''),
+            })
+          }
+        }
       }
     }
   } catch (error) {

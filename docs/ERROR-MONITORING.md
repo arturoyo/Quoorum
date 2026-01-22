@@ -221,14 +221,16 @@ Corregir errores automáticamente cuando sea posible, o proporcionar fix sugerid
 
 **Casos que se corrigen automáticamente:**
 
-1. **Extension incorrecta** (`.js` → `.ts`)
+1. **Extension incorrecta** (`.js` → sin extensión)
    ```typescript
    // Antes
-   import { debates } from "./debates.js"
+   import { quoorumDebates } from "./quoorum-debates.js"
 
-   // Después
-   import { debates } from "./debates.ts"
+   // Después (analiza el estilo del archivo y lo normaliza)
+   import { quoorumDebates } from "./quoorum-debates"
    ```
+
+   **Nota:** El script detecta si la mayoría de imports en el mismo archivo usan extensiones o no, y sugiere el estilo consistente.
 
 2. **Nombre de archivo incorrecto** (sugerencia inteligente)
    ```typescript
@@ -466,6 +468,35 @@ git checkout -- path/to/file.ts
 # Reportar issue con el caso específico
 # Para mejorar la lógica de sugerencias
 ```
+
+### Problema: Build falla con "Module not found" pero el archivo existe
+
+**Ejemplo real (22 Enero 2026):**
+```typescript
+// frameworks.ts:3
+import { quoorumDebates } from "./quoorum-debates.js"
+// Error: Module not found: Can't resolve './quoorum-debates.js'
+// Pero el archivo quoorum-debates.ts SÍ existe!
+```
+
+**Causa raíz:**
+- TypeScript/Next.js con webpack no siempre resuelve `.js` → `.ts` correctamente
+- El proyecto usa imports **sin extensión** como estándar
+- Inconsistencia de estilo
+
+**Solución:**
+```bash
+# Remover extensión .js (como todos los demás imports del schema)
+import { quoorumDebates } from "./quoorum-debates"
+
+# O ejecutar auto-fix
+pnpm validate:imports:fix
+```
+
+**Prevención:**
+- El script ahora detecta inconsistencias de estilo
+- Valida que todos los imports en un archivo sigan el mismo patrón
+- Pre-commit hook bloquea commits con estilos inconsistentes
 
 ---
 
