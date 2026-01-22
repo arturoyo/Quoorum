@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, uuid, varchar, boolean } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { debates } from "./debates.js";
+import { quoorumDebates } from "./quoorum-debates.js";
 
 // ============================================================================
 // FRAMEWORKS TABLE
@@ -49,7 +49,7 @@ export const debateFrameworks = pgTable("debate_frameworks", {
 
   debateId: uuid("debate_id")
     .notNull()
-    .references(() => debates.id, { onDelete: "cascade" }),
+    .references(() => quoorumDebates.id, { onDelete: "cascade" }),
 
   frameworkId: uuid("framework_id")
     .notNull()
@@ -68,9 +68,9 @@ export const frameworksRelations = relations(frameworks, ({ many }) => ({
 }));
 
 export const debateFrameworksRelations = relations(debateFrameworks, ({ one }) => ({
-  debate: one(debates, {
+  debate: one(quoorumDebates, {
     fields: [debateFrameworks.debateId],
-    references: [debates.id],
+    references: [quoorumDebates.id],
   }),
   framework: one(frameworks, {
     fields: [debateFrameworks.frameworkId],
