@@ -6,6 +6,7 @@ export default defineConfig({
     "src/client.ts",
     "src/functions/quoorum-workers.ts",
     "src/functions/nextjs-auto-healer.ts",
+    "src/functions/monthly-credits-assignment.ts",
   ],
   format: ["esm"],
   dts: true,

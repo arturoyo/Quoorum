@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, uuid, varchar, pgEnum, jsonb } from "drizzle-orm/pg-core";
-import { users } from "./users.js";
+import { users } from "./users";
 import { relations } from "drizzle-orm";
 
 // ============================================================================

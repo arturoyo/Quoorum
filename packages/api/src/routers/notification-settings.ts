@@ -26,6 +26,15 @@ export const notificationSettingsRouter = router({
    * Crea configuración por defecto si no existe
    */
   get: protectedProcedure.query(async ({ ctx }) => {
+    // ctx.userId es profiles.id (referenciado por notification_settings.user_id)
+    // ctx.user.id es users.id (NO usar para notification_settings)
+    if (!ctx.userId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Usuario no autenticado",
+      });
+    }
+
     // Buscar configuración existente
     const [existing] = await db
       .select()
@@ -59,6 +68,14 @@ export const notificationSettingsRouter = router({
   update: protectedProcedure
     .input(updateNotificationSettingsSchema)
     .mutation(async ({ ctx, input }) => {
+      // ctx.userId es profiles.id (referenciado por notification_settings.user_id)
+      if (!ctx.userId) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Usuario no autenticado",
+        });
+      }
+
       // Buscar configuración existente
       const [existing] = await db
         .select({ id: notificationSettings.id })

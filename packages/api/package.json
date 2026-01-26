@@ -7,12 +7,20 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./lib/system-logger": {
+      "types": "./dist/lib/system-logger.d.ts",
+      "import": "./dist/lib/system-logger.js"
     }
   },
   "scripts": {
+    "prebuild": "node -e \"try { require('fs').rmSync('dist', { recursive: true, force: true }); } catch {}\"",
     "build": "tsup",
+    "predev": "node -e \"try { require('fs').rmSync('dist', { recursive: true, force: true }); } catch {}\"",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
     "test": "vitest run",
     "test:watch": "vitest",
     "clean": "rm -rf dist"
@@ -26,6 +34,7 @@
     "inngest": "^3.20.0",
     "@trpc/server": "^10.45.0",
     "drizzle-orm": "^0.38.0",
+    "pdfjs-dist": "^5.4.530",
     "superjson": "^2.2.0",
     "zod": "^3.24.0"
   },
@@ -34,6 +43,6 @@
     "dotenv": "^17.2.3",
     "tsup": "^8.3.0",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^4.0.16"
   }
 }

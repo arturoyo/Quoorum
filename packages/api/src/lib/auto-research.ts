@@ -3,7 +3,8 @@
  * Automatically researches context for debates using Google Custom Search API or Serper API
  */
 
-import { getAIClient } from '@quoorum/ai'
+import { getAIClient, parseAIJson } from '@quoorum/ai'
+import { logger } from './logger'
 
 // ============================================================================
 // TYPES
@@ -32,41 +33,106 @@ export interface AutoResearchOutput {
 // RESEARCH QUERIES GENERATOR
 // ============================================================================
 
-async function generateResearchQueries(question: string): Promise<string[]> {
-  const prompt = `Given this debate question: "${question}"
+async function generateResearchQueries(
+  question: string,
+  domain?: string
+): Promise<string[]> {
+  // Analizar la pregunta primero para entender qué información específica necesita
+  const analysisPrompt = `Analiza esta pregunta de negocio y determina qué información específica necesitarías buscar en internet para responderla bien.
 
-Generate 3-5 Google search queries that would help gather critical context.
-Focus on:
-- Market data and trends
-- Competitor information
-- Industry benchmarks
-- Success factors
-- Recent news/developments
+Pregunta: "${question}"
+${domain ? `Dominio detectado: ${domain}` : ''}
 
-Return ONLY a JSON array of search queries, no additional text.
+Piensa en:
+1. ¿Qué datos concretos necesitas? (tamaño de mercado, precios, benchmarks, etc.)
+2. ¿Qué aspectos específicos de la pregunta requieren investigación externa?
+3. ¿Qué información de contexto ayudaría a tomar una mejor decisión?
 
-Example output:
-["SaaS CRM market size 2024", "top CRM competitors pricing", "SaaS launch success factors"]`
+NO busques la pregunta tal cual. En su lugar, identifica los conceptos clave y datos específicos que necesitas.`
+
+  const queryGenerationPrompt = `Basándote en este análisis de la pregunta, genera 3-5 queries de búsqueda en Google que sean ESPECÍFICAS y CONTEXTUALES.
+
+REGLAS:
+- NO repitas la pregunta original
+- Genera queries que busquen DATOS CONCRETOS, no opiniones genéricas
+- Enfócate en información cuantificable: números, estadísticas, benchmarks, casos de estudio
+- Si la pregunta es sobre pricing, busca "pricing benchmarks [industria]" o "average pricing [producto]"
+- Si es sobre hiring, busca "hiring best practices [rol]" o "salary benchmarks [rol] [ubicación]"
+- Si es sobre growth, busca "growth strategies [tipo negocio]" o "growth metrics [industria]"
+- Si es sobre producto, busca "product launch success factors" o "MVP validation methods"
+- Las queries deben ser en inglés para mejores resultados
+- Máximo 5-7 palabras por query
+
+Pregunta original: "${question}"
+${domain ? `Dominio: ${domain}` : ''}
+
+Ejemplo de transformación:
+❌ MAL: "Should I launch a SaaS product?"
+✅ BIEN: ["SaaS product launch success rate", "SaaS MVP validation methods", "SaaS market entry strategies 2024"]
+
+❌ MAL: "What price should I charge?"
+✅ BIEN: ["SaaS pricing benchmarks 2024", "average SaaS pricing by tier", "pricing strategy best practices"]
+
+Return ONLY a JSON array of search queries, no additional text.`
 
   try {
     const aiClient = getAIClient()
-    const response = await aiClient.generate(prompt, {
+    
+    // Paso 1: Analizar la pregunta para entender qué necesita
+    const analysisResponse = await aiClient.generate(analysisPrompt, {
       modelId: 'gemini-2.0-flash-exp',
-      systemPrompt: 'You are a research query generator. Output ONLY valid JSON.',
+      temperature: 0.2,
+      maxTokens: 300,
+    })
+    
+    const analysis = analysisResponse.text.trim()
+    
+    // Paso 2: Generar queries específicas basadas en el análisis
+    const queryPrompt = `${queryGenerationPrompt}
+
+Análisis previo:
+${analysis}
+
+Ahora genera las queries específicas:`
+
+    const response = await aiClient.generate(queryPrompt, {
+      modelId: 'gemini-2.0-flash-exp',
+      systemPrompt: 'You are an expert research query generator. You create specific, data-focused search queries. Output ONLY valid JSON array.',
       temperature: 0.3,
       maxTokens: 500,
     })
 
-    const queries = JSON.parse(response.text) as string[]
-    return queries.slice(0, 5)
+    const queries = parseAIJson<string[]>(response.text)
+    
+    // Validar y limpiar queries
+    const validQueries = queries
+      .filter((q) => q && typeof q === 'string' && q.trim().length > 0)
+      .map((q) => q.trim())
+      .slice(0, 5)
+    
+    if (validQueries.length === 0) {
+      throw new Error('No valid queries generated')
+    }
+    
+    logger.info(`[Auto-Research] Generated ${validQueries.length} contextual queries`, {
+      question,
+      domain,
+      queries: validQueries,
+    })
+    
+    return validQueries
   } catch (error) {
-    console.error('Failed to generate research queries:', error)
-    // Fallback queries based on question keywords
+    logger.error('Failed to generate research queries:', error instanceof Error ? error : undefined)
+    
+    // Fallback mejorado: generar queries más específicas basadas en keywords
+    const keywords = question.toLowerCase().split(/\s+/).filter((w) => w.length > 3)
+    const domainContext = domain ? `${domain} ` : ''
+    
     return [
-      `${question} market trends 2024`,
-      `${question} competitors analysis`,
-      `${question} best practices`,
-    ]
+      `${domainContext}${keywords.slice(0, 2).join(' ')} benchmarks 2024`,
+      `${domainContext}${keywords.slice(0, 2).join(' ')} best practices`,
+      `${domainContext}${keywords.slice(0, 2).join(' ')} market data`,
+    ].slice(0, 3)
   }
 }
 
@@ -83,7 +149,7 @@ async function executeResearch(queries: string[]): Promise<Map<string, ResearchR
   
   const useGoogleSearch = GoogleSearchAPI.isConfigured()
   const useSerper = SerperAPI.isConfigured()
-
+  
   if (!useGoogleSearch && !useSerper) {
     return results // Return empty if no search API configured
   }
@@ -103,17 +169,17 @@ async function executeResearch(queries: string[]): Promise<Map<string, ResearchR
           // Success with Google, continue
         } else if (useSerper) {
           // Google returned empty, try Serper as fallback
-          console.log(`[Auto-Research] Google returned no results for "${query}", trying Serper...`)
+          logger.info(`[Auto-Research] Google returned no results for "${query}", trying Serper...`)
           searchResults = await SerperAPI.searchWebCached(query, { num: 5 })
         }
       } catch (error) {
         // Google failed, try Serper as fallback
-        console.warn(`[Auto-Research] Google Custom Search failed for "${query}", trying Serper fallback:`, error)
+        logger.warn(`[Auto-Research] Google Custom Search failed for "${query}", trying Serper fallback`, { error: error instanceof Error ? error.message : String(error) })
         if (useSerper) {
           try {
             searchResults = await SerperAPI.searchWebCached(query, { num: 5 })
           } catch (serperError) {
-            console.error(`[Auto-Research] Both Google and Serper failed for "${query}"`, serperError)
+            logger.error(`[Auto-Research] Both Google and Serper failed for "${query}"`, serperError instanceof Error ? serperError : undefined)
             return null
           }
         } else {
@@ -125,7 +191,7 @@ async function executeResearch(queries: string[]): Promise<Map<string, ResearchR
       try {
         searchResults = await SerperAPI.searchWebCached(query, { num: 5 })
       } catch (error) {
-        console.error(`[Auto-Research] Serper failed for "${query}"`, error)
+        logger.error(`[Auto-Research] Serper failed for "${query}"`, error instanceof Error ? error : undefined)
         return null
       }
     }
@@ -225,10 +291,10 @@ Output as JSON:
       maxTokens: 1000,
     })
 
-    const parsed = JSON.parse(response.text) as SynthesisResult
+    const parsed = parseAIJson<SynthesisResult>(response.text)
     return parsed
   } catch (error) {
-    console.error('Failed to synthesize results:', error)
+    logger.error('Failed to synthesize results:', error instanceof Error ? error : undefined)
     // Fallback to simple concatenation
     return {
       summary: results
@@ -288,9 +354,9 @@ Only include fields where you have concrete data from research.`
       maxTokens: 1500,
     })
 
-    return JSON.parse(response.text) as Record<string, unknown>
+    return parseAIJson<Record<string, unknown>>(response.text)
   } catch (error) {
-    console.error('Failed to generate pre-filled context:', error)
+    logger.error('Failed to generate pre-filled context:', error instanceof Error ? error : undefined)
     return {}
   }
 }
@@ -334,15 +400,17 @@ IMPORTANTE: Proporciona información concreta, específica y útil para tomar la
       maxTokens: 2500,
     })
 
-    const aiResearch = JSON.parse(response.text) as Array<{
+    interface AIResearchItem {
       category: string
       title: string
       summary: string
       keyPoints: string[]
       confidence: number
-    }>
+    }
 
-    return aiResearch.map((item) => ({
+    const aiResearch = parseAIJson<AIResearchItem[]>(response.text)
+
+    return aiResearch.map((item: AIResearchItem) => ({
       category: item.category,
       title: item.title,
       summary: item.summary,
@@ -356,7 +424,7 @@ IMPORTANTE: Proporciona información concreta, específica y útil para tomar la
       confidence: item.confidence,
     }))
   } catch (error) {
-    console.error('[AI-Only Research] Failed:', error)
+    logger.error('[AI-Only Research] Failed:', error instanceof Error ? error : undefined)
     // Return basic template
     return [
       {
@@ -442,9 +510,9 @@ Solo incluye campos relevantes para esta decisión específica.`
       maxTokens: 1500,
     })
 
-    return JSON.parse(response.text) as Record<string, unknown>
+    return parseAIJson<Record<string, unknown>>(response.text)
   } catch (error) {
-    console.error('[AI Context Generation] Failed:', error)
+    logger.error('[AI Context Generation] Failed:', error instanceof Error ? error : undefined)
     return {
       contexto_clave: researchSummary,
     }
@@ -455,7 +523,13 @@ Solo incluye campos relevantes para esta decisión específica.`
 // MAIN AUTO-RESEARCH FUNCTION
 // ============================================================================
 
-export async function performAutoResearch(question: string): Promise<AutoResearchOutput> {
+export async function performAutoResearch(
+  question: string,
+  options?: {
+    maxResults?: number
+    domain?: string // Business domain (hiring, pricing, growth, etc.)
+  }
+): Promise<AutoResearchOutput> {
   const startTime = Date.now()
 
   try {
@@ -468,7 +542,7 @@ export async function performAutoResearch(question: string): Promise<AutoResearc
     const hasSearchAPI = hasGoogleSearch || hasSerper
 
     if (!hasSearchAPI) {
-      console.log('[Auto-Research] No search API configured (Google Custom Search or Serper), using AI-only mode')
+      logger.info('[Auto-Research] No search API configured (Google Custom Search or Serper), using AI-only mode')
       // Fallback to AI-only research (no external searches)
       const aiResults = await generateAIOnlyResearch(question)
       const executionTimeMs = Date.now() - startTime
@@ -480,19 +554,21 @@ export async function performAutoResearch(question: string): Promise<AutoResearc
       }
     }
 
-    console.log(`[Auto-Research] Using ${hasGoogleSearch ? 'Google Custom Search API' : 'Serper API'}`)
+    logger.info(`[Auto-Research] Using ${hasGoogleSearch ? 'Google Custom Search API' : 'Serper API'}`)
 
-    // Step 1: Generate research queries
-    const queries = await generateResearchQueries(question)
-    console.log(`[Auto-Research] Generated ${queries.length} queries for: "${question}"`)
+    // Step 1: Generate research queries (with domain context if available)
+    const queries = await generateResearchQueries(question, options?.domain)
+    logger.info(`[Auto-Research] Generated ${queries.length} queries for: "${question}"`, {
+      domain: options?.domain,
+    })
 
     // Step 2: Execute research
     const researchResults = await executeResearch(queries)
-    console.log(`[Auto-Research] Completed ${researchResults.size} searches`)
+    logger.info(`[Auto-Research] Completed ${researchResults.size} searches`)
 
     // If no results from search API, fallback to AI-only
     if (researchResults.size === 0) {
-      console.log('[Auto-Research] No search results, using AI-only mode')
+      logger.info('[Auto-Research] No search results, using AI-only mode')
       const aiResults = await generateAIOnlyResearch(question)
       const executionTimeMs = Date.now() - startTime
       return {
@@ -515,7 +591,7 @@ export async function performAutoResearch(question: string): Promise<AutoResearc
       executionTimeMs,
     }
   } catch (error) {
-    console.error('[Auto-Research] Failed:', error)
+    logger.error('[Auto-Research] Failed:', error instanceof Error ? error : undefined)
     // Fallback to AI-only on any error
     try {
       const aiResults = await generateAIOnlyResearch(question)
@@ -624,7 +700,7 @@ export async function findSimilarDebates(
       .filter((debate): debate is SimilarDebate => debate !== null)
       .slice(0, limit)
   } catch (error) {
-    console.error('[findSimilarDebates] Failed:', error)
+    logger.error('[findSimilarDebates] Failed:', error instanceof Error ? error : undefined)
     // Fallback: return empty array if Pinecone is not available
     return []
   }
@@ -684,9 +760,9 @@ Output as JSON array:
       maxTokens: 2000,
     })
 
-    return JSON.parse(response.text) as CoachingSuggestion[]
+    return parseAIJson<CoachingSuggestion[]>(response.text)
   } catch (error) {
-    console.error('Failed to generate coaching suggestions:', error)
+    logger.error('Failed to generate coaching suggestions:', error instanceof Error ? error : undefined)
     return []
   }
 }

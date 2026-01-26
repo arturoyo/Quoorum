@@ -34,6 +34,7 @@ import {
 // ============================================================
 
 const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  // IMPORTANT: adminUsers.userId references profiles.id, so use ctx.userId (profile.id)
   const [adminUser] = await db
     .select({
       id: adminUsers.id,
@@ -44,7 +45,7 @@ const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     })
     .from(adminUsers)
     .innerJoin(adminRoles, eq(adminUsers.roleId, adminRoles.id))
-    .where(and(eq(adminUsers.userId, ctx.user.id), eq(adminUsers.isActive, true)))
+    .where(and(eq(adminUsers.userId, ctx.userId), eq(adminUsers.isActive, true)))
 
   if (!adminUser) {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'No tienes permisos de administrador' })
@@ -253,13 +254,15 @@ export const adminQuoorumRouter = router({
       }
 
       try {
-        // Load context
+        // Load context (pass userId to deduct credits for internet searches)
+        // ctx.user.id is users.id (from Supabase Auth), which is what we need for credit deduction
         const context = await loadContext({
           question: session.question,
           manualContext: session.manualContext ?? undefined,
           useInternet: session.useInternet ?? false,
           useRepo: session.useRepo ?? false,
           repoPath: session.repoPath ?? undefined,
+          userId: ctx.user.id, // Pass userId to deduct credits for internet searches
         })
 
         // Save context sources

@@ -29,6 +29,8 @@ export const quoorumNotificationTypeEnum = pgEnum('quoorum_notification_type', [
   'weekly_digest',
   'debate_reminder',
   'team_action',
+  'process_phase_completed',
+  'process_completed',
 ])
 
 export const forumNotificationChannelEnum = pgEnum('quoorum_notification_channel', [

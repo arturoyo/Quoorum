@@ -130,7 +130,7 @@ export const quoorumPublicApiRouter = router({
   generateApiKey: protectedProcedure
     .input(z.object({
       name: z.string().min(1).max(100),
-      expiresAt: z.date().optional(),
+      expiresAt: z.coerce.date().optional(),
       scopes: z.array(z.enum([
         'debates:read',
         'debates:write',
@@ -152,7 +152,7 @@ export const quoorumPublicApiRouter = router({
       const [apiKey] = await db
         .insert(quoorumApiKeys)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           name: input.name,
           keyHash: hashedKey,
           keyPrefix: fullKey.substring(0, 10) + '...',
@@ -195,7 +195,7 @@ export const quoorumPublicApiRouter = router({
         isActive: quoorumApiKeys.isActive,
       })
       .from(quoorumApiKeys)
-      .where(eq(quoorumApiKeys.userId, ctx.user.id))
+      .where(eq(quoorumApiKeys.userId, ctx.userId))
       .orderBy(desc(quoorumApiKeys.createdAt))
 
     return keys
@@ -213,7 +213,7 @@ export const quoorumPublicApiRouter = router({
         .where(
           and(
             eq(quoorumApiKeys.id, input.id),
-            eq(quoorumApiKeys.userId, ctx.user.id)
+            eq(quoorumApiKeys.userId, ctx.userId)
           )
         )
 
@@ -233,7 +233,7 @@ export const quoorumPublicApiRouter = router({
       const [debate] = await db
         .insert(quoorumDebates)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           question: input.question,
           context: input.context ? { background: input.context } : undefined,
           status: 'pending',
@@ -259,7 +259,7 @@ export const quoorumPublicApiRouter = router({
         name: 'quoorum/debate.created',
         data: {
           debateId: debate.id,
-          userId: ctx.user.id,
+          userId: ctx.userId,
           conversationId: '', // No WhatsApp conversation
           question: input.question,
         },
@@ -271,7 +271,7 @@ export const quoorumPublicApiRouter = router({
         .from(quoorumWebhooks)
         .where(
           and(
-            eq(quoorumWebhooks.userId, ctx.user.id),
+            eq(quoorumWebhooks.userId, ctx.userId),
             eq(quoorumWebhooks.isActive, true)
           )
         )
@@ -320,7 +320,7 @@ export const quoorumPublicApiRouter = router({
         .where(
           and(
             eq(quoorumDebates.id, input.id),
-            eq(quoorumDebates.userId, ctx.user.id)
+            eq(quoorumDebates.userId, ctx.userId)
           )
         )
 
@@ -367,7 +367,7 @@ export const quoorumPublicApiRouter = router({
         .where(
           and(
             eq(quoorumDebates.id, input.id),
-            eq(quoorumDebates.userId, ctx.user.id)
+            eq(quoorumDebates.userId, ctx.userId)
           )
         )
 
@@ -391,7 +391,7 @@ export const quoorumPublicApiRouter = router({
       status: z.enum(['pending', 'in_progress', 'completed', 'failed']).optional(),
     }))
     .query(async ({ ctx, input }) => {
-      const conditions = [eq(quoorumDebates.userId, ctx.user.id)]
+      const conditions = [eq(quoorumDebates.userId, ctx.userId)]
 
       if (input.status) {
         conditions.push(eq(quoorumDebates.status, input.status))
@@ -429,7 +429,7 @@ export const quoorumPublicApiRouter = router({
       const existingCount = await db
         .select({ count: quoorumWebhooks.id })
         .from(quoorumWebhooks)
-        .where(eq(quoorumWebhooks.userId, ctx.user.id))
+        .where(eq(quoorumWebhooks.userId, ctx.userId))
 
       if (existingCount.length >= 10) {
         throw new TRPCError({
@@ -444,7 +444,7 @@ export const quoorumPublicApiRouter = router({
       const [webhook] = await db
         .insert(quoorumWebhooks)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           name: input.name ?? 'Webhook',
           url: input.url,
           events: input.events,
@@ -485,7 +485,7 @@ export const quoorumPublicApiRouter = router({
         createdAt: quoorumWebhooks.createdAt,
       })
       .from(quoorumWebhooks)
-      .where(eq(quoorumWebhooks.userId, ctx.user.id))
+      .where(eq(quoorumWebhooks.userId, ctx.userId))
       .orderBy(desc(quoorumWebhooks.createdAt))
 
     return webhooks
@@ -508,7 +508,7 @@ export const quoorumPublicApiRouter = router({
         .where(
           and(
             eq(quoorumWebhooks.id, id),
-            eq(quoorumWebhooks.userId, ctx.user.id)
+            eq(quoorumWebhooks.userId, ctx.userId)
           )
         )
         .returning()
@@ -534,7 +534,7 @@ export const quoorumPublicApiRouter = router({
         .where(
           and(
             eq(quoorumWebhooks.id, input.id),
-            eq(quoorumWebhooks.userId, ctx.user.id)
+            eq(quoorumWebhooks.userId, ctx.userId)
           )
         )
 
@@ -553,7 +553,7 @@ export const quoorumPublicApiRouter = router({
         .where(
           and(
             eq(quoorumWebhooks.id, input.id),
-            eq(quoorumWebhooks.userId, ctx.user.id)
+            eq(quoorumWebhooks.userId, ctx.userId)
           )
         )
 

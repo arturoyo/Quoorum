@@ -1,10 +1,12 @@
-# Serper API Setup - Auto-Research Web Search
+# Serper API Setup - Auto-Research Web Search (Backup/Fallback)
 
 **Actualizado:** 21 Ene 2026
 
 ## ¿Qué es Serper API?
 
-Serper API proporciona acceso programático a Google Search para el sistema de **Auto-Research** de Quoorum. Permite enriquecer debates con datos actualizados de internet.
+Serper API proporciona acceso programático a Google Search para el sistema de **Auto-Research** de Quoorum. 
+
+**Nota:** Serper ahora actúa como **backup/fallback automático** cuando Google Custom Search API está configurada. Si Google falla o excede su límite diario, Serper toma el relevo automáticamente.
 
 ## 🎯 Características del Auto-Research
 

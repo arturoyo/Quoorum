@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
-import { router, publicProcedure, protectedProcedure } from "../trpc.js";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { consensus, type DissentingExpert } from "@quoorum/db";
 
 const dissentingExpertSchema = z.object({

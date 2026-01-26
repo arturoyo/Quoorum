@@ -22,6 +22,55 @@
       "when": 1737415000000,
       "tag": "0026_add_companies_departments",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1769112615247,
+      "tag": "0027_new_mach_iv",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1769113878443,
+      "tag": "0028_acoustic_thunderbolt_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1769156429707,
+      "tag": "0029_famous_hercules",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1769156692617,
+      "tag": "0030_nasty_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1769157000000,
+      "tag": "0031_add_team_members",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1769352191258,
+      "tag": "0032_stiff_kronos",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1769439338633,
+      "tag": "0033_organic_wiccan",
+      "breakpoints": true
     }
   ]
 }

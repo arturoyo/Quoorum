@@ -1,5 +1,5 @@
-import { BaseExpert, type ExpertContext } from "./base-expert.js";
-import type { ExpertOpinionResult } from "../types.js";
+import { BaseExpert, type ExpertContext } from "./base-expert";
+import type { ExpertOpinionResult } from "../types";
 
 export class DeliberationExpert extends BaseExpert {
   async generateOpinion(context: ExpertContext): Promise<ExpertOpinionResult> {

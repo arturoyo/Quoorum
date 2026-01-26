@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
-import { router, publicProcedure, protectedProcedure } from "../trpc.js";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { rounds, type RoundStatus } from "@quoorum/db";
 
 const statusSchema = z.enum([

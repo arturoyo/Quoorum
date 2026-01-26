@@ -4,9 +4,10 @@
  * with automatic fallback to cheaper providers when quota exceeded
  */
 import { generateText } from "ai";
-import { createModel } from "./providers/index.js";
-import { getFallbackChain } from "./lib/fallback-config.js";
-import type { AIClient, AIResponse, GenerateOptions } from "./types.js";
+import { createModel } from "./providers/index";
+import { getFallbackChain } from "./lib/fallback-config";
+import { logger } from "./lib/logger";
+import type { AIClient, AIResponse, GenerateOptions } from "./types";
 
 const DEFAULT_MODEL_ID = "gemini-2.0-flash-exp"; // Using Gemini free tier to avoid OpenAI quota issues
 
@@ -29,7 +30,7 @@ class ForumAIClient implements AIClient {
       try {
         if (i > 0) {
           // Log fallback attempt
-          console.log(`[AI Client] Falling back to ${fallbackModel.displayName} (${fallbackModel.provider})`)
+          logger.info(`Falling back to ${fallbackModel.displayName} (${fallbackModel.provider})`)
         }
 
         const model = createModel({
@@ -56,7 +57,7 @@ class ForumAIClient implements AIClient {
 
         // Success! Return result
         if (i > 0) {
-          console.log(`[AI Client] ✓ Fallback successful with ${fallbackModel.displayName}`)
+          logger.info(`Fallback successful with ${fallbackModel.displayName}`)
         }
 
         return {
@@ -82,12 +83,12 @@ class ForumAIClient implements AIClient {
           errorMessage.includes("balance");
 
         if (isQuotaError) {
-          console.warn(`[AI Client] ⚠️  ${fallbackModel.displayName} quota exceeded, trying next fallback...`)
+          logger.warn(`${fallbackModel.displayName} quota exceeded, trying next fallback...`)
           // Continue to next provider
           continue;
         } else {
           // Other error, don't fallback
-          console.error(`[AI Client] ❌ ${fallbackModel.displayName} failed with non-quota error:`, errorMessage)
+          logger.error(`${fallbackModel.displayName} failed with non-quota error`, { errorMessage })
           throw lastError;
         }
       }
@@ -95,6 +96,21 @@ class ForumAIClient implements AIClient {
 
     // All providers failed
     throw new Error(`All AI providers failed. Last error: ${lastError?.message ?? 'Unknown error'}`);
+  }
+
+  /**
+   * Generate text with a system prompt - convenience method
+   * This method is used by many parts of the codebase for AI generation
+   */
+  async generateWithSystem(
+    systemPrompt: string,
+    userPrompt: string,
+    options?: Omit<GenerateOptions, "systemPrompt">
+  ): Promise<AIResponse> {
+    return this.generate(userPrompt, {
+      ...options,
+      systemPrompt,
+    });
   }
 
   private getProviderFromModelId(modelId: string): "openai" | "anthropic" | "google" | "groq" | "deepseek" {
@@ -114,7 +130,7 @@ class ForumAIClient implements AIClient {
       return "deepseek";
     }
     // Default to Google (free tier)
-    console.warn(`[AI Client] Unknown model prefix for "${modelId}", defaulting to Google Gemini`);
+    logger.warn(`Unknown model prefix for "${modelId}", defaulting to Google Gemini`);
     return "google";
   }
 }

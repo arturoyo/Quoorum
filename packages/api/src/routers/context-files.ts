@@ -47,7 +47,8 @@ export const contextFilesRouter = router({
   list: protectedProcedure
     .input(listContextFilesSchema)
     .query(async ({ ctx, input }) => {
-      const conditions = [eq(userContextFiles.userId, ctx.user.id)]
+      // FK references profiles.id
+      const conditions = [eq(userContextFiles.userId, ctx.userId)]
 
       if (input.activeOnly) {
         conditions.push(eq(userContextFiles.isActive, true))
@@ -92,7 +93,7 @@ export const contextFilesRouter = router({
         .where(
           and(
             eq(userContextFiles.id, input.id),
-            eq(userContextFiles.userId, ctx.user.id)
+            eq(userContextFiles.userId, ctx.userId) // FK references profiles.id
           )
         )
         .limit(1)
@@ -123,7 +124,7 @@ export const contextFilesRouter = router({
       .from(userContextFiles)
       .where(
         and(
-          eq(userContextFiles.userId, ctx.user.id),
+          eq(userContextFiles.userId, ctx.userId), // FK references profiles.id
           eq(userContextFiles.isActive, true)
         )
       )
@@ -155,7 +156,7 @@ export const contextFilesRouter = router({
       const [file] = await db
         .insert(userContextFiles)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId, // FK references profiles.id
           name: input.name,
           description: input.description,
           content: input.content,
@@ -185,7 +186,7 @@ export const contextFilesRouter = router({
         .where(
           and(
             eq(userContextFiles.id, id),
-            eq(userContextFiles.userId, ctx.user.id)
+            eq(userContextFiles.userId, ctx.userId) // FK references profiles.id
           )
         )
 
@@ -228,7 +229,7 @@ export const contextFilesRouter = router({
         .where(
           and(
             eq(userContextFiles.id, input.id),
-            eq(userContextFiles.userId, ctx.user.id)
+            eq(userContextFiles.userId, ctx.userId) // FK references profiles.id
           )
         )
 
@@ -264,7 +265,7 @@ export const contextFilesRouter = router({
         .where(
           and(
             eq(userContextFiles.id, input.id),
-            eq(userContextFiles.userId, ctx.user.id)
+            eq(userContextFiles.userId, ctx.userId) // FK references profiles.id
           )
         )
 

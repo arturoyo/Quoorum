@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { eq, and, isNull, or, like } from "drizzle-orm";
-import { router, publicProcedure, protectedProcedure } from "../trpc.js";
-import { experts } from "@quoorum/db";
+import { eq, and, isNull, or, like, inArray } from "drizzle-orm";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { experts, companies } from "@quoorum/db";
 import type { AIConfig } from "@quoorum/ai";
+import { logger } from "../lib/logger";
 
 const aiConfigSchema = z.object({
   provider: z.enum(["openai", "anthropic", "google", "groq"]),
@@ -22,6 +23,42 @@ export const expertsRouter = router({
         .where(eq(experts.id, input.id))
         .limit(1);
       return result[0] ?? null;
+    }),
+
+  /** Get id+name for multiple experts (e.g. Phase 4 review). */
+  getByIds: publicProcedure
+    .input(z.object({ ids: z.array(z.string().min(1)).max(50) })) // Acepta slugs (ej: "april_dunford") o UUIDs
+    .query(async ({ ctx, input }) => {
+      if (input.ids.length === 0) return [];
+      
+      // Los expertos del sistema tienen slugs, los personalizados tienen UUIDs
+      // Separar UUIDs de slugs antes de hacer queries
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      const validUuids = input.ids.filter((id) => uuidRegex.test(id))
+      const slugs = input.ids.filter((id) => !uuidRegex.test(id))
+      
+      const results: Array<{ id: string; name: string }> = [];
+      
+      // NO buscar en tabla de expertos personalizados - solo expertos del sistema (slugs)
+      // Los expertos personalizados han sido eliminados, solo usamos expertos del sistema
+      
+      // Buscar en EXPERT_DATABASE (slugs del sistema)
+      if (slugs.length > 0) {
+        const { getExpert } = await import("@quoorum/quoorum");
+        const foundUuids = new Set(validUuids);
+        
+        for (const slug of slugs) {
+          // Solo buscar si no está ya en resultados de DB
+          if (!foundUuids.has(slug)) {
+            const expert = getExpert(slug);
+            if (expert) {
+              results.push({ id: expert.id, name: expert.name });
+            }
+          }
+        }
+      }
+      
+      return results;
     }),
 
   /**
@@ -159,7 +196,9 @@ export const expertsRouter = router({
     }),
 
   /**
-   * List all experts (library + user's custom) - for ExpertSelector
+   * List all experts (library only) - for ExpertSelector
+   * ⚠️ MODIFICADO: Solo retorna expertos de biblioteca (userId = null)
+   * Los expertos personalizados han sido eliminados
    */
   list: publicProcedure
     .input(
@@ -169,24 +208,13 @@ export const expertsRouter = router({
         limit: z.number().min(1).max(100).default(25),
         offset: z.number().min(0).default(0),
         includeLibrary: z.boolean().default(true),
-        includeMyExperts: z.boolean().default(false),
-        userId: z.string().uuid().optional(), // If provided, include user's custom experts
+        includeMyExperts: z.boolean().default(false), // Ignorado - siempre false
+        userId: z.string().uuid().optional(), // Ignorado - no se usan expertos personalizados
       })
     )
     .query(async ({ ctx, input }) => {
-      const conditions: ReturnType<typeof eq>[] = [];
-
-      // Build conditions for library vs custom experts
-      if (input.includeLibrary && input.includeMyExperts && input.userId) {
-        // Include both library and user's experts
-        conditions.push(or(isNull(experts.userId), eq(experts.userId, input.userId))!);
-      } else if (input.includeLibrary) {
-        // Only library
-        conditions.push(isNull(experts.userId));
-      } else if (input.includeMyExperts && input.userId) {
-        // Only user's experts
-        conditions.push(eq(experts.userId, input.userId));
-      }
+      // Solo expertos de biblioteca (userId = null)
+      const conditions = [isNull(experts.userId)];
 
       if (input.activeOnly) {
         conditions.push(eq(experts.isActive, true));
@@ -199,7 +227,7 @@ export const expertsRouter = router({
       const results = await ctx.db
         .select()
         .from(experts)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .where(and(...conditions))
         .limit(input.limit)
         .offset(input.offset);
 
@@ -208,48 +236,23 @@ export const expertsRouter = router({
 
   /**
    * Fork an expert from library to user's custom experts
+   * ⚠️ DESHABILITADO: Los expertos personalizados han sido eliminados
    */
   forkFromLibrary: protectedProcedure
     .input(
       z.object({
         libraryExpertId: z.string().uuid(),
-        name: z.string().min(1).max(255).optional(), // Optional: customize name
-        category: z.string().max(100).optional(), // Optional: change category
+        name: z.string().min(1).max(255).optional(),
+        category: z.string().max(100).optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      // Get library expert
-      const [libraryExpert] = await ctx.db
-        .select()
-        .from(experts)
-        .where(and(eq(experts.id, input.libraryExpertId), isNull(experts.userId)))
-        .limit(1);
-
-      if (!libraryExpert) {
-        throw new Error('Expert de biblioteca no encontrado');
-      }
-
-      // Create custom expert as fork
-      const [forkedExpert] = await ctx.db
-        .insert(experts)
-        .values({
-          userId: ctx.user.id, // User's custom expert
-          name: input.name || libraryExpert.name,
-          expertise: libraryExpert.expertise,
-          description: libraryExpert.description,
-          systemPrompt: libraryExpert.systemPrompt,
-          aiConfig: libraryExpert.aiConfig,
-          category: input.category || libraryExpert.category,
-          libraryExpertId: libraryExpert.id, // Reference to original
-          isActive: true,
-        })
-        .returning();
-
-      return forkedExpert;
+    .mutation(async () => {
+      throw new Error('Los expertos personalizados han sido eliminados. Solo se pueden usar expertos del sistema.');
     }),
 
   /**
    * Create a new custom expert
+   * ⚠️ DESHABILITADO: Los expertos personalizados han sido eliminados
    */
   create: protectedProcedure
     .input(
@@ -260,22 +263,16 @@ export const expertsRouter = router({
         systemPrompt: z.string().min(1),
         aiConfig: aiConfigSchema,
         category: z.string().max(100).optional(),
-        libraryExpertId: z.string().uuid().optional(), // Optional: if forked from library
+        libraryExpertId: z.string().uuid().optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      const result = await ctx.db
-        .insert(experts)
-        .values({
-          ...input,
-          userId: ctx.user.id, // User's custom expert
-        })
-        .returning();
-      return result[0]!;
+    .mutation(async () => {
+      throw new Error('Los expertos personalizados han sido eliminados. Solo se pueden usar expertos del sistema.');
     }),
 
   /**
    * Update expert (only user's custom experts can be updated)
+   * ⚠️ DESHABILITADO: Los expertos personalizados han sido eliminados
    */
   update: protectedProcedure
     .input(
@@ -290,85 +287,78 @@ export const expertsRouter = router({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      const { id, ...data } = input;
-
-      // Verify ownership (only user's custom experts can be updated)
-      const [existing] = await ctx.db
-        .select({ userId: experts.userId })
-        .from(experts)
-        .where(eq(experts.id, id))
-        .limit(1);
-
-      if (!existing) {
-        throw new Error('Experto no encontrado');
-      }
-
-      // Library experts (userId = null) cannot be updated
-      if (!existing.userId) {
-        throw new Error('No puedes modificar expertos de la biblioteca. Crea una copia personalizada primero.');
-      }
-
-      // Verify it belongs to the user
-      if (existing.userId !== ctx.user.id) {
-        throw new Error('No tienes permiso para modificar este experto');
-      }
-
-      const result = await ctx.db
-        .update(experts)
-        .set({ ...data, updatedAt: new Date() })
-        .where(eq(experts.id, id))
-        .returning();
-      return result[0] ?? null;
-    }),
-
-  delete: protectedProcedure
-    .input(z.object({ id: z.string().uuid() }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .update(experts)
-        .set({ isActive: false, updatedAt: new Date() })
-        .where(eq(experts.id, input.id));
-      return { success: true };
+    .mutation(async () => {
+      throw new Error('Los expertos personalizados han sido eliminados. Solo se pueden usar expertos del sistema.');
     }),
 
   /**
-   * Suggest experts automatically based on question context (like deliberation strategy)
-   * Analyzes the question and recommends experts using expert-matcher logic
+   * Delete expert
+   * ⚠️ DESHABILITADO: Los expertos personalizados han sido eliminados
+   */
+  delete: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async () => {
+      throw new Error('Los expertos personalizados han sido eliminados. Solo se pueden usar expertos del sistema.');
+    }),
+
+  /**
+   * Suggest experts automatically based on question context using AI
+   * Uses intelligent AI matching considering:
+   * - Full company context (industry, size, stage)
+   * - Question analysis (complexity, areas, topics)
+   * - Expert synergies and diversity
    */
   suggest: protectedProcedure
     .input(z.object({ question: z.string().min(10), context: z.string().optional() }))
-    .query(async ({ input }) => {
-      // Use the same logic as deliberation strategy
-      // Import from main package (these are exported from @quoorum/quoorum)
-      const { analyzeQuestion, matchExperts, getAllExperts } = await import("@quoorum/quoorum");
+    .query(async ({ ctx, input }) => {
+      // Import AI-powered matcher and question analyzer
+      const { analyzeQuestion, getAllExperts, matchExpertsWithAI } = await import("@quoorum/quoorum");
+
+      // Get company context for better suggestions
+      const [company] = await ctx.db
+        .select()
+        .from(companies)
+        .where(eq(companies.userId, ctx.userId))
+        .limit(1);
 
       // Analyze question to get areas, topics, complexity
       const analysis = await analyzeQuestion(input.question, input.context);
 
-      console.log('[experts.suggest] Question analysis:', {
+      logger.info('[experts.suggest] Question analysis:', {
         question: input.question.substring(0, 100),
         complexity: analysis.complexity,
         decisionType: analysis.decisionType,
         areasCount: analysis.areas.length,
         areas: analysis.areas.map(a => ({ area: a.area, weight: a.weight })),
         topicsCount: analysis.topics?.length || 0,
-        topics: analysis.topics?.slice(0, 5)
+        topics: analysis.topics?.slice(0, 5),
+        hasCompanyContext: !!company
       });
 
-      const allExperts = getAllExperts();
-      console.log('[experts.suggest] Total experts in database:', allExperts.length);
+      const allExperts = getAllExperts(true); // companyOnly = true
+      logger.info('[experts.suggest] Total experts in database:', { count: allExperts.length });
 
-      // Match experts based on analysis (like in runner-dynamic.ts)
-      // Temporarily using minScore: 0 to see ALL matches for debugging
-      const matches = matchExperts(analysis, {
-        minExperts: 3,
-        maxExperts: 7,
-        minScore: 0, // Changed from 30 to see all matches
-        alwaysIncludeCritic: true, // Changed from false to always include at least one expert
-      });
+      // Use AI-powered matching with company context
+      const matches = await matchExpertsWithAI(
+        input.question,
+        analysis,
+        allExperts,
+        {
+          minExperts: 3,
+          maxExperts: 7,
+          alwaysIncludeCritic: true,
+          companyOnly: true,
+          companyContext: company ? {
+            name: company.name,
+            industry: company.industry || undefined,
+            size: company.size || undefined,
+            description: company.description || undefined,
+            context: company.context || undefined,
+          } : undefined,
+        }
+      );
 
-      console.log('[experts.suggest] Matches found:', {
+      logger.info('[experts.suggest] AI matches found:', {
         count: matches.length,
         experts: matches.map(m => ({ id: m.expert.id, name: m.expert.name, score: m.score, role: m.suggestedRole }))
       });
@@ -382,6 +372,7 @@ export const expertsRouter = router({
         matchScore: match.score,
         role: match.suggestedRole,
         reasons: match.reasons,
+        synergy: match.synergy,
         analysis: {
           complexity: analysis.complexity,
           decisionType: analysis.decisionType,

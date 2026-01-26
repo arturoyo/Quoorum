@@ -5,7 +5,7 @@
  * Includes full debate history, expert participation, and analytics.
  */
 
-import { pgTable, uuid, varchar, text, timestamp, jsonb, pgEnum, integer, boolean, real, type AnyPgColumn } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, text, timestamp, jsonb, pgEnum, integer, boolean, real, type AnyPgColumn, index } from 'drizzle-orm/pg-core'
 import { profiles } from './profiles'
 import { companies } from './companies'
 import { departments } from './departments'
@@ -173,7 +173,20 @@ export const quoorumDebates = pgTable('quoorum_debates', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }), // Soft delete
-})
+}, (table) => ({
+  // Performance indexes for quoorum_debates (critical table)
+  userIdIdx: index('idx_quoorum_debates_user').on(table.userId),
+  statusIdx: index('idx_quoorum_debates_status').on(table.status),
+  visibilityIdx: index('idx_quoorum_debates_visibility').on(table.visibility),
+  companyIdIdx: index('idx_quoorum_debates_company').on(table.companyId),
+  departmentIdIdx: index('idx_quoorum_debates_department').on(table.departmentId),
+  createdAtIdx: index('idx_quoorum_debates_created').on(table.createdAt),
+  // Composite indexes for common query patterns
+  userStatusIdx: index('idx_quoorum_debates_user_status').on(table.userId, table.status),
+  userCreatedIdx: index('idx_quoorum_debates_user_created').on(table.userId, table.createdAt),
+  // Index for user + deletedAt filter (common in list queries)
+  userDeletedIdx: index('idx_quoorum_debates_user_deleted').on(table.userId, table.deletedAt),
+}))
 
 // ============================================================
 // Forum Debate Comments Table
@@ -198,7 +211,12 @@ export const quoorumDebateComments = pgTable('quoorum_debate_comments', {
   // Timestamps
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-})
+}, (table) => ({
+  // Performance indexes for quoorum_debate_comments
+  debateIdIdx: index('idx_quoorum_debate_comments_debate').on(table.debateId),
+  userIdIdx: index('idx_quoorum_debate_comments_user').on(table.userId),
+  parentIdIdx: index('idx_quoorum_debate_comments_parent').on(table.parentId),
+}))
 
 // ============================================================
 // Forum Debate Likes Table
@@ -216,7 +234,12 @@ export const quoorumDebateLikes = pgTable('quoorum_debate_likes', {
     .references(() => profiles.id, { onDelete: 'cascade' }),
 
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-})
+}, (table) => ({
+  // Performance indexes for quoorum_debate_likes
+  debateIdIdx: index('idx_quoorum_debate_likes_debate').on(table.debateId),
+  userIdIdx: index('idx_quoorum_debate_likes_user').on(table.userId),
+  userDebateIdx: index('idx_quoorum_debate_likes_user_debate').on(table.userId, table.debateId),
+}))
 
 // ============================================================
 // Expert Performance Table (Learning System)
@@ -259,7 +282,10 @@ export const quoorumExpertPerformance = pgTable('quoorum_expert_performance', {
 
   // Timestamps
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-})
+}, (table) => ({
+  // Performance indexes for quoorum_expert_performance
+  expertIdIdx: index('idx_quoorum_expert_performance_expert').on(table.expertId),
+}))
 
 // ============================================================
 // Custom Experts Table (Premium Feature)
@@ -295,7 +321,12 @@ export const quoorumCustomExperts = pgTable('quoorum_custom_experts', {
   // Timestamps
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-})
+}, (table) => ({
+  // Performance indexes for quoorum_custom_experts
+  userIdIdx: index('idx_quoorum_custom_experts_user').on(table.userId),
+  isActiveIdx: index('idx_quoorum_custom_experts_active').on(table.isActive),
+  userActiveIdx: index('idx_quoorum_custom_experts_user_active').on(table.userId, table.isActive),
+}))
 
 // ============================================================
 // Debate Templates Table (Industry-Specific)
@@ -329,7 +360,13 @@ export const quoorumDebateTemplates = pgTable('quoorum_debate_templates', {
   // Timestamps
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-})
+}, (table) => ({
+  // Performance indexes for quoorum_debate_templates
+  createdByIdx: index('idx_quoorum_debate_templates_created_by').on(table.createdBy),
+  industryIdx: index('idx_quoorum_debate_templates_industry').on(table.industry),
+  categoryIdx: index('idx_quoorum_debate_templates_category').on(table.category),
+  isPublicIdx: index('idx_quoorum_debate_templates_public').on(table.isPublic),
+}))
 
 // ============================================================
 // Relations

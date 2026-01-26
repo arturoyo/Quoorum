@@ -3,7 +3,7 @@
  * Stores company-wide context and master information
  */
 
-import { pgTable, uuid, varchar, text, timestamp, boolean } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, text, timestamp, boolean, index } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { profiles } from './profiles'
 import { departments } from './departments'
@@ -34,7 +34,11 @@ export const companies = pgTable('companies', {
   // Timestamps
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-})
+}, (table) => ({
+  // Performance indexes for companies
+  userIdIdx: index('idx_companies_user').on(table.userId),
+  isActiveIdx: index('idx_companies_is_active').on(table.isActive),
+}))
 
 // Relations
 export const companiesRelations = relations(companies, ({ one, many }) => ({

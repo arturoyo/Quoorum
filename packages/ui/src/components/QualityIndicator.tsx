@@ -25,22 +25,22 @@ function MetricBar({ label, value, compact }: MetricBarProps): ReactNode {
   const percentage = Math.round(value * 100);
   const color =
     value >= 0.8
-      ? "bg-green-500"
+      ? "bg-emerald-500"
       : value >= 0.6
-        ? "bg-yellow-500"
+        ? "bg-amber-500"
         : "bg-red-500";
 
   if (compact) {
     return (
       <div className="flex items-center gap-2">
-        <span className="w-16 text-xs text-gray-600">{label}</span>
-        <div className="h-1.5 flex-1 rounded-full bg-gray-200">
+        <span className="w-16 text-xs text-[#aebac1]">{label}</span>
+        <div className="h-1.5 flex-1 rounded-full bg-[#2a3942]">
           <div
             className={clsx("h-full rounded-full transition-all", color)}
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <span className="w-8 text-right text-xs font-medium">{percentage}%</span>
+        <span className="w-8 text-right text-xs font-medium text-white">{percentage}%</span>
       </div>
     );
   }
@@ -48,10 +48,10 @@ function MetricBar({ label, value, compact }: MetricBarProps): ReactNode {
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-sm">
-        <span className="text-gray-600">{label}</span>
-        <span className="font-medium">{percentage}%</span>
+        <span className="text-[#aebac1]">{label}</span>
+        <span className="font-medium text-white">{percentage}%</span>
       </div>
-      <div className="h-2 rounded-full bg-gray-200">
+      <div className="h-2 rounded-full bg-[#2a3942]">
         <div
           className={clsx("h-full rounded-full transition-all", color)}
           style={{ width: `${percentage}%` }}
@@ -70,15 +70,15 @@ export function QualityIndicator({
     <div className={clsx("space-y-3", className)}>
       {!compact && (
         <div className="flex items-center justify-between">
-          <h4 className="font-medium text-gray-900">Quality Metrics</h4>
+          <h4 className="font-medium text-white">Quality Metrics</h4>
           <span
             className={clsx(
-              "rounded-full px-2 py-1 text-sm font-medium",
+              "rounded-full px-2 py-1 text-sm font-medium border",
               metrics.overallQuality >= 0.8
-                ? "bg-green-100 text-green-700"
+                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
                 : metrics.overallQuality >= 0.6
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                  : "bg-red-500/20 text-red-300 border-red-500/30"
             )}
           >
             {Math.round(metrics.overallQuality * 100)}% Overall

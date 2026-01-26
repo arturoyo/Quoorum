@@ -1,6 +1,6 @@
 import { generateText } from "ai";
 import { createModel } from "@quoorum/ai";
-import type { ExpertOpinionResult, QualityMetrics, QualityMonitorConfig } from "../types.js";
+import type { ExpertOpinionResult, QualityMetrics, QualityMonitorConfig } from "../types";
 
 export class QualityMonitor {
   private config: QualityMonitorConfig;

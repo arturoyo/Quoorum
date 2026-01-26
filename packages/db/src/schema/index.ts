@@ -22,6 +22,9 @@ export type { Deliberation, DeliberationStatus, NewDeliberation } from "./delibe
 export { experts } from "./experts";
 export type { AIConfig, AIProvider, Expert, NewExpert } from "./experts";
 
+export { workers, workersRelations, workerRoleEnum, workerTypeEnum } from "./workers";
+export type { Worker, NewWorker, WorkerRole, WorkerType } from "./workers";
+
 export { opinions } from "./opinions";
 export type { NewOpinion, Opinion, OpinionMetadata } from "./opinions";
 
@@ -62,6 +65,18 @@ export * from "./quoorum-reports";
 // Subscriptions and billing
 export * from "./subscriptions";
 
+// Credit Transactions
+export {
+  creditTransactions,
+  creditTransactionsRelations,
+  creditTransactionTypeEnum,
+  creditTransactionSourceEnum,
+} from "./credit-transactions";
+export type {
+  CreditTransaction,
+  NewCreditTransaction,
+} from "./credit-transactions";
+
 // System logging
 export { systemLogs, logLevelEnum, logSourceEnum } from "./system-logs";
 export type { SystemLog, NewSystemLog } from "./system-logs";
@@ -96,6 +111,9 @@ export type { Company, NewCompany } from "./companies";
 export { departments, departmentsRelations, departmentTypeEnum } from "./departments";
 export type { Department, NewDepartment, DepartmentType } from "./departments";
 
+export { workerDepartments, workerDepartmentsRelations } from "./worker-departments";
+export type { WorkerDepartment, NewWorkerDepartment } from "./worker-departments";
+
 // Decision-Making Frameworks
 export {
   frameworks,
@@ -104,3 +122,15 @@ export {
   debateFrameworksRelations,
 } from "./frameworks";
 export type { Framework, NewFramework, DebateFramework, NewDebateFramework } from "./frameworks";
+
+// Team Members
+export { teamMembers, teamMembersRelations, teamMemberRoleEnum, teamMemberStatusEnum } from "./team-members";
+export type { TeamMember, NewTeamMember } from "./team-members";
+
+// Process Timeline
+export { processTimeline, processTimelineRelations, processStatusEnum, processPhaseStatusEnum } from "./process-timeline";
+export type { ProcessTimeline, NewProcessTimeline, ProcessPhase, ProcessStatus } from "./process-timeline";
+
+// Referrals
+export { referralCodes, referralCodesRelations, referrals, referralsRelations, referralStatusEnum, referralRewardTypeEnum } from "./referrals";
+export type { ReferralCode, NewReferralCode, Referral, NewReferral } from "./referrals";

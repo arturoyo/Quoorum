@@ -44,7 +44,7 @@ export const quoorumReportsRouter = router({
       const [report] = await db
         .insert(quoorumReports)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           type: 'single_debate',
           title: `Reporte: ${debate.question.substring(0, 50)}...`,
           format: input.format,
@@ -91,7 +91,7 @@ export const quoorumReportsRouter = router({
         .from(quoorumDebates)
         .where(
           and(
-            eq(quoorumDebates.userId, ctx.user.id),
+            eq(quoorumDebates.userId, ctx.userId),
             gte(quoorumDebates.createdAt, from),
             lte(quoorumDebates.createdAt, to),
             eq(quoorumDebates.status, 'completed')
@@ -109,7 +109,7 @@ export const quoorumReportsRouter = router({
       const [report] = await db
         .insert(quoorumReports)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           type: 'weekly_summary',
           title: `Resumen Semanal: ${from.toLocaleDateString('es-ES')} - ${to.toLocaleDateString('es-ES')}`,
           format: input.format,
@@ -165,7 +165,7 @@ export const quoorumReportsRouter = router({
       const [report] = await db
         .insert(quoorumReports)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           type: 'custom',
           title: input.title,
           format: input.format,
@@ -200,7 +200,7 @@ export const quoorumReportsRouter = router({
       const [report] = await db
         .select()
         .from(quoorumReports)
-        .where(and(eq(quoorumReports.id, input.id), eq(quoorumReports.userId, ctx.user.id)))
+        .where(and(eq(quoorumReports.id, input.id), eq(quoorumReports.userId, ctx.userId)))
 
       if (!report) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Reporte no encontrado' })
@@ -231,7 +231,7 @@ export const quoorumReportsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const conditions = [eq(quoorumReports.userId, ctx.user.id)]
+      const conditions = [eq(quoorumReports.userId, ctx.userId)]
 
       if (input.type) {
         conditions.push(eq(quoorumReports.type, input.type))
@@ -260,7 +260,7 @@ export const quoorumReportsRouter = router({
     .mutation(async ({ ctx, input }) => {
       await db
         .delete(quoorumReports)
-        .where(and(eq(quoorumReports.id, input.id), eq(quoorumReports.userId, ctx.user.id)))
+        .where(and(eq(quoorumReports.id, input.id), eq(quoorumReports.userId, ctx.userId)))
 
       return { success: true }
     }),
@@ -288,7 +288,7 @@ export const quoorumReportsRouter = router({
           shareToken,
           expiresAt,
         })
-        .where(and(eq(quoorumReports.id, input.id), eq(quoorumReports.userId, ctx.user.id)))
+        .where(and(eq(quoorumReports.id, input.id), eq(quoorumReports.userId, ctx.userId)))
         .returning()
 
       if (!updated) {
@@ -366,7 +366,7 @@ export const quoorumReportsRouter = router({
       const [schedule] = await db
         .insert(quoorumScheduledReports)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           name: input.name,
           type: input.type,
           format: input.format,
@@ -387,7 +387,7 @@ export const quoorumReportsRouter = router({
     const schedules = await db
       .select()
       .from(quoorumScheduledReports)
-      .where(eq(quoorumScheduledReports.userId, ctx.user.id))
+      .where(eq(quoorumScheduledReports.userId, ctx.userId))
       .orderBy(desc(quoorumScheduledReports.createdAt))
 
     return schedules
@@ -437,7 +437,7 @@ export const quoorumReportsRouter = router({
           nextRunAt,
           updatedAt: new Date(),
         })
-        .where(and(eq(quoorumScheduledReports.id, id), eq(quoorumScheduledReports.userId, ctx.user.id)))
+        .where(and(eq(quoorumScheduledReports.id, id), eq(quoorumScheduledReports.userId, ctx.userId)))
         .returning()
 
       if (!updated) {
@@ -456,7 +456,7 @@ export const quoorumReportsRouter = router({
       await db
         .delete(quoorumScheduledReports)
         .where(
-          and(eq(quoorumScheduledReports.id, input.id), eq(quoorumScheduledReports.userId, ctx.user.id))
+          and(eq(quoorumScheduledReports.id, input.id), eq(quoorumScheduledReports.userId, ctx.userId))
         )
 
       return { success: true }
@@ -472,7 +472,7 @@ export const quoorumReportsRouter = router({
         .select()
         .from(quoorumScheduledReports)
         .where(
-          and(eq(quoorumScheduledReports.id, input.id), eq(quoorumScheduledReports.userId, ctx.user.id))
+          and(eq(quoorumScheduledReports.id, input.id), eq(quoorumScheduledReports.userId, ctx.userId))
         )
 
       if (!schedule) {
@@ -483,7 +483,7 @@ export const quoorumReportsRouter = router({
       const [report] = await db
         .insert(quoorumReports)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           type: schedule.type,
           title: `${schedule.name} - ${new Date().toLocaleDateString('es-ES')}`,
           format: schedule.format,

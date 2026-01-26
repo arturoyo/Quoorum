@@ -1,6 +1,6 @@
 # Quoorum - Sistema de Deliberación Multi-Agente con IA
 
-> Sistema de debates AI multi-agente para validar decisiones complejas mediante consenso inteligente de 25+ expertos especializados.
+> **Quoorum es la única plataforma que simula un Comité Ejecutivo de expertos de IA (la Capa de Inteligencia Corporativa) para debatir, criticar y sintetizar la mejor decisión estratégica, eliminando los sesgos humanos y la lentitud de las reuniones, y entregando un consenso accionable en minutos.**
 
 **🌐 Website:** [quoorum.pro](https://quoorum.pro)
 
@@ -8,7 +8,11 @@
 
 ## Descripción
 
-Quoorum es un sistema avanzado de deliberación que simula debates entre múltiples agentes AI especializados para analizar preguntas complejas y llegar a un consenso fundamentado. El sistema selecciona dinámicamente entre 25+ expertos según la naturaleza de la pregunta, cada uno con conocimientos especializados en diferentes dominios (estrategia, finanzas, tecnología, ética, etc.).
+Quoorum es la única plataforma que simula un **Comité Ejecutivo de expertos de IA** (la **Capa de Inteligencia Corporativa**) para debatir, criticar y sintetizar la mejor decisión estratégica. 
+
+**Elimina los sesgos humanos y la lentitud de las reuniones**, entregando un **consenso accionable en minutos** en lugar de semanas de reuniones interminables.
+
+El sistema selecciona dinámicamente entre 25+ expertos especializados según la naturaleza de la pregunta, cada uno con conocimientos profundos en diferentes dominios (estrategia, finanzas, tecnología, ética, marketing, operaciones, etc.), simulando un verdadero comité ejecutivo que debate hasta alcanzar consenso.
 
 ### Características Principales
 

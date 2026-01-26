@@ -11,7 +11,7 @@ export type {
   ExpertOpinion,
   GenerateOptions,
   ProviderFactory,
-} from "./types.js";
+} from "./types";
 
 export {
   anthropicProvider,
@@ -24,16 +24,16 @@ export {
   googleProvider,
   groqProvider,
   openaiProvider,
-} from "./providers/index.js";
+} from "./providers/index";
 
-export { getAIClient, resetAIClient } from "./client.js";
+export { getAIClient, resetAIClient } from "./client";
 
 export {
   getFallbackChain,
   getNextFallback,
   FALLBACK_ORDER,
   type FallbackModel,
-} from "./lib/fallback-config.js";
+} from "./lib/fallback-config";
 
 // Rate Limiting
 export {
@@ -41,7 +41,7 @@ export {
   getRateLimiterManager,
   updateProviderLimits,
   type RateLimiterConfig,
-} from "./lib/rate-limiter.js";
+} from "./lib/rate-limiter";
 
 // Quota Monitoring
 export {
@@ -51,7 +51,7 @@ export {
   type QuotaLimits,
   type QuotaUsage,
   type QuotaAlert,
-} from "./lib/quota-monitor.js";
+} from "./lib/quota-monitor";
 
 // Retry Logic
 export {
@@ -62,7 +62,7 @@ export {
   RetryExhaustedError,
   type RetryConfig,
   type RetryContext,
-} from "./lib/retry.js";
+} from "./lib/retry";
 
 // Telemetry
 export {
@@ -75,4 +75,12 @@ export {
   estimateMonthlyCost,
   type AIRequestMetrics,
   type CostConfig,
-} from "./lib/telemetry.js";
+} from "./lib/telemetry";
+
+// JSON Utilities (for parsing AI responses)
+export {
+  cleanJsonResponse,
+  parseAIJson,
+  safeParseAIJson,
+  parseAIJsonWithFallback,
+} from "./lib/json-utils";

@@ -6,7 +6,7 @@
 
 import { analyzeQuestion } from './src/question-analyzer.ts'
 import { matchExperts, validateMatching, summarizeMatching, getPrimaryExperts, getCritic } from './src/expert-matcher.ts'
-import { getAllExperts } from './src/expert-database.ts'
+import { getAllExperts } from './src/expert-database'
 
 // Colores para terminal
 const colors = {

@@ -1,9 +1,10 @@
-import { router } from "./trpc.js";
+import { router } from "./trpc";
 import {
   auditRouter,
   consensusRouter,
   deliberationsRouter,
   expertsRouter,
+  workersRouter,
   opinionsRouter,
   roundsRouter,
   usersRouter,
@@ -19,6 +20,7 @@ import {
   quoorumPublicApiRouter,
   adminQuoorumRouter,
   adminRouter,
+  adminRolesRouter,
   contextAssessmentRouter,
   debatesRouter,
   debateStrategyRouter,
@@ -26,10 +28,12 @@ import {
   notificationSettingsRouter,
   sessionsRouter,
   apiKeysRouter,
-  notificationsRouter,
   contextFilesRouter,
   // Billing router
   billingRouter,
+  // Team Members
+  teamMembersRouter,
+  teamAnalyticsRouter,
   // Corporate Intelligence
   companiesRouter,
   departmentsRouter,
@@ -37,19 +41,26 @@ import {
   userBackstoryRouter,
   // Decision-Making Frameworks
   frameworksRouter,
-} from "./routers/index.js";
+  // Process Timeline
+  processTimelineRouter,
+  // Referrals
+  referralsRouter,
+  // Integrations
+  slackRouter,
+} from "./routers/index";
 
 export const appRouter = router({
   audit: auditRouter,
   consensus: consensusRouter,
   deliberations: deliberationsRouter,
   experts: expertsRouter,
+  workers: workersRouter,
   opinions: opinionsRouter,
   rounds: roundsRouter,
   users: usersRouter,
   votes: votesRouter,
   systemLogs: systemLogsRouter,
-  testLogging: testLoggingRouter, // TODO: Remove in production
+  testLogging: testLoggingRouter, // Admin only, dev-mode protected (throws FORBIDDEN in prod)
   // Quoorum routers
   quoorum: quoorumRouter,
   quoorumFeedback: quoorumFeedbackRouter,
@@ -59,6 +70,7 @@ export const appRouter = router({
   quoorumPublicApi: quoorumPublicApiRouter,
   adminQuoorum: adminQuoorumRouter,
   admin: adminRouter,
+  adminRoles: adminRolesRouter,
   contextAssessment: contextAssessmentRouter,
   debates: debatesRouter,
   debateStrategy: debateStrategyRouter,
@@ -66,10 +78,12 @@ export const appRouter = router({
   notificationSettings: notificationSettingsRouter,
   sessions: sessionsRouter,
   apiKeys: apiKeysRouter,
-  notifications: notificationsRouter,
   contextFiles: contextFilesRouter,
   // Billing
   billing: billingRouter,
+  // Team Members
+  teamMembers: teamMembersRouter,
+  teamAnalytics: teamAnalyticsRouter,
   // Corporate Intelligence
   companies: companiesRouter,
   departments: departmentsRouter,
@@ -77,10 +91,26 @@ export const appRouter = router({
   userBackstory: userBackstoryRouter,
   // Decision-Making Frameworks
   frameworks: frameworksRouter,
+  // Process Timeline
+  processTimeline: processTimelineRouter,
+  // Referrals
+  referrals: referralsRouter,
+  // Integrations
+  slack: slackRouter,
 });
 
 export type AppRouter = typeof appRouter;
 
-export { router, publicProcedure, protectedProcedure, createContext } from "./trpc.js";
-export type { Context } from "./trpc.js";
-export { validateEnvironmentOrThrow, validateEnvironment, requireEnv, getEnvOrWarn } from "./lib/validate-env.js";
+export { router, publicProcedure, protectedProcedure, createContext } from "./trpc";
+export type { Context } from "./trpc";
+export { validateEnvironmentOrThrow, validateEnvironment, requireEnv, getEnvOrWarn } from "./lib/validate-env";
+
+// Export notification helper functions
+export {
+  sendForumNotification,
+  notifyDebateCompleted,
+  notifyDebateFailed,
+} from "./routers/quoorum-notifications";
+
+// Export system logger
+export { systemLogger } from "./lib/system-logger";

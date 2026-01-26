@@ -1,16 +1,27 @@
 import { z } from "zod";
-import { router, publicProcedure } from "../trpc.js";
-import { systemLogger } from "../lib/system-logger.js";
+import { TRPCError } from "@trpc/server";
+import { router, adminProcedure } from "../trpc";
+import { systemLogger } from "../lib/system-logger";
 
 /**
  * Router para testear el sistema de logging
- * Solo para desarrollo - eliminar en producción
+ * ADMIN ONLY - Protected endpoints for debugging
  */
+
+// Environment check middleware
+const isDevelopment = process.env.NODE_ENV === "development";
+
 export const testLoggingRouter = router({
   /**
    * Test básico: Insertar logs de todos los niveles
    */
-  testAllLevels: publicProcedure.query(async () => {
+  testAllLevels: adminProcedure.query(async () => {
+    if (!isDevelopment) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Test logging only available in development mode",
+      });
+    }
     systemLogger.debug("Test debug log", { test: true });
     systemLogger.info("Test info log", { test: true });
     systemLogger.warn("Test warn log", { test: true });
@@ -27,7 +38,13 @@ export const testLoggingRouter = router({
   /**
    * Test performance: Medir duración de operación
    */
-  testPerformance: publicProcedure.query(async () => {
+  testPerformance: adminProcedure.query(async () => {
+    if (!isDevelopment) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Test logging only available in development mode",
+      });
+    }
     const result = await systemLogger.measure(
       "Test operation",
       async () => {
@@ -48,9 +65,15 @@ export const testLoggingRouter = router({
   /**
    * Test batch: Insertar múltiples logs rápidamente
    */
-  testBatch: publicProcedure
+  testBatch: adminProcedure
     .input(z.object({ count: z.number().min(1).max(100).default(10) }))
     .query(async ({ input }) => {
+      if (!isDevelopment) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Test logging only available in development mode",
+        });
+      }
       for (let i = 0; i < input.count; i++) {
         systemLogger.info(`Batch test log ${i + 1}`, {
           test: true,
@@ -70,9 +93,15 @@ export const testLoggingRouter = router({
   /**
    * Test con userId: Log asociado a un usuario
    */
-  testWithUser: publicProcedure
+  testWithUser: adminProcedure
     .input(z.object({ userId: z.string().uuid() }))
     .query(async ({ input }) => {
+      if (!isDevelopment) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Test logging only available in development mode",
+        });
+      }
       const logger = systemLogger.withContext({
         userId: input.userId,
         source: "server",

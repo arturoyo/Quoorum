@@ -1,6 +1,6 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import type { LanguageModelV1 } from "ai";
-import type { AIConfig, ProviderFactory } from "../types.js";
+import type { AIConfig, ProviderFactory } from "../types";
 
 const SUPPORTED_MODELS = [
   "gemini-2.0-flash-exp",

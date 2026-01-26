@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
-import { ExpertAvatar } from "./ExpertAvatar.js";
+import { ExpertAvatar } from "./ExpertAvatar";
 
 export interface OpinionCardProps {
   expertName: string;
@@ -30,7 +30,7 @@ export function OpinionCard({
   return (
     <div
       className={clsx(
-        "rounded-lg border border-gray-200 bg-white p-4",
+        "rounded-lg border border-purple-500/20 bg-slate-900/60 backdrop-blur-sm p-4",
         className
       )}
     >
@@ -39,18 +39,18 @@ export function OpinionCard({
         <div className="flex items-center gap-2 text-sm">
           <span
             className={clsx(
-              "rounded-full px-2 py-1 font-medium",
+              "rounded-full px-2 py-1 font-medium border",
               confidence >= 0.8
-                ? "bg-green-100 text-green-700"
+                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
                 : confidence >= 0.5
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                  : "bg-red-500/20 text-red-300 border-red-500/30"
             )}
           >
             {(confidence * 100).toFixed(0)}% confident
           </span>
           {qualityScore !== undefined && (
-            <span className="text-gray-500">
+            <span className="text-[#8696a0]">
               Quality: {(qualityScore * 100).toFixed(0)}%
             </span>
           )}
@@ -58,26 +58,26 @@ export function OpinionCard({
       </div>
 
       <div className="mt-4">
-        <p className="text-gray-900">{opinion}</p>
+        <p className="text-white">{opinion}</p>
       </div>
 
       {(isExpanded || reasoning) && (
         <div className="mt-4">
           <button
             onClick={onToggleExpand}
-            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+            className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
           >
             {isExpanded ? "Hide reasoning" : "Show reasoning"}
           </button>
           {isExpanded && (
-            <div className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">
+            <div className="mt-2 rounded-lg bg-[#202c33] border border-[#2a3942] p-3 text-sm text-[#aebac1]">
               {reasoning}
             </div>
           )}
         </div>
       )}
 
-      <div className="mt-4 text-xs text-gray-500">
+      <div className="mt-4 text-xs text-[#8696a0]">
         <time dateTime={timestamp.toISOString()}>
           {timestamp.toLocaleTimeString()}
         </time>

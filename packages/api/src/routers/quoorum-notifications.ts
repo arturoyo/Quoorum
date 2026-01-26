@@ -32,13 +32,16 @@ export const quoorumNotificationsRouter = router({
             'weekly_digest',
             'debate_reminder',
             'team_action',
+            'process_phase_completed',
+            'process_completed',
           ])
           .optional(),
       })
     )
     .query(async ({ ctx, input }) => {
+      // IMPORTANT: quoorum_notifications.user_id references profiles.id, not users.id
       const conditions = [
-        eq(quoorumNotifications.userId, ctx.user.id),
+        eq(quoorumNotifications.userId, ctx.userId), // Use profile.id, not users.id
         eq(quoorumNotifications.isArchived, false),
       ]
 
@@ -65,12 +68,13 @@ export const quoorumNotificationsRouter = router({
    * Get unread count
    */
   getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
+    // IMPORTANT: quoorum_notifications.user_id references profiles.id, not users.id
     const [result] = await db
       .select({ count: count() })
       .from(quoorumNotifications)
       .where(
         and(
-          eq(quoorumNotifications.userId, ctx.user.id),
+          eq(quoorumNotifications.userId, ctx.userId), // Use profile.id, not users.id
           eq(quoorumNotifications.isRead, false),
           eq(quoorumNotifications.isArchived, false)
         )
@@ -91,7 +95,7 @@ export const quoorumNotificationsRouter = router({
           isRead: true,
           readAt: new Date(),
         })
-        .where(and(eq(quoorumNotifications.id, input.id), eq(quoorumNotifications.userId, ctx.user.id)))
+        .where(and(eq(quoorumNotifications.id, input.id), eq(quoorumNotifications.userId, ctx.userId)))
 
       return { success: true }
     }),
@@ -106,7 +110,7 @@ export const quoorumNotificationsRouter = router({
         isRead: true,
         readAt: new Date(),
       })
-      .where(and(eq(quoorumNotifications.userId, ctx.user.id), eq(quoorumNotifications.isRead, false)))
+      .where(and(eq(quoorumNotifications.userId, ctx.userId), eq(quoorumNotifications.isRead, false)))
 
     return { success: true }
   }),
@@ -120,7 +124,7 @@ export const quoorumNotificationsRouter = router({
       await db
         .update(quoorumNotifications)
         .set({ isArchived: true })
-        .where(and(eq(quoorumNotifications.id, input.id), eq(quoorumNotifications.userId, ctx.user.id)))
+        .where(and(eq(quoorumNotifications.id, input.id), eq(quoorumNotifications.userId, ctx.userId)))
 
       return { success: true }
     }),
@@ -132,7 +136,7 @@ export const quoorumNotificationsRouter = router({
     await db
       .update(quoorumNotifications)
       .set({ isArchived: true })
-      .where(and(eq(quoorumNotifications.userId, ctx.user.id), eq(quoorumNotifications.isRead, true)))
+      .where(and(eq(quoorumNotifications.userId, ctx.userId), eq(quoorumNotifications.isRead, true)))
 
     return { success: true }
   }),
@@ -148,7 +152,7 @@ export const quoorumNotificationsRouter = router({
       .delete(quoorumNotifications)
       .where(
         and(
-          eq(quoorumNotifications.userId, ctx.user.id),
+          eq(quoorumNotifications.userId, ctx.userId),
           lt(quoorumNotifications.createdAt, thirtyDaysAgo)
         )
       )
@@ -168,7 +172,7 @@ export const quoorumNotificationsRouter = router({
     const [prefs] = await db
       .select()
       .from(quoorumNotificationPreferences)
-      .where(eq(quoorumNotificationPreferences.userId, ctx.user.id))
+      .where(eq(quoorumNotificationPreferences.userId, ctx.userId))
 
     if (!prefs) {
       // Return defaults
@@ -238,7 +242,7 @@ export const quoorumNotificationsRouter = router({
       const [existing] = await db
         .select({ id: quoorumNotificationPreferences.id })
         .from(quoorumNotificationPreferences)
-        .where(eq(quoorumNotificationPreferences.userId, ctx.user.id))
+        .where(eq(quoorumNotificationPreferences.userId, ctx.userId))
 
       if (existing) {
         const [updated] = await db
@@ -247,7 +251,7 @@ export const quoorumNotificationsRouter = router({
             ...input,
             updatedAt: new Date(),
           })
-          .where(eq(quoorumNotificationPreferences.userId, ctx.user.id))
+          .where(eq(quoorumNotificationPreferences.userId, ctx.userId))
           .returning()
 
         return updated
@@ -257,7 +261,7 @@ export const quoorumNotificationsRouter = router({
       const [created] = await db
         .insert(quoorumNotificationPreferences)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           ...input,
         })
         .returning()
@@ -295,7 +299,7 @@ export const quoorumNotificationsRouter = router({
         actionUrl: z.string().optional(),
         actionLabel: z.string().optional(),
         metadata: z.record(z.string(), z.unknown()).optional(),
-        expiresAt: z.date().optional(),
+        expiresAt: z.coerce.date().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -339,6 +343,8 @@ export async function sendForumNotification(params: {
     | 'weekly_digest'
     | 'debate_reminder'
     | 'team_action'
+    | 'process_phase_completed'
+    | 'process_completed'
   priority?: 'low' | 'normal' | 'high' | 'urgent'
   debateId?: string
   title: string
@@ -377,5 +383,44 @@ export async function sendForumNotification(params: {
     actionLabel: params.actionLabel,
     metadata: params.metadata,
     channels,
+  })
+}
+
+/**
+ * Helper: Notify debate completed
+ * Convenience wrapper for debate completion notifications
+ */
+export async function notifyDebateCompleted(
+  userId: string,
+  debateId: string,
+  consensusScore: number
+): Promise<void> {
+  await sendForumNotification({
+    userId,
+    type: 'debate_completed',
+    priority: 'normal',
+    debateId,
+    title: 'Debate completado',
+    message: `Tu debate ha finalizado con un ${Math.round(consensusScore * 100)}% de consenso`,
+    actionUrl: `/quoorum/${debateId}`,
+    actionLabel: 'Ver debate',
+    metadata: { consensusScore },
+  })
+}
+
+/**
+ * Helper: Notify debate failed
+ * Convenience wrapper for debate failure notifications
+ */
+export async function notifyDebateFailed(userId: string, debateId: string): Promise<void> {
+  await sendForumNotification({
+    userId,
+    type: 'debate_failed',
+    priority: 'high',
+    debateId,
+    title: 'Error en debate',
+    message: 'Tu debate ha fallado durante la ejecución',
+    actionUrl: `/quoorum/${debateId}`,
+    actionLabel: 'Ver detalles',
   })
 }

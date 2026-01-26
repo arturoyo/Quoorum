@@ -1,6 +1,6 @@
 import type { LanguageModelV1 } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
-import type { AIConfig, ProviderFactory } from "../types.js";
+import type { AIConfig, ProviderFactory } from "../types";
 
 // DeepSeek uses OpenAI-compatible API
 const deepseekModels = ["deepseek-chat", "deepseek-coder"] as const;

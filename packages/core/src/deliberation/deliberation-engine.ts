@@ -1,6 +1,6 @@
-import { ExpertRegistry, type ExpertContext } from "../experts/index.js";
-import { QualityMonitor, createDefaultQualityMonitor } from "../quality/index.js";
-import { MetaModerator, createDefaultMetaModerator } from "./meta-moderator.js";
+import { ExpertRegistry, type ExpertContext } from "../experts/index";
+import { QualityMonitor, createDefaultQualityMonitor } from "../quality/index";
+import { MetaModerator, createDefaultMetaModerator } from "./meta-moderator";
 import type {
   DeliberationConfig,
   DeliberationEvent,
@@ -9,7 +9,7 @@ import type {
   DeliberationResult,
   ExpertOpinionResult,
   RoundResult,
-} from "../types.js";
+} from "../types";
 
 export class DeliberationEngine {
   private config: DeliberationConfig;

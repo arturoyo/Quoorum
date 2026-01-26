@@ -21,6 +21,8 @@ export const sessionsRouter = router({
    * Filtra sesiones no expiradas
    */
   list: protectedProcedure.query(async ({ ctx }) => {
+    // sessions.user_id references users.id, NOT profiles.id
+    // ctx.user.id = users.id, ctx.userId = profiles.id
     const now = new Date();
 
     const activeSessions = await db
@@ -28,7 +30,7 @@ export const sessionsRouter = router({
       .from(sessions)
       .where(
         and(
-          eq(sessions.userId, ctx.userId),
+          eq(sessions.userId, ctx.user.id),
           gt(sessions.expiresAt, now) // Solo sesiones no expiradas
         )
       )
@@ -45,13 +47,14 @@ export const sessionsRouter = router({
     .input(revokeSessionSchema)
     .mutation(async ({ ctx, input }) => {
       // Verificar que la sesión pertenece al usuario
+      // sessions.user_id references users.id (ctx.user.id)
       const [session] = await db
         .select()
         .from(sessions)
         .where(
           and(
             eq(sessions.id, input.sessionId),
-            eq(sessions.userId, ctx.userId)
+            eq(sessions.userId, ctx.user.id)
           )
         );
 
@@ -77,7 +80,8 @@ export const sessionsRouter = router({
    */
   revokeAll: protectedProcedure.mutation(async ({ ctx }) => {
     // Eliminar todas las sesiones del usuario
-    await db.delete(sessions).where(eq(sessions.userId, ctx.userId));
+    // sessions.user_id references users.id (ctx.user.id)
+    await db.delete(sessions).where(eq(sessions.userId, ctx.user.id));
 
     return { success: true };
   }),
@@ -91,10 +95,11 @@ export const sessionsRouter = router({
    */
   updateActivity: protectedProcedure.mutation(async ({ ctx }) => {
     // Actualizar la sesión más reciente del usuario
+    // sessions.user_id references users.id (ctx.user.id)
     const [latestSession] = await db
       .select()
       .from(sessions)
-      .where(eq(sessions.userId, ctx.userId))
+      .where(eq(sessions.userId, ctx.user.id))
       .orderBy(desc(sessions.lastActive))
       .limit(1);
 

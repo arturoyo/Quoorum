@@ -34,6 +34,13 @@ vi.mock('@quoorum/ai', () => ({
       }
     }),
   })),
+  parseAIJson: vi.fn().mockImplementation((text: string) => {
+    try {
+      return JSON.parse(text)
+    } catch {
+      return null
+    }
+  }),
 }))
 
 // Import after mocking

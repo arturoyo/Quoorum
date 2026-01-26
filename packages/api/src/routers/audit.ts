@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { eq, desc, and } from "drizzle-orm";
-import { router, publicProcedure, protectedProcedure } from "../trpc.js";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { auditLogs, type AuditAction, type AuditDetails } from "@quoorum/db";
 
 const actionSchema = z.enum([

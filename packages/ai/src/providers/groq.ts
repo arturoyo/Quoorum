@@ -1,6 +1,6 @@
 import { createGroq } from "@ai-sdk/groq";
 import type { LanguageModelV1 } from "ai";
-import type { AIConfig, ProviderFactory } from "../types.js";
+import type { AIConfig, ProviderFactory } from "../types";
 
 const SUPPORTED_MODELS = [
   "llama-3.3-70b-versatile",

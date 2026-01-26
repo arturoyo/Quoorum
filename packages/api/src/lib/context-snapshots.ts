@@ -3,6 +3,8 @@
  * Save and restore context versions for iterative refinement
  */
 
+import { logger } from './logger'
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -204,7 +206,7 @@ export function enableAutoSave(
     createSnapshot(data.question, data.context, data.score, data.dimensions, 'Auto-save', [
       'auto',
     ])
-    console.log(`[Snapshots] Auto-saved for question: ${questionId}`)
+    logger.info(`[Snapshots] Auto-saved for question: ${questionId}`)
   }, intervalMs)
 
   autoSaveIntervals.set(questionId, interval)

@@ -1,6 +1,6 @@
 import type { ExpertConfig } from "@quoorum/ai";
-import { DeliberationExpert } from "./deliberation-expert.js";
-import type { BaseExpert } from "./base-expert.js";
+import { DeliberationExpert } from "./deliberation-expert";
+import type { BaseExpert } from "./base-expert";
 
 const DEFAULT_EXPERTS: ExpertConfig[] = [
   {

@@ -5,6 +5,7 @@
  */
 
 import * as XLSX from 'xlsx'
+import { logger } from './logger'
 
 /**
  * Extract data from Excel/CSV file as formatted text
@@ -34,7 +35,7 @@ export async function extractExcelData(buffer: ArrayBuffer): Promise<string> {
 
     return textParts.join('\n\n')
   } catch (error) {
-    console.error('Error extracting Excel data:', error)
+    logger.error('Error extracting Excel data:', error instanceof Error ? error : undefined)
     throw new Error(`Failed to extract Excel: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }

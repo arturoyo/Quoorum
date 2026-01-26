@@ -231,10 +231,11 @@ export const quoorumRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Create debate record
+      // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
       const [debate] = await db
         .insert(quoorumDebates)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId, // Use profile.id, not users.id
           question: input.question,
           context: input.context,
           mode: input.mode ?? 'dynamic',
@@ -248,7 +249,8 @@ export const quoorumRouter = router({
       }
 
       // Run debate asynchronously with proper error handling
-      runDebateAsync(debate.id, ctx.user.id, input.question, input.context, input.mode).catch(
+      // IMPORTANT: Pass profile.id (ctx.userId) to runDebateAsync
+      runDebateAsync(debate.id, ctx.userId, input.question, input.context, input.mode).catch(
         (error: unknown) => {
           logger.error(
             'Error running debate from create',
@@ -959,7 +961,7 @@ export const quoorumRouter = router({
  */
 async function runDebateAsync(
   debateId: string,
-  userId: string,
+  userId: string, // This is profileId (from ctx.userId)
   question: string,
   context?: {
     sources?: Array<{ type: string; content: string }>
@@ -969,14 +971,73 @@ async function runDebateAsync(
   mode?: 'static' | 'dynamic'
 ) {
   try {
-    // Pre-flight check: Verify user has sufficient credits before starting
-    // Estimate max credits needed (worst case: 20 rounds * 4 agents * ~$0.02 per message)
+    // ============================================================================
+    // CONVERT PROFILE ID TO USERS ID (for credit transactions)
+    // ============================================================================
+    // IMPORTANT: userId parameter is profileId, but credit functions need users.id
+    // profiles.userId references users.id, so we need to get it from the profile
+    const [profile] = await db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(eq(profiles.id, userId))
+      .limit(1)
+
+    if (!profile) {
+      logger.error('Profile not found for credit deduction', { profileId: userId, debateId })
+      await db
+        .update(quoorumDebates)
+        .set({ 
+          status: 'failed', 
+          completedAt: new Date(),
+          metadata: { error: 'Profile not found' }
+        })
+        .where(eq(quoorumDebates.id, debateId))
+      return
+    }
+
+    const usersId = profile.userId // This is users.id (for credit transactions)
+
+    // Pre-flight check: Estimate max credits needed
     // Average debate: 5 rounds * 4 agents * 500 tokens * $0.0001/token = $0.10 = 35 credits
     // Conservative estimate: 20 rounds max = $0.40 = 140 credits
     const estimatedCreditsMax = 140
     
+    // ============================================================================
+    // CHECK 1: Monthly Credit Limit (Plan-based limit)
+    // ============================================================================
+    const { checkMonthlyCreditLimit } = await import('../lib/monthly-credits-limit')
+    const monthlyCheck = await checkMonthlyCreditLimit(usersId, estimatedCreditsMax)
+    
+    if (!monthlyCheck.allowed) {
+      // Update debate to failed status with clear error message
+      await db
+        .update(quoorumDebates)
+        .set({ 
+          status: 'failed', 
+          completedAt: new Date(),
+          metadata: {
+            error: 'Monthly credit limit exceeded',
+            errorDetails: monthlyCheck.reason || `Monthly limit: ${monthlyCheck.limit.toLocaleString()}, Used: ${monthlyCheck.used.toLocaleString()}`,
+          }
+        })
+        .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)))
+      
+      logger.error('Debate failed: Monthly credit limit exceeded', {
+        debateId,
+        profileId: userId,
+        usersId,
+        limit: monthlyCheck.limit,
+        used: monthlyCheck.used,
+        requested: estimatedCreditsMax,
+      })
+      return // Exit early, don't start debate
+    }
+    
+    // ============================================================================
+    // CHECK 2: Available Credits Balance
+    // ============================================================================
     const { hasSufficientCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
-    const hasBalance = await hasSufficientCredits(userId, estimatedCreditsMax)
+    const hasBalance = await hasSufficientCredits(usersId, estimatedCreditsMax)
     
     if (!hasBalance) {
       // Update debate to failed status with clear error message
@@ -1000,28 +1061,72 @@ async function runDebateAsync(
       return // Exit early, don't start debate
     }
 
-    // Update status to in_progress (only after credit check passes)
+    // ============================================================================
+    // ATOMIC CREDIT DEDUCTION (Pre-charge)
+    // ============================================================================
+    // Deduct estimated credits BEFORE starting debate execution
+    const { deductCredits, refundCredits, convertUsdToCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
+    const deductionResult = await deductCredits(
+      usersId, // Use users.id, not profileId
+      estimatedCreditsMax,
+      debateId,
+      'debate_execution',
+      `Debate execution - estimated max cost: ${estimatedCreditsMax} credits`
+    )
+    
+    if (!deductionResult.success) {
+      // Update debate to failed status
+      await db
+        .update(quoorumDebates)
+        .set({ 
+          status: 'failed', 
+          completedAt: new Date(),
+          metadata: {
+            error: 'Failed to deduct credits',
+            errorDetails: deductionResult.error ?? 'Credit deduction failed',
+          }
+        })
+        .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)))
+      
+      logger.error('Debate failed: Credit deduction failed', {
+        debateId,
+        userId,
+        error: deductionResult.error,
+      })
+      return // Exit early, don't start debate
+    }
+
+    // Update status to in_progress (only after credit deduction succeeds)
     await db
       .update(quoorumDebates)
       .set({ status: 'in_progress', startedAt: new Date() })
       .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)))
 
-    // Run debate with real-time callbacks
-    // Map context sources to LoadedContext format
-    type ContextSourceType = 'manual' | 'internet' | 'repo'
-    const loadedContext = {
-      sources: (context?.sources ?? []).map((s) => ({
-        type: (s.type === 'internet' || s.type === 'repo' ? s.type : 'manual') as ContextSourceType,
-        content: s.content,
-      })),
-      combinedContext: context?.background ?? '',
-    }
+    // Track if refund was issued (to avoid double refund on error)
+    let refundIssued = false
 
-    const result = await runDynamicDebate({
+    try {
+      // Get user tier for model selection
+      const { getUserTier } = await import('../lib/user-tier')
+      const userTier = await getUserTier(userId)
+
+      // Run debate with real-time callbacks
+      // Map context sources to LoadedContext format
+      type ContextSourceType = 'manual' | 'internet' | 'repo'
+      const loadedContext = {
+        sources: (context?.sources ?? []).map((s) => ({
+          type: (s.type === 'internet' || s.type === 'repo' ? s.type : 'manual') as ContextSourceType,
+          content: s.content,
+        })),
+        combinedContext: context?.background ?? '',
+      }
+
+      const result = await runDynamicDebate({
       sessionId: debateId,
       question,
       context: loadedContext,
       forceMode: mode === 'static' ? 'static' : 'dynamic',
+      userTier, // Pass user tier for model selection
       // Real-time callbacks for WebSocket broadcasting
       onRoundComplete: async (round) => {
         try {
@@ -1061,6 +1166,46 @@ async function runDebateAsync(
       },
     })
 
+    // ============================================================================
+    // CALCULATE ACTUAL CREDITS USED & REFUND DIFFERENCE
+    // ============================================================================
+    const actualCreditsUsed = convertUsdToCredits(result.totalCostUsd)
+    const creditsToRefund = estimatedCreditsMax - actualCreditsUsed
+
+    if (creditsToRefund > 0) {
+      const refundResult = await refundCredits(
+        usersId, // Use users.id, not profileId
+        creditsToRefund,
+        debateId,
+        'refund',
+        'Refund unused credits after debate completion'
+      )
+      refundIssued = refundResult.success
+      
+      if (refundResult.success) {
+        logger.info('Credits refunded after debate completion', {
+          debateId,
+          userId,
+          refunded: creditsToRefund,
+          actualUsed: actualCreditsUsed,
+          estimated: estimatedCreditsMax,
+        })
+      }
+    }
+
+    // ============================================================================
+    // UPDATE MONTHLY USAGE TRACKING
+    // ============================================================================
+    const { updateMonthlyUsage } = await import('../lib/monthly-credits-limit')
+    await updateMonthlyUsage(
+      userId,
+      actualCreditsUsed,
+      result.totalCostUsd,
+      result.rounds.reduce((sum, round) => 
+        sum + (round.messages.reduce((msgSum, msg) => msgSum + (msg.tokensUsed || 0), 0)), 0
+      )
+    )
+
     // Map result types to database types
     const mappedExperts = result.experts?.map((e) => ({
       id: e.id,
@@ -1084,7 +1229,7 @@ async function runDebateAsync(
         consensusScore: result.consensusScore,
         totalRounds: result.rounds.length,
         totalCostUsd: calculateDebateCost(result as unknown as DebateResult),
-        totalCreditsUsed: result.totalCreditsUsed, // Credits consumed
+        totalCreditsUsed: actualCreditsUsed, // Actual credits consumed (calculated from USD cost)
         costsByProvider: result.costsByProvider, // Cost breakdown by provider
         themeId: result.themeId, // Narrative theme used (e.g., 'greek-mythology', 'education', 'generic')
         themeConfidence: result.themeConfidence, // Theme selection confidence score (0-1)
@@ -1112,11 +1257,29 @@ async function runDebateAsync(
     } catch (error) {
       logger.error('Failed to send debate completion event', error instanceof Error ? error : new Error(String(error)), { debateId, userId })
     }
+    } catch (error) {
+      // Error running debate
+      await db
+        .update(quoorumDebates)
+        .set({ status: 'failed', completedAt: new Date() })
+        .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)))
+    }
   } catch (error) {
-    // Error running debate
+    // Outer catch: handle any errors in credit check or other setup
+    logger.error('Debate async execution failed', error instanceof Error ? error : new Error(String(error)), {
+      debateId,
+      userId,
+    })
     await db
       .update(quoorumDebates)
-      .set({ status: 'failed', completedAt: new Date() })
+      .set({
+        status: 'failed',
+        completedAt: new Date(),
+        metadata: {
+          error: 'Unexpected error',
+          errorDetails: error instanceof Error ? error.message : String(error),
+        }
+      })
       .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)))
   }
 }

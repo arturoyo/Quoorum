@@ -1,15 +1,16 @@
 import { pgTable, uuid, boolean, timestamp } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { users } from './users'
+import { profiles } from './profiles'
 
 /**
  * Configuración de notificaciones por usuario
+ * Referencia profiles.id (no users.id) porque el sistema usa profiles como tabla principal
  */
 export const notificationSettings = pgTable('notification_settings', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' })
+    .references(() => profiles.id, { onDelete: 'cascade' })
     .unique(),
 
   // Email notifications
@@ -30,9 +31,9 @@ export const notificationSettings = pgTable('notification_settings', {
 })
 
 export const notificationSettingsRelations = relations(notificationSettings, ({ one }) => ({
-  user: one(users, {
+  profile: one(profiles, {
     fields: [notificationSettings.userId],
-    references: [users.id],
+    references: [profiles.id],
   }),
 }))
 

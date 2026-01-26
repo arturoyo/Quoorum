@@ -168,7 +168,29 @@
       "Bash(git merge:*)",
       "Bash(Get-Content 'C:\\\\Quoorum\\\\packages\\\\db\\\\drizzle\\\\0026_add_companies_departments.sql')",
       "Bash(Select-Object -First 20)",
-      "Bash(cmd /c \"pnpm dev 2>&1 | head -20\")"
+      "Bash(cmd /c \"pnpm dev 2>&1 | head -20\")",
+      "Bash(bash:*)",
+      "Bash(pwsh -NoProfile -File scripts/check-imports-simple.ps1)",
+      "Bash(pwsh -NoProfile -File scripts/fix-imports.ps1)",
+      "Bash(pwsh:*)",
+      "Bash(Select-Object -Last 30)",
+      "Bash(git -C C:Quoorum status --short packages/api/src/routers/notifications.ts)",
+      "Bash(npx:*)",
+      "Bash(powershell -File:*)",
+      "Bash(Select-Object -First 50)",
+      "Bash(wc:*)",
+      "Bash(Sort-Object LastWriteTime -Descending)",
+      "Bash(Select-Object -First 3)",
+      "Bash(ForEach-Object { $_FullName })",
+      "Bash(BUILD_RESULT=$?)",
+      "Bash(more:*)",
+      "Bash(xargs:*)",
+      "Bash(Get-Process node -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object Id, ProcessName)",
+      "Bash(Format-Table)",
+      "Bash(for file in \"apps/web/src/app/\\(auth\\)/login/page.tsx\" \"packages/quoorum/src/frameworks/swot-analysis.ts\" \"apps/web/src/app/debates/new-unified/components/phase-contexto.tsx\")",
+      "Bash(do echo \"  - $file\")",
+      "Bash(done)"
     ]
   }
 }

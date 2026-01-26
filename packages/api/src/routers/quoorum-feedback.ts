@@ -55,7 +55,7 @@ export const quoorumFeedbackRouter = router({
           and(
             eq(quoorumExpertFeedback.debateId, input.debateId),
             eq(quoorumExpertFeedback.expertId, input.expertId),
-            eq(quoorumExpertFeedback.userId, ctx.user.id)
+            eq(quoorumExpertFeedback.userId, ctx.userId)
           )
         )
 
@@ -89,7 +89,7 @@ export const quoorumFeedbackRouter = router({
       const [feedback] = await db
         .insert(quoorumExpertFeedback)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           debateId: input.debateId,
           expertId: input.expertId,
           rating: input.rating,
@@ -123,7 +123,7 @@ export const quoorumFeedbackRouter = router({
         .where(
           and(
             eq(quoorumExpertFeedback.debateId, input.debateId),
-            eq(quoorumExpertFeedback.userId, ctx.user.id)
+            eq(quoorumExpertFeedback.userId, ctx.userId)
           )
         )
 
@@ -192,7 +192,7 @@ export const quoorumFeedbackRouter = router({
       const feedback = await db
         .select()
         .from(quoorumExpertFeedback)
-        .where(eq(quoorumExpertFeedback.userId, ctx.user.id))
+        .where(eq(quoorumExpertFeedback.userId, ctx.userId))
         .orderBy(desc(quoorumExpertFeedback.createdAt))
         .limit(input.limit)
         .offset(input.offset)
@@ -212,7 +212,7 @@ export const quoorumFeedbackRouter = router({
         .where(
           and(
             eq(quoorumExpertFeedback.id, input.id),
-            eq(quoorumExpertFeedback.userId, ctx.user.id)
+            eq(quoorumExpertFeedback.userId, ctx.userId)
           )
         )
 
@@ -225,7 +225,7 @@ export const quoorumFeedbackRouter = router({
         .where(
           and(
             eq(quoorumExpertFeedback.id, input.id),
-            eq(quoorumExpertFeedback.userId, ctx.user.id)
+            eq(quoorumExpertFeedback.userId, ctx.userId)
           )
         )
 

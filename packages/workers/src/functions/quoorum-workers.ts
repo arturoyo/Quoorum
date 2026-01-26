@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Quoorum Dynamic Expert System Workers
  *
@@ -47,15 +46,24 @@ export const quoorumDebateCompleted = inngest.createFunction(
   async ({ event, step }) => {
     const { debateId, userId } = event.data
 
-    // Step 1: Get debate details
-    const debate = await step.run('get-debate', async () => {
-      const [result] = await db.select().from(quoorumDebates).where(eq(quoorumDebates.id, debateId))
+    // Step 1: Get debate details and resolve profile.id
+    const { debate, profileId } = await step.run('get-debate-and-profile', async () => {
+      const [debateResult] = await db.select().from(quoorumDebates).where(eq(quoorumDebates.id, debateId))
 
-      return result
+      if (!debateResult) {
+        return { debate: null, profileId: null }
+      }
+
+      // IMPORTANT: quoorum_notifications.user_id references profiles.id, not users.id
+      // The debate.userId is already profile.id (from quoorum_debates.user_id -> profiles.id)
+      // But the event might pass users.id, so we use debate.userId which is correct
+      const profileId = debateResult.userId
+
+      return { debate: debateResult, profileId }
     })
 
-    if (!debate) {
-      logger.warn('Debate not found for completion processing', { debateId })
+    if (!debate || !profileId) {
+      logger.warn('Debate not found for completion processing', { debateId, userId })
       return { success: false, reason: 'debate_not_found' }
     }
 
@@ -67,7 +75,7 @@ export const quoorumDebateCompleted = inngest.createFunction(
       const consensusScore = debate.consensusScore ?? 0
 
       await db.insert(quoorumNotifications).values({
-        userId,
+        userId: profileId, // Use profile.id from debate, not users.id from event
         type: 'debate_completed',
         priority: 'normal',
         debateId,
@@ -85,10 +93,11 @@ export const quoorumDebateCompleted = inngest.createFunction(
 
     // Step 3: Check if user wants email notification
     await step.run('check-email-notification', async () => {
+      // IMPORTANT: quoorum_notification_preferences.user_id references profiles.id
       const [prefs] = await db
         .select()
         .from(quoorumNotificationPreferences)
-        .where(eq(quoorumNotificationPreferences.userId, userId))
+        .where(eq(quoorumNotificationPreferences.userId, profileId))
 
       interface Prefs {
         debateCompleted?: { enabled: boolean; channels: string[] }
@@ -151,10 +160,30 @@ export const quoorumDebateFailed = inngest.createFunction(
   async ({ event, step }) => {
     const { debateId, userId, errorMessage } = event.data
 
+    // Get debate to resolve profile.id
+    const { debate, profileId } = await step.run('get-debate-and-profile', async () => {
+      const [debateResult] = await db.select().from(quoorumDebates).where(eq(quoorumDebates.id, debateId))
+
+      if (!debateResult) {
+        return { debate: null, profileId: null }
+      }
+
+      // IMPORTANT: quoorum_notifications.user_id references profiles.id, not users.id
+      // Use debate.userId which is already profile.id
+      const profileId = debateResult.userId
+
+      return { debate: debateResult, profileId }
+    })
+
+    if (!debate || !profileId) {
+      logger.warn('Debate not found for failure processing', { debateId, userId })
+      return { success: false, reason: 'debate_not_found' }
+    }
+
     // Send failure notification
     await step.run('send-failure-notification', async () => {
       await db.insert(quoorumNotifications).values({
-        userId,
+        userId: profileId, // Use profile.id from debate, not users.id from event
         type: 'debate_failed',
         priority: 'high',
         debateId,

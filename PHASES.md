@@ -1,4 +1,4 @@
-# 📅 PHASES.md — Fases del Proyecto Wallie
+# 📅 PHASES.md — Fases del Proyecto Quoorum
 
 > **Versión:** 3.8.0 | **Última actualización:** 28 Dic 2025
 > **Estado Actual:** FASE 7 - LAUNCH (en progreso)
@@ -18,7 +18,7 @@
 ║  Progreso General: ██████████████████░░ ~97%                             ║
 ║──────────────────────────────────────────────────────────────────────────║
 ║  Versión actual: 0.3.0                                                   ║
-║  Build: Funcional en wallie.pro                                          ║
+║  Build: Funcional en quoorum.pro                                         ║
 ║  Deploy: Vercel + Supabase producción                                    ║
 ║──────────────────────────────────────────────────────────────────────────║
 ║  📦 Packages: 14        | 🔌 Routers tRPC: 86    | 📡 Procedures: 850+  ║
@@ -48,7 +48,7 @@ FASE 8: DIFERENCIADORES  10%  ██░░░░░░░░░░░░░░�
 | ------------------------ | ---------- | ------ | ------------------------------------------------------ |
 | Clon de estilo           | 🔴 CRÍTICO | ✅     | IA que escribe como TÚ                                 |
 | RAG + Embeddings         | 🔴 CRÍTICO | ✅     | Contexto con documentos                                |
-| Chat con Wallie          | 🔴 CRÍTICO | ✅     | Asistente en timeline                                  |
+| Chat con Expertos        | 🔴 CRÍTICO | ✅     | Asistente en timeline                                  |
 | Gamificación             | 🟠 ALTO    | ✅     | Puntos, niveles, 25 logros                             |
 | Métricas Productividad   | 🟠 ALTO    | ✅     | Activity logging + dashboard                           |
 | Vista Calendario         | 🟠 ALTO    | ✅     | Seguimientos visuales                                  |
@@ -96,7 +96,7 @@ Core (32):
 ✅ productivity    ✅ profiles        ✅ reminders       ✅ rewards
 ✅ saved-replies   ✅ sessions        ✅ settings        ✅ stats
 ✅ subscriptions   ✅ tags            ✅ two-factor      ✅ voice
-✅ wallie          ✅ wallie-annotations ✅ whatsapp     ✅ whatsapp-connections
+✅ quoorum         ✅ quoorum-annotations ✅ whatsapp     ✅ whatsapp-connections
 
 Marketing & Business (14):
 ✅ behavior-dna        ✅ business-profile   ✅ campaigns      ✅ client-activity
@@ -120,7 +120,7 @@ Admin Routers (18):
 ✅ admin-feedback         ✅ admin-growth          ✅ admin-plans
 ✅ admin-reports          ✅ admin-rewards         ✅ admin-subscriptions
 ✅ admin-support          ✅ admin-system          ✅ admin-users
-✅ admin-wallie-config    ✅ admin-webhooks        ✅ agent-config
+✅ admin-quoorum-config    ✅ admin-webhooks        ✅ agent-config
 
 Otros (6):
 ✅ analytics          ✅ compliance         ✅ onboarding-analysis
@@ -130,7 +130,7 @@ Otros (6):
 **Top 5 routers más grandes:**
 | Router | LOC | Descripción |
 |--------|-----|-------------|
-| `wallie.ts` | 1,870 | Chat IA principal |
+| `quoorum.ts` | 1,870 | Chat IA principal |
 | `knowledge.ts` | 1,210 | RAG + embeddings |
 | `sales-insights.ts` | 1,076 | Analytics ventas |
 | `voice.ts` | 1,059 | ElevenLabs |
@@ -148,7 +148,7 @@ Core (35):
 ✅ phone-verifications ✅ proactive-actions ✅ productivity-metrics ✅ profiles
 ✅ reminders          ✅ rewards           ✅ saved-replies     ✅ subscriptions
 ✅ tags               ✅ two-factor        ✅ user-ai-preferences
-✅ wallie-interactions ✅ wallie-references
+✅ quoorum-interactions ✅ quoorum-references
 
 Marketing & Campaigns (8):
 ✅ behavior-dna       ✅ business-profile  ✅ campaigns         ✅ cold-calling
@@ -190,7 +190,7 @@ Auth (5):       /login, /register, /forgot-password, /verify-email
 Dashboard (18): /dashboard, /dashboard/referrals, /dashboard/rewards
                 /dashboard/store, /conversations, /inbox, /inbox/[id]
                 /clients, /clients/[id], /clients/new, /clients/import
-                /calendar, /todos, /productivity, /stats, /wallie
+                /calendar, /todos, /productivity, /stats, /quoorum
                 /voice, /deals
 
 Views (4):      /kanban, /funnel, /pipeline, /timeline
@@ -245,7 +245,7 @@ Validation Tests (55+ archivos en packages/api/src/__tests__/):
 ✅ prospecting, psychology-engine, reciprocity, referrals
 ✅ reminders, rewards, sales-insights, scoring, sessions
 ✅ settings, stats, subscriptions, tags, tools, two-factor
-✅ usage, voice, wallie, wallie-annotations, whatsapp
+✅ usage, voice, quoorum, quoorum-annotations, whatsapp
 ✅ whatsapp-connections, whatsapp-magic-login, whatsapp-templates
 ✅ workers
 
@@ -294,7 +294,7 @@ AI & Analytics (6):
 
 Psychology Engine (7):
 ✅ emotion-analysis        ✅ persona-update         ✅ conversation-phase-update
-✅ wallie-annotations-auto-generate                  ✅ annotation-learning-loop
+✅ quoorum-annotations-auto-generate                  ✅ annotation-learning-loop
 ✅ phase-conflict-resolver ✅ annotation-relevance-scorer
 
 GDPR & Maintenance (3):
@@ -410,18 +410,18 @@ packages/email/src/templates/:
     - Webhook para auto-warmup post-deploy
 ```
 
-### 3.3 Chat con Wallie ✅ COMPLETADO
+### 3.3 Chat con Expertos ✅ COMPLETADO
 
 ```
-[x] packages/api/src/routers/wallie.ts (26KB)
+[x] packages/api/src/routers/quoorum.ts (26KB)
     - chatInConversation: chat contextual en timeline
     - suggestMessage: sugerencias de respuesta
     - getInteractions: historial de consultas
     - toggleCollapsed: UI colapsable
     - continueInteraction: seguir conversación
-[x] packages/db/src/schema/wallie-interactions.ts
+[x] packages/db/src/schema/quoorum-interactions.ts
     - Interacciones posicionadas en timeline
-[x] UI: WallieChatInline integrado en conversaciones
+[x] UI: QuoorumChatInline integrado en conversaciones
 ```
 
 ### 3.4 Métricas y Gamificación ✅ COMPLETADO
@@ -438,7 +438,7 @@ packages/email/src/templates/:
 
 ### 3.5 MCP/Tool Use (Agentic RAG) ✅ COMPLETADO (27 Dic 2025)
 
-**Objetivo:** Habilitar que los LLMs de Wallie usen herramientas de forma nativa (tool_use) para RAG autónomo.
+**Objetivo:** Habilitar que los LLMs de Quoorum usen herramientas de forma nativa (tool_use) para RAG autónomo.
 
 ```
 [x] packages/ai/src/tools/definitions.ts ⭐ NUEVO
@@ -458,7 +458,7 @@ packages/email/src/templates/:
     - Bridge: ToolCall → Agent execution → ToolResult
     - Mapeo de 12 tools a agentes existentes
     - Type-safe execution con userId filtering
-[x] packages/api/src/routers/wallie.ts
+[x] packages/api/src/routers/quoorum.ts
     - agenticChat endpoint (mutation)
     - Input: message, conversationId, clientId, maxToolIterations
     - Output: response, toolsUsed[], isAgentic flag
@@ -503,11 +503,11 @@ packages/email/src/templates/:
         - campaigns: Gestión de campañas de marketing
         - groups: Segmentación y grupos de clientes
         - marketing-calendar: Calendario de eventos comerciales
-[x] Integración con API - wallie router
-    [x] wallie.smartChat - Chat con orquestación
-    [x] wallie.detectIntent - Detección de intención
-    [x] wallie.supervisedChat - Chat con Supervisor multi-agente
-    [x] wallie.previewPlan - Vista previa del plan de ejecución
+[x] Integración con API - quoorum router
+    [x] quoorum.smartChat - Chat con orquestación
+    [x] quoorum.detectIntent - Detección de intención
+    [x] quoorum.supervisedChat - Chat con Supervisor multi-agente
+    [x] quoorum.previewPlan - Vista previa del plan de ejecución
 ```
 
 ### ❌ Pendiente
@@ -628,15 +628,15 @@ packages/email/src/templates/:
 ### ✅ Completado
 
 ```
-[x] Vercel producción - wallie.pro desplegado
+[x] Vercel producción - quoorum.pro desplegado
 [x] Supabase producción activo
-[x] Dominio wallie.pro configurado
+[x] Dominio quoorum.pro configurado
 [x] SSL/HTTPS via Vercel
 [x] Security headers en next.config.js
 [x] Sentry configurado (client, server, edge)
 [x] Legal completo (terms, privacy, cookies, notice)
 [x] Variables de entorno en Vercel Dashboard
-[x] Emails configurados (hola@, legal@, privacy@wallie.pro)
+[x] Emails configurados (hola@, legal@, privacy@quoorum.pro)
 [x] Login alternativo (WhatsApp OTP + Magic Link)
 [x] Admin Panel completo (10 routers + 14 páginas UI)
     - Dashboard de administración
@@ -695,7 +695,7 @@ packages/email/src/templates/:
 
 | Router              | LOC   | Descripción       |
 | ------------------- | ----- | ----------------- |
-| `wallie.ts`         | 1,870 | Chat IA principal |
+| `quoorum.ts`         | 1,870 | Chat IA principal |
 | `knowledge.ts`      | 1,210 | RAG + embeddings  |
 | `sales-insights.ts` | 1,076 | Analytics ventas  |
 | `voice.ts`          | 1,059 | ElevenLabs        |
@@ -707,7 +707,7 @@ packages/email/src/templates/:
 | ----------------------- | ------- |
 | Clon de estilo          | ✅ 100% |
 | RAG + Embeddings        | ✅ 100% |
-| Chat Wallie en Timeline | ✅ 100% |
+| Chat Expertos en Timeline | ✅ 100% |
 | Gamificación            | ✅ 100% |
 | Métricas Productividad  | ✅ 100% |
 | 2FA/MFA                 | ✅ 100% |
@@ -787,9 +787,9 @@ packages/email/src/templates/:
 
 | Beneficio                  | Descripción                                     |
 | -------------------------- | ----------------------------------------------- |
-| **Memoria completa**       | Wallie conoce TODA la historia con cada cliente |
+| **Memoria completa**       | Quoorum conoce TODA la historia con cada debate |
 | **IA más inteligente**     | Más contexto = mejores sugerencias              |
-| **Migración sin fricción** | No empezar de cero al adoptar Wallie            |
+| **Migración sin fricción** | No empezar de cero al adoptar Quoorum           |
 | **Diferenciador único**    | Ningún competidor ofrece esto                   |
 | **Retención**              | Una vez importado, el lock-in es natural        |
 
@@ -848,7 +848,7 @@ packages/email/src/templates/:
 
 - `packages/workers/src/functions/emotion-analysis.ts` - Tipos corregidos
 - `packages/workers/src/functions/persona-update.ts` - Tipos corregidos
-- `packages/workers/src/functions/wallie-annotations-auto-generate.ts` - Tipos corregidos
+- `packages/workers/src/functions/quoorum-annotations-auto-generate.ts` - Tipos corregidos
 - `packages/workers/src/functions/conversation-phase-update.ts` - Tipos corregidos
 - `packages/workers/src/functions/email-received.ts` - Tipos corregidos
 - `packages/api/src/routers/conversations.ts` - console.error eliminados
@@ -861,7 +861,7 @@ packages/email/src/templates/:
 | Prioridad   | Issue                            | Cantidad    | Acción                         |
 | ----------- | -------------------------------- | ----------- | ------------------------------ |
 | ✅ Resuelto | console.log en producción        | 14 archivos | **Migrado a logger**           |
-| ✅ Resuelto | @wallie/agents sin logger propio | 10 archivos | **Logger local creado**        |
+| ✅ Resuelto | @quoorum/agents sin logger propio | 10 archivos | **Logger local creado**        |
 | ✅ Resuelto | TypeScript errors críticos       | ~30 errores | **Tipos Google APIs + logger** |
 | 🟡 Media    | Schemas sin updatedAt            | 28 tablas   | Añadir timestamp               |
 | 🟡 Media    | TODOs pendientes                 | 19 items    | Revisar (reducido de 21)       |
@@ -910,7 +910,7 @@ npsSurveys, reportExecutions
 
 | Categoría        | Cantidad | Archivos                                                                      |
 | ---------------- | -------- | ----------------------------------------------------------------------------- |
-| Voice Processing | 5        | `wallie.ts`                                                                   |
+| Voice Processing | 5        | `quoorum.ts`                                                                   |
 | AI Providers     | 2        | `unified-client.ts` (anthropic, runpod)                                       |
 | Monitoring       | 2        | `monitoring.ts` (Sentry integration)                                          |
 | GDPR             | 2        | `gdpr.ts` (campaigns, prospects counts)                                       |
@@ -921,7 +921,7 @@ npsSurveys, reportExecutions
 **Resueltos (18 Dic 2025):**
 
 - ✅ AI Models routers habilitados (antes: `root.ts` TODOs)
-- ✅ Logger local para @wallie/agents (evita dependencia circular)
+- ✅ Logger local para @quoorum/agents (evita dependencia circular)
 
 ---
 
@@ -930,7 +930,7 @@ npsSurveys, reportExecutions
 | #   | Problema                             | Estado       | Commit                                           |
 | --- | ------------------------------------ | ------------ | ------------------------------------------------ |
 | 1   | **Email de Referidos NO enviaba**    | ✅ ARREGLADO | Implementado `sendReferralInviteEmail()`         |
-| 2   | **WhatsApp Invites simulaba éxito**  | ✅ ARREGLADO | Integrado con `@wallie/whatsapp`                 |
+| 2   | **WhatsApp Invites simulaba éxito**  | ✅ ARREGLADO | Integrado con `@quoorum/whatsapp`                |
 | 3   | **Placeholders poco claros**         | ✅ MEJORADO  | Añadido `isEmailConfigured`/`isStripeConfigured` |
 | 4   | **5 routers sin tests**              | ✅ ARREGLADO | ~81 tests de validación añadidos                 |
 | 5   | **baileys-worker bloqueaba install** | ✅ ARREGLADO | Excluido de pnpm-workspace.yaml                  |
@@ -1031,7 +1031,7 @@ WHATSAPP_ACCESS_TOKEN  → Si falta: WhatsApp no funciona
 
 | Rama                                | Estado        | Propósito                 |
 | ----------------------------------- | ------------- | ------------------------- |
-| `main`                              | 🟢 Producción | Deploy en wallie.pro      |
+| `main`                              | 🟢 Producción | Deploy en quoorum.pro     |
 | `develop`                           | 🟡 Desarrollo | Integración de features   |
 | `claude/review-documentation-wmHEm` | 🔵 Actual     | Revisión de documentación |
 
@@ -1052,6 +1052,6 @@ WHATSAPP_ACCESS_TOKEN  → Si falta: WhatsApp no funciona
 _Última actualización: 28 Dic 2025_
 _Versión del documento: 3.8.0_
 _Versión del producto: 0.5.0_
-_Proyecto: Wallie - Asistente de WhatsApp con IA_
+_Proyecto: Quoorum - Sistema de Debates Multi-Agente con IA_
 _Auditoría: Claude Code (verificada contra código real - ~270,000 LOC)_
 _Commits totales: 239_

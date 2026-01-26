@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
-import { ExpertAvatar } from "./ExpertAvatar.js";
+import { ExpertAvatar } from "./ExpertAvatar";
 
 export interface ExpertInfo {
   id: string;
@@ -45,7 +45,7 @@ export function ExpertPanel({
     <div className={clsx("space-y-6", className)}>
       {Object.entries(groupedByCategory).map(([category, categoryExperts]) => (
         <div key={category}>
-          <h4 className="mb-3 text-sm font-medium uppercase tracking-wide text-gray-500">
+          <h4 className="mb-3 text-sm font-medium uppercase tracking-wide text-purple-400">
             {category}
           </h4>
           <div className="space-y-2">
@@ -54,10 +54,10 @@ export function ExpertPanel({
                 key={expert.id}
                 onClick={() => onSelectExpert?.(expert.id)}
                 className={clsx(
-                  "flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors",
+                  "flex w-full items-center gap-3 rounded-lg p-2 text-left transition-all duration-200",
                   selectedExpertId === expert.id
-                    ? "bg-blue-50 ring-1 ring-blue-200"
-                    : "hover:bg-gray-50",
+                    ? "bg-purple-500/20 ring-1 ring-purple-500/40"
+                    : "hover:bg-[#202c33]",
                   !expert.isActive && "opacity-50"
                 )}
               >
@@ -67,10 +67,10 @@ export function ExpertPanel({
                   size="sm"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-gray-900">
+                  <p className="truncate font-medium text-white">
                     {expert.name}
                   </p>
-                  <p className="truncate text-xs text-gray-500">
+                  <p className="truncate text-xs text-[#8696a0]">
                     {expert.expertise}
                   </p>
                 </div>

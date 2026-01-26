@@ -12,17 +12,30 @@
     "./pdf-export": "./src/pdf-export.ts",
     "./ai-assistant": "./src/ai-assistant.ts",
     "./websocket-server": "./src/websocket-server.ts",
-    "./expert-database": "./src/expert-database.ts",
+    "./expert-database": "./src/expert-database/index.ts",
     "./quality-monitor": "./src/quality-monitor.ts",
     "./meta-moderator": "./src/meta-moderator.ts",
     "./learning-system": "./src/learning-system.ts",
     "./types": "./src/types.ts",
+    "./frameworks": "./src/frameworks/index.ts",
     "./billing/credit-transactions": "./src/billing/credit-transactions.ts",
-    "./integrations/serper": "./src/integrations/serper.ts"
+    "./integrations/serper": "./src/integrations/serper.ts",
+    "./integrations/google-search": "./src/integrations/google-search.ts",
+    "./integrations/pinecone": "./src/integrations/pinecone.ts",
+    "./integrations/redis": "./src/integrations/redis.ts",
+    "./integrations/messaging": "./src/integrations/messaging.ts",
+    "./argument-intelligence": "./src/argument-intelligence/index.ts",
+    "./visualizations/consensus-timeline": "./src/visualizations/consensus-timeline.ts",
+    "./export": "./src/export/index.ts",
+    "./cost-control/imad": "./src/cost-control/imad.ts",
+    "./governance/decision-evidence": "./src/governance/decision-evidence.ts",
+    "./voting/quadratic-voting": "./src/voting/quadratic-voting.ts",
+    "./analytics/phase-cost-estimator": "./src/analytics/phase-cost-estimator.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
   },
   "dependencies": {
     "@quoorum/ai": "workspace:*",
@@ -37,14 +50,13 @@
   },
   "optionalDependencies": {
     "@pinecone-database/pinecone": "^6.1.0",
-    "component-emitter": "^2.0.0",
-    "html-pdf-node": "^1.0.8",
     "puppeteer": "^24.34.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/ws": "^8.18.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   }
 }

@@ -1,43 +1,55 @@
-export { auditRouter } from "./audit.js";
-export { consensusRouter } from "./consensus.js";
-export { deliberationsRouter } from "./deliberations.js";
-export { expertsRouter } from "./experts.js";
-export { opinionsRouter } from "./opinions.js";
-export { roundsRouter } from "./rounds.js";
-export { usersRouter } from "./users.js";
-export { votesRouter } from "./votes.js";
-export { systemLogsRouter } from "./system-logs.js";
-export { testLoggingRouter } from "./test-logging.js";
+export { auditRouter } from "./audit";
+export { consensusRouter } from "./consensus";
+export { deliberationsRouter } from "./deliberations";
+export { expertsRouter } from "./experts";
+export { workersRouter } from "./workers";
+export { opinionsRouter } from "./opinions";
+export { roundsRouter } from "./rounds";
+export { usersRouter } from "./users";
+export { votesRouter } from "./votes";
+export { systemLogsRouter } from "./system-logs";
+export { testLoggingRouter } from "./test-logging";
 
 // Quoorum routers
-export { quoorumRouter } from "./quoorum.js";
-export { quoorumFeedbackRouter } from "./quoorum-feedback.js";
-export { quoorumInsightsRouter } from "./quoorum-insights.js";
-export { quoorumNotificationsRouter } from "./quoorum-notifications.js";
-export { quoorumReportsRouter } from "./quoorum-reports.js";
-export { quoorumPublicApiRouter } from "./quoorum-public-api.js";
-export { adminQuoorumRouter } from "./admin-quoorum.js";
-export { adminRouter } from "./admin.js";
-export { contextAssessmentRouter } from "./context-assessment.js";
-export { debatesRouter } from "./debates.js";
-export { debateStrategyRouter } from "./debate-strategy.js";
+export { quoorumRouter } from "./quoorum";
+export { quoorumFeedbackRouter } from "./quoorum-feedback";
+export { quoorumInsightsRouter } from "./quoorum-insights";
+export { quoorumNotificationsRouter } from "./quoorum-notifications";
+export { quoorumReportsRouter } from "./quoorum-reports";
+export { quoorumPublicApiRouter } from "./quoorum-public-api";
+export { adminQuoorumRouter } from "./admin-quoorum";
+export { adminRouter } from "./admin";
+export { adminRolesRouter } from "./admin-roles";
+export { contextAssessmentRouter } from "./context-assessment";
+export { debatesRouter } from "./debates";
+export { slackRouter } from "./slack";
+export { debateStrategyRouter } from "./debate-strategy";
 
 // Settings routers
-export { notificationSettingsRouter } from "./notification-settings.js";
-export { sessionsRouter } from "./sessions.js";
-export { apiKeysRouter } from "./api-keys.js";
-export { notificationsRouter } from "./notifications.js";
-export { contextFilesRouter } from "./context-files.js";
+export { notificationSettingsRouter } from "./notification-settings";
+export { sessionsRouter } from "./sessions";
+export { apiKeysRouter } from "./api-keys";
+export { contextFilesRouter } from "./context-files";
 
 // Billing router
-export { billingRouter } from "./billing.js";
+export { billingRouter } from "./billing";
+
+// Team Members router
+export { teamMembersRouter } from "./team-members";
+export { teamAnalyticsRouter } from "./team-analytics";
 
 // Corporate Intelligence
-export { companiesRouter } from "./companies.js";
-export { departmentsRouter } from "./departments.js";
+export { companiesRouter } from "./companies";
+export { departmentsRouter } from "./departments";
 
 // User Backstory (Onboarding)
-export { userBackstoryRouter } from "./user-backstory.js";
+export { userBackstoryRouter } from "./user-backstory";
 
 // Decision-Making Frameworks
-export { frameworksRouter } from "./frameworks.js";
+export { frameworksRouter } from "./frameworks";
+
+// Process Timeline
+export { processTimelineRouter } from "./process-timeline";
+
+// Referrals
+export { referralsRouter } from "./referrals";

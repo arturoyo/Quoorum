@@ -6,7 +6,7 @@ import type {
   MetaModeratorConfig,
   QualityMetrics,
   RoundResult,
-} from "../types.js";
+} from "../types";
 
 export class MetaModerator {
   private config: MetaModeratorConfig;

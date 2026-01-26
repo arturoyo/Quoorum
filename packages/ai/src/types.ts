@@ -79,4 +79,15 @@ export interface GenerateOptions {
 
 export interface AIClient {
   generate(prompt: string, options?: GenerateOptions): Promise<AIResponse>;
+  /**
+   * Generate text with a system prompt - convenience method
+   * @param systemPrompt - The system prompt to set context
+   * @param userPrompt - The user's prompt/question
+   * @param options - Additional generation options
+   */
+  generateWithSystem(
+    systemPrompt: string,
+    userPrompt: string,
+    options?: Omit<GenerateOptions, "systemPrompt">
+  ): Promise<AIResponse>;
 }

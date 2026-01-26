@@ -3,7 +3,8 @@
  * Generates intelligent previews of what experts will debate about
  */
 
-import { getAIClient } from '@quoorum/ai'
+import { getAIClient, parseAIJson } from '@quoorum/ai'
+import { logger } from './logger'
 
 // ============================================================================
 // TYPES
@@ -139,10 +140,10 @@ Output ONLY valid JSON:
       maxTokens: 3000,
     })
 
-    const parsed = JSON.parse(response.text) as DebatePreviewOutput
+    const parsed = parseAIJson<DebatePreviewOutput>(response.text)
     return parsed
   } catch (error) {
-    console.error('[Debate Preview] Generation failed:', error)
+    logger.error('[Debate Preview] Generation failed:', error instanceof Error ? error : undefined)
     // Fallback preview
     return {
       hotPoints: [],
@@ -207,9 +208,9 @@ Output ONLY valid JSON:
       maxTokens: 2000,
     })
 
-    return JSON.parse(response.text) as ExpertMatch[]
+    return parseAIJson<ExpertMatch[]>(response.text)
   } catch (error) {
-    console.error('[Expert Matchmaking] Failed:', error)
+    logger.error('[Expert Matchmaking] Failed:', error instanceof Error ? error : undefined)
     return []
   }
 }

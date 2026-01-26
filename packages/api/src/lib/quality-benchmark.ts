@@ -3,7 +3,8 @@
  * Compares context quality against historical successful debates
  */
 
-import { getAIClient } from '@quoorum/ai'
+import { getAIClient, parseAIJson } from '@quoorum/ai'
+import { logger } from './logger'
 
 // ============================================================================
 // TYPES
@@ -140,7 +141,7 @@ function getTier(percentile: number): 'excellent' | 'good' | 'average' | 'needs-
   return 'needs-improvement'
 }
 
-function generateImprovementSuggestion(dimensionName: string, gap: number): string {
+function generateImprovementSuggestion(_dimensionName: string, gap: number): string {
   if (gap <= 5) return 'Excelente, mantén este nivel'
   if (gap <= 15) return `+${gap} puntos para alcanzar el top 10%`
   if (gap <= 30) return `+${gap} puntos para alcanzar el top 10% - Añade más detalle`
@@ -231,9 +232,9 @@ Output as JSON array of strings:
       maxTokens: 1500,
     })
 
-    return JSON.parse(response.text) as string[]
+    return parseAIJson<string[]>(response.text)
   } catch (error) {
-    console.error('[Quality Benchmark] Insights generation failed:', error)
+    logger.error('[Quality Benchmark] Insights generation failed:', error instanceof Error ? error : undefined)
     return [
       `Tu contexto está en el percentil ${Math.round(percentile)}`,
       'Enfócate en las dimensiones con mayor brecha',

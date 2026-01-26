@@ -70,6 +70,30 @@ else
   echo "  ✅ Columna deleted_at existe"
 fi
 
+# 7. Verificar imports (NO .js extensions en TypeScript)
+echo "→ Verificando imports de TypeScript..."
+if command -v pwsh &> /dev/null; then
+  # Windows con PowerShell
+  IMPORT_ERRORS=$(pwsh -NoProfile -File scripts/check-imports-simple.ps1 2>&1 | grep -c "Found .js extension" || echo "0")
+  if [ "$IMPORT_ERRORS" -gt 0 ]; then
+    echo "  ❌ Encontrados $IMPORT_ERRORS archivos con .js extensions"
+    echo "     Ejecuta: pwsh -File scripts/fix-imports.ps1"
+    ERRORS=$((ERRORS + 1))
+  else
+    echo "  ✅ Todos los imports correctos (sin .js extensions)"
+  fi
+else
+  # Linux/macOS con bash
+  IMPORT_ERRORS=$(bash scripts/check-imports-simple.sh 2>&1 | grep -c "Found .js extension" || echo "0")
+  if [ "$IMPORT_ERRORS" -gt 0 ]; then
+    echo "  ❌ Encontrados archivos con .js extensions"
+    echo "     Ejecuta: bash scripts/check-imports-simple.sh"
+    ERRORS=$((ERRORS + 1))
+  else
+    echo "  ✅ Todos los imports correctos (sin .js extensions)"
+  fi
+fi
+
 # RESULTADO FINAL
 echo ""
 echo "========================================"

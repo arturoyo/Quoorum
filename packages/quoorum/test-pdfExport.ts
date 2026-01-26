@@ -6,7 +6,7 @@
 
 import { generateDebateMarkdown } from './src/pdf-export.ts'
 import type { DebateResult } from './src/types.ts'
-import type { ExpertProfile } from './src/expert-database.ts'
+import type { ExpertProfile } from './src/expert-database'
 
 // Colores para terminal
 const colors = {

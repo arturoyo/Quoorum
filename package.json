@@ -4,8 +4,11 @@
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "build": "turbo build",
+    "predev": "pwsh -NoProfile -File scripts/auto-fix-dev.ps1",
     "dev": "turbo dev",
+    "dev:no-fix": "turbo dev",
     "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
     "typecheck": "turbo typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -16,8 +19,8 @@
     "db:push": "pnpm --filter @quoorum/db push",
     "validate:env": "tsx scripts/validate-env.ts",
     "validate:schema": "tsx packages/db/scripts/validate-schema-sync.ts",
-    "validate:imports": "tsx scripts/validate-imports.ts",
-    "validate:imports:fix": "tsx scripts/validate-imports.ts --fix",
+    "validate:imports": "pwsh -NoProfile -File scripts/check-imports-simple.ps1",
+    "validate:imports:fix": "pwsh -NoProfile -File scripts/fix-imports.ps1",
     "verify:mvp": "tsx scripts/verify-mvp-integration.ts",
     "preflight": "bash scripts/pre-flight.sh",
     "backup": "bash scripts/backup-db.sh",
@@ -31,6 +34,9 @@
     "fix:errors": "pwsh scripts/auto-fix-dev-errors.ps1",
     "fix:errors:dry": "pwsh scripts/auto-fix-dev-errors.ps1 -DryRun",
     "monitor:smart": "pwsh scripts/smart-dev-monitor.ps1 -AutoFix",
+    "monitor:dev": "pwsh -NoProfile -File scripts/watch-dev-complete.ps1",
+    "monitor:dev:fix": "pwsh -NoProfile -File scripts/watch-dev-complete.ps1 -AutoFix",
+    "dev:watch": "pnpm dev 2>&1 | pwsh -NoProfile -File scripts/watch-dev-complete.ps1 -AutoFix",
     "prepare": "husky"
   },
   "devDependencies": {

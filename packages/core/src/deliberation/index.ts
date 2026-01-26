@@ -1,2 +1,2 @@
-export { DeliberationEngine, createDeliberationEngine } from "./deliberation-engine.js";
-export { MetaModerator, createDefaultMetaModerator } from "./meta-moderator.js";
+export { DeliberationEngine, createDeliberationEngine } from "./deliberation-engine";
+export { MetaModerator, createDefaultMetaModerator } from "./meta-moderator";

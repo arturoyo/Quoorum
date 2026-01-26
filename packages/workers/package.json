@@ -19,6 +19,10 @@
     "./functions/nextjs-auto-healer": {
       "types": "./dist/functions/nextjs-auto-healer.d.ts",
       "import": "./dist/functions/nextjs-auto-healer.js"
+    },
+    "./functions/monthly-credits-assignment": {
+      "types": "./dist/functions/monthly-credits-assignment.d.ts",
+      "import": "./dist/functions/monthly-credits-assignment.js"
     }
   },
   "scripts": {
@@ -30,7 +34,8 @@
   "dependencies": {
     "inngest": "^3.20.0",
     "@quoorum/db": "workspace:*",
-    "drizzle-orm": "^0.38.0"
+    "drizzle-orm": "^0.38.0",
+    "resend": "^6.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

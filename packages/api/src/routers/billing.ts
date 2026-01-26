@@ -10,7 +10,7 @@ import Stripe from 'stripe'
 import { router, protectedProcedure } from '../trpc'
 import { env } from '../env'
 import { db } from '@quoorum/db'
-import { usage, subscriptions, users, plans } from '@quoorum/db/schema'
+import { usage, subscriptions, users, plans, creditTransactions, quoorumDebates } from '@quoorum/db/schema'
 import { eq, desc, and, sql } from 'drizzle-orm'
 import { logger } from '../lib/logger'
 
@@ -18,9 +18,22 @@ import { logger } from '../lib/logger'
 // STRIPE CLIENT
 // ============================================================================
 
-const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
-})
+// Initialize Stripe only if secret key is configured
+let stripe: Stripe | null = null
+try {
+  // Only initialize if we have a non-empty secret key
+  if (env.STRIPE_SECRET_KEY && env.STRIPE_SECRET_KEY.trim().length > 0) {
+    stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+      apiVersion: '2024-12-18.acacia',
+    })
+    logger.info('Stripe client initialized successfully')
+  } else {
+    logger.warn('Stripe secret key not configured. Billing features will be disabled.')
+  }
+} catch (error) {
+  logger.error('Failed to initialize Stripe client', error instanceof Error ? error : new Error(String(error)))
+  stripe = null // Ensure stripe is null on error
+}
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -33,7 +46,15 @@ const createCheckoutSessionSchema = z.object({
 })
 
 const purchaseCreditsSchema = z.object({
-  amount: z.number().min(100).max(10000), // 100 to 10,000 credits
+  credits: z.number().min(8000).max(1200000), // 8,000 to 1,200,000 credits (basado en CREDIT_AMOUNTS)
+  successUrl: z.string().url().optional(),
+  cancelUrl: z.string().url().optional(),
+})
+
+const createTeamCheckoutSchema = z.object({
+  seats: z.number().min(1).max(1000),
+  creditsPerSeat: z.number().min(4000).max(1200000),
+  isYearly: z.boolean().default(false),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
 })
@@ -46,55 +67,90 @@ const PLAN_PRICES = {
   free: {
     monthly: 0,
     yearly: 0,
-    credits: 1000,
+    credits: 100, // 100 créditos una vez (no mensual)
     stripePriceId: null, // Free plan has no Stripe price
   },
   starter: {
-    monthly: 2900, // $29/month (cents)
-    yearly: 29000, // $290/year (16% discount)
-    credits: 5000,
+    monthly: 2900, // 29€/mes (cents) por 3,500 créditos
+    yearly: 29000, // 290€/año por 3,500 créditos/mes
+    credits: 3500, // 3,500 créditos por mes
     stripePriceIdMonthly: env.STRIPE_STARTER_MONTHLY_PRICE_ID,
     stripePriceIdYearly: env.STRIPE_STARTER_YEARLY_PRICE_ID,
   },
   pro: {
-    monthly: 4900, // $49/month
-    yearly: 49000, // $490/year
-    credits: 10000,
+    monthly: 7900, // 79€/mes (cents) por 10,000 créditos
+    yearly: 79000, // 790€/año por 10,000 créditos/mes
+    credits: 10000, // 10,000 créditos por mes
     stripePriceIdMonthly: env.STRIPE_PRO_MONTHLY_PRICE_ID,
     stripePriceIdYearly: env.STRIPE_PRO_YEARLY_PRICE_ID,
   },
   business: {
-    monthly: 9900, // $99/month
-    yearly: 99000, // $990/year
-    credits: 25000,
+    monthly: 19900, // 199€/mes (cents) por 30,000 créditos
+    yearly: 199000, // 1,990€/año por 30,000 créditos/mes
+    credits: 30000, // 30,000 créditos por mes
     stripePriceIdMonthly: env.STRIPE_BUSINESS_MONTHLY_PRICE_ID,
     stripePriceIdYearly: env.STRIPE_BUSINESS_YEARLY_PRICE_ID,
   },
 }
 
-// Credit packs (one-time purchases)
-const CREDIT_PACKS = {
-  100: {
-    price: 100, // $1.00 (100 credits = $1)
-    stripePriceId: env.STRIPE_CREDITS_100_PRICE_ID,
-  },
-  500: {
-    price: 450, // $4.50 (10% discount)
-    stripePriceId: env.STRIPE_CREDITS_500_PRICE_ID,
-  },
-  1000: {
-    price: 850, // $8.50 (15% discount)
-    stripePriceId: env.STRIPE_CREDITS_1000_PRICE_ID,
-  },
-  5000: {
-    price: 4000, // $40.00 (20% discount)
-    stripePriceId: env.STRIPE_CREDITS_5000_PRICE_ID,
-  },
-  10000: {
-    price: 7500, // $75.00 (25% discount)
-    stripePriceId: env.STRIPE_CREDITS_10000_PRICE_ID,
-  },
+// ============================================================================
+// ESTÁNDAR QUOORUM: SISTEMA DE CRÉDITOS
+// ============================================================================
+// Valor del Crédito: $0.01 USD (100 Créditos = $1 USD)
+// Multiplicador de Servicio: 1.75x
+// Fórmula: Créditos = ⌈(Coste API USD × 1.75) / 0.01⌉
+// ============================================================================
+
+const CREDIT_PRICE_PER_UNIT = 0.01 // $0.01 USD por crédito
+const CREDITS_PER_DOLLAR = 100 // 100 créditos por $1 USD
+const SERVICE_MULTIPLIER = 1.75 // Multiplicador de servicio (1.75x)
+
+// Función para calcular precio basado en créditos (en centavos USD)
+function calculatePriceFromCredits(credits: number): number {
+  // Precio en centavos USD = créditos * 0.01 * 100
+  return Math.round(credits * CREDIT_PRICE_PER_UNIT * 100)
 }
+
+// Función para calcular créditos basado en precio (en centavos USD)
+function calculateCreditsFromPrice(priceInCents: number): number {
+  // Créditos = precio en centavos / (0.01 * 100)
+  return Math.round(priceInCents / (CREDIT_PRICE_PER_UNIT * 100))
+}
+
+// Función para calcular créditos desde coste API USD (con multiplicador de servicio)
+function calculateCreditsFromApiCost(apiCostUsd: number): number {
+  // Créditos = ⌈(Coste API USD × 1.75) / 0.01⌉
+  return Math.ceil((apiCostUsd * SERVICE_MULTIPLIER) / CREDIT_PRICE_PER_UNIT)
+}
+
+// Credit packs (one-time purchases) - Generados con la fórmula
+// Opciones de créditos disponibles
+const CREDIT_AMOUNTS = [
+  8000,
+  12000,
+  16000,
+  20000,
+  40000,
+  63000,
+  85000,
+  110000,
+  170000,
+  230000,
+  350000,
+  480000,
+  1200000,
+] as const
+
+// Generar CREDIT_PACKS dinámicamente con la fórmula
+const CREDIT_PACKS = Object.fromEntries(
+  CREDIT_AMOUNTS.map((credits) => [
+    credits,
+    {
+      price: calculatePriceFromCredits(credits), // Precio en centavos
+      stripePriceId: env[`STRIPE_CREDITS_${credits}_PRICE_ID` as keyof typeof env] as string | undefined,
+    },
+  ])
+) as Record<number, { price: number; stripePriceId?: string }>
 
 // ============================================================================
 // ROUTER
@@ -118,6 +174,32 @@ export const billingRouter = router({
       }
 
       const plan = PLAN_PRICES[planId]
+
+      // Check if Stripe is configured
+      if (!stripe) {
+        logger.error('Stripe not configured', {
+          planId,
+          userId: ctx.userId,
+        })
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Stripe no está configurado. Por favor, contacta al soporte o configura las variables de entorno de Stripe.',
+        })
+      }
+
+      // Validate that Stripe price ID exists and is not empty
+      if (!plan.stripePriceIdMonthly || plan.stripePriceIdMonthly.trim().length === 0) {
+        logger.error('Missing or empty Stripe price ID for plan', {
+          planId,
+          userId: ctx.userId,
+          stripePriceIdMonthly: plan.stripePriceIdMonthly,
+          availableKeys: Object.keys(plan),
+        })
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `Stripe price ID no configurado para el plan: ${planId}. Por favor, contacta al soporte o configura las variables de entorno STRIPE_${planId.toUpperCase()}_MONTHLY_PRICE_ID.`,
+        })
+      }
 
       try {
         // Create Stripe checkout session
@@ -145,14 +227,73 @@ export const billingRouter = router({
           },
         })
 
+        logger.info('Checkout session created successfully', {
+          sessionId: session.id,
+          planId,
+          userId: ctx.userId,
+        })
+
         return {
           sessionId: session.id,
           url: session.url,
         }
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        const errorDetails = error instanceof Stripe.errors.StripeError 
+          ? { type: error.type, code: error.code, statusCode: error.statusCode }
+          : {}
+
+        // Log full error details for debugging - INCLUIR TODOS LOS DETALLES
+        logger.error('Failed to create Stripe checkout session', error instanceof Error ? error : new Error(String(error)), {
+          planId,
+          userId: ctx.userId,
+          stripePriceId: plan.stripePriceIdMonthly,
+          stripePriceIdLength: plan.stripePriceIdMonthly?.length || 0,
+          stripeConfigured: !!stripe,
+          stripeSecretKeyLength: env.STRIPE_SECRET_KEY?.length || 0,
+          errorName: error instanceof Error ? error.name : typeof error,
+          errorMessage: errorMessage,
+          isStripeError: error instanceof Stripe.errors.StripeError,
+          ...errorDetails,
+        })
+
+        // Provide more helpful error message based on the actual error
+        let userMessage = 'Error al crear sesión de checkout'
+        
+        // Check for common Stripe errors
+        if (error instanceof Stripe.errors.StripeError) {
+          if (error.type === 'StripeInvalidRequestError') {
+            if (error.message.includes('No such price') || error.message.includes('Invalid price')) {
+              userMessage = `El precio de Stripe no está configurado correctamente para el plan ${planId}. Por favor, contacta al soporte o configura la variable de entorno STRIPE_${planId.toUpperCase()}_MONTHLY_PRICE_ID.`
+            } else if (error.message.includes('Invalid API Key') || error.message.includes('api_key')) {
+              userMessage = 'La clave de API de Stripe no es válida. Por favor, contacta al soporte o configura la variable de entorno STRIPE_SECRET_KEY.'
+            } else {
+              userMessage = `Error de Stripe: ${error.message}`
+            }
+          } else if (error.type === 'StripeAuthenticationError') {
+            userMessage = 'Error de autenticación con Stripe. La clave de API no es válida. Por favor, contacta al soporte.'
+          } else if (error.type === 'StripeAPIError') {
+            userMessage = `Error de la API de Stripe: ${error.message}`
+          } else {
+            userMessage = `Error de Stripe: ${error.message}`
+          }
+        } else {
+          // Si no es un error de Stripe, usar el mensaje original pero más descriptivo
+          // Incluir el mensaje del error para debugging
+          userMessage = `Error al crear sesión de checkout: ${errorMessage}`
+          
+          // Si el error tiene un mensaje útil, incluirlo
+          if (errorMessage && errorMessage.length > 0 && errorMessage !== 'Failed to create checkout session') {
+            userMessage = `Error al crear sesión de checkout: ${errorMessage}`
+          } else {
+            // Mensaje más descriptivo si no hay detalles
+            userMessage = 'Error al crear sesión de checkout. Por favor, verifica que Stripe esté configurado correctamente o contacta al soporte.'
+          }
+        }
+
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to create checkout session',
+          message: userMessage,
           cause: error,
         })
       }
@@ -162,37 +303,63 @@ export const billingRouter = router({
   // PURCHASE CREDITS (One-time)
   // --------------------------------------------------------------------------
   purchaseCredits: protectedProcedure.input(purchaseCreditsSchema).mutation(async ({ ctx, input }) => {
-    const { amount, successUrl, cancelUrl } = input
+    if (!stripe) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Stripe no está configurado. Por favor, contacta al soporte o configura las variables de entorno de Stripe.',
+      })
+    }
 
-    // Find closest credit pack
-    const packAmounts = Object.keys(CREDIT_PACKS)
-      .map(Number)
-      .sort((a, b) => a - b)
-    const closestPack = packAmounts.reduce((prev, curr) =>
-      Math.abs(curr - amount) < Math.abs(prev - amount) ? curr : prev
-    )
+    const { credits: requestedCredits, successUrl, cancelUrl } = input
 
-    const pack = CREDIT_PACKS[closestPack as keyof typeof CREDIT_PACKS]
-
+    // Find closest available pack
+    const availablePacks = CREDIT_AMOUNTS.slice().sort((a, b) => a - b)
+    
+    // Find closest pack (round up to nearest available pack)
+    const closestPack = availablePacks.find((pack) => pack >= requestedCredits) || availablePacks[availablePacks.length - 1]
+    
+    // Calculate price using formula
+    const priceInCents = calculatePriceFromCredits(closestPack)
+    
+    const pack = CREDIT_PACKS[closestPack]
     if (!pack) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
-        message: 'Invalid credit amount',
+        message: 'Invalid credit pack',
       })
     }
 
     try {
+      // Use Stripe price ID if available, otherwise create price on the fly
+      let lineItem: Stripe.Checkout.SessionCreateParams.LineItem
+      
+      if (pack.stripePriceId) {
+        // Use existing Stripe price
+        lineItem = {
+          price: pack.stripePriceId,
+          quantity: 1,
+        }
+      } else {
+        // Create price on the fly
+        lineItem = {
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: `${closestPack.toLocaleString()} Créditos`,
+              description: `Compra única de ${closestPack.toLocaleString()} créditos`,
+            },
+            unit_amount: priceInCents, // Price in cents
+          },
+          quantity: 1,
+        }
+      }
+
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
         payment_method_types: ['card'],
-        line_items: [
-          {
-            price: pack.stripePriceId,
-            quantity: 1,
-          },
-        ],
-        success_url: successUrl || `${env.NEXT_PUBLIC_APP_URL}/account?purchase=success`,
-        cancel_url: cancelUrl || `${env.NEXT_PUBLIC_APP_URL}/account`,
+        line_items: [lineItem],
+        success_url: successUrl || `${env.NEXT_PUBLIC_APP_URL}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: cancelUrl || `${env.NEXT_PUBLIC_APP_URL}/pricing?canceled=true`,
         customer_email: ctx.user.email,
         metadata: {
           userId: ctx.userId,
@@ -205,7 +372,7 @@ export const billingRouter = router({
         sessionId: session.id,
         url: session.url,
         credits: closestPack,
-        price: pack.price,
+        price: priceInCents,
       }
     } catch (error) {
       throw new TRPCError({
@@ -217,22 +384,313 @@ export const billingRouter = router({
   }),
 
   // --------------------------------------------------------------------------
+  // CREATE TEAM CHECKOUT SESSION
+  // --------------------------------------------------------------------------
+  createTeamCheckout: protectedProcedure
+    .input(createTeamCheckoutSchema)
+    .mutation(async ({ ctx, input }) => {
+      if (!stripe) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Stripe no está configurado. Por favor, contacta al soporte o configura las variables de entorno de Stripe.',
+        })
+      }
+
+      const { seats, creditsPerSeat, isYearly, successUrl, cancelUrl } = input
+
+      // Calcular precio por asiento según créditos seleccionados
+      // Opciones de créditos por asiento (mismo que en frontend)
+      const CREDIT_OPTIONS_PER_SEAT = [
+        { credits: 4000, price: 32 },
+        { credits: 8000, price: 64 },
+        { credits: 12000, price: 96 },
+        { credits: 16000, price: 128 },
+        { credits: 20000, price: 160 },
+        { credits: 40000, price: 320 },
+        { credits: 63000, price: 504 },
+        { credits: 85000, price: 680 },
+        { credits: 110000, price: 880 },
+        { credits: 170000, price: 1360 },
+        { credits: 230000, price: 1840 },
+        { credits: 350000, price: 2800 },
+        { credits: 480000, price: 3840 },
+        { credits: 1200000, price: 9600 },
+      ] as const
+
+      // Encontrar el precio correspondiente a los créditos seleccionados
+      const creditOption = CREDIT_OPTIONS_PER_SEAT.find(
+        (opt) => opt.credits === creditsPerSeat
+      )
+
+      if (!creditOption) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Invalid credits per seat option',
+        })
+      }
+
+      const pricePerSeat = creditOption.price
+      const monthlyTotal = seats * pricePerSeat
+      const totalPrice = isYearly
+        ? Math.round(monthlyTotal * 12 * 0.83) // 17% descuento anual
+        : monthlyTotal
+
+      const priceInCents = totalPrice * 100 // Convertir a centavos
+
+      try {
+        // Crear checkout session para plan Team
+        const session = await stripe.checkout.sessions.create({
+          mode: 'subscription', // Plan recurrente
+          payment_method_types: ['card'],
+          line_items: [
+            {
+              price_data: {
+                currency: 'eur',
+                recurring: {
+                  interval: isYearly ? 'year' : 'month',
+                },
+                product_data: {
+                  name: `Plan Equipo - ${seats} asientos`,
+                  description: `${seats} asientos × ${creditsPerSeat.toLocaleString()} créditos/asiento/mes`,
+                },
+                unit_amount: Math.round(priceInCents / seats), // Precio por asiento en centavos
+              },
+              quantity: seats,
+            },
+          ],
+          success_url:
+            successUrl ||
+            `${env.NEXT_PUBLIC_APP_URL}/settings/team?success=true&session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url:
+            cancelUrl || `${env.NEXT_PUBLIC_APP_URL}/settings/team?canceled=true`,
+          customer_email: ctx.user.email,
+          metadata: {
+            userId: ctx.userId,
+            type: 'team_subscription',
+            seats: String(seats),
+            creditsPerSeat: String(creditsPerSeat),
+            isYearly: String(isYearly),
+            totalCredits: String(seats * creditsPerSeat),
+          },
+        })
+
+        return {
+          sessionId: session.id,
+          url: session.url,
+          seats,
+          creditsPerSeat,
+          totalCredits: seats * creditsPerSeat,
+          price: priceInCents,
+          isYearly,
+        }
+      } catch (error) {
+        logger.error('Failed to create team checkout session', {
+          error: error instanceof Error ? error.message : String(error),
+          userId: ctx.userId,
+          seats,
+          creditsPerSeat,
+        })
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create team checkout session',
+          cause: error,
+        })
+      }
+    }),
+
+  // --------------------------------------------------------------------------
   // GET PRICING INFO
   // --------------------------------------------------------------------------
   getPricingInfo: protectedProcedure.query(() => {
     return {
       plans: PLAN_PRICES,
       creditPacks: CREDIT_PACKS,
+      creditPricePerUnit: CREDIT_PRICE_PER_UNIT, // $0.01 USD por crédito
+      creditsPerDollar: CREDITS_PER_DOLLAR, // 100 créditos por $1 USD
+      serviceMultiplier: SERVICE_MULTIPLIER, // 1.75x multiplicador de servicio
+      // Nota: Las funciones de cálculo no son serializables en JSON
+      // Usar calculatePriceFromCredits, calculateCreditsFromPrice, calculateCreditsFromApiCost directamente
     }
   }),
 
   // --------------------------------------------------------------------------
-  // GET CURRENT PLAN
+  // REFRESH DAILY CREDITS (solo si han pasado 24h desde último refresh)
+  // --------------------------------------------------------------------------
+  refreshDailyCredits: protectedProcedure.mutation(async ({ ctx }) => {
+    const now = new Date()
+    const lastRefresh = ctx.user.lastDailyCreditRefresh
+    
+    // Si nunca se ha refrescado, inicializar con la fecha actual
+    if (!lastRefresh) {
+      await db
+        .update(users)
+        .set({
+          lastDailyCreditRefresh: now,
+          updatedAt: now,
+        })
+        .where(eq(users.id, ctx.userId))
+      
+      return {
+        refreshed: false,
+        creditsAdded: 0,
+        message: 'Primera visita - créditos diarios se activarán mañana',
+      }
+    }
+    
+    // Calcular horas desde último refresh
+    const hoursSinceRefresh = (now.getTime() - lastRefresh.getTime()) / (1000 * 60 * 60)
+    
+    // Solo refrescar si han pasado al menos 24 horas
+    if (hoursSinceRefresh < 24) {
+      const hoursRemaining = Math.ceil(24 - hoursSinceRefresh)
+      return {
+        refreshed: false,
+        creditsAdded: 0,
+        message: `Créditos diarios disponibles en ${hoursRemaining} horas`,
+        hoursRemaining,
+      }
+    }
+    
+    // Calcular créditos diarios según tier
+    const DAILY_CREDITS_BY_TIER: Record<string, number> = {
+      free: 10, // 10 créditos diarios para usuarios free
+      starter: 25, // 25 créditos diarios para starter
+      pro: 50, // 50 créditos diarios para pro
+      business: 100, // 100 créditos diarios para business
+    }
+    
+    const dailyCredits = DAILY_CREDITS_BY_TIER[ctx.user.tier] || DAILY_CREDITS_BY_TIER.free
+    
+    // Añadir créditos usando la función de credit-transactions
+    const { addCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
+    const result = await addCredits(
+      ctx.userId,
+      dailyCredits,
+      undefined, // No hay subscriptionId para créditos diarios
+      'daily_reset',
+      `Créditos diarios de actualización (${ctx.user.tier} tier)`
+    )
+    
+    if (!result.success) {
+      logger.error('Failed to add daily credits', {
+        userId: ctx.userId,
+        tier: ctx.user.tier,
+        error: result.error,
+      })
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Error al añadir créditos diarios',
+      })
+    }
+    
+    // Actualizar lastDailyCreditRefresh
+    await db
+      .update(users)
+      .set({
+        lastDailyCreditRefresh: now,
+        updatedAt: now,
+      })
+      .where(eq(users.id, ctx.userId))
+    
+    logger.info('Daily credits refreshed', {
+      userId: ctx.userId,
+      tier: ctx.user.tier,
+      creditsAdded: dailyCredits,
+      newBalance: result.newBalance,
+    })
+    
+    return {
+      refreshed: true,
+      creditsAdded: dailyCredits,
+      newBalance: result.newBalance,
+      message: `Se añadieron ${dailyCredits} créditos diarios`,
+    }
+  }),
+
+  // --------------------------------------------------------------------------
+  // GET CURRENT PLAN (con refresh automático de créditos diarios)
   // --------------------------------------------------------------------------
   getCurrentPlan: protectedProcedure.query(async ({ ctx }) => {
+    // IMPORTANT: ctx.userId is profile.id, but for users table operations we need ctx.user.id
+    const usersId = ctx.user.id
+    
+    // Intentar refrescar créditos diarios automáticamente (fire-and-forget)
+    // No bloquea la respuesta si falla
+    void (async () => {
+      try {
+        const now = new Date()
+        const lastRefresh = ctx.user.lastDailyCreditRefresh
+        
+        // Si nunca se ha refrescado o han pasado 24h, intentar refrescar
+        if (!lastRefresh) {
+          // Primera visita: solo marcar timestamp, no añadir créditos
+          await db
+            .update(users)
+            .set({
+              lastDailyCreditRefresh: now,
+              updatedAt: now,
+            })
+            .where(eq(users.id, usersId))
+          return
+        }
+        
+        const hoursSinceRefresh = (now.getTime() - lastRefresh.getTime()) / (1000 * 60 * 60)
+        
+        if (hoursSinceRefresh >= 24) {
+          // Refrescar créditos diarios
+          const DAILY_CREDITS_BY_TIER: Record<string, number> = {
+            free: 10,
+            starter: 25,
+            pro: 50,
+            business: 100,
+          }
+          
+          const dailyCredits = DAILY_CREDITS_BY_TIER[ctx.user.tier] || DAILY_CREDITS_BY_TIER.free
+          
+          const { addCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
+          const result = await addCredits(
+            usersId, // Use users.id, not profile.id
+            dailyCredits,
+            undefined,
+            'daily_reset',
+            `Créditos diarios de actualización (${ctx.user.tier} tier)`
+          )
+          
+          if (result.success) {
+            await db
+              .update(users)
+              .set({
+                lastDailyCreditRefresh: now,
+                updatedAt: now,
+              })
+              .where(eq(users.id, usersId))
+            
+            logger.info('Daily credits auto-refreshed', {
+              userId: usersId,
+              tier: ctx.user.tier,
+              creditsAdded: dailyCredits,
+            })
+          }
+        }
+      } catch (error) {
+        // Silenciar errores en el refresh automático para no bloquear la respuesta
+        logger.warn('Failed to auto-refresh daily credits', {
+          userId: usersId,
+          error: error instanceof Error ? error.message : String(error),
+        })
+      }
+    })()
+    
+    // Obtener balance actualizado (después del refresh)
+    const [updatedUser] = await db
+      .select({ credits: users.credits })
+      .from(users)
+      .where(eq(users.id, usersId)) // Use users.id, not profile.id
+      .limit(1)
+    
     return {
       tier: ctx.user.tier,
-      credits: ctx.user.credits,
+      credits: updatedUser?.credits ?? ctx.user.credits,
     }
   }),
 
@@ -259,6 +717,105 @@ export const billingRouter = router({
     }),
 
   // --------------------------------------------------------------------------
+  // GET MY INVOICES (Stripe invoices)
+  // --------------------------------------------------------------------------
+  getMyInvoices: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(5),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      if (!stripe) {
+        logger.warn('Stripe not configured, returning empty invoices list', { userId: ctx.userId })
+        return []
+      }
+
+      try {
+        // Get user's Stripe customer ID from subscription
+        const [subscription] = await db
+          .select({ stripeCustomerId: subscriptions.stripeCustomerId })
+          .from(subscriptions)
+          .where(eq(subscriptions.userId, ctx.userId))
+          .limit(1)
+
+        if (!subscription?.stripeCustomerId) {
+          return []
+        }
+
+        // Fetch invoices from Stripe
+        const stripeInvoices = await stripe.invoices.list({
+          customer: subscription.stripeCustomerId,
+          limit: input.limit,
+        })
+
+        return stripeInvoices.data.map((invoice) => ({
+          id: invoice.id,
+          date: new Date(invoice.created * 1000),
+          amount: invoice.amount_paid / 100, // Convert from cents to dollars
+          status: invoice.status,
+          invoicePdf: invoice.invoice_pdf,
+          hostedInvoiceUrl: invoice.hosted_invoice_url,
+        }))
+      } catch (error) {
+        logger.error('Error fetching Stripe invoices', error instanceof Error ? error : new Error(String(error)), {
+          userId: ctx.userId,
+        })
+        return []
+      }
+    }),
+
+  // --------------------------------------------------------------------------
+  // GET CUSTOMER PORTAL URL (Stripe billing portal)
+  // --------------------------------------------------------------------------
+  getCustomerPortalUrl: protectedProcedure
+    .input(
+      z.object({
+        returnUrl: z.string().url().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!stripe) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Stripe no está configurado. Por favor, contacta al soporte o configura las variables de entorno de Stripe.',
+        })
+      }
+
+      try {
+        // Get user's Stripe customer ID from subscription
+        const [subscription] = await db
+          .select({ stripeCustomerId: subscriptions.stripeCustomerId })
+          .from(subscriptions)
+          .where(eq(subscriptions.userId, ctx.userId))
+          .limit(1)
+
+        if (!subscription?.stripeCustomerId) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'No se encontró una suscripción activa',
+          })
+        }
+
+        // Create billing portal session
+        const portalSession = await stripe.billingPortal.sessions.create({
+          customer: subscription.stripeCustomerId,
+          return_url: input.returnUrl || `${env.NEXT_PUBLIC_APP_URL}/settings/billing`,
+        })
+
+        return { url: portalSession.url }
+      } catch (error) {
+        logger.error('Error creating Stripe portal session', error instanceof Error ? error : new Error(String(error)), {
+          userId: ctx.userId,
+        })
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Error al crear sesión del portal de facturación',
+        })
+      }
+    }),
+
+  // --------------------------------------------------------------------------
   // GET MY SUBSCRIPTIONS (Payment History)
   // --------------------------------------------------------------------------
   getMySubscriptions: protectedProcedure
@@ -279,6 +836,60 @@ export const billingRouter = router({
 
       return results
     }),
+
+  // --------------------------------------------------------------------------
+  // GET CREDIT TRANSACTION HISTORY
+  // --------------------------------------------------------------------------
+  getCreditHistory: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      // IMPORTANT: creditTransactions.userId references users.id, not profiles.id
+      // ctx.userId is profile.id, but we need users.id (ctx.user.id)
+      const usersId = ctx.user.id
+
+      // Get total count for pagination
+      const countResult = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(creditTransactions)
+        .where(eq(creditTransactions.userId, usersId))
+
+      const total = countResult[0]?.count ?? 0
+
+      // Get transactions with debate info (if available)
+      const transactions = await db
+        .select({
+          id: creditTransactions.id,
+          type: creditTransactions.type,
+          source: creditTransactions.source,
+          amount: creditTransactions.amount,
+          balanceBefore: creditTransactions.balanceBefore,
+          balanceAfter: creditTransactions.balanceAfter,
+          reason: creditTransactions.reason,
+          debateId: creditTransactions.debateId,
+          debateQuestion: quoorumDebates.question,
+          debateStatus: quoorumDebates.status,
+          createdAt: creditTransactions.createdAt,
+        })
+        .from(creditTransactions)
+        .leftJoin(
+          quoorumDebates,
+          eq(creditTransactions.debateId, quoorumDebates.id)
+        )
+        .where(eq(creditTransactions.userId, usersId))
+        .orderBy(desc(creditTransactions.createdAt))
+        .limit(input.limit)
+        .offset(input.offset)
+
+      return {
+        transactions,
+        total,
+      }
+    }),
 })
 
 // ============================================================================
@@ -292,6 +903,11 @@ export const billingRouter = router({
  * @returns Success or error response
  */
 export async function handleStripeWebhook(payload: string | Buffer, signature: string) {
+  if (!stripe) {
+    logger.error('Stripe not configured, cannot handle webhook')
+    return { success: false, error: 'Stripe not configured' }
+  }
+
   let event: Stripe.Event
 
   try {

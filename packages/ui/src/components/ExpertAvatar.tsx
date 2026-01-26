@@ -69,8 +69,8 @@ export function ExpertAvatar({
       </div>
       {showExpertise && (
         <div>
-          <p className="font-medium text-gray-900">{name}</p>
-          <p className="text-sm text-gray-500">{expertise}</p>
+          <p className="font-medium text-white">{name}</p>
+          <p className="text-sm text-[#8696a0]">{expertise}</p>
         </div>
       )}
     </div>

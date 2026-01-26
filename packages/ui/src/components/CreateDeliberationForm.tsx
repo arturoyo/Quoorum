@@ -17,6 +17,10 @@ export interface CreateDeliberationFormProps {
   className?: string;
 }
 
+// Dark theme input classes - Quoorum Design System
+const inputClasses = "mt-1 block w-full rounded-md border border-[#2a3942] bg-[#2a3942] px-3 py-2 text-white placeholder:text-[#8696a0] shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-colors";
+const labelClasses = "block text-sm font-medium text-[#aebac1]";
+
 export function CreateDeliberationForm({
   onSubmit,
   isLoading = false,
@@ -55,10 +59,7 @@ export function CreateDeliberationForm({
   return (
     <form onSubmit={handleSubmit} className={clsx("space-y-6", className)}>
       <div>
-        <label
-          htmlFor="title"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="title" className={labelClasses}>
           Title
         </label>
         <input
@@ -67,16 +68,13 @@ export function CreateDeliberationForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClasses}
           placeholder="Enter deliberation title"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="topic"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="topic" className={labelClasses}>
           Topic
         </label>
         <input
@@ -85,16 +83,13 @@ export function CreateDeliberationForm({
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClasses}
           placeholder="Main topic for deliberation"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="description" className={labelClasses}>
           Description
         </label>
         <textarea
@@ -103,16 +98,13 @@ export function CreateDeliberationForm({
           onChange={(e) => setDescription(e.target.value)}
           required
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClasses}
           placeholder="Describe the context and background"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="objectives"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="objectives" className={labelClasses}>
           Objectives (one per line)
         </label>
         <textarea
@@ -120,16 +112,13 @@ export function CreateDeliberationForm({
           value={objectivesText}
           onChange={(e) => setObjectivesText(e.target.value)}
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClasses}
           placeholder="What should the deliberation achieve?"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="constraints"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="constraints" className={labelClasses}>
           Constraints (one per line)
         </label>
         <textarea
@@ -137,17 +126,14 @@ export function CreateDeliberationForm({
           value={constraintsText}
           onChange={(e) => setConstraintsText(e.target.value)}
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClasses}
           placeholder="What limitations must be considered?"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label
-            htmlFor="maxRounds"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="maxRounds" className={labelClasses}>
             Max Rounds
           </label>
           <input
@@ -157,14 +143,11 @@ export function CreateDeliberationForm({
             onChange={(e) => setMaxRounds(parseInt(e.target.value, 10))}
             min={1}
             max={20}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClasses}
           />
         </div>
         <div>
-          <label
-            htmlFor="consensusThreshold"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="consensusThreshold" className={labelClasses}>
             Consensus Threshold (%)
           </label>
           <input
@@ -174,7 +157,7 @@ export function CreateDeliberationForm({
             onChange={(e) => setConsensusThreshold(parseInt(e.target.value, 10))}
             min={0}
             max={100}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClasses}
           />
         </div>
       </div>
@@ -183,10 +166,10 @@ export function CreateDeliberationForm({
         type="submit"
         disabled={isLoading}
         className={clsx(
-          "w-full rounded-md bg-blue-600 px-4 py-2 text-white font-medium transition-colors",
+          "w-full rounded-md bg-purple-600 px-4 py-2 text-white font-medium transition-colors",
           isLoading
             ? "cursor-not-allowed opacity-50"
-            : "hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            : "hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-0"
         )}
       >
         {isLoading ? "Creating..." : "Create Deliberation"}

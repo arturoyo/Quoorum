@@ -1,41 +1,75 @@
 /**
  * Admin Router
  * 
- * Administrative controls for Quoorum system:
- * - Credit multiplier management (CREDIT_MULTIPLIER)
- * - User management (search, add credits)
- * - Model/API health monitoring
+ * CRUD completo de usuarios, gestión de roles, créditos, y cost tracking
+ * Solo accesible para usuarios con rol admin o super_admin
  */
 
 import { z } from 'zod'
-import { TRPCError } from '@trpc/server'
+import { eq, and, desc, asc, sql } from 'drizzle-orm'
 import { router, adminProcedure } from '../trpc'
 import { db } from '@quoorum/db'
-import { users, profiles, usage, subscriptions } from '@quoorum/db/schema'
-// TODO: creditTransactions table not yet created in schema
-import { eq, and, like, desc, sql, gte, lte } from 'drizzle-orm'
-import { CREDIT_MULTIPLIER } from '@quoorum/quoorum'
-import { env } from '../env'
+import { users, profiles, adminUsers, adminRoles, quoorumDebates, subscriptions } from '@quoorum/db'
+import { TRPCError } from '@trpc/server'
+import { addCredits, deductCredits } from '@quoorum/quoorum'
 
 // ============================================================================
 // SCHEMAS
 // ============================================================================
 
-const searchUsersSchema = z.object({
-  email: z.string().email().optional(),
-  search: z.string().min(1).optional(),
-  limit: z.number().min(1).max(100).default(50),
-  offset: z.number().min(0).default(0),
+const updateUserCreditsSchema = z.object({
+  userId: z.string().uuid(),
+  credits: z.number().int().min(0),
 })
 
 const addCreditsSchema = z.object({
   userId: z.string().uuid(),
-  credits: z.number().int().positive(),
-  reason: z.string().max(500).optional(),
+  credits: z.number().int().min(1),
+  reason: z.string().optional(),
 })
 
-const updateCreditMultiplierSchema = z.object({
-  multiplier: z.number().min(1).max(10), // 1.0 to 10.0
+const deductCreditsSchema = z.object({
+  userId: z.string().uuid(),
+  credits: z.number().int().min(1),
+  reason: z.string().min(1, 'Reason is required for deducting credits'),
+})
+
+const updateUserTierSchema = z.object({
+  userId: z.string().uuid(),
+  tier: z.enum(['free', 'starter', 'pro', 'business']),
+})
+
+const updateUserRoleSchema = z.object({
+  userId: z.string().uuid(),
+  role: z.enum(['member', 'admin', 'super_admin']),
+})
+
+const createUserSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1).max(255),
+  credits: z.number().int().min(0).default(1000),
+  tier: z.enum(['free', 'starter', 'pro', 'business']).default('free'),
+  role: z.enum(['member', 'admin', 'super_admin']).default('member'),
+})
+
+const updateUserSchema = z.object({
+  userId: z.string().uuid(),
+  email: z.string().email().optional(),
+  name: z.string().min(1).max(255).optional(),
+  credits: z.number().int().min(0).optional(),
+  tier: z.enum(['free', 'starter', 'pro', 'business']).optional(),
+  role: z.enum(['member', 'admin', 'super_admin']).optional(),
+  isActive: z.boolean().optional(),
+})
+
+const listUsersSchema = z.object({
+  limit: z.number().min(1).max(100).default(50),
+  offset: z.number().min(0).default(0),
+  search: z.string().optional(),
+  tier: z.enum(['free', 'starter', 'pro', 'business']).optional(),
+  role: z.enum(['member', 'admin', 'super_admin']).optional(),
+  sortBy: z.enum(['created_at', 'email', 'credits', 'tier']).default('created_at'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 })
 
 // ============================================================================
@@ -43,17 +77,17 @@ const updateCreditMultiplierSchema = z.object({
 // ============================================================================
 
 export const adminRouter = router({
-  /**
-   * Search users by email or name
-   */
-  searchUsers: adminProcedure
-    .input(searchUsersSchema)
-    .query(async ({ ctx, input }) => {
-      const conditions = []
+  // ============================================
+  // USERS MANAGEMENT
+  // ============================================
 
-      if (input.email) {
-        conditions.push(eq(users.email, input.email))
-      }
+  /**
+   * List all users with pagination and filters
+   */
+  listUsers: adminProcedure
+    .input(listUsersSchema)
+    .query(async ({ input }) => {
+      const conditions = []
 
       if (input.search) {
         conditions.push(
@@ -61,32 +95,62 @@ export const adminRouter = router({
         )
       }
 
+      if (input.tier) {
+        conditions.push(eq(users.tier, input.tier))
+      }
+
+      if (input.role) {
+        conditions.push(eq(users.role, input.role))
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+
+      const orderBy =
+        input.sortBy === 'created_at'
+          ? desc(users.createdAt)
+          : input.sortBy === 'email'
+          ? asc(users.email)
+          : input.sortBy === 'credits'
+          ? desc(users.credits)
+          : desc(users.tier)
+
       const results = await db
         .select({
           id: users.id,
           email: users.email,
           name: users.name,
-          tier: users.tier,
           credits: users.credits,
+          tier: users.tier,
           role: users.role,
           isActive: users.isActive,
           createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
         })
         .from(users)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(users.createdAt))
+        .where(whereClause)
+        .orderBy(orderBy)
         .limit(input.limit)
         .offset(input.offset)
 
-      return results
+      const total = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(whereClause)
+
+      return {
+        users: results,
+        total: Number(total[0]?.count || 0),
+        limit: input.limit,
+        offset: input.offset,
+      }
     }),
 
   /**
-   * Get user details with usage and subscription
+   * Get user by ID with full details
    */
-  getUserDetails: adminProcedure
+  getUserById: adminProcedure
     .input(z.object({ userId: z.string().uuid() }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       const [user] = await db
         .select()
         .from(users)
@@ -100,375 +164,567 @@ export const adminRouter = router({
         })
       }
 
-      // Get current subscription
+      // Get profile
+      const [profile] = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.userId, input.userId))
+        .limit(1)
+
+      // Get admin role if exists
+      const [adminUser] = await db
+        .select({
+          adminRole: adminUsers.role,
+          adminRoleName: adminRoles.name,
+        })
+        .from(adminUsers)
+        .leftJoin(adminRoles, eq(adminUsers.roleId, adminRoles.id))
+        .where(eq(adminUsers.userId, profile?.id || ''))
+        .limit(1)
+
+      // Get subscription if exists
       const [subscription] = await db
         .select()
         .from(subscriptions)
-        .where(and(eq(subscriptions.userId, input.userId), eq(subscriptions.status, 'active')))
-        .orderBy(desc(subscriptions.createdAt))
+        .where(eq(subscriptions.userId, input.userId))
         .limit(1)
 
-      // Get current period usage
-      const now = new Date()
-      const periodStart = new Date(now.getFullYear(), now.getMonth(), 1)
-      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-
-      const [currentUsage] = await db
-        .select()
-        .from(usage)
-        .where(
-          and(
-            eq(usage.userId, input.userId),
-            sql`${usage.periodStart} >= ${periodStart}`,
-            sql`${usage.periodEnd} <= ${periodEnd}`
-          )
-        )
-        .limit(1)
+      // Get usage stats
+      const [usageStats] = await db
+        .select({
+          totalDebates: sql<number>`count(*)`,
+          totalCost: sql<number>`coalesce(sum(${quoorumDebates.totalCostUsd}), 0)`,
+          totalCredits: sql<number>`coalesce(sum(${quoorumDebates.totalCreditsUsed}), 0)`,
+        })
+        .from(quoorumDebates)
+        .where(eq(quoorumDebates.userId, profile?.id || ''))
 
       return {
-        user,
-        subscription: subscription || null,
-        currentUsage: currentUsage || null,
+        ...user,
+        profile,
+        adminRole: adminUser?.adminRole,
+        adminRoleName: adminUser?.adminRoleName,
+        subscription,
+        usage: {
+          totalDebates: Number(usageStats?.totalDebates || 0),
+          totalCostUsd: Number(usageStats?.totalCost || 0),
+          totalCreditsUsed: Number(usageStats?.totalCredits || 0),
+        },
       }
     }),
 
   /**
-   * Add credits to user (for support)
+   * Create new user
    */
-  addCredits: adminProcedure
-    .input(addCreditsSchema)
-    .mutation(async ({ ctx, input }) => {
-      // Verify user exists
-      const [user] = await db
-        .select({ id: users.id, email: users.email })
+  createUser: adminProcedure
+    .input(createUserSchema)
+    .mutation(async ({ input }) => {
+      // Check if user already exists
+      const [existing] = await db
+        .select()
         .from(users)
-        .where(eq(users.id, input.userId))
+        .where(eq(users.email, input.email))
         .limit(1)
 
-      if (!user) {
+      if (existing) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'Ya existe un usuario con este email',
+        })
+      }
+
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          email: input.email,
+          name: input.name,
+          credits: input.credits,
+          tier: input.tier,
+          role: input.role,
+        })
+        .returning()
+
+      return newUser
+    }),
+
+  /**
+   * Update user
+   */
+  updateUser: adminProcedure
+    .input(updateUserSchema)
+    .mutation(async ({ input }) => {
+      const { userId, ...data } = input
+
+      const [updated] = await db
+        .update(users)
+        .set({
+          ...data,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId))
+        .returning()
+
+      if (!updated) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Usuario no encontrado',
         })
       }
 
-      // Add credits atomically
+      return updated
+    }),
+
+  /**
+   * Update user credits (set absolute value)
+   */
+  updateUserCredits: adminProcedure
+    .input(updateUserCreditsSchema)
+    .mutation(async ({ input }) => {
       const [updated] = await db
         .update(users)
         .set({
-          credits: sql`${users.credits} + ${input.credits}`,
+          credits: input.credits,
           updatedAt: new Date(),
         })
         .where(eq(users.id, input.userId))
         .returning()
 
-      return {
-        success: true,
-        userId: input.userId,
-        creditsAdded: input.credits,
-        newBalance: updated.credits,
-        reason: input.reason || 'Añadidos por administrador',
-        adminId: ctx.user.id,
-      }
-    }),
-
-  /**
-   * Get current credit multiplier
-   */
-  getCreditMultiplier: adminProcedure.query(() => {
-    return {
-      multiplier: CREDIT_MULTIPLIER,
-      usdPerCredit: 0.005,
-      formula: `credits = (costUsd * ${CREDIT_MULTIPLIER}) / 0.005`,
-      note: 'Para cambiar el multiplicador, edita CREDIT_MULTIPLIER en packages/quoorum/src/analytics/cost.ts y reinicia el servidor',
-    }
-  }),
-
-  /**
-   * Get usage history for a user
-   */
-  getUserUsageHistory: adminProcedure
-    .input(
-      z.object({
-        userId: z.string().uuid(),
-        limit: z.number().min(1).max(100).default(20),
-        offset: z.number().min(0).default(0),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const results = await db
-        .select()
-        .from(usage)
-        .where(eq(usage.userId, input.userId))
-        .orderBy(desc(usage.periodStart))
-        .limit(input.limit)
-        .offset(input.offset)
-
-      return results
-    }),
-
-  /**
-   * Get payment history for a user (from subscriptions)
-   */
-  getUserPaymentHistory: adminProcedure
-    .input(
-      z.object({
-        userId: z.string().uuid(),
-        limit: z.number().min(1).max(100).default(20),
-        offset: z.number().min(0).default(0),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const results = await db
-        .select()
-        .from(subscriptions)
-        .where(eq(subscriptions.userId, input.userId))
-        .orderBy(desc(subscriptions.createdAt))
-        .limit(input.limit)
-        .offset(input.offset)
-
-      return results
-    }),
-
-  /**
-   * Get API model health status (mock for now - would need real health check)
-   */
-  getModelHealth: adminProcedure.query(async () => {
-    // Mock health status - in real implementation, this would check each provider
-    const models = [
-      { provider: 'openai', model: 'gpt-4o', status: 'healthy' as const, latency: 120, errorRate: 0.02 },
-      { provider: 'openai', model: 'gpt-4o-mini', status: 'healthy' as const, latency: 80, errorRate: 0.01 },
-      { provider: 'anthropic', model: 'claude-3-5-sonnet', status: 'healthy' as const, latency: 150, errorRate: 0.03 },
-      { provider: 'google', model: 'gemini-2.0-flash-exp', status: 'healthy' as const, latency: 200, errorRate: 0.01 },
-      { provider: 'google', model: 'gemini-1.5-pro', status: 'degraded' as const, latency: 300, errorRate: 0.05 },
-      { provider: 'deepseek', model: 'deepseek-chat', status: 'healthy' as const, latency: 100, errorRate: 0.02 },
-      { provider: 'groq', model: 'llama-3.3-70b', status: 'healthy' as const, latency: 50, errorRate: 0.01 },
-    ]
-
-    return {
-      models,
-      overallHealth: 'healthy' as const,
-      lastChecked: new Date().toISOString(),
-    }
-  }),
-
-  /**
-   * Get Stripe configuration variables (for admin visibility)
-   */
-  getStripeConfig: adminProcedure.query(() => {
-
-    return {
-      // Stripe Keys
-      hasSecretKey: !!env.STRIPE_SECRET_KEY,
-      secretKeyPrefix: env.STRIPE_SECRET_KEY ? `${env.STRIPE_SECRET_KEY.substring(0, 10)}...` : 'NO CONFIGURADO',
-      hasWebhookSecret: !!env.STRIPE_WEBHOOK_SECRET,
-      webhookSecretPrefix: env.STRIPE_WEBHOOK_SECRET ? `${env.STRIPE_WEBHOOK_SECRET.substring(0, 10)}...` : 'NO CONFIGURADO',
-
-      // Subscription Price IDs
-      priceIds: {
-        starter: {
-          monthly: env.STRIPE_STARTER_MONTHLY_PRICE_ID || 'NO CONFIGURADO',
-          yearly: env.STRIPE_STARTER_YEARLY_PRICE_ID || 'NO CONFIGURADO',
-        },
-        pro: {
-          monthly: env.STRIPE_PRO_MONTHLY_PRICE_ID || 'NO CONFIGURADO',
-          yearly: env.STRIPE_PRO_YEARLY_PRICE_ID || 'NO CONFIGURADO',
-        },
-        business: {
-          monthly: env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || 'NO CONFIGURADO',
-          yearly: env.STRIPE_BUSINESS_YEARLY_PRICE_ID || 'NO CONFIGURADO',
-        },
-      },
-
-      // Credit Pack Price IDs
-      creditPacks: {
-        '100': env.STRIPE_CREDITS_100_PRICE_ID || 'NO CONFIGURADO',
-        '500': env.STRIPE_CREDITS_500_PRICE_ID || 'NO CONFIGURADO',
-        '1000': env.STRIPE_CREDITS_1000_PRICE_ID || 'NO CONFIGURADO',
-        '5000': env.STRIPE_CREDITS_5000_PRICE_ID || 'NO CONFIGURADO',
-        '10000': env.STRIPE_CREDITS_10000_PRICE_ID || 'NO CONFIGURADO',
-      },
-
-      // App URL
-      appUrl: env.NEXT_PUBLIC_APP_URL || 'NO CONFIGURADO',
-    }
-  }),
-
-  /**
-   * Get billing stats overview (for admin dashboard)
-   */
-  getBillingStats: adminProcedure.query(async () => {
-    // Total users count
-    const [totalUsersResult] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(users)
-
-    // Active subscriptions count
-    const [activeSubsResult] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(subscriptions)
-      .where(eq(subscriptions.status, 'active'))
-
-    // Total credits issued (sum of all positive credit transactions)
-    // TODO: creditTransactions table not yet created
-    const creditsIssuedResult = { total: 0 }
-    // const [creditsIssuedResult] = await db
-    //   .select({ total: sql<number>`coalesce(sum(amount), 0)::int` })
-    //   .from(creditTransactions)
-    //   .where(sql`${creditTransactions.amount} > 0`)
-
-    // Calculate MRR (Monthly Recurring Revenue)
-    // Assuming monthlyCredits represents the plan's monthly value in credits
-    // and each credit = $0.01 (adjust as needed)
-    const [mrrResult] = await db
-      .select({
-        mrr: sql<number>`coalesce(sum(${subscriptions.monthlyCredits}) * 0.01, 0)::numeric`,
-      })
-      .from(subscriptions)
-      .where(eq(subscriptions.status, 'active'))
-
-    return {
-      totalUsers: totalUsersResult?.count || 0,
-      activeSubscriptions: activeSubsResult?.count || 0,
-      totalCreditsIssued: creditsIssuedResult?.total || 0,
-      mrr: Number(mrrResult?.mrr) || 0,
-    }
-  }),
-
-  /**
-   * Get credit transactions for a user (transaction history)
-   * TODO: creditTransactions table not yet created - commented out temporarily
-   */
-  // getCreditTransactions: adminProcedure
-  //   .input(
-  //     z.object({
-  //       userId: z.string().uuid(),
-  //       limit: z.number().min(1).max(100).default(50),
-  //       offset: z.number().min(0).default(0),
-  //       })
-  //   )
-  //   .query(async ({ input }) => {
-  //     const transactions = await db
-  //       .select()
-  //       .from(creditTransactions)
-  //       .where(eq(creditTransactions.userId, input.userId))
-  //       .orderBy(desc(creditTransactions.createdAt))
-  //       .limit(input.limit)
-  //       .offset(input.offset)
-  //
-  //     return transactions
-  //   }),
-
-  /**
-   * Deduct credits from user (for admin corrections)
-   */
-  deductCredits: adminProcedure
-    .input(
-      z.object({
-        userId: z.string().uuid(),
-        credits: z.number().int().positive(),
-        reason: z.string().min(1).max(500),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      // Get current balance
-      const [user] = await db
-        .select({ credits: users.credits, email: users.email })
-        .from(users)
-        .where(eq(users.id, input.userId))
-        .limit(1)
-
-      if (!user) {
+      if (!updated) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Usuario no encontrado',
         })
       }
 
-      const balanceBefore = user.credits
-      const balanceAfter = Math.max(0, balanceBefore - input.credits)
-      const actualDeduction = balanceBefore - balanceAfter
+      return updated
+    }),
 
-      // Update user credits atomically
-      await db
-        .update(users)
-        .set({
-          credits: balanceAfter,
-          updatedAt: new Date(),
+  /**
+   * Add credits to user (incremental)
+   */
+  addCredits: adminProcedure
+    .input(addCreditsSchema)
+    .mutation(async ({ input }) => {
+      const result = await addCredits(
+        input.userId,
+        input.credits,
+        undefined, // subscriptionId
+        'admin_adjustment',
+        input.reason || 'Admin credit adjustment'
+      )
+
+      if (!result.success) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: result.error || 'Failed to add credits',
         })
-        .where(eq(users.id, input.userId))
+      }
 
-      // Create transaction record
-      // TODO: creditTransactions table not yet created - commented out temporarily
-      // await db.insert(creditTransactions).values({
-      //   userId: input.userId,
-      //   amount: -actualDeduction,
-      //   type: 'admin_deduction',
-      //   description: input.reason,
-      //   balanceBefore,
-      //   balanceAfter,
-      //   metadata: {
-      //     adminId: ctx.user.id,
-      //     adminEmail: ctx.user.email,
-      //     timestamp: new Date().toISOString(),
-      //   },
-      // })
+      // Get updated user to return full data
+      const [updated] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1)
+
+      if (!updated) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuario no encontrado',
+        })
+      }
 
       return {
-        success: true,
-        userId: input.userId,
-        creditsDeducted: actualDeduction,
-        newBalance: balanceAfter,
-        reason: input.reason,
-        adminId: ctx.user.id,
+        creditsAdded: input.credits,
+        newBalance: result.newBalance || updated.credits,
+        user: updated,
       }
     }),
 
   /**
-   * Get MRR history (last N months)
+   * Deduct credits from user (incremental)
    */
-  getMrrHistory: adminProcedure
-    .input(
-      z.object({
-        months: z.number().min(1).max(24).default(12),
-      })
-    )
-    .query(async ({ input }) => {
-      const results = []
-      const now = new Date()
+  deductCredits: adminProcedure
+    .input(deductCreditsSchema)
+    .mutation(async ({ input }) => {
+      const result = await deductCredits(
+        input.userId,
+        input.credits,
+        undefined, // No debateId for admin adjustments
+        'admin_adjustment',
+        input.reason || 'Admin credit deduction'
+      )
 
-      // Generate monthly data
-      for (let i = 0; i < input.months; i++) {
-        const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1)
-        const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0)
-
-        // Count active subscriptions in this month
-        const [stats] = await db
-          .select({
-            activeCount: sql<number>`count(*)::int`,
-            totalCredits: sql<number>`coalesce(sum(${subscriptions.monthlyCredits}), 0)::int`,
-          })
-          .from(subscriptions)
-          .where(
-            and(
-              eq(subscriptions.status, 'active'),
-              lte(subscriptions.createdAt, monthEnd),
-              sql`(${subscriptions.canceledAt} IS NULL OR ${subscriptions.canceledAt} > ${monthStart})`
-            )
-          )
-
-        // Convert credits to MRR (assuming 1 credit = $0.01)
-        const mrr = (stats?.totalCredits || 0) * 0.01
-
-        results.unshift({
-          month: monthStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
-          timestamp: monthStart.toISOString(),
-          mrr: Math.round(mrr * 100) / 100, // Round to 2 decimals
-          activeSubscriptions: stats?.activeCount || 0,
-          totalCredits: stats?.totalCredits || 0,
+      if (!result.success) {
+        throw new TRPCError({
+          code: result.error === 'Insufficient credits' ? 'PRECONDITION_FAILED' : 'INTERNAL_SERVER_ERROR',
+          message: result.error || 'Failed to deduct credits',
         })
       }
 
-      return results
+      // Get updated user to return full data
+      const [updated] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1)
+
+      if (!updated) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuario no encontrado',
+        })
+      }
+
+      return {
+        creditsDeducted: input.credits,
+        newBalance: result.remainingCredits || updated.credits,
+        user: updated,
+      }
     }),
+
+  /**
+   * Update user tier
+   */
+  updateUserTier: adminProcedure
+    .input(updateUserTierSchema)
+    .mutation(async ({ input }) => {
+      const [updated] = await db
+        .update(users)
+        .set({
+          tier: input.tier,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, input.userId))
+        .returning()
+
+      if (!updated) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuario no encontrado',
+        })
+      }
+
+      return updated
+    }),
+
+  /**
+   * Update user role
+   */
+  updateUserRole: adminProcedure
+    .input(updateUserRoleSchema)
+    .mutation(async ({ input }) => {
+      const [updated] = await db
+        .update(users)
+        .set({
+          role: input.role,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, input.userId))
+        .returning()
+
+      if (!updated) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuario no encontrado',
+        })
+      }
+
+      // If setting to admin, also create adminUsers entry
+      if (input.role === 'admin' || input.role === 'super_admin') {
+        const [profile] = await db
+          .select()
+          .from(profiles)
+          .where(eq(profiles.userId, input.userId))
+          .limit(1)
+
+        if (profile) {
+          // Get or create admin role
+          let [adminRole] = await db
+            .select()
+            .from(adminRoles)
+            .where(eq(adminRoles.slug, input.role === 'super_admin' ? 'super_admin' : 'admin'))
+            .limit(1)
+
+          if (!adminRole) {
+            const [newRole] = await db
+              .insert(adminRoles)
+              .values({
+                name: input.role === 'super_admin' ? 'Super Admin' : 'Admin',
+                slug: input.role === 'super_admin' ? 'super_admin' : 'admin',
+                description: input.role === 'super_admin' ? 'Acceso completo' : 'Acceso administrativo',
+                permissions: ['*'],
+                isActive: true,
+              })
+              .returning()
+            
+            if (!newRole) {
+              throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: 'Error al crear rol de administrador',
+              })
+            }
+            
+            adminRole = newRole
+          }
+
+          // Create or update adminUsers
+          await db
+            .insert(adminUsers)
+            .values({
+              userId: profile.id,
+              profileId: profile.id,
+              roleId: adminRole.id,
+              role: input.role === 'super_admin' ? 'super_admin' : 'admin',
+              isActive: true,
+            })
+            .onConflictDoUpdate({
+              target: adminUsers.userId,
+              set: {
+                roleId: adminRole.id,
+                role: input.role === 'super_admin' ? 'super_admin' : 'admin',
+                isActive: true,
+                updatedAt: new Date(),
+              },
+            })
+        }
+      }
+
+      return updated
+    }),
+
+  /**
+   * Delete user (soft delete)
+   */
+  deleteUser: adminProcedure
+    .input(z.object({ userId: z.string().uuid() }))
+    .mutation(async ({ input }) => {
+      const [updated] = await db
+        .update(users)
+        .set({
+          isActive: false,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, input.userId))
+        .returning()
+
+      if (!updated) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuario no encontrado',
+        })
+      }
+
+      return { success: true }
+    }),
+
+  // ============================================
+  // COST TRACKING & ANALYTICS
+  // ============================================
+
+  /**
+   * Get cost analytics for all users
+   */
+  getCostAnalytics: adminProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        userId: z.string().uuid().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const conditions = []
+
+      if (input.userId) {
+        const [profile] = await db
+          .select()
+          .from(profiles)
+          .where(eq(profiles.userId, input.userId))
+          .limit(1)
+
+        if (profile) {
+          conditions.push(eq(quoorumDebates.userId, profile.id))
+        }
+      }
+
+      if (input.startDate) {
+        conditions.push(sql`${quoorumDebates.createdAt} >= ${input.startDate}`)
+      }
+
+      if (input.endDate) {
+        conditions.push(sql`${quoorumDebates.createdAt} <= ${input.endDate}`)
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+
+      const [stats] = await db
+        .select({
+          totalDebates: sql<number>`count(*)`,
+          totalCostUsd: sql<number>`coalesce(sum(${quoorumDebates.totalCostUsd}), 0)`,
+          totalCreditsUsed: sql<number>`coalesce(sum(${quoorumDebates.totalCreditsUsed}), 0)`,
+          avgCostPerDebate: sql<number>`coalesce(avg(${quoorumDebates.totalCostUsd}), 0)`,
+          avgCreditsPerDebate: sql<number>`coalesce(avg(${quoorumDebates.totalCreditsUsed}), 0)`,
+        })
+        .from(quoorumDebates)
+        .where(whereClause)
+
+      // Get cost breakdown by user
+      const costByUser = await db
+        .select({
+          userId: quoorumDebates.userId,
+          email: users.email,
+          name: users.name,
+          totalDebates: sql<number>`count(*)`,
+          totalCostUsd: sql<number>`coalesce(sum(${quoorumDebates.totalCostUsd}), 0)`,
+          totalCreditsUsed: sql<number>`coalesce(sum(${quoorumDebates.totalCreditsUsed}), 0)`,
+        })
+        .from(quoorumDebates)
+        .leftJoin(profiles, eq(quoorumDebates.userId, profiles.id))
+        .leftJoin(users, eq(profiles.userId, users.id))
+        .where(whereClause)
+        .groupBy(quoorumDebates.userId, users.email, users.name)
+        .orderBy(desc(sql`coalesce(sum(${quoorumDebates.totalCostUsd}), 0)`))
+        .limit(50)
+
+      return {
+        overall: {
+          totalDebates: Number(stats?.totalDebates || 0),
+          totalCostUsd: Number(stats?.totalCostUsd || 0),
+          totalCreditsUsed: Number(stats?.totalCreditsUsed || 0),
+          avgCostPerDebate: Number(stats?.avgCostPerDebate || 0),
+          avgCreditsPerDebate: Number(stats?.avgCreditsPerDebate || 0),
+        },
+        byUser: costByUser.map((row) => ({
+          userId: row.userId,
+          email: row.email || 'Unknown',
+          name: row.name || 'Unknown',
+          totalDebates: Number(row.totalDebates || 0),
+          totalCostUsd: Number(row.totalCostUsd || 0),
+          totalCreditsUsed: Number(row.totalCreditsUsed || 0),
+        })),
+      }
+    }),
+
+  /**
+   * Get debate costs for a specific user
+   */
+  getUserDebateCosts: adminProcedure
+    .input(
+      z.object({
+        userId: z.string().uuid(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ input }) => {
+      const [profile] = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.userId, input.userId))
+        .limit(1)
+
+      if (!profile) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Perfil no encontrado',
+        })
+      }
+
+      const debates = await db
+        .select({
+          id: quoorumDebates.id,
+          question: quoorumDebates.question,
+          totalCostUsd: quoorumDebates.totalCostUsd,
+          totalCreditsUsed: quoorumDebates.totalCreditsUsed,
+          createdAt: quoorumDebates.createdAt,
+          status: quoorumDebates.status,
+        })
+        .from(quoorumDebates)
+        .where(eq(quoorumDebates.userId, profile.id))
+        .orderBy(desc(quoorumDebates.createdAt))
+        .limit(input.limit)
+        .offset(input.offset)
+
+      const [total] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(quoorumDebates)
+        .where(eq(quoorumDebates.userId, profile.id))
+
+      return {
+        debates,
+        total: Number(total?.count || 0),
+        limit: input.limit,
+        offset: input.offset,
+      }
+    }),
+
+  // ============================================
+  // SYSTEM CONFIGURATION
+  // ============================================
+
+  /**
+   * Get system configuration status (environment variables, feature flags)
+   * Only shows which services are configured, not their values
+   */
+  getSystemConfig: adminProcedure.query(() => {
+    return {
+      env: {
+        database: !!process.env.DATABASE_URL,
+        supabase: !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+        openai: !!process.env.OPENAI_API_KEY,
+        stripe: !!process.env.STRIPE_SECRET_KEY,
+        resend: !!process.env.RESEND_API_KEY,
+        pinecone: !!process.env.PINECONE_API_KEY,
+        redis: !!(process.env.REDIS_URL || process.env.UPSTASH_REDIS_REST_URL),
+        serper: !!process.env.SERPER_API_KEY,
+        anthropic: !!process.env.ANTHROPIC_API_KEY,
+        google: !!process.env.GOOGLE_AI_API_KEY || !!process.env.GEMINI_API_KEY,
+        groq: !!process.env.GROQ_API_KEY,
+      },
+      features: {
+        dynamicSystem: true,
+        expertDatabase: true,
+        qualityMonitor: true,
+        metaModerator: true,
+        pinecone: !!process.env.PINECONE_API_KEY,
+        serper: !!process.env.SERPER_API_KEY,
+        redis: !!(process.env.REDIS_URL || process.env.UPSTASH_REDIS_REST_URL),
+        email: !!process.env.RESEND_API_KEY,
+        websocket: true,
+        pdfExport: true,
+        notifications: true,
+      },
+      limits: {
+        free: {
+          debatesPerDay: 3,
+          debatesPerHour: 2,
+          roundsPerDebate: 5,
+          maxConcurrentDebates: 1,
+          maxCostPerDay: 1.0,
+        },
+        starter: {
+          debatesPerDay: 10,
+          debatesPerHour: 5,
+          roundsPerDebate: 10,
+          maxConcurrentDebates: 2,
+          maxCostPerDay: 5.0,
+        },
+        pro: {
+          debatesPerDay: 50,
+          debatesPerHour: 20,
+          roundsPerDebate: 15,
+          maxConcurrentDebates: 5,
+          maxCostPerDay: 20.0,
+        },
+        business: {
+          debatesPerDay: -1, // unlimited
+          debatesPerHour: -1,
+          roundsPerDebate: 20,
+          maxConcurrentDebates: 10,
+          maxCostPerDay: 100.0,
+        },
+      },
+    }
+  }),
 })

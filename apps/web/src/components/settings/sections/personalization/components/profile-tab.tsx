@@ -11,7 +11,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { api } from '@/lib/trpc'
+import { api } from '@/lib/trpc/client'
 import {
   Card,
   CardContent,

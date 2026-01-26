@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "../trpc.js";
-import { db } from "@quoorum/db/client.js";
+import { router, protectedProcedure } from "../trpc";
+import { db } from "@quoorum/db/client";
 import { userBackstory } from "@quoorum/db/schema";
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";

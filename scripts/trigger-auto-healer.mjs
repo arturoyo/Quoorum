@@ -2,7 +2,9 @@
  * Trigger Manual del Auto-Healer
  */
 
-import { inngest } from '../packages/workers/dist/client.js'
+// Import using package export (no .js extension needed)
+// The package.json exports field will resolve to the correct file
+import { inngest } from '@quoorum/workers/client'
 
 console.log('🔧 Triggering Auto-Healer manually...\n')
 

@@ -35,7 +35,7 @@ import {
   getTemplatesByCategory,
   getTemplateById,
   searchTemplates,
-} from './src/templates.ts'
+} from './src/templates'
 
 // Colores para terminal
 const colors = {

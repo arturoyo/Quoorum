@@ -10,11 +10,9 @@ const isDev = process.env.NODE_ENV === 'development'
 const hasInngestKey = !!process.env.INNGEST_EVENT_KEY
 
 // Create client based on environment
-let inngestClient: any
+let inngestClient: unknown
 
 if (!hasInngestKey && isDev) {
-  // In development without key, use local dev mode
-  console.log('[Inngest] Running in local dev mode (no event key configured)')
   inngestClient = new Inngest({
     id: 'quoorum',
     // No eventKey means it will use local dev server

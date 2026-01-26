@@ -1,1 +1,1 @@
-export { QualityMonitor, createDefaultQualityMonitor } from "./quality-monitor.js";
+export { QualityMonitor, createDefaultQualityMonitor } from "./quality-monitor";

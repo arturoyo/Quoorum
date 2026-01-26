@@ -75,7 +75,7 @@ async function testPackageExports() {
   totalTests++
   console.log('\n4. Testing expert database export...')
   try {
-    const expertDb = await import('./src/expert-database.ts')
+    const expertDb = await import('./src/expert-database/index.ts')
     if ('EXPERT_DATABASE' in expertDb && typeof expertDb.EXPERT_DATABASE === 'object') {
       const expertCount = Object.keys(expertDb.EXPERT_DATABASE).length
       console.log(`   ✅ EXPERT_DATABASE exported with ${expertCount} experts`)

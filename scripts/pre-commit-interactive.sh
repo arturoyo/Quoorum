@@ -35,6 +35,18 @@ case $change_type in
     ask_question "Validación Zod" "¿Todos los inputs tienen validación Zod?"
     ask_question "Filtro userId" "¿Todas las queries filtran por userId?"
     ask_question "Error handling" "¿Usas TRPCError para errores?"
+    
+    # Verificar si es un procedimiento de créditos
+    if git diff --cached --name-only | grep -q "packages/api/src/routers/admin.ts"; then
+      if git diff --cached packages/api/src/routers/admin.ts | grep -qE "(addCredits|deductCredits)"; then
+        echo ""
+        echo "  🔍 Detectado cambio en procedimientos de créditos del admin router"
+        ask_question "Usa @quoorum/quoorum" "¿Usas addCredits/deductCredits de @quoorum/quoorum?"
+        ask_question "Retorno correcto" "¿Retornas creditsAdded/creditsDeducted y newBalance?"
+        ask_question "Validación reason" "¿deductCredits requiere reason obligatorio?"
+      fi
+    fi
+    
     ask_question "Tests" "¿Escribiste tests para el nuevo endpoint?"
     ;;
   2)
@@ -59,6 +71,11 @@ esac
 echo ""
 echo "→ Ejecutando auto-fix de errores comunes..."
 pnpm fix:auto || echo "⚠️  Auto-fix falló, continuando..."
+
+# Automated violation detection
+echo ""
+echo "→ Verificando violaciones de código (colores hardcodeados, console.log, any)..."
+bash scripts/check-code-violations.sh || exit 1
 
 # TypeCheck + Lint (siempre)
 echo ""

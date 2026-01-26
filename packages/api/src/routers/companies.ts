@@ -10,6 +10,7 @@ import { db } from '@quoorum/db'
 import { companies, profiles } from '@quoorum/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { logger } from '../lib/logger'
+import { getUserTeamOwnerId } from '../lib/team-helpers'
 
 // ═══════════════════════════════════════════════════════════
 // VALIDATION SCHEMAS
@@ -33,13 +34,17 @@ const updateCompanySchema = createCompanySchema.partial().extend({
 
 export const companiesRouter = router({
   /**
-   * Get user's company
+   * Get user's company (or team owner's company if user is in a team)
    */
   get: protectedProcedure.query(async ({ ctx }) => {
+    // Check if user is in a team - if so, use team owner's company
+    const teamOwnerId = await getUserTeamOwnerId(ctx.userId)
+    const effectiveUserId = teamOwnerId || ctx.userId
+
     const [company] = await db
       .select()
       .from(companies)
-      .where(eq(companies.userId, ctx.userId))
+      .where(eq(companies.userId, effectiveUserId))
       .orderBy(desc(companies.createdAt))
       .limit(1)
 
@@ -163,7 +168,7 @@ export const companiesRouter = router({
           ...data,
           updatedAt: new Date(),
         })
-        .where(eq(companies.id, id))
+        .where(and(eq(companies.id, id), eq(companies.userId, ctx.userId)))
         .returning()
 
       logger.info('Company updated', {

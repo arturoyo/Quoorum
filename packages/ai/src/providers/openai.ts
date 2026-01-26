@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import type { LanguageModelV1 } from "ai";
-import type { AIConfig, ProviderFactory } from "../types.js";
+import type { AIConfig, ProviderFactory } from "../types";
 
 const SUPPORTED_MODELS = [
   "gpt-4o",

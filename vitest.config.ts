@@ -5,12 +5,15 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    reporters: ["default"],
     include: ["packages/**/*.test.ts", "packages/**/*.test.tsx"],
-    exclude: ["node_modules", "dist", ".turbo"],
+    exclude: ["**/node_modules/**", "node_modules", "dist", ".turbo"],
     coverage: {
+      enabled: false,
       provider: "v8",
       reporter: ["text", "json", "html"],
-      exclude: ["node_modules", "dist", "**/*.d.ts", "**/*.test.ts"],
+      include: ["packages/**/src/**/*.ts"],
+      exclude: ["**/node_modules/**", "dist", "**/*.d.ts", "**/*.test.ts", "**/__tests__/**"],
     },
     setupFiles: ["./vitest.setup.ts"],
   },

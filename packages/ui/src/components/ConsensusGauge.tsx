@@ -43,7 +43,7 @@ export function ConsensusGauge({
           cy={config.width / 2}
           r={radius}
           fill="none"
-          stroke="#e5e7eb"
+          stroke="#2a3942"
           strokeWidth={config.strokeWidth}
         />
         <circle
@@ -62,7 +62,7 @@ export function ConsensusGauge({
           cx={config.width / 2}
           cy={config.width / 2 - radius}
           r={3}
-          fill="#9ca3af"
+          fill="#8696a0"
           transform={`rotate(${threshold * 360} ${config.width / 2} ${config.width / 2})`}
         />
       </svg>
@@ -81,7 +81,7 @@ export function ConsensusGauge({
         </span>
       </div>
       {showLabel && (
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-[#aebac1]">
           {achieved ? "Consensus Achieved" : `Target: ${(threshold * 100).toFixed(0)}%`}
         </p>
       )}

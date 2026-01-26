@@ -1,5 +1,5 @@
-export { useDeliberation } from "./useDeliberation.js";
-export type { DeliberationState, UseDeliberationOptions } from "./useDeliberation.js";
+export { useDeliberation } from "./useDeliberation";
+export type { DeliberationState, UseDeliberationOptions } from "./useDeliberation";
 
-export { useExperts } from "./useExperts.js";
-export type { Expert, UseExpertsOptions } from "./useExperts.js";
+export { useExperts } from "./useExperts";
+export type { Expert, UseExpertsOptions } from "./useExperts";

@@ -1,16 +1,23 @@
 /**
  * PDF Text Extractor
  *
- * Extracts text content from PDF files using pdf-parse
+ * Extracts text content from PDF files using pdfjs-dist
  */
 
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.js'
+import { logger } from './logger'
 
-// Configure worker source for pdfjs
-if (typeof window === 'undefined') {
-  // Node.js environment - use legacy build
-  const workerSrc = require('pdfjs-dist/legacy/build/pdf.worker.entry.js')
-  pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
+// Dynamic import for pdfjs-dist (ESM compatible)
+let pdfjsLib: typeof import('pdfjs-dist') | null = null
+
+async function getPdfjs() {
+  if (!pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist')
+
+    // Configure worker - use fake worker for Node.js
+    // @ts-expect-error - pdfjs types are complex
+    pdfjsLib.GlobalWorkerOptions.workerSrc = ''
+  }
+  return pdfjsLib
 }
 
 /**
@@ -20,8 +27,15 @@ if (typeof window === 'undefined') {
  */
 export async function extractPdfText(buffer: ArrayBuffer): Promise<string> {
   try {
-    // Load PDF document
-    const loadingTask = pdfjsLib.getDocument({ data: buffer })
+    const pdfjs = await getPdfjs()
+
+    // Load PDF document with disableWorker for Node.js compatibility
+    const loadingTask = pdfjs.getDocument({
+      data: buffer,
+      useWorkerFetch: false,
+      isEvalSupported: false,
+      useSystemFonts: true,
+    })
     const pdf = await loadingTask.promise
 
     const textParts: string[] = []
@@ -33,17 +47,18 @@ export async function extractPdfText(buffer: ArrayBuffer): Promise<string> {
 
       // Combine text items from page
       const pageText = textContent.items
-        .map((item: any) => item.str)
+        .filter((item): item is { str: string } => 'str' in item)
+        .map((item) => item.str)
         .join(' ')
 
       if (pageText.trim()) {
-        textParts.push(`\n--- Página ${pageNum} ---\n${pageText}`)
+        textParts.push(`\n--- Page ${pageNum} ---\n${pageText}`)
       }
     }
 
     return textParts.join('\n\n')
   } catch (error) {
-    console.error('Error extracting PDF text:', error)
+    logger.error('Error extracting PDF text:', error instanceof Error ? error : undefined)
     throw new Error(`Failed to extract PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }

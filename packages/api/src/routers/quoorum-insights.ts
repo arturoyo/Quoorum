@@ -44,7 +44,7 @@ export const quoorumInsightsRouter = router({
           })
           .from(quoorumConsultations)
           .leftJoin(clients, eq(quoorumConsultations.clientId, clients.id))
-          .where(eq(quoorumConsultations.userId, ctx.user.id))
+          .where(eq(quoorumConsultations.userId, ctx.userId))
           .orderBy(desc(quoorumConsultations.createdAt))
           .limit(limit)
 
@@ -53,7 +53,7 @@ export const quoorumInsightsRouter = router({
         // Si la tabla no existe o hay un error de DB, retornar array vacío
         // Esto permite que el widget funcione aunque la tabla no esté creada
         logger.error('Quoorum Insights: Error fetching recent consultations', error as Error, {
-          userId: ctx.user.id,
+          userId: ctx.userId,
         })
         return []
       }
@@ -74,7 +74,7 @@ export const quoorumInsightsRouter = router({
         .from(quoorumConsultations)
         .where(
           and(
-            eq(quoorumConsultations.userId, ctx.user.id),
+            eq(quoorumConsultations.userId, ctx.userId),
             gte(quoorumConsultations.createdAt, thirtyDaysAgo)
           )
         )
@@ -88,7 +88,7 @@ export const quoorumInsightsRouter = router({
         .from(quoorumConsultations)
         .where(
           and(
-            eq(quoorumConsultations.userId, ctx.user.id),
+            eq(quoorumConsultations.userId, ctx.userId),
             gte(quoorumConsultations.createdAt, thirtyDaysAgo)
           )
         )
@@ -102,7 +102,7 @@ export const quoorumInsightsRouter = router({
         .from(quoorumConsultations)
         .where(
           and(
-            eq(quoorumConsultations.userId, ctx.user.id),
+            eq(quoorumConsultations.userId, ctx.userId),
             gte(quoorumConsultations.createdAt, thirtyDaysAgo)
           )
         )
@@ -130,7 +130,7 @@ export const quoorumInsightsRouter = router({
         .from(quoorumConsultations)
         .where(
           and(
-            eq(quoorumConsultations.userId, ctx.user.id),
+            eq(quoorumConsultations.userId, ctx.userId),
             eq(quoorumConsultations.recommendHumanEscalation, true),
             gte(quoorumConsultations.createdAt, thirtyDaysAgo)
           )
@@ -144,7 +144,7 @@ export const quoorumInsightsRouter = router({
         .from(quoorumConsultations)
         .where(
           and(
-            eq(quoorumConsultations.userId, ctx.user.id),
+            eq(quoorumConsultations.userId, ctx.userId),
             gte(quoorumConsultations.createdAt, thirtyDaysAgo)
           )
         )
@@ -165,7 +165,7 @@ export const quoorumInsightsRouter = router({
       // Si la tabla no existe o hay un error de DB, retornar stats vacíos
       // Esto permite que el widget funcione aunque la tabla no esté creada
       logger.error('Quoorum Insights: Error fetching stats', error as Error, {
-        userId: ctx.user.id,
+        userId: ctx.userId,
       })
       return {
         totalConsultations: 0,
@@ -227,7 +227,7 @@ export const quoorumInsightsRouter = router({
       const [consultation] = await db
         .insert(quoorumConsultations)
         .values({
-          userId: ctx.user.id,
+          userId: ctx.userId,
           clientId: input.clientId,
           conversationId: input.conversationId,
           originalMessage: input.originalMessage,
@@ -261,7 +261,7 @@ export const quoorumInsightsRouter = router({
       const [consultation] = await db
         .select()
         .from(quoorumConsultations)
-        .where(and(eq(quoorumConsultations.id, input.id), eq(quoorumConsultations.userId, ctx.user.id)))
+        .where(and(eq(quoorumConsultations.id, input.id), eq(quoorumConsultations.userId, ctx.userId)))
 
       return consultation ?? null
     }),
@@ -284,7 +284,7 @@ export const quoorumInsightsRouter = router({
           userRating: input.rating,
           userFeedback: input.feedback,
         })
-        .where(and(eq(quoorumConsultations.id, input.id), eq(quoorumConsultations.userId, ctx.user.id)))
+        .where(and(eq(quoorumConsultations.id, input.id), eq(quoorumConsultations.userId, ctx.userId)))
         .returning({ id: quoorumConsultations.id })
 
       return updated ?? null

@@ -13,7 +13,7 @@ export type {
   QualityMetrics,
   QualityMonitorConfig,
   RoundResult,
-} from "./types.js";
+} from "./types";
 
 // Experts
 export {
@@ -21,10 +21,10 @@ export {
   DeliberationExpert,
   ExpertRegistry,
   type ExpertContext,
-} from "./experts/index.js";
+} from "./experts/index";
 
 // Quality
-export { createDefaultQualityMonitor, QualityMonitor } from "./quality/index.js";
+export { createDefaultQualityMonitor, QualityMonitor } from "./quality/index";
 
 // Deliberation
 export {
@@ -32,4 +32,4 @@ export {
   createDeliberationEngine,
   DeliberationEngine,
   MetaModerator,
-} from "./deliberation/index.js";
+} from "./deliberation/index";

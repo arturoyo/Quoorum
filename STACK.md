@@ -1,4 +1,4 @@
-# 🛠️ STACK.md — Stack Tecnológico de Wallie
+# 🛠️ STACK.md — Stack Tecnológico de Quoorum
 
 > **Versión:** 1.0.1 | **Última actualización:** 24 Dic 2025
 > **Para:** Referencia rápida de tecnologías aprobadas y prohibidas
@@ -319,7 +319,7 @@ INNGEST_EVENT_KEY=...
 INNGEST_SIGNING_KEY=...
 
 # App
-NEXT_PUBLIC_APP_URL=https://app.wallie.pro
+NEXT_PUBLIC_APP_URL=https://app.quoorum.ai
 ```
 
 ### TypeScript Config (tsconfig.json)
@@ -344,7 +344,7 @@ NEXT_PUBLIC_APP_URL=https://app.wallie.pro
     "incremental": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@wallie/*": ["../../packages/*/src"]
+      "@quoorum/*": ["../../packages/*/src"]
     }
   }
 }
@@ -437,4 +437,4 @@ pnpm typecheck && pnpm lint && pnpm test
 
 **Última actualización:** 24 Dic 2025
 **Versión:** 1.0.1
-**Mantenido por:** Equipo Wallie
+**Mantenido por:** Equipo Quoorum

@@ -10,7 +10,7 @@
  * - Tipos de datos incorrectos
  */
 
-import { db } from '../src/client.js'
+import { db } from '../src/client'
 import { sql } from 'drizzle-orm'
 
 // Validate DATABASE_URL is set

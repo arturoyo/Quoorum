@@ -44,13 +44,13 @@ export function RoundTimeline({
             className={clsx(
               "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors",
               round.status === "completed" &&
-                "bg-green-500 text-white hover:bg-green-600",
+                "bg-emerald-500 text-white hover:bg-emerald-600",
               round.status === "in_progress" &&
-                "bg-blue-500 text-white animate-pulse",
-              round.status === "pending" && "bg-gray-200 text-gray-400",
+                "bg-purple-500 text-white animate-pulse",
+              round.status === "pending" && "bg-[#2a3942] text-[#8696a0]",
               round.roundNumber === currentRound &&
                 round.status !== "pending" &&
-                "ring-2 ring-offset-2 ring-blue-500"
+                "ring-2 ring-offset-0 ring-purple-500"
             )}
           >
             {round.roundNumber}
@@ -59,7 +59,7 @@ export function RoundTimeline({
             <div
               className={clsx(
                 "h-0.5 w-8",
-                round.status === "completed" ? "bg-green-500" : "bg-gray-200"
+                round.status === "completed" ? "bg-emerald-500" : "bg-[#2a3942]"
               )}
             />
           )}

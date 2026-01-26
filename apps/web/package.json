@@ -4,10 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "pwsh -NoProfile -File ../../scripts/auto-fix-dev.ps1",
     "dev": "next dev -p 3000",
+    "dev:no-fix": "next dev -p 3000",
+    "dev:webpack": "next dev -p 3000 --webpack",
     "build": "cd ../.. && turbo build --filter=@quoorum/web",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:brave": "playwright test --project=brave",
+    "test:user:create": "node scripts/create-test-user.js",
+    "postinstall": "node scripts/copy-pdf-worker.js"
   },
   "dependencies": {
     "@quoorum/api": "workspace:*",
@@ -52,6 +63,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.4.0",
+    "reactflow": "^11.11.4",
     "recharts": "^3.6.0",
     "resend": "^6.6.0",
     "sonner": "^2.0.7",

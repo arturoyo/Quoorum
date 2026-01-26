@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure, publicProcedure } from "../trpc.js";
+import { router, protectedProcedure, publicProcedure, adminProcedure } from "../trpc";
 import { db } from "@quoorum/db";
 import { systemLogs } from "@quoorum/db/schema";
 import { desc, and, eq, gte, lte, like, or } from "drizzle-orm";
@@ -82,12 +82,10 @@ export const systemLogsRouter = router({
   // -----------------------------------------------------------
   // LIST: Obtener logs con filtros (solo admins)
   // -----------------------------------------------------------
-  list: protectedProcedure
+  list: adminProcedure
     .input(listLogsSchema)
     .query(async ({ input }) => {
-      // TODO: Verificar que el usuario es admin
-      // const isAdmin = await checkIsAdmin(ctx.userId)
-      // if (!isAdmin) throw new TRPCError({ code: 'FORBIDDEN' })
+      // Admin verification handled by adminProcedure middleware
 
       const { limit, offset, level, source, userId, search, startDate, endDate } = input;
 
@@ -149,10 +147,10 @@ export const systemLogsRouter = router({
   // -----------------------------------------------------------
   // STATS: Estadísticas de logs (solo admins)
   // -----------------------------------------------------------
-  stats: protectedProcedure
+  stats: adminProcedure
     .input(statsSchema)
     .query(async ({ input }) => {
-      // TODO: Verificar que el usuario es admin
+      // Admin verification handled by adminProcedure middleware
 
       const { startDate, endDate } = input;
 
@@ -208,14 +206,14 @@ export const systemLogsRouter = router({
   // -----------------------------------------------------------
   // DELETE OLD: Eliminar logs antiguos (solo admins, para limpieza)
   // -----------------------------------------------------------
-  deleteOld: protectedProcedure
+  deleteOld: adminProcedure
     .input(
       z.object({
         olderThanDays: z.number().min(1).max(365).default(30),
       })
     )
     .mutation(async ({ input }) => {
-      // TODO: Verificar que el usuario es admin
+      // Admin verification handled by adminProcedure middleware
 
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - input.olderThanDays);

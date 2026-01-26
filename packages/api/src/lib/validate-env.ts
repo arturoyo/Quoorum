@@ -7,6 +7,8 @@
  * ⚠️ NO USAR PLACEHOLDERS SILENCIOSOS
  */
 
+import { logger } from './logger'
+
 interface EnvValidationResult {
   valid: boolean
   errors: string[]
@@ -46,40 +48,35 @@ const REQUIRED_ENV_VARS = {
 // ═══════════════════════════════════════════════════════════
 
 const RECOMMENDED_ENV_VARS = {
-  // Email (without this, NO emails will be sent)
   RESEND_API_KEY: {
     description: 'Resend API key for sending emails',
     example: 're_xxx...',
-    impact: '❌ CRITICAL: NO emails will be sent (auth, notifications, etc.)',
+    impact: '[CRITICAL] NO emails will be sent (auth, notifications, etc.)',
   },
-
-  // Payments (without this, payments will fail silently)
   STRIPE_SECRET_KEY: {
     description: 'Stripe secret key for payments',
     example: 'sk_live_xxx... or sk_test_xxx...',
-    impact: '❌ CRITICAL: Payments will fail',
+    impact: '[CRITICAL] Payments will fail',
   },
   STRIPE_WEBHOOK_SECRET: {
     description: 'Stripe webhook secret for verifying webhooks',
     example: 'whsec_xxx...',
-    impact: '⚠️ Webhooks will not be verified (security risk)',
+    impact: '[WARN] Webhooks will not be verified (security risk)',
   },
-
-  // AI Providers
   OPENAI_API_KEY: {
     description: 'OpenAI API key',
     example: 'sk-xxx...',
-    impact: '⚠️ AI features using OpenAI will not work',
+    impact: '[WARN] AI features using OpenAI will not work',
   },
   ANTHROPIC_API_KEY: {
     description: 'Anthropic API key',
     example: 'sk-ant-xxx...',
-    impact: '⚠️ AI features using Claude will not work',
+    impact: '[WARN] AI features using Claude will not work',
   },
   GOOGLE_AI_API_KEY: {
     description: 'Google AI (Gemini) API key',
     example: 'AIzxxx...',
-    impact: '⚠️ AI features using Gemini will not work',
+    impact: '[WARN] AI features using Gemini will not work',
   },
 }
 
@@ -101,13 +98,13 @@ export function validateEnvironment(): EnvValidationResult {
 
     if (!value) {
       errors.push(
-        `❌ REQUIRED: ${key}\n` +
+        `[REQUIRED] ${key}\n` +
         `   ${config.description}\n` +
         `   Example: ${config.example}`
       )
     } else if (value.includes('placeholder') || value.includes('example')) {
       errors.push(
-        `❌ PLACEHOLDER: ${key} has placeholder value\n` +
+        `[PLACEHOLDER] ${key} has placeholder value\n` +
         `   Current: ${value}\n` +
         `   Set a real value in .env`
       )
@@ -120,14 +117,14 @@ export function validateEnvironment(): EnvValidationResult {
 
     if (!value) {
       warnings.push(
-        `⚠️  MISSING: ${key}\n` +
+        `[MISSING] ${key}\n` +
         `   ${config.description}\n` +
         `   Impact: ${config.impact}\n` +
         `   Example: ${config.example}`
       )
     } else if (value.includes('placeholder') || value.includes('example')) {
       warnings.push(
-        `⚠️  PLACEHOLDER: ${key} has placeholder value\n` +
+        `[PLACEHOLDER] ${key} has placeholder value\n` +
         `   Current: ${value}\n` +
         `   Impact: ${config.impact}\n` +
         `   Set a real value in .env`
@@ -143,47 +140,50 @@ export function validateEnvironment(): EnvValidationResult {
 }
 
 // ═══════════════════════════════════════════════════════════
-// STARTUP VALIDATION
+// STARTUP VALIDATION (solo una vez por proceso)
+// En dev, la ruta tRPC se recarga en cada HMR → sin este guard
+// los WARN se repetirían constantemente.
 // ═══════════════════════════════════════════════════════════
 
+const g = globalThis as { __envValidated?: boolean }
+
 export function validateEnvironmentOrThrow(): void {
+  if (g.__envValidated) return
+
   const result = validateEnvironment()
 
   if (!result.valid) {
-    console.error('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.error('❌ ENVIRONMENT VALIDATION FAILED')
-    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
-
-    result.errors.forEach((error) => {
-      console.error(error)
-      console.error('')
+    logger.error('--- ENVIRONMENT VALIDATION FAILED ---')
+    result.errors.forEach((errorMsg) => {
+      logger.error(errorMsg)
     })
-
-    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.error('🔧 HOW TO FIX:')
-    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.error('1. Copy .env.example to .env.local')
-    console.error('2. Fill in the required values')
-    console.error('3. Restart the server')
-    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
-
+    logger.error('--- HOW TO FIX: ---')
+    logger.error('1. Copy .env.example to .env.local')
+    logger.error('2. Fill in the required values')
+    logger.error('3. Restart the server')
+    logger.error('-------------------------------------')
     throw new Error('Missing required environment variables')
   }
 
-  // Show warnings but don't fail
-  if (result.warnings.length > 0) {
-    console.warn('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.warn('⚠️  ENVIRONMENT WARNINGS')
-    console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
+  g.__envValidated = true
 
+  const isDev = process.env.NODE_ENV === 'development'
+  const hideWarnings =
+    process.env.QUIET_ENV_WARNINGS === '1' ||
+    (isDev && process.env.SHOW_ENV_WARNINGS !== '1')
+
+  if (result.warnings.length > 0 && !hideWarnings) {
+    logger.warn('--- ENVIRONMENT WARNINGS ---')
     result.warnings.forEach((warning) => {
-      console.warn(warning)
-      console.warn('')
+      logger.warn(warning)
     })
-
-    console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.warn('These are NOT blocking, but features will be degraded')
-    console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
+    logger.warn('Not blocking, but features may be degraded.')
+    if (isDev) {
+      logger.warn('In dev, warnings are hidden by default. Set SHOW_ENV_WARNINGS=1 to see them.')
+    } else {
+      logger.warn('Set QUIET_ENV_WARNINGS=1 to hide.')
+    }
+    logger.warn('-------------------------------------')
   }
 }
 
@@ -212,11 +212,9 @@ export function getEnvOrWarn(key: string, fallback: string, impact: string): str
   const value = process.env[key]
 
   if (!value || value.includes('placeholder')) {
-    console.warn(
-      `⚠️  Using fallback for ${key}\n` +
-      `   Impact: ${impact}\n` +
-      `   Set real value in .env.local to fix`
-    )
+    logger.warn(`[FALLBACK] ${key}: ${impact}`, {
+      suggestion: 'Set real value in .env.local to fix',
+    })
     return fallback
   }
 

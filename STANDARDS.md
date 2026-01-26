@@ -1,4 +1,4 @@
-# 📏 STANDARDS.md — Estándares de Código de Wallie
+# 📏 STANDARDS.md — Estándares de Código de Quoorum
 
 > **Versión:** 1.0.0 | **Última actualización:** 17 Dic 2025
 > **Para:** Guía de estilo y patrones de código obligatorios
@@ -219,9 +219,9 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
-// Packages internos (@wallie/*)
-import { api } from '@wallie/api'
-import { Button, Card } from '@wallie/ui'
+// Packages internos (@quoorum/*)
+import { api } from '@quoorum/api'
+import { Button, Card } from '@quoorum/ui'
 
 // Imports locales
 import { ClientAvatar } from '@/components/clients/client-avatar'
@@ -229,7 +229,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 import { formatCurrency } from '@/lib/utils'
 
 // Types (siempre al final con "import type")
-import type { Client } from '@wallie/db/schema'
+import type { Client } from '@quoorum/db/schema'
 
 // ═══════════════════════════════════════════════════════════
 // 2. TYPES
@@ -531,8 +531,8 @@ type NewClient = typeof clients.$inferInsert
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { router, protectedProcedure } from '../trpc'
-import { db } from '@wallie/db'
-import { clients } from '@wallie/db/schema'
+import { db } from '@quoorum/db'
+import { clients } from '@quoorum/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 
 // ═══════════════════════════════════════════════════════════
@@ -1207,4 +1207,4 @@ const colors = {
 
 **Última actualización:** 17 Dic 2025
 **Versión:** 1.0.0
-**Mantenido por:** Equipo Wallie
+**Mantenido por:** Equipo Quoorum

@@ -1,7 +1,7 @@
-# 🏗️ SYSTEM.md — Arquitectura Completa del Sistema Wallie
+# 🏗️ SYSTEM.md — Arquitectura Completa del Sistema Quoorum
 
 > **Versión:** 1.2.1 | **Última actualización:** 30 Dic 2025
-> **Arquitectura:** Wallie Swarm - Sistema Multi-Agente de IA para Ventas
+> **Arquitectura:** Quoorum - Comité Ejecutivo de IA (Capa de Inteligencia Corporativa) para Decisiones Estratégicas
 
 ---
 
@@ -20,16 +20,20 @@
 
 ## 🎯 VISIÓN GENERAL
 
-### ¿Qué es Wallie?
+### ¿Qué es Quoorum?
 
-**Wallie** es un sistema de automatización de ventas impulsado por IA que actúa como un **clon digital del vendedor**. Gestiona conversaciones en WhatsApp, emails, calendarios y prospección de forma autónoma usando múltiples agentes especializados.
+**Quoorum** es la única plataforma que simula un **Comité Ejecutivo de expertos de IA** (la **Capa de Inteligencia Corporativa**) para debatir, criticar y sintetizar la mejor decisión estratégica. 
 
-### Arquitectura "Wallie Swarm"
+**Elimina los sesgos humanos y la lentitud de las reuniones**, entregando un **consenso accionable en minutos** en lugar de semanas de reuniones interminables.
+
+El sistema utiliza múltiples expertos virtuales especializados que debaten hasta alcanzar consenso, con búsqueda vectorial de debates similares y exportación a PDF.
+
+### Arquitectura "Quoorum Swarm"
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        WALLIE SWARM                             │
-│                 Sistema Multi-Agente de IA                      │
+│                       QUOORUM SWARM                             │
+│              Sistema Multi-Agente de IA para Debates            │
 ├─────────────────────────────────────────────────────────────────┤
 │  Orquestación: tRPC + Inngest + CrewAI-like Architecture       │
 │  Coordinación: Event-Driven + Background Jobs                  │
@@ -106,7 +110,7 @@ Responsabilidades:
 85 Routers tRPC:
 - auth.ts, clients.ts, conversations.ts, messages.ts
 - gmail.ts, whatsapp.ts, whatsapp-connections.ts
-- ai.ts, voice.ts, rewards.ts, wallie.ts
+- ai.ts, voice.ts, rewards.ts, quoorum.ts
 - admin-growth.ts, integrations.ts, support.ts
 - sessions.ts, referrals.ts, addons.ts
 - phone-auth.ts, magic-link.ts, onboarding-analysis.ts
@@ -170,7 +174,7 @@ Archivos clave:
 - packages/ai/src/tools/definitions.ts (12 tools)
 - packages/ai/src/providers/unified-client.ts (generateWithTools)
 - packages/api/src/lib/tool-executor.ts (bridge)
-- packages/api/src/routers/wallie.ts (agenticChat endpoint)
+- packages/api/src/routers/quoorum.ts (agenticChat endpoint)
 ```
 
 #### `packages/agents/` - Specialized AI Agents
@@ -489,7 +493,7 @@ const client = await db.select().from(clients).where(eq(clients.id, input.id))
 ### Ejemplo de Log
 
 ```typescript
-import { logger } from '@wallie/api/lib/logger'
+import { logger } from '@quoorum/api/lib/logger'
 
 // Log con contexto
 logger.info('Cliente creado', {
@@ -514,8 +518,8 @@ logger.error('Error al crear cliente', error, {
 | Ambiente    | URL               | Database       | Workers       |
 | ----------- | ----------------- | -------------- | ------------- |
 | Development | localhost:3000    | Local/Supabase | Local         |
-| Staging     | staging.wallie.ai | Staging DB     | Inngest Cloud |
-| Production  | app.wallie.ai     | Prod DB (EU)   | Inngest Cloud |
+| Staging     | staging.quoorum.ai | Staging DB     | Inngest Cloud |
+| Production  | app.quoorum.ai     | Prod DB (EU)   | Inngest Cloud |
 
 ### CI/CD
 
@@ -605,4 +609,4 @@ GitHub Push → main branch
 
 **Última actualización:** 30 Dic 2025
 **Versión:** 1.2.1
-**Mantenido por:** Equipo Wallie
+**Mantenido por:** Equipo Quoorum

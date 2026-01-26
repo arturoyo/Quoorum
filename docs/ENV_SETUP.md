@@ -108,6 +108,10 @@ PINECONE_API_KEY=...
 PINECONE_ENVIRONMENT=us-east-1-aws
 PINECONE_INDEX_NAME=quoorum-debates
 REDIS_URL=redis://...
+# Google Custom Search API (Prioridad 1 - Se usa antes que Serper)
+GOOGLE_CUSTOM_SEARCH_API_KEY=...
+GOOGLE_CUSTOM_SEARCH_ENGINE_ID=...
+# Serper API (Fallback si Google no está configurado)
 SERPER_API_KEY=...
 ```
 
@@ -150,7 +154,9 @@ Vercel ejecutará la validación automáticamente durante el build. Si hay error
 |----------|-------------|---------------|
 | `PINECONE_API_KEY` | API Key Pinecone | [Pinecone Console](https://app.pinecone.io/) |
 | `REDIS_URL` | Connection string Redis | Upstash, Redis Cloud, o local |
-| `SERPER_API_KEY` | API Key Serper | [Serper.dev](https://serper.dev/) |
+| `GOOGLE_CUSTOM_SEARCH_API_KEY` | API Key Google Custom Search | [Google Cloud Console](https://console.cloud.google.com/) |
+| `GOOGLE_CUSTOM_SEARCH_ENGINE_ID` | Custom Search Engine ID | [Google Custom Search](https://programmablesearchengine.google.com/) |
+| `SERPER_API_KEY` | API Key Serper (fallback) | [Serper.dev](https://serper.dev/) |
 | `ANTHROPIC_API_KEY` | API Key Anthropic | [Anthropic Console](https://console.anthropic.com/) |
 | `GOOGLE_AI_API_KEY` | API Key Google AI | [Google AI Studio](https://makersuite.google.com/app/apikey) |
 
