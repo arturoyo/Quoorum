@@ -115,23 +115,25 @@ async function sendInAppNotification(userId: string, debate: DebateResult): Prom
     icon: 'MessageCircle',
   }
 
-  // Save to database and send via WebSocket
+  // Save to database using unified notification system
   try {
-    // Import database client
-    const { db } = await import('@quoorum/db')
-    const { notifications } = await import('@quoorum/db/schema')
+    // @ts-expect-error - Dynamic import to avoid circular dependency. Module exists at runtime.
+    const { sendForumNotification } = await import('@quoorum/api')
 
-    // Save to database
-    await db.insert(notifications).values({
+    await sendForumNotification({
       userId: notification.userId,
+      type: 'debate_completed',
+      priority: 'normal',
+      debateId: debate.sessionId,
       title: notification.title,
       message: notification.message,
       actionUrl: notification.link,
       actionLabel: 'Ver debate',
-      type: 'debate_completed',
-      priority: 'normal',
-      isRead: false,
-      metadata: { icon: notification.icon },
+      metadata: {
+        icon: notification.icon,
+        rounds: debate.rounds?.length,
+        consensusScore: debate.consensusScore,
+      },
     })
 
     // Send via WebSocket if available
@@ -148,9 +150,16 @@ async function sendInAppNotification(userId: string, debate: DebateResult): Prom
       quoorumLogger.warn('WebSocket not available for notification', {})
     }
 
-    quoorumLogger.info('In-app notification created', { userId })
+    quoorumLogger.info('✅ In-app notification sent successfully', {
+      userId,
+      debateId: debate.sessionId,
+      type: 'debate_completed',
+    })
   } catch (error) {
-    quoorumLogger.error('Failed to create in-app notification', error instanceof Error ? error : new Error(String(error)), { userId })
+    quoorumLogger.error('❌ Failed to send in-app notification', error instanceof Error ? error : new Error(String(error)), {
+      userId,
+      debateId: debate.sessionId,
+    })
     throw error
   }
 }
@@ -380,34 +389,35 @@ export async function notifyQualityIssue(
   // Only notify for severe issues
   if (severity < 7) return
 
-  const notification: InAppNotificationData = {
-    userId,
-    title: 'Alerta de Calidad',
-    message: `Se ha detectado un problema de calidad en tu debate: ${issueType}`,
-    link: `/quoorum/${debateId}`,
-    icon: 'AlertTriangle',
-  }
-
-  // Save quality issue notification to database
+  // Save quality issue notification using unified system
   try {
-    const { db } = await import('@quoorum/db')
-    const { notifications } = await import('@quoorum/db/schema')
+    // @ts-expect-error - Dynamic import to avoid circular dependency. Module exists at runtime.
+    const { sendForumNotification } = await import('@quoorum/api')
 
-    await db.insert(notifications).values({
-      userId: notification.userId,
-      title: notification.title,
-      message: notification.message,
-      actionUrl: notification.link,
-      actionLabel: 'Ver debate',
+    await sendForumNotification({
+      userId,
       type: 'debate_reminder',
       priority: 'high',
-      isRead: false,
-      metadata: { icon: notification.icon },
+      debateId,
+      title: 'Alerta de Calidad',
+      message: `Se ha detectado un problema de calidad en tu debate: ${issueType}`,
+      actionUrl: `/quoorum/${debateId}`,
+      actionLabel: 'Ver debate',
+      metadata: {
+        icon: 'AlertTriangle',
+        issueType,
+        severity,
+      },
     })
 
-    quoorumLogger.info('Quality issue notification created', { debateId, issueType, severity, userId })
+    quoorumLogger.info('✅ Quality issue notification sent', {
+      debateId,
+      issueType,
+      severity,
+      userId,
+    })
   } catch (error) {
-    quoorumLogger.error('Failed to create quality issue notification', error instanceof Error ? error : new Error(String(error)), {
+    quoorumLogger.error('❌ Failed to send quality issue notification', error instanceof Error ? error : new Error(String(error)), {
       debateId,
       issueType,
       severity,
@@ -424,34 +434,33 @@ export async function notifyIntervention(
   debateId: string,
   interventionType: string
 ): Promise<void> {
-  const notification: InAppNotificationData = {
-    userId,
-    title: 'Intervención del Meta-Moderador',
-    message: `El meta-moderador ha intervenido en tu debate: ${interventionType}`,
-    link: `/quoorum/${debateId}`,
-    icon: 'Zap',
-  }
-
-  // Save intervention notification to database
+  // Save intervention notification using unified system
   try {
-    const { db } = await import('@quoorum/db')
-    const { notifications } = await import('@quoorum/db/schema')
+    // @ts-expect-error - Dynamic import to avoid circular dependency. Module exists at runtime.
+    const { sendForumNotification } = await import('@quoorum/api')
 
-    await db.insert(notifications).values({
-      userId: notification.userId,
-      title: notification.title,
-      message: notification.message,
-      actionUrl: notification.link,
-      actionLabel: 'Ver debate',
+    await sendForumNotification({
+      userId,
       type: 'expert_recommendation',
       priority: 'normal',
-      isRead: false,
-      metadata: { icon: notification.icon },
+      debateId,
+      title: 'Intervención del Meta-Moderador',
+      message: `El meta-moderador ha intervenido en tu debate: ${interventionType}`,
+      actionUrl: `/quoorum/${debateId}`,
+      actionLabel: 'Ver debate',
+      metadata: {
+        icon: 'Zap',
+        interventionType,
+      },
     })
 
-    quoorumLogger.info('Intervention notification created', { debateId, interventionType, userId })
+    quoorumLogger.info('✅ Intervention notification sent', {
+      debateId,
+      interventionType,
+      userId,
+    })
   } catch (error) {
-    quoorumLogger.error('Failed to create intervention notification', error instanceof Error ? error : new Error(String(error)), {
+    quoorumLogger.error('❌ Failed to send intervention notification', error instanceof Error ? error : new Error(String(error)), {
       debateId,
       interventionType,
       userId,

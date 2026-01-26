@@ -67,7 +67,7 @@ export function CommandPalette() {
         category: 'debates',
         keywords: ['new', 'create', 'debate', 'start'],
         action: () => {
-          router.push('/debates/new')
+          router.push('/debates/new-unified?new=1')
           setIsOpen(false)
         },
         shortcut: 'N',
@@ -284,7 +284,7 @@ export function CommandPalette() {
           {/* Commands List */}
           <div className="max-h-[400px] overflow-y-auto">
             {filteredCommands.length === 0 ? (
-              <div className="p-8 text-center text-gray-600">
+              <div className="p-8 text-center text-[var(--theme-text-tertiary)]">
                 <p className="text-lg mb-2">No commands found</p>
                 <p className="text-sm">Try a different search term</p>
               </div>
@@ -297,7 +297,7 @@ export function CommandPalette() {
 
                   return (
                     <div key={category} className="mb-4">
-                      <div className="px-3 py-1 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <div className="px-3 py-1 text-xs font-semibold text-[var(--theme-text-tertiary)] uppercase tracking-wider">
                         {category}
                       </div>
                       {categoryCommands.map((cmd) => {
@@ -319,7 +319,7 @@ export function CommandPalette() {
                             <div className="flex-1 text-left">
                               <div className="font-medium">{cmd.title}</div>
                               {cmd.description && (
-                                <div className="text-sm text-gray-600">{cmd.description}</div>
+                                <div className="text-sm text-[var(--theme-text-tertiary)]">{cmd.description}</div>
                               )}
                             </div>
                             {cmd.shortcut && (
@@ -338,7 +338,7 @@ export function CommandPalette() {
           </div>
 
           {/* Footer */}
-          <div className="p-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-gray-600">
+          <div className="p-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-[var(--theme-text-tertiary)]">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 font-mono bg-white rounded border border-gray-300">↑</kbd>
@@ -366,7 +366,7 @@ export function CommandPaletteTrigger({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+      className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] hover:bg-gray-100 rounded-lg transition-colors"
     >
       <span>🔍</span>
       <span>Search...</span>

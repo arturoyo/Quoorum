@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2,
@@ -11,10 +10,14 @@ import {
   Clock,
   TrendingUp,
   ArrowRight,
-  Brain,
   Scale,
-  Target
+  Target,
 } from "lucide-react";
+import { AppHeader } from "@/components/layout/app-header";
+import { LandingFooter } from "@/components/layout/landing-footer";
+import { SectionHeader } from "@/components/ui/section-header";
+import { CTASection } from "@/components/ui/cta-section";
+import { GradientCTAButton } from "@/components/ui/gradient-cta-button";
 
 export const metadata: Metadata = {
   title: "Free Pros and Cons Template - AI Powered | Quoorum",
@@ -36,8 +39,87 @@ export const metadata: Metadata = {
   },
 };
 
+const agents = [
+  {
+    name: "Optimizer",
+    description: "Identifica TODOS los PROS (ventajas, beneficios, oportunidades)",
+    icon: TrendingUp,
+    gradient: "from-green-500 to-emerald-500",
+    items: [
+      "Beneficios directos e indirectos",
+      "Oportunidades que abre",
+      "Impacto positivo a largo plazo",
+    ],
+  },
+  {
+    name: "Critic",
+    description: "Identifica TODOS los CONS (riesgos, desventajas, obstáculos)",
+    icon: XCircle,
+    gradient: "from-red-500 to-pink-500",
+    items: [
+      "Riesgos directos e indirectos",
+      "Costos (tiempo, dinero, oportunidad)",
+      "Obstáculos y blockers",
+    ],
+  },
+  {
+    name: "Analyst",
+    description: "Evalúa factibilidad y contexto",
+    icon: Target,
+    gradient: "from-blue-500 to-cyan-500",
+    items: [
+      "Recursos necesarios",
+      "Timeline realista",
+      "Factores contextuales relevantes",
+    ],
+  },
+  {
+    name: "Synthesizer",
+    description: "Crea recomendación balanceada",
+    icon: Scale,
+    gradient: "from-purple-500 to-pink-500",
+    items: [
+      "Decision: YES / NO / Conditional",
+      "Rationale detallado",
+      "Nivel de confianza",
+    ],
+  },
+];
+
+const features = [
+  {
+    icon: Users,
+    title: "4 Perspectivas",
+    description: "No solo pros y cons. Incluye análisis de factibilidad y síntesis balanceada.",
+  },
+  {
+    icon: Clock,
+    title: "3 Minutos",
+    description: "Análisis completo en minutos. No necesitas reunir a un equipo ni hacer brainstorming.",
+  },
+  {
+    icon: Scale,
+    title: "Pesos Cuantificados",
+    description: "Cada pro y con tiene un peso (0-100) para priorizar lo que más importa.",
+  },
+  {
+    icon: Target,
+    title: "Decisión Clara",
+    description: "YES / NO / CONDITIONAL con rationale detallado. No más \"depende\".",
+  },
+  {
+    icon: Sparkles,
+    title: "IA Contextual",
+    description: "Considera tu rol, industria y etapa de la empresa para análisis personalizado.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "100% Gratis",
+    description: "Sin límites. Sin tarjeta de crédito. Análisis ilimitados de pros and cons.",
+  },
+];
+
 export default function ProsAndConsLandingPage() {
-  // Schema.org JSON-LD for SEO
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -62,435 +144,265 @@ export default function ProsAndConsLandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-950">
-        {/* Header */}
-        <header className="border-b bg-white/50 backdrop-blur-sm dark:bg-gray-950/50">
-          <div className="container mx-auto flex h-16 items-center justify-between px-4">
-            <Link href="/" className="flex items-center gap-2">
-              <Brain className="h-6 w-6 text-purple-600" />
-              <span className="text-xl font-bold">Quoorum</span>
-            </Link>
-            <nav className="flex items-center gap-4">
-              <Link href="/frameworks" className="text-sm text-muted-foreground hover:text-foreground">
-                Frameworks
-              </Link>
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  Iniciar sesión
-                </Button>
-              </Link>
-              <Link href="/debates/new">
-                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                  Probar gratis
-                </Button>
-              </Link>
-            </nav>
-          </div>
-        </header>
+      <div className="min-h-screen bg-[var(--theme-landing-bg)]">
+        <AppHeader variant="landing" showAuth={true} />
 
-        {/* Hero Section */}
-        <section className="container mx-auto px-4 py-16 md:py-24">
-          <div className="mx-auto max-w-4xl text-center">
-            <Badge className="mb-4 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-              <Sparkles className="mr-1 h-3 w-3" />
-              Framework Gratis - 4 IAs Expertas
-            </Badge>
+        {/* Hero */}
+        <section className="pt-40 pb-24 px-4">
+          <div className="container mx-auto max-w-4xl text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span>Framework Gratis - 4 IAs Expertas</span>
+            </div>
 
-            <h1 className="mb-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight">
               Análisis{" "}
-              <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
                 Pros and Cons
               </span>{" "}
               con IA
             </h1>
 
-            <p className="mb-8 text-xl text-muted-foreground">
+            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed mb-8">
               Obtén un análisis balanceado de ventajas y desventajas en minutos.
-              <br />
               4 agentes de IA expertos debaten tu decisión desde diferentes perspectivas.
             </p>
 
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link href="/debates/new?framework=pros-and-cons">
-                <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+              <Link href="/debates/new-unified?framework=pros-and-cons&new=1">
+                <GradientCTAButton size="lg">
                   Analizar mi decisión gratis
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </GradientCTAButton>
               </Link>
               <Link href="#example">
-                <Button size="lg" variant="outline">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-white/10 text-white hover:bg-white/5"
+                >
                   Ver ejemplo
                 </Button>
               </Link>
             </div>
 
             {/* Stats */}
-            <div className="mt-12 grid grid-cols-3 gap-8 border-t pt-8">
+            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10">
               <div>
-                <div className="text-3xl font-bold text-purple-600">4</div>
-                <div className="text-sm text-muted-foreground">IAs Expertas</div>
+                <div className="text-3xl font-bold text-purple-400">4</div>
+                <div className="text-sm text-[var(--theme-text-tertiary)]">IAs Expertas</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-purple-600">3 min</div>
-                <div className="text-sm text-muted-foreground">Promedio</div>
+                <div className="text-3xl font-bold text-purple-400">3 min</div>
+                <div className="text-sm text-[var(--theme-text-tertiary)]">Promedio</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-purple-600">100%</div>
-                <div className="text-sm text-muted-foreground">Gratis</div>
+                <div className="text-3xl font-bold text-purple-400">100%</div>
+                <div className="text-sm text-[var(--theme-text-tertiary)]">Gratis</div>
               </div>
             </div>
           </div>
         </section>
 
         {/* How It Works */}
-        <section className="border-y bg-gray-50 py-16 dark:bg-gray-900">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-4xl">
-              <div className="mb-12 text-center">
-                <h2 className="mb-4 text-3xl font-bold">¿Cómo funciona?</h2>
-                <p className="text-lg text-muted-foreground">
-                  4 agentes de IA expertos analizan tu decisión desde diferentes ángulos
-                </p>
-              </div>
+        <section className="py-24 px-4">
+          <div className="container mx-auto max-w-6xl">
+            <SectionHeader
+              title="¿Cómo funciona?"
+              subtitle="4 agentes de IA expertos analizan tu decisión desde diferentes ángulos"
+            />
 
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Optimizer */}
-                <Card>
-                  <CardHeader>
-                    <div className="mb-2 flex items-center gap-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                        <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      </div>
-                      <CardTitle className="text-lg">1. Optimizer</CardTitle>
-                    </div>
-                    <CardDescription>
-                      Identifica TODOS los PROS (ventajas, beneficios, oportunidades)
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600" />
-                        <span>Beneficios directos e indirectos</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600" />
-                        <span>Oportunidades que abre</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600" />
-                        <span>Impacto positivo a largo plazo</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
+            <div className="grid md:grid-cols-2 gap-6">
+              {agents.map((agent, idx) => {
+                const Icon = agent.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="relative p-6 rounded-2xl overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
+                    <div className="absolute inset-0 border border-white/10 rounded-2xl" />
 
-                {/* Critic */}
-                <Card>
-                  <CardHeader>
-                    <div className="mb-2 flex items-center gap-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                        <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div
+                          className={`w-10 h-10 rounded-xl bg-gradient-to-br ${agent.gradient} flex items-center justify-center`}
+                        >
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">
+                            {idx + 1}. {agent.name}
+                          </h3>
+                          <p className="text-sm text-[var(--theme-text-secondary)]">{agent.description}</p>
+                        </div>
                       </div>
-                      <CardTitle className="text-lg">2. Critic</CardTitle>
-                    </div>
-                    <CardDescription>
-                      Identifica TODOS los CONS (riesgos, desventajas, obstáculos)
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <XCircle className="mt-0.5 h-4 w-4 text-red-600" />
-                        <span>Riesgos directos e indirectos</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <XCircle className="mt-0.5 h-4 w-4 text-red-600" />
-                        <span>Costos (tiempo, dinero, oportunidad)</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <XCircle className="mt-0.5 h-4 w-4 text-red-600" />
-                        <span>Obstáculos y blockers</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
 
-                {/* Analyst */}
-                <Card>
-                  <CardHeader>
-                    <div className="mb-2 flex items-center gap-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                        <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <CardTitle className="text-lg">3. Analyst</CardTitle>
+                      <ul className="space-y-2">
+                        {agent.items.map((item, itemIdx) => (
+                          <li key={itemIdx} className="flex items-start gap-2 text-sm text-[var(--theme-text-secondary)]">
+                            <Icon className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <CardDescription>
-                      Evalúa factibilidad y contexto
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <Target className="mt-0.5 h-4 w-4 text-blue-600" />
-                        <span>Recursos necesarios</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Target className="mt-0.5 h-4 w-4 text-blue-600" />
-                        <span>Timeline realista</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Target className="mt-0.5 h-4 w-4 text-blue-600" />
-                        <span>Factores contextuales relevantes</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* Synthesizer */}
-                <Card>
-                  <CardHeader>
-                    <div className="mb-2 flex items-center gap-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
-                        <Scale className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <CardTitle className="text-lg">4. Synthesizer</CardTitle>
-                    </div>
-                    <CardDescription>
-                      Crea recomendación balanceada
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <Scale className="mt-0.5 h-4 w-4 text-purple-600" />
-                        <span>Decision: YES / NO / Conditional</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Scale className="mt-0.5 h-4 w-4 text-purple-600" />
-                        <span>Rationale detallado</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Scale className="mt-0.5 h-4 w-4 text-purple-600" />
-                        <span>Nivel de confianza</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* Example Section */}
-        <section id="example" className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-4xl">
-              <div className="mb-12 text-center">
-                <h2 className="mb-4 text-3xl font-bold">Ejemplo de Análisis</h2>
-                <p className="text-lg text-muted-foreground">
-                  "¿Debo lanzar mi SaaS en freemium o solo planes de pago?"
-                </p>
-              </div>
+        <section id="example" className="py-24 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <SectionHeader
+              title="Ejemplo de Análisis"
+              subtitle="&quot;¿Debo lanzar mi SaaS en freemium o solo planes de pago?&quot;"
+            />
 
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* PROS */}
-                <Card className="border-green-200 dark:border-green-900">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                      <CheckCircle2 className="h-5 w-5" />
-                      PROS (4 identificados)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* PROS */}
+              <div className="relative p-6 rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-green-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 border border-green-500/20 rounded-2xl" />
+
+                <div className="relative z-10">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-green-400 mb-4">
+                    <CheckCircle2 className="w-5 h-5" />
+                    PROS (4 identificados)
+                  </h3>
+
+                  <div className="space-y-4">
                     <div>
-                      <div className="mb-1 font-medium">Adquisición viral (peso: 85)</div>
-                      <p className="text-sm text-muted-foreground">
+                      <div className="mb-1 font-medium text-white">Adquisición viral (peso: 85)</div>
+                      <p className="text-sm text-[var(--theme-text-secondary)]">
                         El modelo freemium genera crecimiento orgánico exponencial. Los usuarios gratis son marketing gratuito.
                       </p>
                     </div>
                     <div>
-                      <div className="mb-1 font-medium">Reduce fricción de entrada (peso: 80)</div>
-                      <p className="text-sm text-muted-foreground">
+                      <div className="mb-1 font-medium text-white">Reduce fricción de entrada (peso: 80)</div>
+                      <p className="text-sm text-[var(--theme-text-secondary)]">
                         Sin tarjeta de crédito, más usuarios prueban. La conversión sucede después cuando ya ven valor.
                       </p>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      + 2 pros más con pesos de 70 y 65
-                    </div>
-                  </CardContent>
-                </Card>
+                    <p className="text-sm text-[var(--theme-text-tertiary)]">+ 2 pros más con pesos de 70 y 65</p>
+                  </div>
+                </div>
+              </div>
 
-                {/* CONS */}
-                <Card className="border-red-200 dark:border-red-900">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
-                      <XCircle className="h-5 w-5" />
-                      CONS (3 identificados)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+              {/* CONS */}
+              <div className="relative p-6 rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-red-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 border border-red-500/20 rounded-2xl" />
+
+                <div className="relative z-10">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-red-400 mb-4">
+                    <XCircle className="w-5 h-5" />
+                    CONS (3 identificados)
+                  </h3>
+
+                  <div className="space-y-4">
                     <div>
-                      <div className="mb-1 font-medium">Costos de infraestructura (peso: 75)</div>
-                      <p className="text-sm text-muted-foreground">
+                      <div className="mb-1 font-medium text-white">Costos de infraestructura (peso: 75)</div>
+                      <p className="text-sm text-[var(--theme-text-secondary)]">
                         Miles de usuarios gratis pueden generar costos significativos de servidor antes de monetizar.
                       </p>
                     </div>
                     <div>
-                      <div className="mb-1 font-medium">Usuarios low-quality (peso: 60)</div>
-                      <p className="text-sm text-muted-foreground">
+                      <div className="mb-1 font-medium text-white">Usuarios low-quality (peso: 60)</div>
+                      <p className="text-sm text-[var(--theme-text-secondary)]">
                         Freemium atrae usuarios que nunca pagarán. Puede contaminar métricas y feedback.
                       </p>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      + 1 con más con peso de 55
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Recommendation */}
-              <Card className="mt-6 border-purple-200 bg-purple-50 dark:border-purple-900 dark:bg-purple-950">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
-                    <Scale className="h-5 w-5" />
-                    Recomendación: CONDITIONAL
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="mb-4 text-sm">
-                    <strong>Rationale:</strong> El modelo freemium es recomendable SI tienes runway para soportar 6-12 meses sin revenue significativo Y tu producto tiene un hook claro que genera conversión natural. Los PROS (85+80) superan a los CONS (75+60), pero requiere capital inicial suficiente.
-                  </p>
-                  <div className="flex items-center justify-between text-sm">
-                    <div>
-                      <span className="font-medium">PROS Weight:</span> 75/100
-                    </div>
-                    <div>
-                      <span className="font-medium">CONS Weight:</span> 63/100
-                    </div>
-                    <div>
-                      <span className="font-medium">Confianza:</span> 82/100
-                    </div>
+                    <p className="text-sm text-[var(--theme-text-tertiary)]">+ 1 con más con peso de 55</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+            </div>
+
+            {/* Recommendation */}
+            <div className="relative p-6 rounded-2xl overflow-hidden mt-6">
+              <div className="absolute inset-0 bg-purple-500/10 backdrop-blur-xl" />
+              <div className="absolute inset-0 border border-purple-500/20 rounded-2xl" />
+
+              <div className="relative z-10">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-purple-400 mb-4">
+                  <Scale className="w-5 h-5" />
+                  Recomendación: CONDITIONAL
+                </h3>
+
+                <p className="text-[var(--theme-text-secondary)] mb-4">
+                  <strong className="text-white">Rationale:</strong> El modelo freemium es recomendable SI tienes runway para soportar 6-12 meses sin revenue significativo Y tu producto tiene un hook claro que genera conversión natural. Los PROS (85+80) superan a los CONS (75+60), pero requiere capital inicial suficiente.
+                </p>
+
+                <div className="flex flex-wrap gap-6 text-sm">
+                  <div>
+                    <span className="text-[var(--theme-text-secondary)]">PROS Weight:</span>{" "}
+                    <span className="text-white font-medium">75/100</span>
+                  </div>
+                  <div>
+                    <span className="text-[var(--theme-text-secondary)]">CONS Weight:</span>{" "}
+                    <span className="text-white font-medium">63/100</span>
+                  </div>
+                  <div>
+                    <span className="text-[var(--theme-text-secondary)]">Confianza:</span>{" "}
+                    <span className="text-white font-medium">82/100</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Features */}
-        <section className="border-y bg-gray-50 py-16 dark:bg-gray-900">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-4xl">
-              <div className="mb-12 text-center">
-                <h2 className="mb-4 text-3xl font-bold">¿Por qué Quoorum Pros and Cons?</h2>
-              </div>
+        <section className="py-24 px-4">
+          <div className="container mx-auto max-w-6xl">
+            <SectionHeader
+              title="¿Por qué Quoorum Pros and Cons?"
+            />
 
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                  <CardHeader>
-                    <Users className="mb-2 h-8 w-8 text-purple-600" />
-                    <CardTitle className="text-lg">4 Perspectivas</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    No solo pros y cons. Incluye análisis de factibilidad y síntesis balanceada.
-                  </CardContent>
-                </Card>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {features.map((feature, idx) => {
+                const Icon = feature.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="relative p-6 rounded-2xl overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
+                    <div className="absolute inset-0 border border-white/10 rounded-2xl" />
 
-                <Card>
-                  <CardHeader>
-                    <Clock className="mb-2 h-8 w-8 text-purple-600" />
-                    <CardTitle className="text-lg">3 Minutos</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    Análisis completo en minutos. No necesitas reunir a un equipo ni hacer brainstorming.
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <Brain className="mb-2 h-8 w-8 text-purple-600" />
-                    <CardTitle className="text-lg">IA Contextual</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    Considera tu rol, industria y etapa de la empresa para análisis personalizado.
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <Scale className="mb-2 h-8 w-8 text-purple-600" />
-                    <CardTitle className="text-lg">Pesos Cuantificados</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    Cada pro y con tiene un peso (0-100) para priorizar lo que más importa.
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <Target className="mb-2 h-8 w-8 text-purple-600" />
-                    <CardTitle className="text-lg">Decisión Clara</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    YES / NO / CONDITIONAL con rationale detallado. No más "depende".
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <Sparkles className="mb-2 h-8 w-8 text-purple-600" />
-                    <CardTitle className="text-lg">100% Gratis</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    Sin límites. Sin tarjeta de crédito. Análisis ilimitados de pros and cons.
-                  </CardContent>
-                </Card>
-              </div>
+                    <div className="relative z-10">
+                      <Icon className="w-8 h-8 text-purple-400 mb-4" />
+                      <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                      <p className="text-sm text-[var(--theme-text-secondary)]">{feature.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* CTA Final */}
-        <section className="bg-gradient-to-r from-purple-600 to-pink-600 py-16 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold">
-              ¿Tienes una decisión que tomar?
-            </h2>
-            <p className="mb-8 text-lg opacity-90">
-              Obtén un análisis balanceado de pros y cons en 3 minutos
-            </p>
-            <Link href="/debates/new?framework=pros-and-cons">
-              <Button size="lg" variant="secondary" className="bg-white text-purple-600 hover:bg-gray-100">
-                Analizar mi decisión gratis
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </section>
+        {/* CTA */}
+        <CTASection>
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            ¿Tienes una decisión que tomar?
+          </h2>
+          <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+            Obtén un análisis balanceado de pros y cons en 3 minutos
+          </p>
+          <Link href="/debates/new-unified?framework=pros-and-cons&new=1">
+            <GradientCTAButton size="lg">
+              Analizar mi decisión gratis
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </GradientCTAButton>
+          </Link>
+        </CTASection>
 
-        {/* Footer */}
-        <footer className="border-t py-8">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-              <div className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-600" />
-                <span className="font-semibold">Quoorum</span>
-              </div>
-              <nav className="flex gap-6 text-sm text-muted-foreground">
-                <Link href="/frameworks" className="hover:text-foreground">
-                  Frameworks
-                </Link>
-                <Link href="/frameworks/swot-analysis" className="hover:text-foreground">
-                  SWOT Analysis
-                </Link>
-                <Link href="/frameworks/eisenhower-matrix" className="hover:text-foreground">
-                  Eisenhower Matrix
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </footer>
+        <LandingFooter />
       </div>
     </>
   );

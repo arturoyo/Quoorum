@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AnimatedBackground } from "@/components/layout/animated-background";
-import { QuoorumLogo } from "@/components/ui/quoorum-logo";
+import { QuoorumLogoWithText } from "@/components/ui/quoorum-logo";
 
 
 export default function AuthLayout({
@@ -9,23 +9,18 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--theme-landing-bg)] relative overflow-hidden">
       <AnimatedBackground />
 
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 border-b border-white/5 backdrop-blur-2xl bg-black/50">
+      <header className="absolute top-0 left-0 right-0 z-10 border-b border-white/5 backdrop-blur-2xl bg-[var(--theme-landing-bg)]/50">
         <div className="container mx-auto px-4 py-6">
-          <Link href="/" className="flex items-center gap-3 group w-fit">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition" />
-              <div className="relative w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0A0A0F]">
-                <QuoorumLogo size={48} showGradient={true} />
-              </div>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-              Quoorum
-            </span>
-          </Link>
+          <QuoorumLogoWithText 
+            href="/"
+            iconSize={192}
+            showGradient={true}
+            showText={false}
+          />
         </div>
       </header>
 

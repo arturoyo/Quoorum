@@ -1,3 +1,5 @@
+'use client'
+
 import React from "react";
 
 interface QuoorumLogoProps {
@@ -11,52 +13,79 @@ export function QuoorumLogo({
   size = 40,
   showGradient = true,
 }: QuoorumLogoProps) {
-  const id = React.useId();
+  // Aplicar el mismo degradado del título principal de la landing
+  // bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400
+  
+  // Cuando showGradient=true, usar logo completo (quoorum-logo-ok.svg)
+  // Cuando showGradient=false, usar imagotipo (quoorum-imagotipo.svg)
+  const logoSrc = showGradient ? "/quoorum-logo-ok.svg" : "/quoorum-imagotipo.svg"
+
+  // Usar React state para manejar el hover
+  const [isHovered, setIsHovered] = React.useState(false)
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 100 100"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
+    <div
+      className={`relative inline-flex items-center justify-center overflow-visible group ${className}`}
+      style={{ width: size, height: size, minWidth: size, minHeight: size }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <defs>
-        <linearGradient
-          id={`gradient-${id}`}
-          x1="0%"
-          y1="0%"
-          x2="100%"
-          y2="100%"
-        >
-          <stop offset="0%" stopColor="#a855f7" />
-          <stop offset="100%" stopColor="#06b6d4" />
-        </linearGradient>
-      </defs>
-
-      {/* Speech bubble forming a Q shape */}
-      <path
-        d="M50 15 C65 15, 75 25, 75 40 C75 50, 70 58, 62 62 L62 62 C70 58, 75 50, 75 40 C75 25, 65 15, 50 15 Z
-           M50 15 C35 15, 25 25, 25 40 C25 55, 35 65, 50 65 C52 65, 54 65, 56 64.5
-           M56 64.5 L65 80 L60 65 C58 65, 57 65, 56 64.5 Z"
-        fill={showGradient ? `url(#gradient-${id})` : "currentColor"}
-        strokeWidth="0"
-      />
-
-      {/* Inner circle (the hole of the Q) */}
-      <circle
-        cx="50"
-        cy="40"
-        r="12"
-        fill="#0A0A0F"
-      />
-
-      {/* Small dots representing conversation */}
-      <circle cx="42" cy="38" r="2.5" fill={showGradient ? "#06b6d4" : "currentColor"} opacity="0.6" />
-      <circle cx="50" cy="38" r="2.5" fill={showGradient ? "#a855f7" : "currentColor"} opacity="0.6" />
-      <circle cx="58" cy="38" r="2.5" fill={showGradient ? "#06b6d4" : "currentColor"} opacity="0.6" />
-    </svg>
+      {showGradient ? (
+        <>
+          {/* Glow real usando pseudo-elemento - solo visible en hover */}
+          {isHovered && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: `radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%)`,
+                filter: 'blur(8px)',
+                WebkitFilter: 'blur(8px)',
+                transform: 'scale(1.3)',
+                zIndex: 0,
+                opacity: 1,
+                transition: 'opacity 0.3s ease-out',
+              }}
+            />
+          )}
+          {/* Logo principal con gradiente - sin efectos de sombra */}
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 relative z-10"
+            style={{
+              maskImage: `url('${logoSrc}')`,
+              maskSize: "contain",
+              maskRepeat: "no-repeat",
+              maskPosition: "center",
+              WebkitMaskImage: `url('${logoSrc}')`,
+              WebkitMaskSize: "contain",
+              WebkitMaskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+            }}
+          />
+          {/* SVG invisible para mantener el espacio */}
+          <img
+            src={logoSrc}
+            alt="Quoorum"
+            width={size}
+            height={size}
+            className="w-full h-full object-contain opacity-0 relative z-10 pointer-events-none"
+            style={{ objectFit: 'contain', objectPosition: 'center' }}
+          />
+        </>
+      ) : (
+        <img
+          src={logoSrc}
+          alt="Quoorum"
+          width={size}
+          height={size}
+          className="w-full h-full object-contain"
+          style={{
+            objectFit: 'contain',
+            objectPosition: 'center',
+            filter: 'brightness(0) invert(1)',
+          }}
+        />
+      )}
+    </div>
   );
 }
 
@@ -110,8 +139,9 @@ export function QuoorumIcon({
           x2="100%"
           y2="100%"
         >
-          <stop offset="0%" stopColor="#a855f7" />
-          <stop offset="100%" stopColor="#06b6d4" />
+          <stop offset="0%" stopColor="#a78bfa" />
+          <stop offset="50%" stopColor="#f472b6" />
+          <stop offset="100%" stopColor="#22d3ee" />
         </linearGradient>
       </defs>
 
@@ -123,7 +153,83 @@ export function QuoorumIcon({
         fill={`url(#icon-gradient-${id})`}
       />
       <circle cx="12" cy="11" r="3" fill="#0A0A0F" />
-      <circle cx="12" cy="11" r="1" fill="#06b6d4" opacity="0.8" />
+      <circle cx="12" cy="11" r="1" fill="#22d3ee" opacity="0.8" />
     </svg>
   );
+}
+
+/**
+ * QuoorumLogoWithText - Componente reutilizable con logo + texto
+ * 
+ * Muestra el logo de Quoorum con el texto "Quoorum" al lado, usando el mismo
+ * estilo que aparece en la barra superior. El texto tiene un gradiente:
+ * - "Quoo" en blanco/claro
+ * - "rum" en azul/púrpura
+ */
+interface QuoorumLogoWithTextProps {
+  /** Tamaño del icono del logo */
+  iconSize?: number;
+  /** Tamaño del texto (clase de Tailwind para text-*) */
+  textSize?: 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
+  /** Clase CSS adicional para el contenedor */
+  className?: string;
+  /** URL de destino del link (opcional) */
+  href?: string;
+  /** Mostrar gradiente en el logo */
+  showGradient?: boolean;
+  /** Mostrar solo el logo sin texto (útil para headers compactos) */
+  showText?: boolean;
+}
+
+export function QuoorumLogoWithText({
+  iconSize = 192, // 4x el tamaño original (48 * 4 = 192)
+  textSize = '2xl',
+  className = '',
+  href,
+  showGradient = true,
+  showText = false, // Por defecto sin texto
+}: QuoorumLogoWithTextProps) {
+  const textSizeClasses = {
+    sm: 'text-sm',
+    base: 'text-base',
+    lg: 'text-lg',
+    xl: 'text-xl',
+    '2xl': 'text-2xl',
+    '3xl': 'text-3xl',
+    '4xl': 'text-4xl',
+  }
+
+  // Calcular tamaño del contenedor: icono + padding (8px en cada lado = 16px total)
+  const containerSize = iconSize + 16
+
+  const content = (
+    <div className={`flex items-center gap-3 group ${className}`}>
+      <div className="relative">
+        {/* Contenedor del logo con fondo oscuro - tamaño dinámico basado en iconSize */}
+        {/* El glow ahora está aplicado directamente al SVG dentro de QuoorumLogo */}
+        <div 
+          className="relative rounded-2xl flex items-center justify-center bg-[var(--theme-landing-bg)] border border-white/5 overflow-visible"
+          style={{ width: containerSize, height: containerSize }}
+        >
+          <QuoorumLogo size={iconSize} showGradient={showGradient} />
+        </div>
+      </div>
+      {/* Texto "Quoorum" con gradiente exacto: Quoo en blanco, r transición, um en azul claro */}
+      {showText && (
+        <span className={`font-bold ${textSizeClasses[textSize]} bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent`}>
+          Quoorum
+        </span>
+      )}
+    </div>
+  )
+
+  if (href) {
+    return (
+      <a href={href} className="w-fit">
+        {content}
+      </a>
+    )
+  }
+
+  return content
 }

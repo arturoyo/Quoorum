@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 /**
  * Quoorum Onboarding
  *
@@ -105,7 +103,7 @@ export function OnboardingModal() {
         {/* Close button */}
         <button
           onClick={handleSkip}
-          className="absolute right-4 top-4 text-2xl text-gray-400 transition-colors hover:text-gray-600"
+          className="absolute right-4 top-4 text-2xl text-[var(--theme-text-secondary)] transition-colors hover:text-[var(--theme-text-tertiary)]"
         >
           ✕
         </button>
@@ -125,15 +123,15 @@ export function OnboardingModal() {
         {/* Content */}
         <div className="mb-8 text-center">
           {step?.image && <div className="mb-6 text-6xl">{step.image}</div>}
-          <h2 className="mb-4 text-3xl font-bold text-gray-900">{step?.title}</h2>
-          <p className="text-lg text-gray-600">{step?.description}</p>
+          <h2 className="mb-4 text-3xl font-bold text-[var(--theme-text-primary)]">{step?.title}</h2>
+          <p className="text-lg text-[var(--theme-text-tertiary)]">{step?.description}</p>
         </div>
 
         {/* Actions */}
         <div className="flex items-center justify-between">
           <button
             onClick={handleSkip}
-            className="text-gray-500 transition-colors hover:text-gray-700"
+            className="text-[var(--theme-text-tertiary)] transition-colors hover:text-[var(--theme-text-secondary)]"
           >
             Saltar tutorial
           </button>
@@ -157,7 +155,7 @@ export function OnboardingModal() {
         </div>
 
         {/* Step indicator */}
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-[var(--theme-text-tertiary)]">
           Paso {currentStep + 1} de {ONBOARDING_STEPS.length}
         </div>
       </div>
@@ -185,10 +183,10 @@ export function QuickStartGuide() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-8">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Guía Rápida del Quoorum</h2>
+              <h2 className="text-2xl font-bold text-[var(--theme-text-primary)]">Guía Rápida del Quoorum</h2>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-2xl text-gray-400 transition-colors hover:text-gray-600"
+                className="text-2xl text-[var(--theme-text-secondary)] transition-colors hover:text-[var(--theme-text-tertiary)]"
               >
                 ✕
               </button>
@@ -197,9 +195,9 @@ export function QuickStartGuide() {
             <div className="space-y-6">
               {/* Section 1 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">1. Crea un debate</h3>
-                <p className="mb-2 text-gray-600">Haz una pregunta estratégica clara. Ejemplos:</p>
-                <ul className="list-inside list-disc space-y-1 text-gray-600">
+                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">1. Crea un debate</h3>
+                <p className="mb-2 text-[var(--theme-text-tertiary)]">Haz una pregunta estratégica clara. Ejemplos:</p>
+                <ul className="list-inside list-disc space-y-1 text-[var(--theme-text-tertiary)]">
                   <li>"¿Debería pivotar de B2C a B2B?"</li>
                   <li>"¿Qué modelo de pricing maximiza revenue?"</li>
                   <li>"¿Cómo mejoro la retención de usuarios?"</li>
@@ -208,8 +206,8 @@ export function QuickStartGuide() {
 
               {/* Section 2 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">2. Selecciona el modo</h3>
-                <ul className="list-inside list-disc space-y-1 text-gray-600">
+                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">2. Selecciona el modo</h3>
+                <ul className="list-inside list-disc space-y-1 text-[var(--theme-text-tertiary)]">
                   <li>
                     <strong>Dinámico (recomendado):</strong> El sistema selecciona automáticamente
                     los mejores expertos
@@ -222,9 +220,9 @@ export function QuickStartGuide() {
 
               {/* Section 3 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">3. Observa el debate</h3>
-                <p className="text-gray-600">Los expertos debatirán en tiempo real. Verás:</p>
-                <ul className="list-inside list-disc space-y-1 text-gray-600">
+                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">3. Observa el debate</h3>
+                <p className="text-[var(--theme-text-tertiary)]">Los expertos debatirán en tiempo real. Verás:</p>
+                <ul className="list-inside list-disc space-y-1 text-[var(--theme-text-tertiary)]">
                   <li>Argumentos de cada experto</li>
                   <li>Contraargumentos y refutaciones</li>
                   <li>Construcción de consenso</li>
@@ -234,11 +232,11 @@ export function QuickStartGuide() {
 
               {/* Section 4 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">
                   4. Revisa los resultados
                 </h3>
-                <p className="text-gray-600">Al finalizar, obtendrás:</p>
-                <ul className="list-inside list-disc space-y-1 text-gray-600">
+                <p className="text-[var(--theme-text-tertiary)]">Al finalizar, obtendrás:</p>
+                <ul className="list-inside list-disc space-y-1 text-[var(--theme-text-tertiary)]">
                   <li>Ranking de opciones con scores de éxito</li>
                   <li>Razonamiento detallado para cada opción</li>
                   <li>Score de consenso (0-100%)</li>
@@ -248,8 +246,8 @@ export function QuickStartGuide() {
 
               {/* Section 5 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">5. Exporta y comparte</h3>
-                <p className="text-gray-600">
+                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">5. Exporta y comparte</h3>
+                <p className="text-[var(--theme-text-tertiary)]">
                   Puedes exportar el debate a PDF para compartir con tu equipo, añadir comentarios
                   para colaborar, y ver analytics de todos tus debates.
                 </p>
@@ -363,7 +361,7 @@ export function ContextualHelp({ context }: { context: string }) {
     <div className="relative inline-block">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="text-gray-400 transition-colors hover:text-gray-600"
+        className="text-[var(--theme-text-secondary)] transition-colors hover:text-[var(--theme-text-tertiary)]"
         title="Ayuda"
       >
         ❓
@@ -373,8 +371,8 @@ export function ContextualHelp({ context }: { context: string }) {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
-            <h4 className="mb-2 font-semibold text-gray-900">{help.title}</h4>
-            <p className="text-sm text-gray-600">{help.content}</p>
+            <h4 className="mb-2 font-semibold text-[var(--theme-text-primary)]">{help.title}</h4>
+            <p className="text-sm text-[var(--theme-text-tertiary)]">{help.content}</p>
           </div>
         </>
       )}

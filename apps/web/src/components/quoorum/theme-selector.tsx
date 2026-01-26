@@ -38,7 +38,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
   if (!question || question.length < 10) {
     return (
       <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-        <CardContent className="py-6 text-center text-sm text-gray-400">
+        <CardContent className="py-6 text-center text-sm text-[var(--theme-text-secondary)]">
           Escribe una pregunta para ver el tema narrativo sugerido
         </CardContent>
       </Card>
@@ -59,7 +59,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
             className="data-[state=checked]:bg-indigo-600"
           />
         </div>
-        <CardDescription className="text-gray-400">
+        <CardDescription className="text-[var(--theme-text-secondary)]">
           {themeEnabled ? 'Los expertos tendrán identidades narrativas' : 'Los expertos usarán nombres genéricos'}
         </CardDescription>
       </CardHeader>
@@ -89,10 +89,10 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
                       {Math.round(themePreview.confidence * 100)}% confianza
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-300 mb-2">
+                  <p className="text-sm text-[var(--theme-text-secondary)] mb-2">
                     {themePreview.themeDescription}
                   </p>
-                  <p className="text-xs text-gray-400 italic">
+                  <p className="text-xs text-[var(--theme-text-secondary)] italic">
                     {themePreview.reason}
                   </p>
                 </div>
@@ -104,7 +104,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
               <div className="rounded-lg border border-yellow-500/30 bg-yellow-900/10 p-3">
                 <div className="flex items-start gap-2">
                   <Info className="h-4 w-4 text-yellow-400 mt-0.5" />
-                  <div className="text-xs text-gray-300">
+                  <div className="text-xs text-[var(--theme-text-secondary)]">
                     <p className="font-medium text-yellow-400 mb-1">Confianza baja</p>
                     <p>
                       La pregunta no se ajusta claramente a ningún tema narrativo.
@@ -119,9 +119,9 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
             <div className="rounded-lg border border-white/5 bg-slate-800/30 p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Info className="h-4 w-4 text-blue-400" />
-                <Label className="text-xs text-gray-400">¿Qué son los temas narrativos?</Label>
+                <Label className="text-xs text-[var(--theme-text-secondary)]">¿Qué son los temas narrativos?</Label>
               </div>
-              <p className="text-xs text-gray-300">
+              <p className="text-xs text-[var(--theme-text-secondary)]">
                 Los temas narrativos asignan identidades de personajes a los expertos del debate
                 (ej: Atenea, Lancelot, Steve Jobs) para hacer la experiencia más inmersiva.
                 Los modelos de IA (GPT, Claude, etc.) quedan ocultos para el usuario.
@@ -130,7 +130,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
           </>
         ) : (
           <div className="rounded-lg border border-white/5 bg-slate-800/30 p-4 text-center">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-[var(--theme-text-secondary)]">
               Los expertos usarán nombres genéricos (Experto 1, Experto 2...)
             </p>
           </div>

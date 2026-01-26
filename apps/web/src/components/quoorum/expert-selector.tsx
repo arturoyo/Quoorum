@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { api } from '@/lib/trpc/client'
+import { logger } from '@/lib/logger'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -114,7 +115,7 @@ export function ExpertSelector({
         .slice(0, 5)
         .map((e) => e.id)
 
-      console.log('[ExpertSelector] 🎯 Auto-selecting experts:', {
+      logger.info('[ExpertSelector] Auto-selecting experts:', {
         count: topExperts.length,
         expertIds: topExperts
       })
@@ -302,15 +303,15 @@ export function ExpertSelector({
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="text-gray-400 hover:text-white"
+            className="text-[var(--theme-text-secondary)] hover:text-white"
           >
             Cerrar
           </Button>
         </div>
-        <CardDescription className="text-gray-400">
+        <CardDescription className="text-[var(--theme-text-secondary)]">
           {question && question.length >= 10
             ? 'Expertos propuestos automáticamente según tu pregunta. Puedes seleccionar manualmente o usar los sugeridos.'
-            : 'Selecciona expertos personalizados. Si no seleccionas ninguno, se usarán expertos automáticos del sistema.'}
+            : 'Selecciona expertos de la biblioteca. Si no seleccionas ninguno, se usarán expertos automáticos del sistema.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
@@ -331,7 +332,7 @@ export function ExpertSelector({
                 variant="ghost"
                 size="sm"
                 onClick={() => onSelectionChange([])}
-                className="text-xs text-gray-400 hover:text-white"
+                className="text-xs text-[var(--theme-text-secondary)] hover:text-white"
               >
                 Limpiar todos
               </Button>
@@ -353,7 +354,7 @@ export function ExpertSelector({
                   )}
                   <button
                     onClick={() => toggleExpert(expert.id)}
-                    className="ml-1 p-0.5 rounded hover:bg-purple-600/30 text-gray-300 hover:text-white transition-colors"
+                    className="ml-1 p-0.5 rounded hover:bg-purple-600/30 text-[var(--theme-text-secondary)] hover:text-white transition-colors"
                     title="Eliminar"
                   >
                     <X className="h-3 w-3" />
@@ -398,7 +399,7 @@ export function ExpertSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
-                  <span className="text-sm text-gray-400">Analizando tu pregunta y buscando expertos...</span>
+                  <span className="text-sm text-[var(--theme-text-secondary)]">Analizando tu pregunta y buscando expertos...</span>
                 </div>
                 <div className="space-y-2">
                   {[1, 2, 3, 4, 5].map((i) => (
@@ -451,7 +452,7 @@ export function ExpertSelector({
                                     ? 'border-green-500/30 text-green-400 bg-green-500/10'
                                     : suggested.role === 'critic'
                                     ? 'border-red-500/30 text-red-400 bg-red-500/10'
-                                    : 'border-gray-600 text-gray-400'
+                                    : 'border-gray-600 text-[var(--theme-text-secondary)]'
                                 )}
                               >
                                 {suggested.role === 'primary' ? 'Principal' : suggested.role === 'critic' ? 'Crítico' : 'Secundario'}
@@ -463,7 +464,7 @@ export function ExpertSelector({
                                 {suggested.matchScore}% match
                               </Badge>
                             </div>
-                            <p className="text-xs text-gray-400 line-clamp-1 mb-1">
+                            <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-1 mb-1">
                               {suggested.expertise?.join(', ') || suggested.title}
                             </p>
                             {suggested.reasons && suggested.reasons.length > 0 && (
@@ -487,7 +488,7 @@ export function ExpertSelector({
                     {filteredSuggestedExperts.length} Expertos Recomendados
                   </Badge>
                 </div>
-                <p className="text-xs text-gray-400 mb-3">
+                <p className="text-xs text-[var(--theme-text-secondary)] mb-3">
                   El sistema ha analizado tu pregunta y seleccionado los expertos más relevantes. Puedes cambiar a modo manual para ver todos los expertos disponibles.
                 </p>
               </div>
@@ -495,16 +496,16 @@ export function ExpertSelector({
           ) : question && question.length >= 10 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Loader2 className="h-8 w-8 animate-spin text-purple-400 mb-3" />
-              <p className="text-gray-400 mb-2">No se encontraron expertos sugeridos</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-[var(--theme-text-secondary)] mb-2">No se encontraron expertos sugeridos</p>
+              <p className="text-sm text-[var(--theme-text-tertiary)]">
                 Intenta cambiar a modo manual para ver todos los expertos disponibles
               </p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Info className="h-8 w-8 text-gray-500 mb-3" />
-              <p className="text-gray-400 mb-2">Añade una pregunta para ver expertos sugeridos</p>
-              <p className="text-sm text-gray-500">
+              <Info className="h-8 w-8 text-[var(--theme-text-tertiary)] mb-3" />
+              <p className="text-[var(--theme-text-secondary)] mb-2">Añade una pregunta para ver expertos sugeridos</p>
+              <p className="text-sm text-[var(--theme-text-tertiary)]">
                 El modo automático requiere una pregunta de al menos 10 caracteres
               </p>
             </div>
@@ -516,16 +517,16 @@ export function ExpertSelector({
             {/* Search and Filter (only in manual mode) */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--theme-text-secondary)]" />
                 <Input
                   placeholder="Buscar expertos..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-white/10 bg-slate-800/50 text-white placeholder:text-gray-500"
+                  className="pl-10 border-white/10 bg-slate-800/50 text-white placeholder:text-[var(--theme-text-tertiary)]"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-400" />
+                <Filter className="h-4 w-4 text-[var(--theme-text-secondary)]" />
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -547,7 +548,7 @@ export function ExpertSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
-                  <span className="text-sm text-gray-400">Cargando expertos y categorías...</span>
+                  <span className="text-sm text-[var(--theme-text-secondary)]">Cargando expertos y categorías...</span>
                 </div>
                 {/* Show category structure with loading skeletons */}
                 {categoryCounts?.byCategory ? (
@@ -596,7 +597,7 @@ export function ExpertSelector({
                   <span className="text-sm font-semibold text-white">
                     Expertos Personalizados
                   </span>
-                  <Badge variant="outline" className="text-xs border-gray-600 text-gray-400">
+                  <Badge variant="outline" className="text-xs border-gray-600 text-[var(--theme-text-secondary)]">
                     {categoryCounts?.total || Object.values(filteredAndGroupedExperts).reduce((acc, experts) => acc + experts.length, 0)}
                   </Badge>
                 </div>
@@ -656,7 +657,7 @@ export function ExpertSelector({
                                               {expert.name}
                                             </p>
                                           </div>
-                                          <p className="text-xs text-gray-400 line-clamp-2">
+                                          <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-2">
                                             {typeof expert.expertise === 'string'
                                               ? expert.expertise
                                               : Array.isArray(expert.expertise)
@@ -668,7 +669,7 @@ export function ExpertSelector({
                                     )
                                   })
                                 ) : (
-                                  <p className="text-xs text-gray-500 text-center py-4">
+                                  <p className="text-xs text-[var(--theme-text-tertiary)] text-center py-4">
                                     No hay expertos en esta categoría
                                   </p>
                                 )}
@@ -724,7 +725,7 @@ export function ExpertSelector({
                                           {expert.name}
                                         </p>
                                       </div>
-                                      <p className="text-xs text-gray-400 line-clamp-2">
+                                      <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-2">
                                         {typeof expert.expertise === 'string'
                                           ? expert.expertise
                                           : Array.isArray(expert.expertise)
@@ -746,21 +747,11 @@ export function ExpertSelector({
             ) : (
               /* Empty State for manual mode */
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Sparkles className="h-12 w-12 text-gray-500 mb-3" />
-                <p className="text-gray-400 mb-2">No hay expertos disponibles</p>
-                <p className="text-sm text-gray-500 mb-4">
-                  Crea expertos personalizados en Configuración → Expertos
+                <Sparkles className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
+                <p className="text-[var(--theme-text-secondary)] mb-2">No hay expertos disponibles en la biblioteca</p>
+                <p className="text-sm text-[var(--theme-text-tertiary)]">
+                  Los expertos se seleccionan automáticamente según tu pregunta y contexto.
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    window.location.href = '/settings/experts'
-                  }}
-                  className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
-                >
-                  Ir a Configuración
-                </Button>
               </div>
             ))}
 
@@ -769,9 +760,9 @@ export function ExpertSelector({
              categories.length === 0 && 
              selectedExpertsData.length > 0 && (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Search className="h-12 w-12 text-gray-500 mb-3" />
-                <p className="text-gray-400 mb-2">No se encontraron expertos</p>
-                <p className="text-sm text-gray-500">
+                <Search className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
+                <p className="text-[var(--theme-text-secondary)] mb-2">No se encontraron expertos</p>
+                <p className="text-sm text-[var(--theme-text-tertiary)]">
                   Intenta con otros términos de búsqueda o cambia el filtro de categoría
                 </p>
               </div>

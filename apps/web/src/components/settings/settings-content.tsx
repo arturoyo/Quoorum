@@ -29,6 +29,7 @@ import { getSettingsNav } from '@/lib/settings-nav'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { cn } from '@/lib/utils'
 import { SettingsSectionRenderer } from './settings-section-renderer'
+import { SettingsProvider } from './settings-context'
 
 interface SettingsContentProps {
   isInModal?: boolean
@@ -145,10 +146,10 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
   const settingsNav = getSettingsNav(activePath)
 
   return (
-    <div className={cn('relative', isInModal ? 'overflow-y-auto max-h-[90vh]' : 'min-h-screen')}>
+    <div className={cn('relative flex flex-col', isInModal ? 'max-h-[90vh]' : 'min-h-screen')}>
       {/* Header - Only show if not in modal */}
       {!isInModal && (
-        <header className="relative border-b border-white/10 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
+        <header className="relative border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl sticky top-0 z-50">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
           <div className="container mx-auto px-4">
             <div className="relative flex h-16 items-center justify-between">
@@ -159,28 +160,28 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                     <QuoorumLogo size={24} showGradient={true} />
                   </div>
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                <span className="text-xl font-bold text-[var(--theme-text-primary)]">
                   Quoorum
                 </span>
               </Link>
 
               <nav className="hidden md:flex items-center gap-6">
-                <Link href="/dashboard" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
+                <Link href="/dashboard" className="text-sm text-[var(--theme-text-secondary)] hover:text-purple-500 transition-colors relative group">
                   Dashboard
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
                 </Link>
-                <Link href="/debates" className="text-sm text-gray-400 hover:text-blue-300 transition-colors relative group">
+                <Link href="/debates" className="text-sm text-[var(--theme-text-secondary)] hover:text-purple-500 transition-colors relative group">
                   Debates
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
                 </Link>
-                <Link href="/settings" className="text-sm font-medium text-blue-300 relative group">
+                <Link href="/settings" className="text-sm font-medium text-purple-500 relative group">
                   Configuración
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500" />
                 </Link>
               </nav>
 
               <div className="flex items-center gap-3">
-                <Link href="/debates/new">
+                <Link href="/debates/new-unified?new=1">
                   <Button className="bg-purple-600 hover:bg-purple-500 text-white border-0">
                     <Plus className="mr-2 h-4 w-4" />
                     Nuevo Debate
@@ -194,34 +195,22 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
 
       {/* Modal Header - Only show if in modal */}
       {isInModal && (
-        <div className="sticky top-0 z-10 border-b border-white/10 bg-slate-900/95 backdrop-blur-xl px-6 py-4">
+        <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl px-6 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+            <h2 className="text-xl font-bold text-[var(--theme-text-primary)]">
               Configuración
             </h2>
-            {onClose && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="text-gray-400 hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
+            {/* El botón de cierre está en DialogContent, no duplicar aquí */}
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <main className={cn('container mx-auto', isInModal ? 'px-6 py-4' : 'px-4 py-8')}>
+      <main className={cn('container mx-auto flex-1 overflow-y-auto', isInModal ? 'px-6 pt-4 pb-12' : 'px-4 pt-8 pb-12')}>
         <div className={cn('grid gap-8', isInModal ? 'grid-cols-5' : 'grid-cols-1 lg:grid-cols-4')}>
           {/* Sidebar Nav - Show in both modal and full page */}
           <aside className={cn(isInModal ? 'col-span-1' : 'lg:col-span-1')}>
-            <div className={cn('space-y-1', isInModal ? '' : 'sticky top-24')}>
-              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 px-4">
-                Configuración
-              </h2>
+            <div className={cn('space-y-1', isInModal ? 'sticky top-4 z-20' : 'sticky top-24')}>
               <nav className="space-y-1">
                 {settingsNav.map((item) => {
                   const Icon = item.icon
@@ -238,12 +227,12 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                           }}
                           className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition group w-full text-left ${
                             item.active && !hasSubItems
-                              ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30'
-                              : 'text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
+                              ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
+                              : 'text-[var(--theme-text-secondary)] hover:text-purple-500 hover:bg-purple-500/10'
                           }`}
                         >
                           {(item.active && !hasSubItems) && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                            <div className="absolute inset-0 bg-purple-500/10 rounded-lg blur opacity-50" />
                           )}
                           <Icon className="relative w-5 h-5" />
                           <span className="relative text-sm font-medium">{item.label}</span>
@@ -253,12 +242,12 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                           href={item.href}
                           className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition group ${
                             item.active && !hasSubItems
-                              ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30'
-                              : 'text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
+                              ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
+                              : 'text-[var(--theme-text-secondary)] hover:text-purple-500 hover:bg-purple-500/10'
                           }`}
                         >
                           {(item.active && !hasSubItems) && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                            <div className="absolute inset-0 bg-purple-500/10 rounded-lg blur opacity-50" />
                           )}
                           <Icon className="relative w-5 h-5" />
                           <span className="relative text-sm font-medium">{item.label}</span>
@@ -266,7 +255,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                       )}
                       
                       {hasSubItems && isExpanded && (
-                        <div className="ml-4 space-y-1 pl-4 border-l border-white/10">
+                        <div className="ml-4 space-y-1 pl-4 border-l border-[var(--theme-border)]">
                           {item.subItems?.map((subItem) => (
                             <React.Fragment key={subItem.href}>
                               {isInModal ? (
@@ -277,12 +266,12 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                                   }}
                                   className={`relative flex items-center gap-3 px-4 py-2 rounded-lg transition group text-sm w-full text-left ${
                                     subItem.active
-                                      ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30'
-                                      : 'text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
+                                      ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
+                                      : 'text-[var(--theme-text-secondary)] hover:text-purple-500 hover:bg-purple-500/10'
                                   }`}
                                 >
                                   {subItem.active && (
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                                    <div className="absolute inset-0 bg-purple-500/10 rounded-lg blur opacity-50" />
                                   )}
                                   <span className="relative">{subItem.label}</span>
                                 </button>
@@ -291,12 +280,12 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                                   href={subItem.href}
                                   className={`relative flex items-center gap-3 px-4 py-2 rounded-lg transition group text-sm ${
                                     subItem.active
-                                      ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30'
-                                      : 'text-gray-400 hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
+                                      ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
+                                      : 'text-[var(--theme-text-secondary)] hover:text-purple-500 hover:bg-purple-500/10'
                                   }`}
                                 >
                                   {subItem.active && (
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-50" />
+                                    <div className="absolute inset-0 bg-purple-500/10 rounded-lg blur opacity-50" />
                                   )}
                                   <span className="relative">{subItem.label}</span>
                                 </Link>
@@ -314,7 +303,9 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
 
           {/* Content */}
           <div className={cn('space-y-6', isInModal ? 'col-span-4' : 'lg:col-span-3')}>
-            <SettingsSectionRenderer activePath={activePath} isInModal={isInModal} />
+            <SettingsProvider setCurrentSection={setCurrentSection} isInModal={isInModal}>
+          <SettingsSectionRenderer activePath={activePath} isInModal={isInModal} />
+        </SettingsProvider>
           </div>
         </div>
       </main>

@@ -17,6 +17,13 @@ import {
 // Mock @quoorum/ai
 vi.mock('@quoorum/ai', () => ({
   getAIClient: vi.fn(),
+  parseAIJson: vi.fn().mockImplementation((text: string) => {
+    try {
+      return JSON.parse(text)
+    } catch {
+      return null
+    }
+  }),
 }))
 
 import { getAIClient } from '@quoorum/ai'

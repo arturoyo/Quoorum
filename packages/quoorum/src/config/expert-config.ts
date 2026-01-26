@@ -7,7 +7,8 @@
  */
 
 import { z } from 'zod'
-import type { ExpertProfile } from '../expert-database'
+import type { ExpertProfile } from '../expert-database/types'
+import { quoorumLogger } from '../logger'
 
 // Zod schema for validation
 const ExpertProviderConfigSchema = z.object({
@@ -27,7 +28,7 @@ function getDefaultConfig(): Pick<ExpertProfile, 'provider' | 'modelId'> {
     ExpertProviderConfigSchema.parse({ provider, model })
     return { provider, modelId: model }
   } catch (error) {
-    console.error('Invalid expert default configuration, falling back to Gemini:', error)
+    quoorumLogger.error('Invalid expert default configuration, falling back to Gemini', error instanceof Error ? error : undefined, { provider, model })
     return { provider: 'google', modelId: 'gemini-2.0-flash-exp' }
   }
 }
@@ -51,7 +52,7 @@ function getCategoryConfig(
     ExpertProviderConfigSchema.parse({ provider, model })
     return { provider, modelId: model }
   } catch (error) {
-    console.warn(`Invalid configuration for category ${category}, using defaults`)
+    quoorumLogger.warn(`Invalid configuration for category ${category}, using defaults`, { category, provider, model })
     return null
   }
 }
@@ -73,7 +74,7 @@ function getExpertConfig(expertId: string): Pick<ExpertProfile, 'provider' | 'mo
     ExpertProviderConfigSchema.parse({ provider, model })
     return { provider, modelId: model }
   } catch (error) {
-    console.warn(`Invalid configuration for expert ${expertId}, using defaults`)
+    quoorumLogger.warn(`Invalid configuration for expert ${expertId}, using defaults`, { expertId, provider, model })
     return null
   }
 }
@@ -161,6 +162,25 @@ export const EXPERT_CATEGORIES = {
   andrej_karpathy: 'technical',
   simon_willison: 'technical',
   shreya_shankar: 'technical',
+
+  // Design & UX
+  julie_zhuo: 'design',
+  jared_spool: 'ux-research',
+  don_norman: 'design-thinking',
+  steve_krug: 'usability',
+  luke_wroblewski: 'mobile-design',
+
+  // Engineering & Tech Leadership
+  will_larson: 'engineering-management',
+  camille_fournier: 'tech-leadership',
+  martin_fowler: 'architecture',
+  kent_beck: 'xp',
+  robert_martin: 'clean-code',
+
+  // Legal & Compliance
+  privacy_gdpr_expert: 'legal',
+  saas_contracts_expert: 'legal',
+  term_sheets_expert: 'legal',
 
   // Critical Thinking (no category - uses global default)
   critic: 'general',

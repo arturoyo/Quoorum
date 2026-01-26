@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/layout/app-header";
+import { LandingFooter } from "@/components/layout/landing-footer";
+import { SectionHeader } from "@/components/ui/section-header";
+import { IconCard } from "@/components/ui/icon-card";
 
 const contactMethods = [
   {
@@ -106,7 +109,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F]">
+    <div className="min-h-screen bg-[var(--theme-landing-bg)]">
       {/* Header */}
       <AppHeader variant="landing" showAuth={true} />
 
@@ -114,7 +117,7 @@ export default function ContactPage() {
       <section className="pt-40 pb-24 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
               <Mail className="w-4 h-4 text-purple-400" />
               <span>Contacto</span>
             </div>
@@ -126,7 +129,7 @@ export default function ContactPage() {
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed">
               Estamos aquí para ayudarte. Ya sea que tengas una pregunta sobre
               características, precios, o necesites una demo personalizada.
             </p>
@@ -156,7 +159,7 @@ export default function ContactPage() {
                   <h3 className="text-xl font-bold text-white mb-2">
                     {method.title}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-4">
+                  <p className="text-sm text-[var(--theme-text-tertiary)] mb-4">
                     {method.description}
                   </p>
                   <p className="text-purple-400 font-medium">{method.contact}</p>
@@ -179,7 +182,7 @@ export default function ContactPage() {
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                   Envíanos un mensaje
                 </h2>
-                <p className="text-gray-400">
+                <p className="text-[var(--theme-text-secondary)]">
                   Te responderemos en menos de 24 horas
                 </p>
               </div>
@@ -192,7 +195,7 @@ export default function ContactPage() {
                   <h3 className="text-2xl font-bold text-white mb-4">
                     ¡Mensaje enviado!
                   </h3>
-                  <p className="text-gray-400">
+                  <p className="text-[var(--theme-text-secondary)]">
                     Gracias por contactarnos. Te responderemos pronto.
                   </p>
                 </div>
@@ -202,7 +205,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="name"
-                        className="block text-sm font-medium text-gray-300 mb-2"
+                        className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
                       >
                         Nombre *
                       </label>
@@ -213,7 +216,7 @@ export default function ContactPage() {
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:outline-none focus:border-purple-500/50 transition-colors"
+                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors"
                         placeholder="Tu nombre"
                       />
                     </div>
@@ -221,7 +224,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-gray-300 mb-2"
+                        className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
                       >
                         Email *
                       </label>
@@ -232,7 +235,7 @@ export default function ContactPage() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:outline-none focus:border-purple-500/50 transition-colors"
+                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors"
                         placeholder="tu@email.com"
                       />
                     </div>
@@ -242,7 +245,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="company"
-                        className="block text-sm font-medium text-gray-300 mb-2"
+                        className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
                       >
                         Empresa
                       </label>
@@ -252,7 +255,7 @@ export default function ContactPage() {
                         name="company"
                         value={formData.company}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:outline-none focus:border-purple-500/50 transition-colors"
+                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors"
                         placeholder="Tu empresa"
                       />
                     </div>
@@ -260,7 +263,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="subject"
-                        className="block text-sm font-medium text-gray-300 mb-2"
+                        className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
                       >
                         Asunto *
                       </label>
@@ -272,7 +275,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-purple-500/50 transition-colors appearance-none"
                       >
-                        <option value="" className="bg-[#0A0A0F]">
+                        <option value="" className="bg-[var(--theme-bg-primary)]">
                           Selecciona un asunto
                         </option>
                         <option value="sales" className="bg-[#0A0A0F]">
@@ -297,7 +300,7 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="message"
-                      className="block text-sm font-medium text-gray-300 mb-2"
+                      className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
                     >
                       Mensaje *
                     </label>
@@ -308,7 +311,7 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleChange}
                       rows={6}
-                      className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:outline-none focus:border-purple-500/50 transition-colors resize-none"
+                      className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors resize-none"
                       placeholder="Cuéntanos en qué podemos ayudarte..."
                     />
                   </div>
@@ -352,11 +355,11 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">Oficina</h3>
-                    <p className="text-gray-400 text-sm">Sede principal</p>
+                    <p className="text-[var(--theme-text-secondary)] text-sm">Sede principal</p>
                   </div>
                 </div>
 
-                <p className="text-gray-300 leading-relaxed">
+                <p className="text-[var(--theme-text-secondary)] leading-relaxed">
                   Barcelona, España
                   <br />
                   Barrio de Gràcia
@@ -372,16 +375,16 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">Horario</h3>
-                    <p className="text-gray-400 text-sm">Atención al cliente</p>
+                    <p className="text-[var(--theme-text-secondary)] text-sm">Atención al cliente</p>
                   </div>
                 </div>
 
-                <p className="text-gray-300 leading-relaxed">
+                <p className="text-[var(--theme-text-secondary)] leading-relaxed">
                   Lunes - Viernes
                   <br />
                   9:00 AM - 6:00 PM (CET)
                   <br />
-                  <span className="text-gray-500 text-sm">
+                  <span className="text-[var(--theme-text-tertiary)] text-sm">
                     Soporte por email 24/7
                   </span>
                 </p>
@@ -394,14 +397,10 @@ export default function ContactPage() {
       {/* FAQs */}
       <section className="pb-32 px-4">
         <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Preguntas Frecuentes
-            </h2>
-            <p className="text-xl text-gray-400">
-              Respuestas rápidas a preguntas comunes
-            </p>
-          </div>
+          <SectionHeader
+            title="Preguntas Frecuentes"
+            subtitle="Respuestas rápidas a preguntas comunes"
+          />
 
           <div className="space-y-4">
             {faqs.map((faq, index) => (
@@ -416,14 +415,14 @@ export default function ContactPage() {
                   <h3 className="text-xl font-bold text-white mb-4">
                     {faq.question}
                   </h3>
-                  <p className="text-gray-400 leading-relaxed">{faq.answer}</p>
+                  <p className="text-[var(--theme-text-secondary)] leading-relaxed">{faq.answer}</p>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-gray-400">
+            <p className="text-[var(--theme-text-secondary)]">
               ¿No encuentras lo que buscas?{" "}
               <Link
                 href="/blog"
@@ -437,109 +436,7 @@ export default function ContactPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-16 px-4 backdrop-blur-xl bg-white/[0.02]">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <Link href="/" className="flex items-center gap-3 mb-6 group">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition" />
-                  <div className="relative w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0A0A0F]">
-                    <QuoorumLogo size={48} showGradient={true} />
-                  </div>
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-                  Quoorum
-                </span>
-              </Link>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                Sistema de deliberación multi-agente para decisiones estratégicas.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold mb-6">Producto</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link
-                    href="/#features"
-                    className="text-gray-500 hover:text-white text-sm transition-colors"
-                  >
-                    Características
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/pricing"
-                    className="text-gray-500 hover:text-white text-sm transition-colors"
-                  >
-                    Precios
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold mb-6">Empresa</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link
-                    href="/about"
-                    className="text-gray-500 hover:text-white text-sm transition-colors"
-                  >
-                    Sobre Nosotros
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/blog"
-                    className="text-gray-500 hover:text-white text-sm transition-colors"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className="text-gray-500 hover:text-white text-sm transition-colors"
-                  >
-                    Contacto
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold mb-6">Legal</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link
-                    href="/privacy"
-                    className="text-gray-500 hover:text-white text-sm transition-colors"
-                  >
-                    Privacidad
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="text-gray-500 hover:text-white text-sm transition-colors"
-                  >
-                    Términos
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-white/5 pt-8 text-center text-gray-600 text-sm">
-            <p>
-              &copy; {new Date().getFullYear()} Quoorum. Todos los derechos
-              reservados.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }

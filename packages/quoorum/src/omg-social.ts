@@ -265,7 +265,8 @@ export function renderCommunityVoting(voting: CommunityVotingResult): string {
 function generateVoteBar(percentage: number): string {
   const filled = Math.round(percentage / 10)
   const empty = 10 - filled
-  return '█'.repeat(filled) + '░'.repeat(empty)
+  const block = typeof process !== 'undefined' && process.platform === 'win32' ? ['#', '-'] : ['█', '░']
+  return block[0]!.repeat(filled) + block[1]!.repeat(empty)
 }
 
 /**

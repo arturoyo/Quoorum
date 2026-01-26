@@ -2,11 +2,17 @@
  * Forum Advanced Visualizations
  *
  * Quick WOWs visuales e interactivos para el sistema dinámico
+ * En Windows usamos ASCII (# -) para evitar Ôöü por encoding de terminal.
  */
 
 import type { DebateResult, DebateRound } from './types'
 import type { QualityAnalysis } from './quality-monitor'
 import { quoorumLogger } from './logger'
+
+const isWin =
+  typeof process !== 'undefined' && process.platform === 'win32'
+const BAR_FILLED = isWin ? '#' : '█'
+const BAR_EMPTY = isWin ? '-' : '░'
 
 // ============================================================================
 // ASCII ART DASHBOARD
@@ -56,7 +62,7 @@ function generateBar(value: number, max: number): string {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100))
   const filled = Math.round(percentage / 10)
   const empty = 10 - filled
-  return '█'.repeat(filled) + '░'.repeat(empty)
+  return BAR_FILLED.repeat(filled) + BAR_EMPTY.repeat(empty)
 }
 
 /**
@@ -85,7 +91,7 @@ export function renderProgressBar(data: ProgressData): string {
   const percentage = (data.currentRound / data.totalRounds) * 100
   const filled = Math.round(percentage / 5)
   const empty = 20 - filled
-  const bar = '█'.repeat(filled) + '░'.repeat(empty)
+  const bar = BAR_FILLED.repeat(filled) + BAR_EMPTY.repeat(empty)
 
   const qualityIcon = data.quality >= 80 ? '✨' : data.quality >= 60 ? '👍' : '⚠️'
 
@@ -228,7 +234,7 @@ export function generateDebateHeatmap(
   for (const data of heatmaps) {
     const fires = Math.round(data.intensity / 20)
     const emptyFires = 5 - fires
-    const fireBar = '🔥'.repeat(fires) + '░░'.repeat(emptyFires)
+    const fireBar = '🔥'.repeat(fires) + (isWin ? BAR_EMPTY.repeat(emptyFires * 2) : '░░'.repeat(emptyFires))
 
     const intervention = data.hasIntervention ? ' ⚡ Meta-moderator!' : ''
     const qualityIcon = data.quality >= 80 ? ' ✨' : data.quality >= 60 ? ' 👍' : ' ⚠️'

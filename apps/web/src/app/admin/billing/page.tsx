@@ -20,24 +20,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Loader2, Search, Plus, Minus, RefreshCw } from "lucide-react"
+import { Loader2, Search, Plus, Minus, RefreshCw, DollarSign, Users, CreditCard, TrendingUp } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "sonner"
 
 export default function AdminBillingPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const [creditsAmount, setCreditsAmount] = useState("")
   const [creditReason, setCreditReason] = useState("")
+  const [_selectedUserId, setSelectedUserId] = useState<string | null>(null)
 
-  // Fetch billing stats
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = api.admin.getBillingStats.useQuery()
+  // Fetch cost analytics stats (real API structure)
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = api.admin.getCostAnalytics.useQuery({})
 
   // Search users
-  const { data: users, isLoading: usersLoading, refetch: refetchUsers } = api.admin.searchUsers.useQuery(
+  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = api.admin.listUsers.useQuery(
     { search: searchQuery, limit: 50 },
     { enabled: searchQuery.length > 0 }
   )
+  const users = usersData?.users || []
 
   // Add credits mutation
   const addCredits = api.admin.addCredits.useMutation({
@@ -100,6 +101,9 @@ export default function AdminBillingPage() {
     })
   }
 
+  // Extract overall stats from the API response
+  const overallStats = stats?.overall
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
@@ -107,7 +111,7 @@ export default function AdminBillingPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">Admin - Billing Management</h1>
           <p className="text-muted-foreground">
-            Gestiona usuarios, créditos y suscripciones
+            Gestiona usuarios, créditos y estadísticas de uso
           </p>
         </div>
         <Button variant="outline" size="icon" onClick={() => { void refetchStats(); void refetchUsers(); }}>
@@ -119,38 +123,41 @@ export default function AdminBillingPage() {
       <div className="grid gap-6 md:grid-cols-4 mb-8">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Users
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Total Debates
             </CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             ) : (
-              <div className="text-2xl font-bold">{stats?.totalUsers.toLocaleString() || 0}</div>
+              <div className="text-2xl font-bold">{overallStats?.totalDebates?.toLocaleString() || 0}</div>
             )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Subscriptions
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Total Cost (USD)
             </CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             ) : (
-              <div className="text-2xl font-bold">{stats?.activeSubscriptions.toLocaleString() || 0}</div>
+              <div className="text-2xl font-bold">${overallStats?.totalCostUsd?.toFixed(2) || '0.00'}</div>
             )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Credits Issued
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Total Credits Used
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -158,10 +165,10 @@ export default function AdminBillingPage() {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             ) : (
               <div className="text-2xl font-bold">
-                {stats?.totalCreditsIssued ?
-                  (stats.totalCreditsIssued > 1000000
-                    ? `${(stats.totalCreditsIssued / 1000000).toFixed(1)}M`
-                    : stats.totalCreditsIssued.toLocaleString()
+                {overallStats?.totalCreditsUsed ?
+                  (overallStats.totalCreditsUsed > 1000000
+                    ? `${(overallStats.totalCreditsUsed / 1000000).toFixed(1)}M`
+                    : overallStats.totalCreditsUsed.toLocaleString()
                   ) : 0
                 }
               </div>
@@ -171,15 +178,16 @@ export default function AdminBillingPage() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              MRR
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Active Users
             </CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             ) : (
-              <div className="text-2xl font-bold">${stats?.mrr.toLocaleString() || 0}</div>
+              <div className="text-2xl font-bold">{stats?.byUser?.length || 0}</div>
             )}
           </CardContent>
         </Card>
@@ -331,6 +339,49 @@ export default function AdminBillingPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Top Users by Usage */}
+      {stats?.byUser && stats.byUser.length > 0 && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Top Users by Usage</CardTitle>
+            <CardDescription>
+              Users with highest debate activity and credit consumption
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead>Total Debates</TableHead>
+                    <TableHead>Credits Used</TableHead>
+                    <TableHead>Cost (USD)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {stats.byUser.slice(0, 10).map((user) => (
+                    <TableRow key={user.userId}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{user.email}</div>
+                          {user.name && (
+                            <div className="text-sm text-muted-foreground">{user.name}</div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{user.totalDebates}</TableCell>
+                      <TableCell>{user.totalCreditsUsed.toLocaleString()}</TableCell>
+                      <TableCell>${user.totalCostUsd.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Pricing Configuration */}
       <Card className="mt-8">

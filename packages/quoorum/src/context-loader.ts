@@ -8,7 +8,7 @@ import { getAIClient } from '@quoorum/ai'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import type { ContextSource, LoadedContext } from './types'
-import { quoorumLogger } from './quoorum-logger'
+import { quoorumLogger } from './logger'
 
 // ============================================================================
 // MAIN LOADER
@@ -20,10 +20,11 @@ export interface LoadContextOptions {
   useInternet: boolean
   useRepo: boolean
   repoPath?: string
+  userId?: string // Optional: if provided, credits will be deducted for internet searches
 }
 
 export async function loadContext(options: LoadContextOptions): Promise<LoadedContext> {
-  const { question, manualContext, useInternet, useRepo, repoPath } = options
+  const { question, manualContext, useInternet, useRepo, repoPath, userId } = options
 
   const sources: ContextSource[] = []
 
@@ -38,7 +39,8 @@ export async function loadContext(options: LoadContextOptions): Promise<LoadedCo
   // 2. Internet search (if enabled)
   if (useInternet) {
     try {
-      const internetContent = await searchInternet(question)
+      // Pass manual context and userId to improve search query optimization and deduct credits
+      const internetContent = await searchInternet(question, manualContext, userId)
       if (internetContent) {
         sources.push({
           type: 'internet',
@@ -80,41 +82,222 @@ export async function loadContext(options: LoadContextOptions): Promise<LoadedCo
 // INTERNET SEARCH
 // ============================================================================
 
-const SEARCH_QUERY_PROMPT = `
-Genera una query de busqueda en Google para responder esta pregunta de negocio.
-La query debe ser concisa (3-5 palabras) y en ingles para mejores resultados.
+const SEARCH_QUERY_PROMPT = `Eres un experto agente de búsqueda en internet. Tu trabajo es transformar preguntas de negocio en queries de búsqueda OPTIMIZADAS que obtengan resultados precisos y relevantes.
 
-Pregunta:
-`
+PRINCIPIOS CLAVE:
+1. **Identifica el tipo de información buscada**:
+   - Estadísticas/números → "statistics", "data", "market size", "number of"
+   - Tendencias → "trends", "forecast", "growth", "2024", "2025"
+   - Mejores prácticas → "best practices", "how to", "guide"
+   - Comparaciones → "vs", "comparison", "difference between"
+   - Casos de estudio → "case study", "example", "success story"
 
-export async function searchInternet(question: string): Promise<string | null> {
+2. **Extrae entidades específicas**:
+   - Industria: "SaaS", "e-commerce", "healthcare", "fintech"
+   - Ubicación: "Mexico", "Spain", "US", "Europe"
+   - Tamaño: "startup", "SMB", "enterprise"
+   - Métricas: "CAC", "LTV", "churn rate", "MRR"
+
+3. **Optimiza para motores de búsqueda**:
+   - Usa términos que Google entiende bien
+   - Incluye años cuando sea relevante (2024, 2025)
+   - Añade palabras clave de búsqueda: "statistics", "data", "report", "study"
+   - Usa comillas para frases exactas cuando sea necesario
+
+4. **Sé específico y conciso**:
+   - 5-10 palabras máximo
+   - En inglés para mejores resultados globales
+   - Elimina palabras innecesarias (artículos, preposiciones genéricas)
+
+EJEMPLOS DE TRANSFORMACIÓN INTELIGENTE:
+
+Pregunta: "¿Cuántas empresas de bebidas hay en México?"
+Query: "number of beverage companies Mexico statistics"
+
+Pregunta: "¿Cuáles son las tendencias de mercado en SaaS?"
+Query: "SaaS market trends 2024 2025 forecast"
+
+Pregunta: "¿Qué precio debería poner a mi producto?"
+Query: "SaaS pricing benchmarks by tier 2024"
+
+Pregunta: "¿Cómo contratar desarrolladores?"
+Query: "software developer hiring best practices 2024"
+
+Pregunta: "¿Debo lanzar mi producto ahora o esperar?"
+Query: "product launch timing best practices market conditions"
+
+Pregunta: "¿Cuál es el tamaño del mercado de IA?"
+Query: "artificial intelligence market size statistics 2024"
+
+Pregunta: "¿Qué porcentaje de startups fallan?"
+Query: "startup failure rate statistics by industry"
+
+Pregunta: "¿Cuánto cuesta adquirir un cliente en SaaS?"
+Query: "SaaS customer acquisition cost CAC benchmarks 2024"
+
+REGLAS FINALES:
+- Si la pregunta menciona números/estadísticas → incluye "statistics", "data", "number of"
+- Si la pregunta menciona tendencias → incluye "trends", "forecast", año actual
+- Si la pregunta menciona ubicación → incluye el país/región
+- Si la pregunta menciona industria → incluye el término de la industria
+- SIEMPRE optimiza para obtener datos concretos y cuantificables
+
+Responde SOLO con la query optimizada, sin explicaciones adicionales.`
+
+export async function searchInternet(
+  question: string,
+  context?: string,
+  userId?: string
+): Promise<string | null> {
+  // ============================================================================
+  // CREDIT DEDUCTION (if userId provided)
+  // ============================================================================
+  if (userId) {
+    const { deductCredits, hasSufficientCredits, convertUsdToCredits } = await import('./billing/credit-transactions')
+    
+    // Costo: Serper API ~$0.005 por búsqueda
+    // Créditos: ⌈($0.005 × 1.75) / 0.01⌉ = ⌈0.875⌉ = 1 crédito por búsqueda
+    const INTERNET_SEARCH_COST_USD = 0.005
+    const INTERNET_SEARCH_CREDITS = convertUsdToCredits(INTERNET_SEARCH_COST_USD) // 1 crédito
+    
+    // Verificar créditos suficientes ANTES de buscar
+    const hasCredits = await hasSufficientCredits(userId, INTERNET_SEARCH_CREDITS)
+    if (!hasCredits) {
+      quoorumLogger.warn('[Internet Search] Insufficient credits', {
+        userId,
+        required: INTERNET_SEARCH_CREDITS,
+        question: question.substring(0, 50),
+      })
+      return null // No hacer búsqueda si no hay créditos
+    }
+    
+    // Deduct credits atomically BEFORE performing search
+    const deductionResult = await deductCredits(
+      userId,
+      INTERNET_SEARCH_CREDITS,
+      undefined, // No debateId for standalone internet search
+      'debate_creation', // Source: internet search during context loading
+      'Internet search for context enrichment'
+    )
+    
+    if (!deductionResult.success) {
+      quoorumLogger.error('[Internet Search] Credit deduction failed', {
+        userId,
+        credits: INTERNET_SEARCH_CREDITS,
+        error: deductionResult.error,
+      })
+      return null // No hacer búsqueda si falla la deducción
+    }
+    
+    quoorumLogger.info('[Internet Search] Credits deducted', {
+      userId,
+      credits: INTERNET_SEARCH_CREDITS,
+      costUsd: INTERNET_SEARCH_COST_USD,
+      remainingCredits: deductionResult.remainingCredits,
+    })
+  }
+
   const client = getAIClient()
 
-  // Generate search query
-  const queryResponse = await client.generate(SEARCH_QUERY_PROMPT + question, {
-    modelId: 'gpt-4o-mini',
-    temperature: 0.3,
-    maxTokens: 50,
+  // Build enhanced prompt with context if available
+  const enhancedPrompt = context
+    ? `${SEARCH_QUERY_PROMPT}
+
+CONTEXTO ADICIONAL:
+${context}
+
+PREGUNTA:
+${question}
+
+Genera la query optimizada considerando tanto la pregunta como el contexto proporcionado.`
+    : `${SEARCH_QUERY_PROMPT}
+
+PREGUNTA:
+${question}`
+
+  // Generate optimized search query using AI
+  const queryResponse = await client.generate(enhancedPrompt, {
+    modelId: 'gemini-2.0-flash-exp', // Free tier, más eficiente
+    systemPrompt: 'You are an expert search agent. Transform business questions into highly optimized search queries that retrieve precise, actionable data. Focus on extracting specific entities, metrics, locations, and industry terms.',
+    temperature: 0.2, // Más determinístico para queries consistentes
+    maxTokens: 50, // Queries deben ser cortas
   })
 
-  const searchQuery = queryResponse.text.trim()
+  // Clean and extract query (remove quotes, extra whitespace, etc.)
+  let searchQuery = queryResponse.text.trim()
+  
+  // Remove surrounding quotes if present
+  searchQuery = searchQuery.replace(/^["']|["']$/g, '')
+  
+  // Remove "Query:" or similar prefixes
+  searchQuery = searchQuery.replace(/^(query|search|busqueda):\s*/i, '')
+  
+  // Final trim
+  searchQuery = searchQuery.trim()
 
-  // Use Serper integration
+  // Log the optimization for debugging
+  quoorumLogger.info('[Internet Search] Query optimized', {
+    original: question.substring(0, 100),
+    optimized: searchQuery,
+    hasContext: !!context,
+    userId: userId || 'anonymous',
+  })
+
+  // Try Google Custom Search API first, then Serper as fallback, then AI-only
   try {
-    const { searchWeb } = await import('./integrations/serper')
-    const results = await searchWeb(searchQuery, { num: 5 })
+    const { GoogleSearchAPI } = await import('./integrations/google-search')
+    const { SerperAPI } = await import('./integrations/serper')
+    
+    const useGoogleSearch = GoogleSearchAPI.isConfigured()
+    const useSerper = SerperAPI.isConfigured()
 
-    if (results.length === 0) {
-      return `[Búsqueda: "${searchQuery}"] - No se encontraron resultados`
+    // Priority 1: Google Custom Search API (official Google API)
+    if (useGoogleSearch) {
+      try {
+        const results = await GoogleSearchAPI.searchWebCached(searchQuery, { num: 5 })
+        if (results.length > 0) {
+          const snippets = results.map((r) => `${r.title}:\n${r.snippet}\n(${r.link})`).join('\n\n')
+          return `[Búsqueda: "${searchQuery}"]\n\n${snippets}`
+        } else if (useSerper) {
+          // Google returned empty, try Serper as fallback
+          quoorumLogger.debug('Google returned no results, trying Serper fallback', { query: searchQuery })
+        }
+      } catch (googleError) {
+        // Google failed, try Serper as fallback
+        quoorumLogger.warn('Google Custom Search failed, trying Serper fallback', {
+          error: googleError instanceof Error ? googleError.message : String(googleError),
+          query: searchQuery,
+        })
+      }
     }
 
-    const snippets = results.map((r) => `${r.title}:\n${r.snippet}\n(${r.link})`).join('\n\n')
-    return `[Búsqueda: "${searchQuery}"]\n\n${snippets}`
+    // Priority 2: Serper API (fallback if Google not configured or failed)
+    if (useSerper) {
+      try {
+        const results = await SerperAPI.searchWebCached(searchQuery, { num: 5 })
+        if (results.length > 0) {
+          const snippets = results.map((r) => `${r.title}:\n${r.snippet}\n(${r.link})`).join('\n\n')
+          return `[Búsqueda: "${searchQuery}"]\n\n${snippets}`
+        }
+      } catch (serperError) {
+        quoorumLogger.warn('Serper API also failed', {
+          error: serperError instanceof Error ? serperError.message : String(serperError),
+          query: searchQuery,
+        })
+      }
+    }
+
+    // No search APIs configured or both failed
+    if (!useGoogleSearch && !useSerper) {
+      return `[Búsqueda: "${searchQuery}"]\nNota: No hay API de búsqueda configurada. Añade GOOGLE_CUSTOM_SEARCH_API_KEY o SERPER_API_KEY.`
+    }
+    
+    return `[Búsqueda: "${searchQuery}"] - No se encontraron resultados`
   } catch (error) {
-    quoorumLogger.warn('Serper not available', {
+    quoorumLogger.warn('Web search not available', {
       error: error instanceof Error ? error.message : String(error),
     })
-    return `[Búsqueda: "${searchQuery}"]\nNota: SERPER_API_KEY no configurada. Añade contexto manualmente.`
+    return `[Búsqueda: "${searchQuery}"]\nNota: Error en búsqueda web. Añade contexto manualmente.`
   }
 }
 

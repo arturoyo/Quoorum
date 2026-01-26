@@ -39,11 +39,14 @@ export {
 export {
   ULTRA_OPTIMIZED_PROMPT,
   TRANSLATION_PROMPT,
+  INPUT_COMPRESSION_PROMPT,
   estimateTokens,
   EMOJI_MAP,
   REVERSE_EMOJI_MAP,
   ROLE_EMOJI,
   getRoleEmoji,
+  compressInput,
+  decompressOutput,
 } from './ultra-language'
 
 // Runner (re-exported from separate file)
@@ -56,6 +59,9 @@ export type { RunDebateOptions as DynamicDebateOptions, CorporateContext } from 
 // Dynamic Expert System
 export { analyzeQuestion } from './question-analyzer'
 export { matchExperts, validateMatching } from './expert-matcher'
+export { matchExpertsWithAI } from './ai-expert-matcher'
+export { matchDepartmentsWithAI } from './ai-department-matcher'
+export { matchWorkersWithAI } from './ai-worker-matcher'
 export { EXPERT_DATABASE, getExpertsByIds, getExpertsByExpertise, getAllExperts, getExpert } from './expert-database'
 export { analyzeDebateQuality, detectPrematureConsensus, summarizeQuality } from './quality-monitor'
 export {
@@ -67,10 +73,38 @@ export {
   wasInterventionEffective,
 } from './meta-moderator'
 
+// Cost Control (iMAD)
+export { shouldStopDebate, getIMADConfigForTier, DEFAULT_IMAD_CONFIG } from './cost-control/imad'
+export type { IMADConfig, IMADResult } from './cost-control/imad'
+
+// Governance (Decision Evidence)
+export {
+  generateDecisionEvidence,
+  verifyDebateIntegrity,
+  exportEvidenceAsJSON,
+  exportEvidenceAsCertificate,
+} from './governance/decision-evidence'
+export type { DecisionEvidence, AuditEvent, ComplianceMapping } from './governance/decision-evidence'
+
+// Voting Systems
+export {
+  calculateQuadraticVote,
+  calculatePointsVote,
+  DEFAULT_QUADRATIC_VOTING_CONFIG,
+} from './voting/quadratic-voting'
+export type {
+  QuadraticVote,
+  QuadraticVotingConfig,
+  QuadraticVotingResult,
+} from './voting/quadratic-voting'
+
 // Dynamic System Types
 export type { QuestionAnalysis, KnowledgeArea, Topic } from './question-analyzer'
 export type { ExpertProfile } from './expert-database'
 export type { ExpertMatch, MatchingOptions } from './expert-matcher'
+export type { AIExpertMatch, AIExpertMatchingOptions } from './ai-expert-matcher'
+export type { AIDepartmentMatch, AIDepartmentMatchingOptions } from './ai-department-matcher'
+export type { AIWorkerMatch, AIWorkerMatchingOptions } from './ai-worker-matcher'
 export type { QualityAnalysis, QualityIssue, MonitoringOptions } from './quality-monitor'
 export type { ModeratorIntervention, ModerationType } from './meta-moderator'
 
@@ -218,11 +252,25 @@ export { QuoorumWebSocketServer as ForumWebSocketServer } from './websocket-serv
 export type { DebateUpdate } from './websocket-server'
 
 // PDF Export
-// TODO: Temporarily commented out due to html-pdf-node causing build issues in Next.js
-// This uses puppeteer and other Node-only dependencies that cannot be bundled for the browser
-// Import directly from '@quoorum/quoorum/pdf-export' when needed in server-only contexts
-// export { generateDebatePDF, generateDebateMarkdown } from './pdf-export'
-// export type { PDFExportOptions } from './pdf-export'
+export { generateDebatePDF, generateDebateMarkdown } from './pdf-export'
+export type { PDFExportOptions } from './pdf-export'
+
+// Argument Intelligence
+export {
+  buildArgumentTree,
+  filterNodesByExpert,
+  filterNodesByType,
+  filterNodesByStrength,
+} from './argument-intelligence'
+export type { ArgumentNode, ArgumentEdge, ArgumentTree } from './argument-intelligence'
+
+// Consensus Timeline
+export { generateConsensusTimeline } from './visualizations/consensus-timeline'
+export type { ConsensusPoint } from './visualizations/consensus-timeline'
+
+// Advanced Export
+export { exportDebate } from './export'
+export type { ExportFormat, ExportOptions } from './export'
 
 // Notifications
 export {
@@ -339,12 +387,21 @@ export type {
 export {
   deductCredits,
   refundCredits,
+  addCredits,
   getCreditBalance,
   hasSufficientCredits,
 } from './billing/credit-transactions'
-export type { CreditDeductionResult, CreditRefundResult } from './billing/credit-transactions'
+export type { CreditDeductionResult, CreditRefundResult, CreditAddResult } from './billing/credit-transactions'
 
 export { convertUsdToCredits, trackCredits, CREDIT_MULTIPLIER, USD_PER_CREDIT } from './analytics/cost'
+export {
+  estimateContextPhaseCost,
+  estimateExpertSelectionPhaseCost,
+  estimateStrategyPhaseCost,
+  estimateDebateExecutionCost,
+  calculateTotalAccumulatedCost,
+} from './analytics/phase-cost-estimator'
+export type { PhaseCostConfig, PhaseCostEstimate } from './analytics/phase-cost-estimator'
 
 // ============================================================================
 // NARRATIVE SYSTEM (Theme Engine & Dynamic Identities)

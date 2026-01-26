@@ -1,5 +1,5 @@
 import type { ExpertProfile } from './expert-database'
-import { quoorumLogger } from './quoorum-logger'
+import { quoorumLogger } from './logger'
 import type { QualityAnalysis } from './quality-monitor'
 import type { DebateResult } from './types'
 
@@ -504,24 +504,7 @@ async function htmlToPDF(html: string): Promise<Buffer> {
       return Buffer.from(pdf)
     }
 
-    // Fallback: try html-pdf-node
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Dynamic import with type assertion for optional dependency
-    const htmlPdfModule = await import('html-pdf-node' as unknown as string).catch(() => null)
-
-    if (htmlPdfModule) {
-      const htmlPdf = htmlPdfModule as {
-        generatePdf: (
-          file: { content: string },
-          options: { format: string; printBackground: boolean }
-        ) => Promise<Buffer>
-      }
-      const file = { content: html }
-      const options = { format: 'A4', printBackground: true }
-      const pdfBuffer = await htmlPdf.generatePdf(file, options)
-      return pdfBuffer
-    }
-
-    // Last resort: return HTML as buffer (client can convert)
+    // No puppeteer available - return HTML as buffer (client can convert)
     quoorumLogger.warn('No PDF library available, returning HTML')
     return Buffer.from(html, 'utf-8')
   } catch (error) {

@@ -7,6 +7,7 @@
 import { getAIClient } from '@quoorum/ai'
 import { QUOORUM_AGENTS, getAgentName } from './agents'
 import type { DebateMessage, RankedOption, ConsensusResult } from './types'
+import { quoorumLogger } from './logger'
 
 // ============================================================================
 // CONSENSUS DETECTION
@@ -21,7 +22,7 @@ export async function checkConsensus(
   // Extract options and analyze debate
   const options = await rankOptions(messages, question)
 
-  console.log(`[Consensus Check] Round ${round}/${maxRounds}:`, {
+  quoorumLogger.info(`[Consensus Check] Round ${round}/${maxRounds}`, {
     optionsFound: options.length,
     topOption: options[0]?.option,
     topSuccessRate: options[0]?.successRate,
@@ -63,13 +64,13 @@ export async function checkConsensus(
 
   const consensusScore = calculateConsensusScore(options)
 
-  console.log(`[Consensus Decision] Round ${round}/${maxRounds}:`, {
+  quoorumLogger.info(`[Consensus Decision] Round ${round}/${maxRounds}`, {
     hasStrongConsensus,
     hasLargeGap,
     hasMinimumRounds: `${hasMinimumRounds} (need >= ${Math.min(3, maxRounds)})`,
     reachedMaxRounds,
     hasConsensus,
-    decision: hasConsensus ? '🛑 STOP' : '➡️ CONTINUE',
+    decision: hasConsensus ? 'STOP' : 'CONTINUE',
   })
 
   return {
@@ -246,7 +247,7 @@ export async function rankOptions(messages: DebateMessage[], question: string): 
     // Handle decision type: return sorted options
     return parsed.options.sort((a, b) => b.successRate - a.successRate)
   } catch (error) {
-    console.error('[Consensus] Error parsing ranking response:', error)
+    quoorumLogger.error('[Consensus] Error parsing ranking response', error instanceof Error ? error : undefined)
     // If JSON parsing fails, return empty
     return []
   }

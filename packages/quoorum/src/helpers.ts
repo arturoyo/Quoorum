@@ -89,7 +89,9 @@ export interface ExpertPreview {
  */
 export async function getRecommendedExperts(question: string): Promise<ExpertPreview[]> {
   const analysis = await analyzeQuestion(question)
-  const matches = matchExperts(analysis)
+  const matches = matchExperts(analysis, {
+    companyOnly: true, // Solo seleccionar expertos de empresa
+  })
 
   return matches.map((match) => ({
     id: match.expert.id,

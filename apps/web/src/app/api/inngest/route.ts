@@ -20,6 +20,10 @@ import {
   nextjsAutoHealer,
   nextjsAutoHealerManual,
 } from '@quoorum/workers/functions/nextjs-auto-healer'
+import {
+  assignMonthlyCredits,
+  checkMonthlyCreditsRenewals,
+} from '@quoorum/workers/functions/monthly-credits-assignment'
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -33,5 +37,7 @@ export const { GET, POST, PUT } = serve({
     quoorumExpertPerformanceUpdate,
     nextjsAutoHealer,
     nextjsAutoHealerManual,
+    assignMonthlyCredits,
+    checkMonthlyCreditsRenewals,
   ],
 })

@@ -5,15 +5,16 @@
  * quality monitoring y meta-moderación
  */
 
-import { getAIClient } from '@quoorum/ai'
+import { getAIClient, retryWithBackoff } from '@quoorum/ai'
 import { quoorumLogger } from './logger'
-import { QUOORUM_AGENTS, AGENT_ORDER, estimateAgentCost } from './agents'
-import { estimateTokens, getRoleEmoji } from './ultra-language'
+import { QUOORUM_AGENTS, AGENT_ORDER, estimateAgentCost, getAgentsByTier } from './agents'
+import { estimateTokens, getRoleEmoji, compressInput, decompressOutput } from './ultra-language'
 import { checkConsensus } from './consensus'
 import { analyzeQuestion } from './question-analyzer'
 import { matchExperts } from './expert-matcher'
 import { analyzeDebateQuality } from './quality-monitor'
 import { shouldIntervene, generateIntervention, getInterventionFrequency } from './meta-moderator'
+import { shouldStopDebate, getIMADConfigForTier, type IMADConfig } from './cost-control/imad'
 import type {
   DebateMessage,
   DebateRound,
@@ -23,6 +24,7 @@ import type {
   AgentConfig,
 } from './types'
 import type { ExpertProfile } from './expert-database'
+import { getExpertProviderConfig } from './config/expert-config'
 
 // ============================================================================
 // CONSTANTS
@@ -60,6 +62,7 @@ export interface RunDebateOptions {
   executionStrategy?: 'sequential' | 'parallel' // Estrategia de ejecución de agentes dentro de una ronda
   selectedExpertIds?: string[] // IDs de expertos personalizados seleccionados por el usuario
   selectedDepartmentIds?: string[] // NEW: IDs de departamentos corporativos seleccionados
+  userTier?: 'free' | 'starter' | 'pro' | 'business' | 'enterprise' // User subscription tier (for model selection)
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
   onQualityCheck?: (quality: { round: number; score: number; issues: string[] }) => Promise<void>
@@ -104,7 +107,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       question,
       forceMode,
       options.selectedExpertIds,
-      options.selectedDepartmentIds
+      options.selectedDepartmentIds,
+      options.userTier || 'free'
     )
     quoorumLogger.info('🎯 Debate Mode Determined', {
       mode: debateMode.mode,
@@ -131,6 +135,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       onIntervention,
       onProgress,
       checkDebateState: options.checkDebateState,
+      userTier: options.userTier || 'free', // Pass user tier for iMAD config
     })
 
     quoorumLogger.info('Debate completed', {
@@ -196,7 +201,8 @@ async function determineDebateMode(
   question: string,
   forceMode?: 'static' | 'dynamic',
   selectedExpertIds?: string[],
-  selectedDepartmentIds?: string[]
+  selectedDepartmentIds?: string[],
+  userTier: 'free' | 'starter' | 'pro' | 'business' | 'enterprise' = 'free'
 ): Promise<DebateMode> {
   // Always analyze question to get expert matches
   const analysis = await analyzeQuestion(question)
@@ -233,8 +239,7 @@ async function determineDebateMode(
           perspective: dept.description || dept.departmentContext.substring(0, 200),
           systemPrompt: finalPrompt, // Layer 1 (Technical) + Layer 4 (Personality)
           temperature: parseFloat(dept.temperature || '0.7'),
-          provider: 'google', // Default provider for departments
-          modelId: 'gemini-2.0-flash-exp',
+          ...getExpertProviderConfig(dept.id, dept.type), // Use centralized config
         }
 
         return {
@@ -318,6 +323,7 @@ async function determineDebateMode(
       maxExperts: 5, // Limit to 5 to avoid too many agents per round
       minScore: 30, // Only include experts with decent match score
       alwaysIncludeCritic: false, // We already have core critic agent
+      companyOnly: true, // Solo seleccionar expertos de empresa (SaaS, VC, General)
     })
   }
 
@@ -327,13 +333,16 @@ async function determineDebateMode(
     .slice(0, 5) // Limit to top 5 experts
     .map((m) => expertToAgentConfig(m.expert))
 
+  // Get tier-based agents (models configured for user tier)
+  const tierAgents = getAgentsByTier(userTier)
+
   // Combine agents: core + experts
   // We'll place experts between optimizer and critic to give them early voice
   const combinedAgents: AgentConfig[] = []
   const combinedOrder: string[] = []
 
-  // Start with Optimista (fixed)
-  combinedAgents.push(QUOORUM_AGENTS.optimizer)
+  // Start with Optimista (fixed, using tier-based config)
+  combinedAgents.push(tierAgents.optimizer)
   combinedOrder.push('optimizer')
 
   // Add expert specialists (inserted after optimizer)
@@ -346,15 +355,15 @@ async function determineDebateMode(
     }
   })
 
-  // Continue with core agents (skip optimizer as we already added it)
-  combinedAgents.push(QUOORUM_AGENTS.critic)
+  // Continue with core agents (skip optimizer as we already added it, using tier-based config)
+  combinedAgents.push(tierAgents.critic)
   combinedOrder.push('critic')
 
-  combinedAgents.push(QUOORUM_AGENTS.analyst)
+  combinedAgents.push(tierAgents.analyst)
   combinedOrder.push('analyst')
 
-  // Always end with Synthesizer (fixed at the end)
-  combinedAgents.push(QUOORUM_AGENTS.synthesizer)
+  // Always end with Synthesizer (fixed at the end, using tier-based config)
+  combinedAgents.push(tierAgents.synthesizer)
   combinedOrder.push('synthesizer')
 
   const totalAgents = combinedAgents.length
@@ -407,8 +416,11 @@ async function runStaticDebate(options: {
   for (let roundNum = 1; roundNum <= maxRounds; roundNum++) {
     const roundMessages: DebateMessage[] = []
 
+    // Use tier-based agents (default to free tier if not specified)
+    const tierAgents = getAgentsByTier('free') // Static mode uses free tier by default
+
     for (const agentKey of AGENT_ORDER) {
-      const agent = QUOORUM_AGENTS[agentKey]
+      const agent = tierAgents[agentKey] || QUOORUM_AGENTS[agentKey]
       if (!agent) continue
 
       const prompt = buildAgentPrompt(agent, question, contextPrompt, rounds, roundMessages)
@@ -484,6 +496,8 @@ async function runDynamicDebate(options: {
   onIntervention?: (intervention: { round: number; type: string; prompt: string }) => Promise<void>
   onProgress?: (progress: { phase: string; message: string; progress: number; currentRound?: number; totalRounds?: number }) => Promise<void>
   checkDebateState?: () => Promise<{ isPaused?: boolean; forceConsensus?: boolean; additionalContext?: string[] }>
+  userTier?: 'free' | 'starter' | 'pro' | 'business' | 'enterprise' // User tier for iMAD config
+  imadConfig?: IMADConfig // Optional custom iMAD config
 }): Promise<DebateResult> {
   const {
     sessionId,
@@ -500,7 +514,12 @@ async function runDynamicDebate(options: {
     onIntervention,
     onProgress,
     checkDebateState,
+    userTier = 'free',
+    imadConfig,
   } = options
+
+  // Get iMAD config (custom or tier-based)
+  const madConfig = imadConfig || getIMADConfigForTier(userTier)
 
   const rounds: DebateRound[] = []
   let totalCost = 0
@@ -709,6 +728,33 @@ async function runDynamicDebate(options: {
       await onRoundComplete(round)
     }
 
+    // ============================================================================
+    // iMAD: Intelligent Multi-Agent Debate Trigger
+    // Check if debate should stop early based on cost, consensus, or stagnation
+    // ============================================================================
+    const currentDebateState: DebateResult = {
+      sessionId,
+      status: 'running',
+      rounds,
+      finalRanking: consensusResult?.topOptions ?? [],
+      totalCostUsd: totalCost,
+      totalRounds: rounds.length,
+      consensusScore: consensusResult?.consensusScore ?? 0,
+    }
+
+    const imadResult = shouldStopDebate(currentDebateState, madConfig)
+
+    if (imadResult.shouldStop) {
+      quoorumLogger.info('[iMAD] Stopping debate early', {
+        sessionId,
+        round: roundNum,
+        reason: imadResult.reason,
+        metrics: imadResult.metrics,
+      })
+      break
+    }
+
+    // Original consensus check (keep for backward compatibility)
     if (consensusResult.hasConsensus || shouldForceConsensus) {
       if (shouldForceConsensus) {
         quoorumLogger.info(`Force consensus triggered at round ${roundNum}`, { sessionId })
@@ -745,14 +791,62 @@ async function generateAgentResponse(input: GenerateAgentResponseInput): Promise
   try {
     const client = getAIClient()
 
-    const response = await client.generate(prompt, {
-      modelId: agent.model,
-      temperature: agent.temperature,
-      maxTokens: MAX_TOKENS_PER_MESSAGE,
-    })
+    // ═══════════════════════════════════════════════════════════
+    // INPUT COMPRESSION: Comprimir prompt antes de enviar a IA
+    // ═══════════════════════════════════════════════════════════
+    const originalTokens = estimateTokens(prompt)
+    const compressedPrompt = originalTokens > 200 
+      ? await compressInput(prompt) // Solo comprimir si es largo (>200 tokens)
+      : prompt
 
-    const content = response.text.trim()
-    const tokensUsed = response.usage?.totalTokens ?? estimateTokens(content)
+    const compressedTokens = estimateTokens(compressedPrompt)
+    const tokensSaved = originalTokens - compressedTokens
+
+    if (tokensSaved > 50) {
+      quoorumLogger.debug(`[Compression] Input compressed: ${originalTokens} → ${compressedTokens} tokens (saved ${tokensSaved})`, {
+        sessionId,
+        agentName: agent.name,
+        round,
+      })
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // RETRY LOGIC: Handle transient errors (network, timeout, etc.)
+    // ═══════════════════════════════════════════════════════════
+    const response = await retryWithBackoff(
+      async () => {
+        return await client.generate(compressedPrompt, {
+          modelId: agent.model,
+          temperature: agent.temperature,
+          maxTokens: MAX_TOKENS_PER_MESSAGE,
+        })
+      },
+      {
+        maxRetries: 3,
+        initialDelay: 1000, // 1s
+        maxDelay: 16000, // 16s
+        backoffMultiplier: 2,
+        jitter: true, // ±25% random variation
+        retryableErrors: [
+          'ECONNRESET',
+          'ETIMEDOUT',
+          'ENOTFOUND',
+          'ECONNREFUSED',
+          'timeout',
+          'network',
+          'connection',
+        ],
+      }
+    )
+
+    // ═══════════════════════════════════════════════════════════
+    // OUTPUT DECOMPRESSION: Descomprimir respuesta para mostrar al usuario
+    // ═══════════════════════════════════════════════════════════
+    const compressedContent = response.text.trim()
+    const expandedContent = await decompressOutput(compressedContent)
+
+    // Calcular tokens usados (usar el comprimido para cálculo de costo)
+    const tokensUsed = response.usage?.totalTokens ?? estimateTokens(compressedContent)
     const costUsd = estimateAgentCost(agent, tokensUsed)
 
     return {
@@ -761,7 +855,8 @@ async function generateAgentResponse(input: GenerateAgentResponseInput): Promise
       round,
       agentKey: agent.key,
       agentName: agent.name,
-      content,
+      content: expandedContent, // Mostrar versión expandida al usuario
+      compressedContent, // Guardar versión comprimida para análisis
       isCompressed: true,
       tokensUsed,
       costUsd,

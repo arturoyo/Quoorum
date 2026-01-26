@@ -1,21 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { QuoorumLogo } from '@/components/ui/quoorum-logo'
+import { QuoorumLogo, QuoorumLogoWithText } from '@/components/ui/quoorum-logo'
 import { createClient } from '@/lib/supabase/client'
-import { NotificationBell } from '@/components/quoorum/notifications-center'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { NotificationsCenter } from '@/components/quoorum/notifications-center'
+import { NotificationBell, NotificationsSidebar } from '@/components/quoorum/notifications-sidebar'
 import { SettingsModal } from '@/components/settings/settings-modal'
+import { AdminModal } from '@/components/admin/admin-modal'
 import { api } from '@/lib/trpc/client'
+import { cn } from '@/lib/utils'
+import { logger } from '@/lib/logger'
+import { classifyTRPCError } from '@/lib/trpc/error-handler'
+import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
-import { Plus, Settings, Menu, X, History } from 'lucide-react'
+import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff } from 'lucide-react'
+import { ThemeDropdown } from '@/components/theme'
+import { CreditCounter } from '@/components/quoorum/credit-counter'
+import { AppFooter } from '@/components/layout/app-footer'
 import type { User } from '@supabase/supabase-js'
 
 
@@ -39,29 +41,117 @@ export function AppHeader({
   onSettingsOpen,
   settingsInitialSection,
 }: AppHeaderProps) {
+  const router = useRouter()
   const pathname = usePathname()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [user, setUser] = useState<User | null>(null)
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
-  const [isLogoHovered, setIsLogoHovered] = useState(false)
+  const [adminModalOpen, setAdminModalOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  const [notificationsSidebarOpen, setNotificationsSidebarOpen] = useState(false)
+  const [showDebugPanel, setShowDebugPanel] = useState(false) // Estado para mostrar/ocultar panel de debug
+
+  // Fix hydration mismatch by only rendering Popover on client
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // Verificar autenticación de forma inmediata y reactiva
+  useEffect(() => {
+    let mounted = true
+    const supabase = createClient()
+
+    async function checkAuth() {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (mounted) {
+          setIsAuthenticated(!!user && !error)
+          setUser(user)
+          setIsCheckingAuth(false)
+        }
+      } catch (error) {
+        if (mounted) {
+          setIsAuthenticated(false)
+          setUser(null)
+          setIsCheckingAuth(false)
+        }
+      }
+    }
+
+    // Verificar inmediatamente
+    checkAuth()
+
+    // Escuchar cambios de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setIsAuthenticated(!!session?.user)
+        setUser(session?.user ?? null)
+        setIsCheckingAuth(false)
+      }
+    })
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [variant])
 
   // Get current user role (to show admin menu)
-  const { data: currentUser } = api.users.getMe.useQuery(
+  // Only fetch when user is authenticated and auth check is complete to prevent 401 errors in console
+  const { data: currentUser, isLoading: isLoadingUser, error: userError } = api.users.getMe.useQuery(
     undefined,
-    { 
-      enabled: variant === 'app' && isAuthenticated,
+    {
+      enabled: variant === 'app' && !isCheckingAuth && isAuthenticated, // Only fetch when auth check is complete and user is authenticated
       retry: false,
+      onError: (error) => {
+        // Silenciar errores de autenticación esperados (ya manejados por enabled)
+        if (error.data?.code === 'UNAUTHORIZED' && (!isAuthenticated || isCheckingAuth)) {
+          return // No loggear errores esperados
+        }
+      },
     }
   )
 
+  // Debug: Log admin status (solo cuando no es un error esperado)
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setIsAuthenticated(!!user)
-      setUser(user)
-    })
-  }, [variant])
+    // No loggear durante la verificación inicial o si es un error de autenticación esperado
+    if (isCheckingAuth) return
+    if (userError?.data?.code === 'UNAUTHORIZED' && !isAuthenticated) return
+
+    logger.debug('[AppHeader] Auth state:', {
+      variant,
+      isAuthenticated,
+      isLoadingUser,
+      hasCurrentUser: !!currentUser,
+      userError: userError?.message,
+      userErrorCode: userError?.data?.code,
+    });
+
+    if (currentUser) {
+      logger.debug('[AppHeader] Current user:', {
+        id: currentUser.id,
+        email: currentUser.email,
+        role: currentUser.role,
+        isAdmin: currentUser.isAdmin,
+      })
+    } else if (userError && userError.data?.code !== 'UNAUTHORIZED') {
+      // Clasificar el error para determinar si debe ser silenciado
+      const errorInfo = classifyTRPCError(userError)
+      
+      // Solo loggear errores inesperados (no errores de autenticación, payment-required ni network)
+      if (errorInfo.type !== 'unauthorized' && 
+          errorInfo.type !== 'payment-required' && 
+          errorInfo.type !== 'network') {
+        logger.error('[AppHeader] User query failed:', {
+          message: userError.message,
+          code: userError.data?.code,
+          httpStatus: userError.data?.httpStatus,
+        });
+      }
+    }
+  }, [currentUser, isAuthenticated, isLoadingUser, variant, userError, isCheckingAuth])
 
   const handleSettingsClick = () => {
     if (onSettingsOpen) {
@@ -73,100 +163,44 @@ export function AppHeader({
 
   if (variant === 'landing') {
     return (
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-2xl bg-black/50">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--theme-landing-border)] backdrop-blur-2xl bg-[var(--theme-landing-glass)] transition-colors duration-300">
         <div className="container mx-auto px-4">
-          <div className="flex h-20 items-center justify-between">
-            <Link 
-              href="/" 
-              className="flex items-center gap-2 group"
-              onMouseEnter={() => setIsLogoHovered(true)}
-              onMouseLeave={() => setIsLogoHovered(false)}
-            >
-              {!isLogoHovered ? (
-                <svg
-                  viewBox="0 0 400 120"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-32 sm:w-40 md:w-48 h-auto transition-opacity"
-                >
-                  <defs>
-                    <linearGradient id="gradQ" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#00c6ff" stopOpacity="1" />
-                      <stop offset="100%" stopColor="#0072ff" stopOpacity="1" />
-                    </linearGradient>
-                    <filter id="shadow" x="-20%" y="-20%" width="150%" height="150%">
-                      <feDropShadow dx="2" dy="3" stdDeviation="3" floodOpacity="0.2"/>
-                    </filter>
-                  </defs>
+          <div className="flex h-20 items-center">
+            {/* Logo - Columna izquierda */}
+            <div className="flex-1">
+              <QuoorumLogoWithText
+                href="/"
+                iconSize={192}
+                showGradient={true}
+                showText={false}
+                className="transition-opacity group-hover:opacity-80"
+              />
+            </div>
 
-                  <g filter="url(#shadow)">
-                    {/* Q circle - más grande y visible */}
-                    <path d="M50,20 A35,35 0 1,1 49.9,20 Z" fill="url(#gradQ)" stroke="#0072ff" strokeWidth="2" />
-                    {/* Q tail - más pronunciada */}
-                    <path d="M80,80 L95,95 L70,85 Z" fill="#0072ff" />
-                    {/* 3 puntos centrados en el medio del círculo */}
-                    <circle cx="40" cy="50" r="4" fill="white" />
-                    <circle cx="50" cy="50" r="4" fill="white" />
-                    <circle cx="60" cy="50" r="4" fill="white" />
-                  </g>
-
-                  <text x="110" y="75" fontFamily="Segoe UI, Roboto, Helvetica, Arial, sans-serif" fontWeight="800" fontSize="52" fill="#1A1A1B" letterSpacing="-1">
-                    uoorum
-                  </text>
-                </svg>
-              ) : (
-                <svg
-                  viewBox="0 0 400 120"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-32 sm:w-40 md:w-48 h-auto transition-opacity"
-                >
-                  <defs>
-                    <filter id="glow-landing">
-                      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-                      <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                  </defs>
-
-                  <g filter="url(#glow-landing)">
-                    {/* Q circle - más grande y visible */}
-                    <path d="M50,20 A35,35 0 1,1 49.9,20 Z" fill="none" stroke="#00E5FF" strokeWidth="5" />
-                    {/* Q tail - más pronunciada */}
-                    <path d="M80,80 L95,95 L70,85 Z" fill="#00E5FF" />
-                    {/* 3 puntos centrados en el medio del círculo */}
-                    <circle cx="40" cy="50" r="4" fill="#00E5FF" />
-                    <circle cx="50" cy="50" r="4" fill="#00E5FF" />
-                    <circle cx="60" cy="50" r="4" fill="#00E5FF" />
-                  </g>
-
-                  <text x="110" y="75" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="52" fill="#FFFFFF">
-                    uoorum
-                  </text>
-                </svg>
-              )}
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="#features" className="text-sm text-gray-400 hover:text-white transition-colors relative group">
+            {/* Nav - Columna central (centrada) */}
+            <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
+              <Link href="#features" className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors relative group">
                 Características
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
               </Link>
-              <Link href="#use-cases" className="text-sm text-gray-400 hover:text-white transition-colors relative group">
+              <Link href="#use-cases" className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors relative group">
                 Casos de Uso
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
               </Link>
-              <Link href="#pricing" className="text-sm text-gray-400 hover:text-white transition-colors relative group">
+              <Link href="#pricing" className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors relative group">
                 Precios
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
               </Link>
             </nav>
 
-            <div className="flex items-center gap-3">
+            {/* Botones de auth - Columna derecha */}
+            <div className="flex-1 flex items-center justify-end gap-3">
+              {/* Theme toggle for landing */}
+              <ThemeDropdown className="hidden sm:block" />
               {!isAuthenticated ? (
                 <>
                   <Link href="/login" className="hidden sm:block">
-                    <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/5">
+                    <Button variant="ghost" className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)]">
                       Iniciar Sesión
                     </Button>
                   </Link>
@@ -187,7 +221,7 @@ export function AppHeader({
               {/* Mobile menu button */}
               <Button
                 variant="ghost"
-                className="md:hidden text-gray-300 hover:text-white hover:bg-white/5 p-2"
+                className="md:hidden text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)] p-2"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -198,34 +232,34 @@ export function AppHeader({
 
         {/* Mobile menu overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+          <div className="md:hidden absolute top-full left-0 right-0 bg-[var(--theme-landing-overlay)] backdrop-blur-xl border-b border-[var(--theme-landing-border)] shadow-2xl transition-colors duration-300">
             <div className="container mx-auto px-4 py-6 space-y-4">
               <Link
                 href="#features"
-                className="block text-gray-300 hover:text-white py-2 transition-colors"
+                className="block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] py-2 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Características
               </Link>
               <Link
                 href="#use-cases"
-                className="block text-gray-300 hover:text-white py-2 transition-colors"
+                className="block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] py-2 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Casos de Uso
               </Link>
               <Link
                 href="#pricing"
-                className="block text-gray-300 hover:text-white py-2 transition-colors"
+                className="block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] py-2 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Precios
               </Link>
-              <div className="pt-4 border-t border-white/10 space-y-3">
+              <div className="pt-4 border-t border-[var(--theme-landing-border)] space-y-3">
                 {!isAuthenticated ? (
                   <>
                     <Link href="/login" className="block">
-                      <Button variant="ghost" className="w-full text-gray-300 hover:text-white hover:bg-white/5">
+                      <Button variant="ghost" className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)]">
                         Iniciar Sesión
                       </Button>
                     </Link>
@@ -253,145 +287,119 @@ export function AppHeader({
   // App variant - for authenticated pages
   return (
     <>
-      <header className="border-b border-white/10 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
+      <header className="border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)]/80 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 transition-colors duration-300">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 pointer-events-none" />
         <div className="container mx-auto px-4">
           <div className="relative flex h-16 items-center justify-between">
-            <Link 
-              href="/dashboard" 
-              className="flex items-center gap-2 group"
-              onMouseEnter={() => setIsLogoHovered(true)}
-              onMouseLeave={() => setIsLogoHovered(false)}
-            >
-              {!isLogoHovered ? (
-                <svg
-                  viewBox="0 0 400 120"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-24 sm:w-32 md:w-40 h-auto transition-opacity"
-                >
-                  <defs>
-                    <linearGradient id="gradQ-app" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#00c6ff" stopOpacity="1" />
-                      <stop offset="100%" stopColor="#0072ff" stopOpacity="1" />
-                    </linearGradient>
-                    <filter id="shadow-app" x="-20%" y="-20%" width="150%" height="150%">
-                      <feDropShadow dx="2" dy="3" stdDeviation="3" floodOpacity="0.2"/>
-                    </filter>
-                  </defs>
-
-                  <g filter="url(#shadow-app)">
-                    {/* Q circle - más grande y visible */}
-                    <path d="M50,20 A35,35 0 1,1 49.9,20 Z" fill="url(#gradQ-app)" stroke="#0072ff" strokeWidth="2" />
-                    {/* Q tail - más pronunciada */}
-                    <path d="M80,80 L95,95 L70,85 Z" fill="#0072ff" />
-                    {/* 3 puntos centrados en el medio del círculo */}
-                    <circle cx="40" cy="50" r="4" fill="white" />
-                    <circle cx="50" cy="50" r="4" fill="white" />
-                    <circle cx="60" cy="50" r="4" fill="white" />
-                  </g>
-
-                  <text x="110" y="75" fontFamily="Segoe UI, Roboto, Helvetica, Arial, sans-serif" fontWeight="800" fontSize="52" fill="#FFFFFF" letterSpacing="-1">
-                    uoorum
-                  </text>
-                </svg>
-              ) : (
-                <svg
-                  viewBox="0 0 400 120"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-24 sm:w-32 md:w-40 h-auto transition-opacity"
-                >
-                  <defs>
-                    <filter id="glow-app">
-                      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-                      <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                  </defs>
-
-                  <g filter="url(#glow-app)">
-                    {/* Q circle - más grande y visible */}
-                    <path d="M50,20 A35,35 0 1,1 49.9,20 Z" fill="none" stroke="#00E5FF" strokeWidth="5" />
-                    {/* Q tail - más pronunciada */}
-                    <path d="M80,80 L95,95 L70,85 Z" fill="#00E5FF" />
-                    {/* 3 puntos centrados en el medio del círculo */}
-                    <circle cx="40" cy="50" r="4" fill="#00E5FF" />
-                    <circle cx="50" cy="50" r="4" fill="#00E5FF" />
-                    <circle cx="60" cy="50" r="4" fill="#00E5FF" />
-                  </g>
-
-                  <text x="110" y="75" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="52" fill="#FFFFFF">
-                    uoorum
-                  </text>
-                </svg>
-              )}
-            </Link>
+            <QuoorumLogoWithText
+              href="/dashboard"
+              iconSize={192}
+              showGradient={true}
+              showText={false}
+              className="transition-opacity group-hover:opacity-80"
+            />
 
             <nav className="hidden md:flex items-center gap-6">
-              {currentUser?.isAdmin && (
-                <Link 
-                  href="/admin" 
-                  className={`text-sm transition-colors relative group ${
-                    pathname?.startsWith('/admin') 
-                      ? 'text-purple-300 font-medium' 
-                      : 'text-purple-300 hover:text-purple-200'
-                  }`}
-                >
-                  Admin
-                  {pathname?.startsWith('/admin') && (
-                    <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500" />
-                  )}
-                  {!pathname?.startsWith('/admin') && (
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
-                  )}
-                </Link>
-              )}
+              {/* Admin link removed - using icon button instead */}
             </nav>
 
             <div className="flex items-center gap-3">
-              <Link href="/debates/new" className="hidden sm:block">
-                <Button className="bg-purple-600 hover:bg-purple-500 text-white border-0 p-2" title="Crear nuevo debate">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </Link>
+              {/* Credit Counter - Solo mostrar en páginas de debate */}
+              {pathname?.includes('/debates/new-unified') && (
+                <div className="hidden sm:block">
+                  <CreditCounter variant="compact" />
+                </div>
+              )}
+              <Button 
+                onClick={async (e) => {
+                  try {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    const generateSessionId = () => {
+                      if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
+                        return window.crypto.randomUUID()
+                      }
+                      return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+                    }
+                    const sessionId = generateSessionId()
+                    const targetUrl = `/debates/new-unified/${sessionId}?new=1`
+                    await router.push(targetUrl)
+                  } catch (error) {
+                    // Clasificar el error para determinar si debe ser silenciado
+                    const errorInfo = classifyTRPCError(error)
+                    
+                    // Solo loggear errores que NO son de red (network)
+                    if (errorInfo.type !== 'network') {
+                      logger.error('[AppHeader] Error al crear nuevo debate', error instanceof Error ? error : new Error(String(error)))
+                    }
+                    
+                    // Solo mostrar toast si NO es un error de red
+                    if (errorInfo.type !== 'network') {
+                      toast.error('Error al crear nuevo debate', {
+                        description: error instanceof Error ? error.message : 'Error desconocido'
+                      })
+                    }
+                  }
+                }}
+                className="hidden sm:block bg-purple-600 hover:bg-purple-500 text-white border-0 p-2" 
+                title="Crear nuevo debate (siempre inicia uno nuevo con URL única)"
+                type="button"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
               <div className="hidden sm:block">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <div>
-                      <NotificationBell />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0 border-white/10 bg-slate-900/95 backdrop-blur-xl" align="end">
-                    <NotificationsCenter onNotificationClick={() => {}} />
-                  </PopoverContent>
-                </Popover>
+                <NotificationBell onClick={() => setNotificationsSidebarOpen(!notificationsSidebarOpen)} enabled={isAuthenticated} />
               </div>
               <Link href="/debates">
                 <Button
                   variant="ghost"
-                  className="hidden sm:block text-gray-300 hover:text-white hover:bg-white/10 p-2"
-                  title="Historial de debates"
+                  className="hidden sm:block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2"
+                  title="Debates"
                 >
-                  <History className="h-4 w-4" />
+                  <MessageCircle className="h-4 w-4" />
                 </Button>
               </Link>
+              {/* Theme toggle */}
+              <ThemeDropdown className="hidden sm:block" />
               <Button
                 onClick={handleSettingsClick}
                 variant="ghost"
-                className="hidden sm:block text-gray-300 hover:text-white hover:bg-white/10 p-2"
+                className="hidden sm:block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2"
                 title="Configuración"
               >
                 <Settings className="h-4 w-4" />
               </Button>
-              {/* Mobile menu button */}
+              {/* Show admin button if user is admin */}
+              {!isLoadingUser && currentUser?.isAdmin && (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    logger.debug('[AppHeader] Opening admin modal, current state:', { adminModalOpen });
+                    setAdminModalOpen(true);
+                    logger.debug('[AppHeader] Admin modal state set to true');
+                  }}
+                  variant="ghost"
+                  className="text-purple-300 hover:text-purple-200 hover:bg-purple-500/10 p-2"
+                  title="Panel de Administración"
+                  type="button"
+                >
+                  <Shield className="h-4 w-4" />
+                </Button>
+              )}
+              {/* Mobile menu button - Solo visible en pantallas pequeñas */}
               <Button
                 variant="ghost"
-                className="md:hidden text-gray-300 hover:text-white hover:bg-white/10 p-2"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2 z-50 relative"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setMobileMenuOpen(!mobileMenuOpen)
+                }}
                 title={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+                type="button"
               >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
           </div>
@@ -399,42 +407,90 @@ export function AppHeader({
 
         {/* Mobile menu overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 shadow-2xl z-50">
-            <div className="container mx-auto px-4 py-6 space-y-4">
-              {currentUser?.isAdmin && (
-                <Link
-                  href="/admin"
-                  className={`block py-2 transition-colors ${
-                    pathname?.startsWith('/admin')
-                      ? 'text-purple-300 font-medium'
-                      : 'text-purple-300 hover:text-purple-200'
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Admin
-                </Link>
-              )}
-              <div className={cn("space-y-3", currentUser?.isAdmin && "pt-4 border-t border-white/10")}>
-                <Link href="/debates/new" className="block">
-                  <Button className="w-full bg-purple-600 hover:bg-purple-500 text-white">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nuevo Debate
-                  </Button>
-                </Link>
-                <Button
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    handleSettingsClick()
+          <>
+            {/* Backdrop overlay para cerrar al hacer click fuera */}
+            <div 
+              className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 top-16"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            {/* Menu content */}
+            <div className="md:hidden absolute top-full left-0 right-0 bg-[var(--theme-bg-secondary)]/98 backdrop-blur-xl border-b border-[var(--theme-border)] shadow-2xl z-50 transition-all duration-300">
+              <div className="container mx-auto px-4 py-6 space-y-4">
+                {currentUser?.isAdmin && (
+                  <button
+                    onClick={() => {
+                      setAdminModalOpen(true)
+                      setMobileMenuOpen(false)
+                    }}
+                    className="block w-full text-left py-3 px-4 rounded-lg transition-colors text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+                  >
+                    <Shield className="inline-block mr-2 h-4 w-4" />
+                    Panel de Administración
+                  </button>
+                )}
+                <div className={cn("space-y-3", currentUser?.isAdmin && "pt-4 border-t border-[var(--theme-border)]")}>
+                <Button 
+                  onClick={async (e) => {
+                    try {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setMobileMenuOpen(false)
+                      const generateSessionId = () => {
+                        if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
+                          return window.crypto.randomUUID()
+                        }
+                        return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+                      }
+                      const sessionId = generateSessionId()
+                      const targetUrl = `/debates/new-unified/${sessionId}?new=1`
+                      await router.push(targetUrl)
+                    } catch (error) {
+                      // Clasificar el error para determinar si debe ser silenciado
+                      const errorInfo = classifyTRPCError(error)
+                      
+                      // Solo loggear errores que NO son de red (network)
+                      if (errorInfo.type !== 'network') {
+                        logger.error('[AppHeader] Error al crear nuevo debate (mobile)', error instanceof Error ? error : new Error(String(error)))
+                      }
+                      
+                      // Solo mostrar toast si NO es un error de red
+                      if (errorInfo.type !== 'network') {
+                        toast.error('Error al crear nuevo debate', {
+                          description: error instanceof Error ? error.message : 'Error desconocido'
+                        })
+                      }
+                    }
                   }}
-                  variant="ghost"
-                  className="w-full text-gray-300 hover:text-white hover:bg-white/10"
+                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-3"
+                  type="button"
                 >
-                  <Settings className="mr-2 h-4 w-4" />
-                  Configuración
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nuevo Debate
                 </Button>
+                  <Link href="/debates" onClick={() => setMobileMenuOpen(false)}>
+                    <Button
+                      variant="ghost"
+                      className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] justify-start"
+                    >
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Debates
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      handleSettingsClick()
+                    }}
+                    variant="ghost"
+                    className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] justify-start"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Configuración
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </header>
       <SettingsModal
@@ -442,6 +498,54 @@ export function AppHeader({
         onOpenChange={setSettingsModalOpen}
         initialSection={settingsInitialSection}
       />
+      {currentUser?.isAdmin && (
+        <AdminModal
+          open={adminModalOpen}
+          onOpenChange={(open) => {
+            logger.debug('[AppHeader] AdminModal onOpenChange called:', { open });
+            setAdminModalOpen(open);
+          }}
+        />
+      )}
+      <NotificationsSidebar
+        isOpen={notificationsSidebarOpen}
+        onClose={() => setNotificationsSidebarOpen(false)}
+        onNotificationClick={() => {}}
+      />
+      {/* Debug: Show modal state in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <>
+          {/* Botón para mostrar/ocultar panel de debug */}
+          <button
+            onClick={() => setShowDebugPanel(!showDebugPanel)}
+            className="fixed bottom-4 right-4 bg-black/80 hover:bg-black/90 text-white p-2 rounded-full z-[9999] transition-all shadow-lg border border-white/10"
+            title={showDebugPanel ? 'Ocultar panel de debug' : 'Mostrar panel de debug'}
+          >
+            {showDebugPanel ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </button>
+          
+          {/* Panel de debug (solo visible si showDebugPanel es true) */}
+          {showDebugPanel && (
+            <div className="fixed bottom-16 right-4 bg-black/80 text-white p-3 text-xs rounded z-[9999] max-w-xs shadow-lg border border-white/10">
+              <div className="space-y-1">
+                <div>Admin Modal: {adminModalOpen ? 'OPEN' : 'CLOSED'}</div>
+                <div>isAdmin: {currentUser?.isAdmin ? 'YES' : 'NO'}</div>
+                <div>isLoading: {isLoadingUser ? 'YES' : 'NO'}</div>
+                <div>hasUser: {currentUser ? 'YES' : 'NO'}</div>
+                <div>userRole: {currentUser?.role || 'N/A'}</div>
+                <div>error: {userError?.message || 'NONE'}</div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+      
+      {/* Footer - Solo en páginas autenticadas (variant="app") */}
+      {variant === 'app' && <AppFooter />}
     </>
   )
 }

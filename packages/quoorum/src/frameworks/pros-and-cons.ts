@@ -9,9 +9,10 @@
  * - Synthesizer → Creates balanced recommendation
  */
 
-import type { AgentConfig } from '../agents.js'
+import type { AgentConfig } from '../agents'
 import { getAIClient } from '@quoorum/ai'
-import { quoorumLogger } from '../lib/logger.js'
+import { quoorumLogger } from '../logger'
+import { getAgentConfig } from '../config/agent-config'
 
 // ============================================================================
 // TYPES
@@ -57,9 +58,14 @@ export interface ProsAndConsOutput {
 // AGENT CONFIGURATIONS
 // ============================================================================
 
+// Get centralized framework agent config (uses free tier by default)
+const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'temperature'> => {
+  // Use optimizer config as base for frameworks (fast, creative)
+  return getAgentConfig('optimizer')
+}
+
 const PROS_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el OPTIMIZER, un experto en identificar ventajas y oportunidades.
 
@@ -81,8 +87,7 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const CONS_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el CRITIC, un experto en identificar riesgos y desventajas.
 
@@ -104,8 +109,7 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const ANALYST_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el ANALYST, un experto en evaluar factibilidad y contexto.
 
@@ -128,8 +132,7 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const SYNTHESIZER_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.3,
   systemPrompt: `Eres el SYNTHESIZER, un experto en crear recomendaciones balanceadas.
 

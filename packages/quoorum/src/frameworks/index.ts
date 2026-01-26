@@ -7,15 +7,15 @@
  * - Eisenhower Matrix
  */
 
-export { runProsAndCons } from './pros-and-cons.js'
-export type { ProsAndConsInput, ProsAndConsOutput } from './pros-and-cons.js'
+export { runProsAndCons } from './pros-and-cons'
+export type { ProsAndConsInput, ProsAndConsOutput } from './pros-and-cons'
 
-export { runSWOTAnalysis } from './swot-analysis.js'
-export type { SWOTAnalysisInput, SWOTAnalysisOutput } from './swot-analysis.js'
+export { runSWOTAnalysis } from './swot-analysis'
+export type { SWOTAnalysisInput, SWOTAnalysisOutput } from './swot-analysis'
 
-export { runEisenhowerMatrix } from './eisenhower-matrix.js'
+export { runEisenhowerMatrix } from './eisenhower-matrix'
 export type {
   EisenhowerMatrixInput,
   EisenhowerMatrixOutput,
   TaskClassification,
-} from './eisenhower-matrix.js'
+} from './eisenhower-matrix'

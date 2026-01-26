@@ -1,5 +1,4 @@
 'use client'
-// @ts-nocheck
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,7 +20,7 @@ import {
   ThumbsUp,
   XCircle,
 } from 'lucide-react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { toast } from 'sonner'
 
 // ============================================================================
@@ -137,12 +136,12 @@ function SentimentSelector({
 }
 
 function AspectRating({
-  icon: Icon,
+  Icon,
   label,
   value,
   onChange,
 }: {
-  icon: typeof Lightbulb
+  Icon: React.ComponentType<{ className?: string }>
   label: string
   value: number
   onChange: (val: number) => void

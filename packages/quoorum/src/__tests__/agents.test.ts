@@ -42,9 +42,11 @@ describe('Forum Agents', () => {
     })
 
     it('should use correct providers', () => {
-      expect(QUOORUM_AGENTS['optimizer']!.provider).toBe('deepseek')
-      expect(QUOORUM_AGENTS['critic']!.provider).toBe('anthropic')
-      expect(QUOORUM_AGENTS['analyst']!.provider).toBe('deepseek')
+      // Default configuration uses free tier (google) or cost-optimized models
+      // These can be overridden via environment variables
+      expect(QUOORUM_AGENTS['optimizer']!.provider).toBe('google')
+      expect(QUOORUM_AGENTS['critic']!.provider).toBe('google')
+      expect(QUOORUM_AGENTS['analyst']!.provider).toBe('google')
       expect(QUOORUM_AGENTS['synthesizer']!.provider).toBe('openai')
     })
 
@@ -123,7 +125,7 @@ describe('Forum Agents', () => {
   describe('getAgentName', () => {
     it('should return agent name by key', () => {
       expect(getAgentName('optimizer')).toBe('Optimista')
-      expect(getAgentName('critic')).toBe('Critico')
+      expect(getAgentName('critic')).toBe('Crítico')
       expect(getAgentName('analyst')).toBe('Analista')
       expect(getAgentName('synthesizer')).toBe('Sintetizador')
     })
@@ -134,22 +136,25 @@ describe('Forum Agents', () => {
   })
 
   describe('estimateAgentCost', () => {
-    it('should estimate cost for deepseek agent', () => {
+    it('should estimate cost for google free tier agent', () => {
+      // Default config uses gemini-2.0-flash-exp (free tier)
       const agent = QUOORUM_AGENTS['optimizer']!
       const cost = estimateAgentCost(agent, 1_000_000)
-      expect(cost).toBe(0.14)
+      expect(cost).toBe(0.0) // Free tier
     })
 
-    it('should estimate cost for anthropic agent', () => {
+    it('should estimate cost for google free tier critic', () => {
+      // Default config uses gemini-2.0-flash-exp (free tier)
       const agent = QUOORUM_AGENTS['critic']!
       const cost = estimateAgentCost(agent, 1_000_000)
-      expect(cost).toBe(3.0)
+      expect(cost).toBe(0.0) // Free tier
     })
 
-    it('should estimate cost for openai agent', () => {
+    it('should estimate cost for openai synthesizer', () => {
+      // Default config uses gpt-4o-mini
       const agent = QUOORUM_AGENTS['synthesizer']!
       const cost = estimateAgentCost(agent, 1_000_000)
-      expect(cost).toBe(2.5)
+      expect(cost).toBe(0.15) // gpt-4o-mini rate
     })
 
     it('should scale cost proportionally', () => {

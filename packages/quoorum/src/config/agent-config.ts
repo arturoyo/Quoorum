@@ -7,6 +7,7 @@
 
 import { z } from 'zod'
 import type { AgentConfig } from '../types'
+import { quoorumLogger } from '../logger'
 
 // Zod schema for validation
 const AgentProviderConfigSchema = z.object({
@@ -17,29 +18,35 @@ const AgentProviderConfigSchema = z.object({
 
 // Environment variable configuration with optimized multi-provider defaults
 // Mitología Griega: Cada dios usa el modelo IA más eficiente para su rol
+// ⚡ OPTIMIZACIÓN: Modelos más baratos cuando es posible, sin sacrificar calidad crítica
 const ENV_CONFIG = {
   optimizer: {
     // Hermes (Dios de las Oportunidades) - Rápido y técnico
-    provider: (process.env.OPTIMIZER_PROVIDER || 'openai') as AgentConfig['provider'],
-    model: process.env.OPTIMIZER_MODEL || 'gpt-4o-mini',
+    // Free tier OK para optimización (no requiere alta precisión)
+    provider: (process.env.OPTIMIZER_PROVIDER || 'google') as AgentConfig['provider'],
+    model: process.env.OPTIMIZER_MODEL || 'gemini-2.0-flash-exp', // Free tier
     temperature: parseFloat(process.env.OPTIMIZER_TEMPERATURE || '0.7'),
   },
   critic: {
     // Ares (Dios de la Guerra) - Confrontacional y veloz
-    provider: (process.env.CRITIC_PROVIDER || 'groq') as AgentConfig['provider'],
-    model: process.env.CRITIC_MODEL || 'llama3-70b-8192',
+    // Free tier OK para crítica (puede ser más agresivo)
+    provider: (process.env.CRITIC_PROVIDER || 'google') as AgentConfig['provider'],
+    model: process.env.CRITIC_MODEL || 'gemini-2.0-flash-exp', // Free tier
     temperature: parseFloat(process.env.CRITIC_TEMPERATURE || '0.5'),
   },
   analyst: {
     // Apolo (Dios de la Verdad) - Lógico y basado en datos
-    provider: (process.env.ANALYST_PROVIDER || 'deepseek') as AgentConfig['provider'],
-    model: process.env.ANALYST_MODEL || 'deepseek-chat',
+    // Free tier OK para análisis básico (puede usar datos del contexto)
+    provider: (process.env.ANALYST_PROVIDER || 'google') as AgentConfig['provider'],
+    model: process.env.ANALYST_MODEL || 'gemini-2.0-flash-exp', // Free tier
     temperature: parseFloat(process.env.ANALYST_TEMPERATURE || '0.3'),
   },
   synthesizer: {
     // Atenea (Diosa de la Sabiduría) - Sabio y conclusivo
-    provider: (process.env.SYNTHESIZER_PROVIDER || 'anthropic') as AgentConfig['provider'],
-    model: process.env.SYNTHESIZER_MODEL || 'claude-3-5-sonnet-20241022',
+    // ⚡ OPTIMIZADO: gpt-4o-mini es más barato que claude-sonnet pero mejor que gemini para síntesis
+    // Costo: $0.15/1M tokens vs $3.0/1M tokens (claude-sonnet) = 95% más barato
+    provider: (process.env.SYNTHESIZER_PROVIDER || 'openai') as AgentConfig['provider'],
+    model: process.env.SYNTHESIZER_MODEL || 'gpt-4o-mini', // Optimized: mejor calidad/precio que gemini para síntesis
     temperature: parseFloat(process.env.SYNTHESIZER_TEMPERATURE || '0.3'),
   },
 }
@@ -58,7 +65,7 @@ export function getAgentConfig(
   try {
     return AgentProviderConfigSchema.parse(config)
   } catch (error) {
-    console.error(`Invalid configuration for agent "${agentKey}":`, error)
+    quoorumLogger.error(`Invalid configuration for agent "${agentKey}"`, error instanceof Error ? error : undefined, { agentKey })
     // Fall back to safe defaults (Gemini Free Tier)
     return {
       provider: 'google',
@@ -139,15 +146,37 @@ export function getPaidTierConfig(
  * @returns Optimized configuration for tier and role
  */
 export function getConfigByUserTier(
-  userTier: 'free' | 'starter' | 'pro' | 'business',
+  userTier: 'free' | 'starter' | 'pro' | 'business' | 'enterprise',
   role: 'optimizer' | 'critic' | 'analyst' | 'synthesizer'
 ): ReturnType<typeof getAgentConfig> {
-  // Free/Starter users get free tier across all agents
-  if (userTier === 'free' || userTier === 'starter') {
+  // Free tier: All free tier models
+  if (userTier === 'free') {
     return getFreeTierConfig()[role]
   }
 
-  // Pro/Business users get optimized paid tier per role
-  // getPaidTierConfig(role) returns ReturnType<typeof getAgentConfig> when role is provided
-  return getPaidTierConfig(role) as ReturnType<typeof getAgentConfig>
+  // Starter tier: Free tier models + Claude 3.5 Sonnet for synthesis (as promised)
+  if (userTier === 'starter') {
+    if (role === 'synthesizer') {
+      return { provider: 'anthropic' as const, model: 'claude-3-5-sonnet-20241022', temperature: 0.3 }
+    }
+    return getFreeTierConfig()[role]
+  }
+
+  // Pro/Business/Enterprise: Optimized paid tier per role
+  // ⚡ OPTIMIZADO: Usar modelos más baratos cuando es posible, pero premium para síntesis
+  const paidConfig = {
+    // Optimizer: Free tier OK (no requiere alta precisión)
+    optimizer: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.7 },
+    
+    // Critic: Free tier OK (puede ser más agresivo)
+    critic: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.5 },
+    
+    // Analyst: Free tier OK (usa datos del contexto)
+    analyst: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.3 },
+    
+    // Synthesizer: Claude 3.5 Sonnet (premium model for synthesis as promised)
+    synthesizer: { provider: 'anthropic' as const, model: 'claude-3-5-sonnet-20241022', temperature: 0.3 },
+  }
+  
+  return paidConfig[role] as ReturnType<typeof getAgentConfig>
 }

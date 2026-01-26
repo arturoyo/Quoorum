@@ -24,6 +24,7 @@ export interface RateLimitTier {
     roundsPerDebate: number
     maxConcurrentDebates: number
     maxCostPerDay: number // USD
+    internetSearchesPerDay: number // Búsquedas en internet por día
   }
 }
 
@@ -46,6 +47,7 @@ const FREE_TIER: RateLimitTier = {
     roundsPerDebate: 5,
     maxConcurrentDebates: 1,
     maxCostPerDay: 1.0,
+    internetSearchesPerDay: 5, // 5 búsquedas gratis por día
   },
 }
 
@@ -59,6 +61,7 @@ export const RATE_LIMIT_TIERS: Record<string, RateLimitTier> = {
       roundsPerDebate: 10,
       maxConcurrentDebates: 2,
       maxCostPerDay: 5.0,
+      internetSearchesPerDay: 20, // 20 búsquedas por día (1 crédito cada una)
     },
   },
   pro: {
@@ -69,6 +72,7 @@ export const RATE_LIMIT_TIERS: Record<string, RateLimitTier> = {
       roundsPerDebate: 15,
       maxConcurrentDebates: 5,
       maxCostPerDay: 20.0,
+      internetSearchesPerDay: 100, // 100 búsquedas por día (1 crédito cada una)
     },
   },
   enterprise: {
@@ -79,6 +83,7 @@ export const RATE_LIMIT_TIERS: Record<string, RateLimitTier> = {
       roundsPerDebate: 20,
       maxConcurrentDebates: 10,
       maxCostPerDay: 100.0,
+      internetSearchesPerDay: -1, // unlimited
     },
   },
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import _Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { api } from "@/lib/trpc/client";
@@ -24,54 +24,12 @@ import {
   XCircle,
   Loader2,
   Trash2,
-  MessageSquare,
+  MessageSquare as _MessageSquare,
+  Tag,
+  X,
+  Filter,
 } from "lucide-react";
-import { IconType } from 'react-icons'
-import {
-  MdRocket,
-  MdTrendingUp,
-  MdGroups,
-  MdCampaign,
-  MdLightbulb,
-  MdAttachMoney,
-  MdSettings,
-  MdShoppingCart,
-  MdPerson,
-  MdLanguage,
-  MdPhoneAndroid,
-  MdCode,
-  MdStorage,
-  MdSecurity,
-  MdFavorite,
-  MdSchool,
-  MdBusiness,
-  MdEmojiEvents,
-  MdForum,
-  MdPalette,
-  MdEco,
-  MdLocalHospital,
-  MdDirectionsCar,
-  MdHome,
-  MdFlight,
-  MdRestaurant,
-  MdSportsEsports,
-  MdMusicNote,
-  MdPhotoCamera,
-  MdMenuBook,
-  MdScience,
-  MdWork,
-  MdHandshake,
-  MdPieChart,
-  MdEmail,
-  MdNotifications,
-  MdStar,
-  MdLocalFireDepartment,
-  MdCloud,
-  MdLock,
-  MdSearch,
-  MdCheckCircle,
-  MdHelp,
-} from 'react-icons/md'
+import { getContextualIcon, IconType as _IconType } from '@/lib/icons/contextual-icons'
 import { AppHeader } from "@/components/layout/app-header";
 import { toast } from "sonner";
 import { QuoorumLogo } from "@/components/ui/quoorum-logo";
@@ -92,91 +50,14 @@ function getPatternLabel(pattern: string): string {
   return labels[pattern] || pattern
 }
 
-/**
- * Selecciona un icono contextual basado en palabras clave de la pregunta del debate
- */
-function getContextualIcon(question: string): IconType {
-  const lowerQuestion = question.toLowerCase()
-
-  // Categorías de iconos con palabras clave
-  const iconMap: Array<{ keywords: string[]; icon: IconType }> = [
-    // Negocios y ventas
-    { keywords: ['venta', 'vender', 'cliente', 'compra', 'comercial', 'revenue'], icon: MdShoppingCart },
-    { keywords: ['dinero', 'precio', 'costo', 'inversión', 'presupuesto', 'financ'], icon: MdAttachMoney },
-    { keywords: ['deal', 'negoci', 'acuerdo', 'contrato'], icon: MdHandshake },
-    { keywords: ['marketing', 'campaña', 'publicidad', 'promoción'], icon: MdCampaign },
-    { keywords: ['crecimiento', 'escal', 'expansión', 'aumento'], icon: MdTrendingUp },
-    { keywords: ['éxito', 'logro', 'objetivo', 'meta', 'ganar'], icon: MdEmojiEvents },
-
-    // Productos y desarrollo
-    { keywords: ['producto', 'feature', 'funcionalidad', 'desarrollo'], icon: MdRocket },
-    { keywords: ['diseño', 'ui', 'ux', 'interfaz', 'visual'], icon: MdPalette },
-    { keywords: ['código', 'programación', 'software', 'desarrollo'], icon: MdCode },
-    { keywords: ['datos', 'database', 'información', 'analytics'], icon: MdStorage },
-    { keywords: ['mobile', 'móvil', 'app', 'aplicación'], icon: MdPhoneAndroid },
-    { keywords: ['web', 'sitio', 'website', 'online'], icon: MdLanguage },
-    { keywords: ['cloud', 'nube', 'servidor', 'hosting'], icon: MdCloud },
-    { keywords: ['seguridad', 'privacidad', 'protección', 'segur'], icon: MdSecurity },
-
-    // Equipo y organización
-    { keywords: ['equipo', 'team', 'colabor', 'grupo', 'personal'], icon: MdGroups },
-    { keywords: ['líder', 'management', 'gestión', 'dirección'], icon: MdPerson },
-    { keywords: ['empresa', 'compañía', 'organización', 'negocio'], icon: MdBusiness },
-    { keywords: ['trabajo', 'empleo', 'carrera', 'profesional'], icon: MdWork },
-
-    // Comunicación
-    { keywords: ['comunicación', 'mensaje', 'conversación', 'chat'], icon: MdForum },
-    { keywords: ['email', 'correo', 'mail'], icon: MdEmail },
-    { keywords: ['notificación', 'alerta', 'aviso'], icon: MdNotifications },
-
-    // Ideas e innovación
-    { keywords: ['idea', 'innovación', 'creativ', 'concept'], icon: MdLightbulb },
-    { keywords: ['estrategia', 'plan', 'táctica', 'approach'], icon: MdPieChart },
-    { keywords: ['investigación', 'research', 'estudio', 'análisis'], icon: MdScience },
-    { keywords: ['aprendizaje', 'educación', 'formación', 'curso'], icon: MdSchool },
-    { keywords: ['libro', 'contenido', 'documentación', 'guía'], icon: MdMenuBook },
-
-    // Industrias específicas
-    { keywords: ['salud', 'médico', 'hospital', 'clínica'], icon: MdLocalHospital },
-    { keywords: ['coche', 'auto', 'vehículo', 'transporte'], icon: MdDirectionsCar },
-    { keywords: ['casa', 'hogar', 'vivienda', 'inmobiliaria'], icon: MdHome },
-    { keywords: ['viaje', 'turismo', 'vuelo', 'destino'], icon: MdFlight },
-    { keywords: ['comida', 'restaurante', 'food', 'cocina'], icon: MdRestaurant },
-    { keywords: ['juego', 'game', 'gaming', 'entretenimiento'], icon: MdSportsEsports },
-    { keywords: ['música', 'audio', 'sound', 'canción'], icon: MdMusicNote },
-    { keywords: ['foto', 'imagen', 'video', 'visual'], icon: MdPhotoCamera },
-    { keywords: ['sostenib', 'ecológico', 'verde', 'medio ambiente'], icon: MdEco },
-
-    // Acciones y estados
-    { keywords: ['configuración', 'ajuste', 'settings', 'config'], icon: MdSettings },
-    { keywords: ['buscar', 'encontrar', 'search', 'explorar'], icon: MdSearch },
-    { keywords: ['importante', 'priority', 'destacado', 'crítico'], icon: MdStar },
-    { keywords: ['urgente', 'rápido', 'inmediato', 'hot'], icon: MdLocalFireDepartment },
-    { keywords: ['completado', 'terminado', 'finished', 'done'], icon: MdCheckCircle },
-    { keywords: ['pregunta', 'duda', 'question', 'cómo'], icon: MdHelp },
-    { keywords: ['amor', 'pasión', 'love', 'favorito'], icon: MdFavorite },
-    { keywords: ['privado', 'confidencial', 'secret'], icon: MdLock },
-  ]
-
-  // Buscar coincidencia de palabras clave
-  for (const { keywords, icon } of iconMap) {
-    for (const keyword of keywords) {
-      if (lowerQuestion.includes(keyword)) {
-        return icon
-      }
-    }
-  }
-
-  // Icono por defecto si no hay coincidencia
-  return MessageSquare
-}
-
 export default function DebatesPage() {
   const router = useRouter();
   const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedDebates, setSelectedDebates] = useState<Set<string>>(new Set());
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
 
   // Auth check (runs BEFORE query)
   useEffect(() => {
@@ -196,6 +77,7 @@ export default function DebatesPage() {
     {
       limit: 50,
       offset: 0,
+      tags: selectedTags.length > 0 ? selectedTags : undefined, // Filtrar por tags si hay seleccionados
     },
     {
       enabled: isAuthenticated, // Only run when user is authenticated
@@ -207,6 +89,21 @@ export default function DebatesPage() {
       refetchIntervalInBackground: true,
     }
   );
+
+  // Extraer todos los tags únicos de los debates
+  useEffect(() => {
+    const allTags = new Set<string>();
+    debates.forEach((debate) => {
+      if (debate.metadata?.tags && Array.isArray(debate.metadata.tags)) {
+        debate.metadata.tags.forEach((tag: string) => {
+          if (tag && typeof tag === 'string' && tag.trim().length > 0) {
+            allTags.add(tag.trim());
+          }
+        });
+      }
+    });
+    setAvailableTags(Array.from(allTags).sort());
+  }, [debates]);
 
   // Delete mutation
   const deleteDebate = api.debates.delete.useMutation({
@@ -257,15 +154,15 @@ export default function DebatesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-[var(--theme-bg-primary)]">
       {/* Header */}
       <AppHeader variant="app" />
 
-      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+      <main className="container mx-auto px-4 pt-20 pb-24 sm:pb-28 md:pb-32">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Debates</h1>
-            <p className="text-sm sm:text-base text-gray-400 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)]">Debates</h1>
+            <p className="text-sm sm:text-base text-[var(--theme-text-secondary)] mt-1">
               Gestiona tus debates y deliberaciones
             </p>
           </div>
@@ -284,14 +181,83 @@ export default function DebatesPage() {
                 {selectedDebates.size === debates.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
               </Button>
             )}
-            <Link href="/debates/new">
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                <Plus className="mr-2 h-4 w-4" />
-                Nuevo Debate
-              </Button>
-            </Link>
+            <Button 
+              onClick={async (e) => {
+                try {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  const generateSessionId = () => {
+                    if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
+                      return window.crypto.randomUUID()
+                    }
+                    return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+                  }
+                  const sessionId = generateSessionId()
+                  const targetUrl = `/debates/new-unified/${sessionId}?new=1`
+                  await router.push(targetUrl)
+                } catch (error) {
+                  toast.error('Error al crear nuevo debate', {
+                    description: error instanceof Error ? error.message : 'Error desconocido'
+                  })
+                }
+              }}
+              className="bg-purple-600 hover:bg-purple-700"
+              type="button"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo Debate
+            </Button>
           </div>
         </div>
+
+        {/* Filtro de Tags */}
+        {availableTags.length > 0 && (
+          <div className="mb-6 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Filter className="h-4 w-4 text-[var(--theme-text-secondary)]" />
+              <span className="text-sm text-[var(--theme-text-secondary)]">Filtrar por tags:</span>
+              {availableTags.map((tag) => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedTags(selectedTags.filter((t) => t !== tag));
+                      } else {
+                        setSelectedTags([...selectedTags, tag]);
+                      }
+                    }}
+                    className={`
+                      inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors
+                      ${isSelected
+                        ? 'bg-purple-600 text-white border border-purple-500'
+                        : 'bg-white/5 text-[var(--theme-text-secondary)] border border-white/10 hover:bg-white/10 hover:border-purple-500/50'
+                      }
+                    `}
+                  >
+                    <Tag className="h-3 w-3" />
+                    {tag}
+                    {isSelected && <X className="h-3 w-3" />}
+                  </button>
+                );
+              })}
+              {selectedTags.length > 0 && (
+                <button
+                  onClick={() => setSelectedTags([])}
+                  className="text-xs text-purple-400 hover:text-purple-300 underline"
+                >
+                  Limpiar filtros
+                </button>
+              )}
+            </div>
+            {selectedTags.length > 0 && (
+              <p className="text-xs text-[var(--theme-text-tertiary)]">
+                Mostrando debates con {selectedTags.length === 1 ? 'el tag' : 'los tags'}: {selectedTags.join(', ')}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="mt-8">
           {isLoading ? (
@@ -312,13 +278,13 @@ export default function DebatesPage() {
             <Card className="bg-red-500/10 border-red-500/20">
               <CardContent className="flex flex-col items-center justify-center py-16">
                 <XCircle className="h-12 w-12 text-red-500 mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-2">
                   Error al cargar debates
                 </h3>
-                <p className="text-gray-400 text-center mb-4">
+                <p className="text-[var(--theme-text-secondary)] text-center mb-4">
                   {error.message || 'No se pudo conectar a la base de datos'}
                 </p>
-                <p className="text-sm text-gray-500 text-center">
+                <p className="text-sm text-[var(--theme-text-tertiary)] text-center">
                   Asegúrate de que Docker Desktop esté corriendo y PostgreSQL esté iniciado
                 </p>
               </CardContent>
@@ -330,27 +296,53 @@ export default function DebatesPage() {
                 <h3 className="text-lg font-semibold text-white mb-2">
                   No tienes debates todavía
                 </h3>
-                <p className="text-gray-400 text-center mb-6">
+                <p className="text-[var(--theme-text-secondary)] text-center mb-6">
                   Crea tu primer debate para empezar a deliberar con expertos IA
                 </p>
-                <Link href="/debates/new">
-                  <Button className="bg-purple-600 hover:bg-purple-700">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Crear Primer Debate
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={async (e) => {
+                    try {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      const generateSessionId = () => {
+                        if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
+                          return window.crypto.randomUUID()
+                        }
+                        return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+                      }
+                      const sessionId = generateSessionId()
+                      const targetUrl = `/debates/new-unified/${sessionId}?new=1`
+                      await router.push(targetUrl)
+                    } catch (error) {
+                      toast.error('Error al crear nuevo debate', {
+                        description: error instanceof Error ? error.message : 'Error desconocido'
+                      })
+                    }
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700"
+                  type="button"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Crear Primer Debate
+                </Button>
               </CardContent>
             </Card>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {debates.map((debate) => {
-                // Obtener icono contextual basado en la pregunta
-                const ContextualIcon = getContextualIcon(debate.question)
+                // Obtener icono contextual único y representativo
+                const ContextualIcon = getContextualIcon(
+                  debate.question,
+                  debate.id,
+                  debate.metadata?.tags as string[] | undefined,
+                  debate.metadata?.topics as string[] | undefined,
+                  debate.metadata?.areas as string[] | undefined
+                )
 
                 return (
                   <Card
                     key={debate.id}
-                    className="bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer transition-colors relative group"
+                    className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] hover:bg-[var(--theme-bg-tertiary)] cursor-pointer transition-colors relative group"
                     onClick={(e) => {
                       // Si no estamos seleccionando, navegar
                       if (selectedDebates.size === 0) {
@@ -365,7 +357,7 @@ export default function DebatesPage() {
                     >
                       {/* Show checkbox when any debate is selected or on hover, otherwise show contextual icon */}
                       {(selectedDebates.size > 0 || selectedDebates.has(debate.id)) ? (
-                        <div className="bg-slate-800/90 backdrop-blur-sm p-2 rounded-lg border-2 border-white/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all">
+                        <div className="bg-[var(--theme-bg-tertiary)]/90 backdrop-blur-sm p-2 rounded-lg border-2 border-[var(--theme-border)] hover:border-purple-500 hover:bg-purple-500/20 transition-all">
                           <Checkbox
                             checked={selectedDebates.has(debate.id)}
                             className="h-6 w-6 border-2 border-white/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
@@ -377,7 +369,7 @@ export default function DebatesPage() {
                           <div className="group-hover:hidden bg-purple-500/10 p-2 rounded-lg">
                             <ContextualIcon className="h-6 w-6 text-purple-400" />
                           </div>
-                          <div className="hidden group-hover:block bg-slate-800/90 backdrop-blur-sm p-2 rounded-lg border-2 border-white/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all">
+                          <div className="hidden group-hover:block bg-[var(--theme-bg-tertiary)]/90 backdrop-blur-sm p-2 rounded-lg border-2 border-[var(--theme-border)] hover:border-purple-500 hover:bg-purple-500/20 transition-all">
                             <Checkbox
                               checked={false}
                               className="h-6 w-6 border-2 border-white/60"
@@ -423,16 +415,43 @@ export default function DebatesPage() {
                             {getPatternLabel(debate.metadata.pattern as string)}
                           </Badge>
                         )}
+                        {debate.metadata?.tags && Array.isArray(debate.metadata.tags) && debate.metadata.tags.length > 0 && (
+                          <>
+                            {debate.metadata.tags.slice(0, 3).map((tag: string, idx: number) => (
+                              <Badge
+                                key={idx}
+                                variant="outline"
+                                className="border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs flex items-center gap-1"
+                              >
+                                <Tag className="h-3 w-3" />
+                                {tag}
+                              </Badge>
+                            ))}
+                            {debate.metadata.tags.length > 3 && (
+                              <Badge
+                                variant="outline"
+                                className="border-gray-500/30 bg-gray-500/10 text-[var(--theme-text-secondary)] text-xs"
+                              >
+                                +{debate.metadata.tags.length - 3}
+                              </Badge>
+                            )}
+                          </>
+                        )}
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-400">
+                        <span className="text-[var(--theme-text-secondary)]">
                           {debate.consensusScore
                             ? `Consenso: ${Math.round(debate.consensusScore * 100)}%`
                             : "Sin consenso aún"}
                         </span>
-                        <span className="text-gray-500 flex items-center gap-1">
+                        <span className="text-[var(--theme-text-tertiary)] flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {new Date(debate.createdAt).toLocaleDateString()}
+                          {new Date(debate.createdAt).toLocaleString('es-ES', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
                         </span>
                       </div>
                     </div>
@@ -447,7 +466,7 @@ export default function DebatesPage() {
         {/* Floating Action Bar */}
         {selectedDebates.size > 0 && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
-            <Card className="border-white/20 bg-slate-800/95 backdrop-blur-xl shadow-2xl">
+            <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)]/95 backdrop-blur-xl shadow-2xl">
               <CardContent className="flex items-center gap-4 p-4">
                 <div className="flex items-center gap-2">
                   <Checkbox
@@ -455,11 +474,11 @@ export default function DebatesPage() {
                     onCheckedChange={handleSelectAll}
                     className="h-5 w-5"
                   />
-                  <span className="text-white font-medium">
+                  <span className="text-[var(--theme-text-primary)] font-medium">
                     {selectedDebates.size} debate{selectedDebates.size > 1 ? 's' : ''} seleccionado{selectedDebates.size > 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="h-6 w-px bg-white/20" />
+                <div className="h-6 w-px bg-[var(--theme-border)]" />
                 <Button
                   variant="destructive"
                   size="sm"

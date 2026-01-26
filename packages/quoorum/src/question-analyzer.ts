@@ -8,7 +8,7 @@
  * - Expertos recomendados
  */
 
-import { getAIClient } from '@quoorum/ai'
+import { getAIClient, parseAIJson } from '@quoorum/ai'
 
 /**
  * Área de conocimiento identificada
@@ -118,7 +118,7 @@ ${context ? `Contexto:\n${context}\n\n` : ''}Analiza esta pregunta e identifica 
   })
 
   // Parse JSON response
-  const parsed = JSON.parse(response.text) as Omit<QuestionAnalysis, 'question'>
+  const parsed = parseAIJson<Omit<QuestionAnalysis, 'question'>>(response.text)
 
   // Sort areas by weight (descending)
   const sortedAreas = parsed.areas.sort((a, b) => b.weight - a.weight)

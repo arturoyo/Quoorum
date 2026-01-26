@@ -1,10 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, TrendingUp, Users, Lightbulb, ExternalLink, CheckCircle2 } from 'lucide-react'
+import { Search, TrendingUp, Users, Lightbulb, ExternalLink, CheckCircle2, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 
 // ============================================================================
 // TYPES
@@ -55,8 +59,56 @@ export function ResearchResults({
   onAcceptPartial,
   onSkip,
 }: ResearchResultsProps) {
+  const [isCustomizeDialogOpen, setIsCustomizeDialogOpen] = useState(false)
+  const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set(Object.keys(suggestedContext)))
+
   if (results.length === 0) {
     return null
+  }
+
+  // Field labels for better UX
+  const fieldLabels: Record<string, string> = {
+    market: 'Datos de Mercado',
+    competitors: 'Inteligencia Competitiva',
+    benchmarks: 'Benchmarks',
+    risks: 'Riesgos',
+    opportunities: 'Oportunidades',
+    constraints: 'Restricciones',
+    background: 'Contexto General',
+    contexto_clave: 'Contexto Clave',
+    datos_mercado: 'Datos de Mercado',
+    consideraciones: 'Consideraciones',
+    opciones_identificadas: 'Opciones Identificadas',
+    criterios_evaluacion: 'Criterios de Evaluación',
+  }
+
+  const handleToggleField = (field: string) => {
+    const newSelected = new Set(selectedFields)
+    if (newSelected.has(field)) {
+      newSelected.delete(field)
+    } else {
+      newSelected.add(field)
+    }
+    setSelectedFields(newSelected)
+  }
+
+  const handleAcceptSelected = () => {
+    const partialContext: Record<string, unknown> = {}
+    selectedFields.forEach((field) => {
+      if (suggestedContext[field] !== undefined) {
+        partialContext[field] = suggestedContext[field]
+      }
+    })
+    onAcceptPartial(partialContext)
+    setIsCustomizeDialogOpen(false)
+  }
+
+  const handleSelectAll = () => {
+    setSelectedFields(new Set(Object.keys(suggestedContext)))
+  }
+
+  const handleDeselectAll = () => {
+    setSelectedFields(new Set())
   }
 
   return (
@@ -196,16 +248,102 @@ export function ResearchResults({
               ✓ Usar este contexto
             </Button>
             <Button
-              onClick={() => onAcceptPartial({})}
+              onClick={() => setIsCustomizeDialogOpen(true)}
               size="sm"
               variant="outline"
               className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942]"
             >
+              <Settings className="mr-2 h-4 w-4" />
               Personalizar
             </Button>
           </div>
         </motion.div>
       )}
+
+      {/* Customize Context Dialog */}
+      <Dialog open={isCustomizeDialogOpen} onOpenChange={setIsCustomizeDialogOpen}>
+        <DialogContent className="max-w-2xl bg-[#111b21] border-[#2a3942] text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white">Personalizar Contexto</DialogTitle>
+            <DialogDescription className="text-[#aebac1]">
+              Selecciona qué campos del contexto quieres incluir en tu debate
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 max-h-[400px] overflow-y-auto">
+            {/* Select All / Deselect All */}
+            <div className="flex gap-2 pb-2 border-b border-[#2a3942]">
+              <Button
+                onClick={handleSelectAll}
+                size="sm"
+                variant="outline"
+                className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942] text-xs"
+              >
+                Seleccionar todo
+              </Button>
+              <Button
+                onClick={handleDeselectAll}
+                size="sm"
+                variant="outline"
+                className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942] text-xs"
+              >
+                Deseleccionar todo
+              </Button>
+            </div>
+
+            {/* Field Checkboxes */}
+            {Object.entries(suggestedContext).map(([key, value]) => {
+              const label = fieldLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+              const isSelected = selectedFields.has(key)
+
+              return (
+                <div
+                  key={key}
+                  className="flex items-start gap-3 rounded-lg border border-[#2a3942] bg-[#0b141a] p-4 hover:border-purple-500/40 transition-colors"
+                >
+                  <Checkbox
+                    id={key}
+                    checked={isSelected}
+                    onCheckedChange={() => handleToggleField(key)}
+                    className="mt-1 border-[#2a3942] data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                  />
+                  <Label
+                    htmlFor={key}
+                    className="flex-1 cursor-pointer text-sm text-white"
+                  >
+                    <div className="font-medium mb-1">{label}</div>
+                    <div className="text-xs text-[#aebac1] mt-1">
+                      <pre className="whitespace-pre-wrap break-words">
+                        {typeof value === 'object' 
+                          ? JSON.stringify(value, null, 2).substring(0, 200) + (JSON.stringify(value, null, 2).length > 200 ? '...' : '')
+                          : String(value).substring(0, 200) + (String(value).length > 200 ? '...' : '')
+                        }
+                      </pre>
+                    </div>
+                  </Label>
+                </div>
+              )
+            })}
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              onClick={() => setIsCustomizeDialogOpen(false)}
+              variant="outline"
+              className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleAcceptSelected}
+              disabled={selectedFields.size === 0}
+              className="bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Aceptar {selectedFields.size} campo{selectedFields.size !== 1 ? 's' : ''}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }

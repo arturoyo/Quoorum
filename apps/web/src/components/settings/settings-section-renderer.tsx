@@ -9,17 +9,19 @@
  */
 
 import { Loader2 } from 'lucide-react'
-import { AccountSection } from './sections/account-section'
 import { BillingSection } from './sections/billing-section'
 import { ApiKeysSection } from './sections/api-keys-section'
 import { SecuritySection } from './sections/security-section'
 import { NotificationsSection } from './sections/notifications-section'
 import { ExpertsSection } from './sections/experts-section'
 import { ExpertsLibrarySection } from './sections/experts-library-section'
+import { WorkersSection } from './sections/workers-section'
 import { ContextSection } from './sections/context-section'
-import { CompanySection } from './sections/company-section'
-import { DepartmentsSection } from './sections/departments-section'
+import { DepartmentsUnifiedSection } from './sections/departments-unified-section'
 import { DepartmentsLibrarySection } from './sections/departments-library-section'
+import { TeamSection } from './sections/team-section'
+import { UsageSection } from './sections/usage-section'
+import { PersonalizationSection } from './sections/personalization-section'
 
 interface SettingsSectionRendererProps {
   activePath: string
@@ -52,37 +54,73 @@ export function SettingsSectionRenderer({ activePath, isInModal = false }: Setti
   const section = pathParts[0] || 'account'
   const subpath = pathParts[1] || ''
 
-  // Handle subsecciones (e.g., experts/library, departments/library)
+  // Handle subsecciones (e.g., experts/library, departments/library, workers/library)
   if (section === 'experts' && subpath === 'library') {
-    return <ExpertsLibrarySection isInModal={isInModal} />
+    return (
+      <div className={isInModal ? 'pb-6' : 'pb-8'}>
+        <ExpertsLibrarySection isInModal={isInModal} />
+      </div>
+    )
+  }
+
+  if (section === 'workers' && subpath === 'library') {
+    // For now, library is shown in the main workers section
+    // Can be separated later if needed
+    return (
+      <div className={isInModal ? 'pb-6' : 'pb-8'}>
+        <WorkersSection isInModal={isInModal} />
+      </div>
+    )
   }
 
   if (section === 'departments' && subpath === 'library') {
-    return <DepartmentsLibrarySection isInModal={isInModal} />
+    return (
+      <div className={isInModal ? 'pb-6' : 'pb-8'}>
+        <DepartmentsLibrarySection isInModal={isInModal} />
+      </div>
+    )
   }
 
   // Render the appropriate section component
-  switch (section) {
-    case 'account':
-      return <AccountSection isInModal={isInModal} />
-    case 'billing':
-      return <BillingSection isInModal={isInModal} />
-    case 'company':
-      return <CompanySection isInModal={isInModal} />
-    case 'departments':
-      return <DepartmentsSection isInModal={isInModal} />
-    case 'api-keys':
-      return <ApiKeysSection isInModal={isInModal} />
-    case 'security':
-      return <SecuritySection isInModal={isInModal} />
-    case 'notifications':
-      return <NotificationsSection isInModal={isInModal} />
-    case 'experts':
-      return <ExpertsSection isInModal={isInModal} />
-    case 'context':
-      return <ContextSection isInModal={isInModal} />
-    default:
-      // Fallback to account section
-      return <AccountSection isInModal={isInModal} />
+  const renderSection = () => {
+    switch (section) {
+      case 'account':
+      case 'profile':
+        // /settings and /settings/profile both map to PersonalizationSection (which is now "Perfil")
+        return <PersonalizationSection isInModal={isInModal} />
+      case 'company':
+        // /settings/company maps to PersonalizationSection with company tab open
+        return <PersonalizationSection isInModal={isInModal} initialTab="company" />
+      case 'billing':
+        return <BillingSection isInModal={isInModal} />
+      case 'departments':
+        return <DepartmentsUnifiedSection isInModal={isInModal} />
+      case 'api-keys':
+        return <ApiKeysSection isInModal={isInModal} />
+      case 'security':
+        return <SecuritySection isInModal={isInModal} />
+      case 'notifications':
+        return <NotificationsSection isInModal={isInModal} />
+      case 'experts':
+        return <ExpertsSection isInModal={isInModal} />
+      case 'workers':
+        return <WorkersSection isInModal={isInModal} />
+      case 'personalization':
+        // Legacy route, redirect to profile
+        return <PersonalizationSection isInModal={isInModal} />
+      case 'team':
+        return <TeamSection isInModal={isInModal} />
+      case 'usage':
+        return <UsageSection isInModal={isInModal} />
+      default:
+        // Fallback to profile section (PersonalizationSection)
+        return <PersonalizationSection isInModal={isInModal} />
+    }
   }
+
+  return (
+    <div className={isInModal ? 'pb-6' : 'pb-8'}>
+      {renderSection()}
+    </div>
+  )
 }

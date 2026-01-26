@@ -4,9 +4,9 @@
  * Ejecuta debates multi-agente hasta alcanzar consenso
  */
 
-import { getAIClient } from '@quoorum/ai'
+import { getAIClient, retryWithBackoff } from '@quoorum/ai'
 import { QUOORUM_AGENTS, AGENT_ORDER, estimateAgentCost } from './agents'
-import { ULTRA_OPTIMIZED_PROMPT, estimateTokens, getRoleEmoji } from './ultra-language'
+import { ULTRA_OPTIMIZED_PROMPT, estimateTokens, getRoleEmoji, compressInput, decompressOutput } from './ultra-language'
 import { checkConsensus } from './consensus'
 import { deductCredits, refundCredits, hasSufficientCredits } from './billing/credit-transactions'
 import { convertUsdToCredits } from './analytics/cost'
@@ -120,7 +120,13 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
   // ATOMIC CREDIT DEDUCTION (Pre-charge)
   // ============================================================================
 
-  const deductionResult = await deductCredits(userId, estimatedCreditsMax)
+  const deductionResult = await deductCredits(
+    userId,
+    estimatedCreditsMax,
+    sessionId, // Use sessionId as debateId
+    'debate_execution',
+    `Debate execution - estimated max cost: ${estimatedCreditsMax} credits`
+  )
   if (!deductionResult.success) {
     return {
       sessionId,
@@ -300,7 +306,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       await refundCredits(
         userId,
         creditsToRefund,
-        sessionId,
+        sessionId, // Use sessionId as debateId
+        'debate_failed',
         `Debate failed mid-execution: ${error instanceof Error ? error.message : 'Unknown error'}`
       )
     }
@@ -388,14 +395,62 @@ export async function generateAgentResponse(
   try {
     const client = getAIClient()
 
-    const response = await client.generate(prompt, {
-      modelId: agent.model,
-      temperature: agent.temperature,
-      maxTokens: MAX_TOKENS_PER_MESSAGE,
-    })
+    // ═══════════════════════════════════════════════════════════
+    // INPUT COMPRESSION: Comprimir prompt antes de enviar a IA
+    // ═══════════════════════════════════════════════════════════
+    const originalTokens = estimateTokens(prompt)
+    const compressedPrompt = originalTokens > 200 
+      ? await compressInput(prompt) // Solo comprimir si es largo (>200 tokens)
+      : prompt
 
-    const content = response.text.trim()
-    const tokensUsed = response.usage?.totalTokens ?? estimateTokens(content)
+    const compressedTokens = estimateTokens(compressedPrompt)
+    const tokensSaved = originalTokens - compressedTokens
+
+    if (tokensSaved > 50) {
+      quoorumLogger.debug(`[Compression] Input compressed: ${originalTokens} → ${compressedTokens} tokens (saved ${tokensSaved})`, {
+        sessionId,
+        agentName: agent.name,
+        round,
+      })
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // RETRY LOGIC: Handle transient errors (network, timeout, etc.)
+    // ═══════════════════════════════════════════════════════════
+    const response = await retryWithBackoff(
+      async () => {
+        return await client.generate(compressedPrompt, {
+          modelId: agent.model,
+          temperature: agent.temperature,
+          maxTokens: MAX_TOKENS_PER_MESSAGE,
+        })
+      },
+      {
+        maxRetries: 3,
+        initialDelay: 1000, // 1s
+        maxDelay: 16000, // 16s
+        backoffMultiplier: 2,
+        jitter: true, // ±25% random variation
+        retryableErrors: [
+          'ECONNRESET',
+          'ETIMEDOUT',
+          'ENOTFOUND',
+          'ECONNREFUSED',
+          'timeout',
+          'network',
+          'connection',
+        ],
+      }
+    )
+
+    // ═══════════════════════════════════════════════════════════
+    // OUTPUT DECOMPRESSION: Descomprimir respuesta para mostrar al usuario
+    // ═══════════════════════════════════════════════════════════
+    const compressedContent = response.text.trim()
+    const expandedContent = await decompressOutput(compressedContent)
+
+    // Calcular tokens usados (usar el comprimido para cálculo de costo)
+    const tokensUsed = response.usage?.totalTokens ?? estimateTokens(compressedContent)
     const costUsd = estimateAgentCost(agent, tokensUsed)
 
     return {
@@ -405,7 +460,8 @@ export async function generateAgentResponse(
       agentKey: agent.key,
       agentName: identity?.displayNameUser ?? agent.name, // Use narrative name or fallback to technical name
       narrativeId: identity?.characterId, // Character ID for UI (e.g., 'atenea', 'arturo')
-      content,
+      content: expandedContent, // Mostrar versión expandida al usuario
+      compressedContent, // Guardar versión comprimida para análisis
       isCompressed: true,
       tokensUsed,
       costUsd,

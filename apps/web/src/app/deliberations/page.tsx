@@ -2,9 +2,6 @@
 
 import Link from "next/link";
 import { DeliberationCard } from "@quoorum/ui";
-import {
-  Link,
-} from "lucide-react";
 
 
 const mockDeliberations = [
@@ -45,7 +42,7 @@ export default function DeliberationsPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-          <Link href="/" className="text-xl font-bold text-gray-900">
+          <Link href="/" className="text-xl font-bold text-[var(--theme-text-primary)]">
             Quoorum
           </Link>
           <nav className="flex items-center gap-4">
@@ -57,7 +54,7 @@ export default function DeliberationsPage() {
             </Link>
             <Link
               href="/experts"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+              className="text-sm font-medium text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
             >
               Experts
             </Link>
@@ -68,8 +65,8 @@ export default function DeliberationsPage() {
       <main className="mx-auto max-w-7xl px-4 py-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Deliberations</h1>
-            <p className="mt-1 text-sm text-gray-600">
+            <h1 className="text-2xl font-bold text-[var(--theme-text-primary)]">Deliberations</h1>
+            <p className="mt-1 text-sm text-[var(--theme-text-tertiary)]">
               View and manage your deliberation sessions
             </p>
           </div>

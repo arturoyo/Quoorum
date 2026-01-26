@@ -10,7 +10,7 @@ import {
   LayoutDashboard,
   CreditCard,
   FileText,
-  Settings,
+  Shield,
   ChevronLeft,
   ChevronRight
 } from "lucide-react"
@@ -76,7 +76,7 @@ export default function AdminLayout({
         {/* Sidebar */}
         <aside
           className={cn(
-            "sticky top-16 h-[calc(100vh-4rem)] border-r border-white/10 bg-slate-900/95 backdrop-blur-xl transition-all duration-300",
+            "sticky top-16 h-[calc(100vh-4rem)] border-r border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/95 backdrop-blur-xl transition-all duration-300",
             isCollapsed ? "w-16" : "w-64"
           )}
         >
@@ -85,7 +85,7 @@ export default function AdminLayout({
             <div className="flex items-center justify-between border-b border-white/10 p-4">
               {!isCollapsed && (
                 <div className="flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-purple-400" />
+                  <Shield className="h-5 w-5 text-purple-400" />
                   <h2 className="font-semibold text-white">Admin</h2>
                 </div>
               )}
@@ -93,7 +93,7 @@ export default function AdminLayout({
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/10"
+                className="h-8 w-8 text-[var(--theme-text-secondary)] hover:text-white hover:bg-white/10"
               >
                 {isCollapsed ? (
                   <ChevronRight className="h-4 w-4" />
@@ -117,7 +117,7 @@ export default function AdminLayout({
                       "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
                       isActive
                         ? "bg-purple-600 text-white"
-                        : "text-gray-400 hover:bg-white/10 hover:text-white"
+                        : "text-[var(--theme-text-secondary)] hover:bg-white/10 hover:text-white"
                     )}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
@@ -136,7 +136,7 @@ export default function AdminLayout({
                   <p className="text-xs text-purple-300">
                     <strong>Panel de Administración</strong>
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-[var(--theme-text-secondary)] mt-1">
                     Control total del sistema
                   </p>
                 </div>
@@ -146,7 +146,7 @@ export default function AdminLayout({
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1">
+        <main className="flex-1 pt-16 pb-32">
           {children}
         </main>
       </div>

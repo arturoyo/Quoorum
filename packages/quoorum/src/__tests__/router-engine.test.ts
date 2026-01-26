@@ -186,7 +186,8 @@ describe('determineAgentOrder', () => {
   it('should return LOW CONFIDENCE order', () => {
     const message = createMockMessage('Necesito más información para decidir')
     const order = determineAgentOrder(message, [], undefined)
-    expect(order).toEqual(['analyst', 'optimizer', 'critic', 'synthesizer'])
+    // LOW_CONFIDENCE/NEEDS_DATA uses analyst-first order without critic
+    expect(order).toEqual(['analyst', 'optimizer', 'synthesizer'])
   })
 
   it('should return STRONG AGREEMENT order (double critic)', () => {

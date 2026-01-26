@@ -1,18 +1,21 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
-  Brain,
   CheckCircle2,
-  XCircle,
   Scale,
   Grid3x3,
   Clock,
   Sparkles,
+  Layers,
 } from "lucide-react";
+import { AppHeader } from "@/components/layout/app-header";
+import { LandingFooter } from "@/components/layout/landing-footer";
+import { SectionHeader } from "@/components/ui/section-header";
+import { CTASection } from "@/components/ui/cta-section";
+import { GradientCTAButton } from "@/components/ui/gradient-cta-button";
 
 export const metadata: Metadata = {
   title: "Decision-Making Frameworks | AI-Powered Analysis | Quoorum",
@@ -42,10 +45,7 @@ const frameworks = [
     description:
       "Analiza las ventajas y desventajas de tu decisión con debates multi-agente IA. Simple, claro, efectivo.",
     icon: Scale,
-    color: "purple",
-    bgColor: "bg-purple-100 dark:bg-purple-900",
-    textColor: "text-purple-600 dark:text-purple-400",
-    borderColor: "border-purple-200 dark:border-purple-800",
+    gradient: "from-purple-500 to-pink-500",
     features: [
       "4 agentes de IA expertos",
       "Análisis balanceado",
@@ -67,10 +67,7 @@ const frameworks = [
     description:
       "Análisis SWOT (Fortalezas, Debilidades, Oportunidades, Amenazas) con 4 agentes expertos. Ideal para estrategia de negocio.",
     icon: Grid3x3,
-    color: "blue",
-    bgColor: "bg-blue-100 dark:bg-blue-900",
-    textColor: "text-blue-600 dark:text-blue-400",
-    borderColor: "border-blue-200 dark:border-blue-800",
+    gradient: "from-blue-500 to-cyan-500",
     features: [
       "4 perspectivas (S.W.O.T)",
       "Análisis interno y externo",
@@ -92,10 +89,7 @@ const frameworks = [
     description:
       "Prioriza tareas según urgencia e importancia. Matriz 2x2 para decisiones de productividad y time management.",
     icon: CheckCircle2,
-    color: "green",
-    bgColor: "bg-green-100 dark:bg-green-900",
-    textColor: "text-green-600 dark:text-green-400",
-    borderColor: "border-green-200 dark:border-green-800",
+    gradient: "from-green-500 to-emerald-500",
     features: [
       "Clasificación automática",
       "Matriz 2x2 (Urgent/Important)",
@@ -113,110 +107,133 @@ const frameworks = [
   },
 ];
 
+const comparisonData = [
+  {
+    situation: "Decisión binaria (hacer/no hacer)",
+    framework: "Pros and Cons",
+    reason: "Analiza ventajas vs desventajas y da recomendación clara",
+    gradient: "from-purple-500 to-pink-500",
+  },
+  {
+    situation: "Planificación estratégica de negocio",
+    framework: "SWOT Analysis",
+    reason: "Considera factores internos y externos del negocio",
+    gradient: "from-blue-500 to-cyan-500",
+  },
+  {
+    situation: "Gestión de tareas y prioridades",
+    framework: "Eisenhower Matrix",
+    reason: "Clasifica por urgencia e importancia",
+    gradient: "from-green-500 to-emerald-500",
+  },
+  {
+    situation: "Evaluación de inversión o deal",
+    framework: "Pros and Cons",
+    reason: "Pesos cuantificados para comparar opciones",
+    gradient: "from-purple-500 to-pink-500",
+  },
+  {
+    situation: "Análisis de mercado o competencia",
+    framework: "SWOT Analysis",
+    reason: "Identifica oportunidades y amenazas externas",
+    gradient: "from-blue-500 to-cyan-500",
+  },
+];
+
 export default function FrameworksOverviewPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-[var(--theme-landing-bg)]">
       {/* Header */}
-      <header className="border-b bg-white/50 backdrop-blur-sm dark:bg-gray-950/50">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Brain className="h-6 w-6 text-purple-600" />
-            <span className="text-xl font-bold">Quoorum</span>
-          </Link>
-          <nav className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Iniciar sesión
-              </Button>
-            </Link>
-            <Link href="/debates/new">
-              <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                Probar gratis
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <AppHeader variant="landing" showAuth={true} />
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-4xl text-center">
-          <Badge className="mb-4 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-            <Sparkles className="mr-1 h-3 w-3" />
-            3 Frameworks - 100% Gratis
-          </Badge>
-
-          <h1 className="mb-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            Decision-Making{" "}
-            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Frameworks
-            </span>
-          </h1>
-
-          <p className="mb-8 text-xl text-muted-foreground">
-            Toma mejores decisiones con frameworks probados y análisis de IA experta.
-            <br />
-            Elige el framework adecuado para tu tipo de decisión.
-          </p>
-
-          <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>2-4 minutos</span>
+      {/* Hero */}
+      <section className="pt-40 pb-24 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
+              <Layers className="w-4 h-4 text-purple-400" />
+              <span>3 Frameworks - 100% Gratis</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              <span>4 IAs expertas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Análisis ilimitados</span>
+
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight">
+              Decision-Making{" "}
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                Frameworks
+              </span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed mb-8">
+              Toma mejores decisiones con frameworks probados y análisis de IA experta.
+              Elige el framework adecuado para tu tipo de decisión.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-[var(--theme-text-secondary)]">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-purple-400" />
+                <span>2-4 minutos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-cyan-400" />
+                <span>4 IAs expertas</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-400" />
+                <span>Análisis ilimitados</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Frameworks Grid */}
-      <section className="container mx-auto px-4 pb-16">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <section className="pb-24 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-3 gap-8">
             {frameworks.map((framework) => {
               const Icon = framework.icon;
               const isActive = framework.status === "active";
 
               return (
-                <Card
+                <div
                   key={framework.slug}
-                  className={`relative flex flex-col transition-all hover:shadow-lg ${
-                    framework.borderColor
-                  } ${!isActive && "opacity-75"}`}
+                  className={`relative p-8 rounded-3xl overflow-hidden transition-transform ${
+                    isActive ? "hover:scale-[1.02]" : "opacity-75"
+                  }`}
                 >
+                  <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
+                  <div className="absolute inset-0 border border-white/10 rounded-3xl" />
+
                   {framework.status === "coming-soon" && (
-                    <div className="absolute right-4 top-4">
-                      <Badge variant="outline" className="text-xs">
+                    <div className="absolute right-4 top-4 z-10">
+                      <span className="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-medium">
                         Próximamente
-                      </Badge>
+                      </span>
                     </div>
                   )}
 
-                  <CardHeader>
-                    <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-lg ${framework.bgColor}`}>
-                      <Icon className={`h-6 w-6 ${framework.textColor}`} />
+                  <div className="relative z-10">
+                    {/* Icon */}
+                    <div
+                      className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${framework.gradient} flex items-center justify-center mb-6`}
+                    >
+                      <Icon className="w-7 h-7 text-white" />
                     </div>
-                    <CardTitle className="text-2xl">{framework.name}</CardTitle>
-                    <CardDescription className="text-base">
-                      {framework.description}
-                    </CardDescription>
-                  </CardHeader>
 
-                  <CardContent className="flex-1 space-y-6">
+                    {/* Title & Description */}
+                    <h3 className="text-2xl font-bold text-white mb-3">
+                      {framework.name}
+                    </h3>
+                    <p className="text-[var(--theme-text-secondary)] mb-6 leading-relaxed">
+                      {framework.description}
+                    </p>
+
                     {/* Features */}
-                    <div>
-                      <div className="mb-2 text-sm font-medium">Características:</div>
-                      <ul className="space-y-1 text-sm text-muted-foreground">
+                    <div className="mb-6">
+                      <div className="text-sm font-medium text-[var(--theme-text-secondary)] mb-3">Características:</div>
+                      <ul className="space-y-2">
                         {framework.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle2 className={`mt-0.5 h-4 w-4 flex-shrink-0 ${framework.textColor}`} />
+                          <li key={idx} className="flex items-start gap-2 text-sm text-[var(--theme-text-secondary)]">
+                            <CheckCircle2 className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
                             <span>{feature}</span>
                           </li>
                         ))}
@@ -224,50 +241,59 @@ export default function FrameworksOverviewPage() {
                     </div>
 
                     {/* Use Cases */}
-                    <div>
-                      <div className="mb-2 text-sm font-medium">Casos de uso:</div>
+                    <div className="mb-6">
+                      <div className="text-sm font-medium text-[var(--theme-text-secondary)] mb-3">Casos de uso:</div>
                       <div className="flex flex-wrap gap-2">
                         {framework.useCases.map((useCase, idx) => (
-                          <Badge
+                          <span
                             key={idx}
-                            variant="outline"
-                            className="text-xs font-normal"
+                            className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-[var(--theme-text-secondary)]"
                           >
                             {useCase}
-                          </Badge>
+                          </span>
                         ))}
                       </div>
                     </div>
 
                     {/* Time */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm text-[var(--theme-text-tertiary)] mb-6">
                       <Clock className="h-4 w-4" />
                       <span>Tiempo promedio: {framework.time}</span>
                     </div>
-                  </CardContent>
 
-                  <CardFooter className="flex gap-2">
-                    {isActive ? (
-                      <>
-                        <Link href={`/frameworks/${framework.slug}`} className="flex-1">
-                          <Button variant="outline" className="w-full">
-                            Más info
-                          </Button>
-                        </Link>
-                        <Link href={`/debates/new?framework=${framework.slug}`} className="flex-1">
-                          <Button className={`w-full ${framework.bgColor} ${framework.textColor} hover:opacity-90`}>
-                            Usar ahora
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </>
-                    ) : (
-                      <Button variant="outline" className="w-full" disabled>
-                        Próximamente
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
+                    {/* Actions */}
+                    <div className="flex gap-3">
+                      {isActive ? (
+                        <>
+                          <Link href={`/frameworks/${framework.slug}`} className="flex-1">
+                            <Button
+                              variant="outline"
+                              className="w-full border-white/10 text-white hover:bg-white/5"
+                            >
+                              Más info
+                            </Button>
+                          </Link>
+                          <Link href={`/debates/new-unified?framework=${framework.slug}&new=1`} className="flex-1">
+                            <Button
+                              className={`w-full bg-gradient-to-r ${framework.gradient} text-white border-0 hover:opacity-90`}
+                            >
+                              Usar ahora
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="w-full border-white/10 text-[var(--theme-text-tertiary)]"
+                          disabled
+                        >
+                          Próximamente
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -275,78 +301,38 @@ export default function FrameworksOverviewPage() {
       </section>
 
       {/* Comparison Table */}
-      <section className="border-y bg-gray-50 py-16 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-6xl">
-            <h2 className="mb-8 text-center text-3xl font-bold">
-              ¿Qué framework usar?
-            </h2>
+      <section className="py-24 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <SectionHeader
+            title="¿Qué framework usar?"
+            subtitle="Guía rápida para elegir el framework adecuado"
+          />
 
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+          <div className="relative rounded-3xl overflow-hidden">
+            <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
+            <div className="absolute inset-0 border border-white/10 rounded-3xl" />
+
+            <div className="relative z-10 overflow-x-auto">
+              <table className="w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="p-4 text-left font-semibold">Situación</th>
-                    <th className="p-4 text-left font-semibold">Framework Recomendado</th>
-                    <th className="p-4 text-left font-semibold">Por qué</th>
+                  <tr className="border-b border-white/10">
+                    <th className="p-6 text-left text-sm font-semibold text-[var(--theme-text-secondary)]">Situación</th>
+                    <th className="p-6 text-left text-sm font-semibold text-[var(--theme-text-secondary)]">Framework</th>
+                    <th className="p-6 text-left text-sm font-semibold text-[var(--theme-text-secondary)]">Por qué</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
-                  <tr>
-                    <td className="p-4">Decisión binaria (hacer/no hacer)</td>
-                    <td className="p-4">
-                      <Badge className="bg-purple-100 text-purple-700">
-                        Pros and Cons
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      Analiza ventajas vs desventajas y da recomendación clara
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-4">Planificación estratégica de negocio</td>
-                    <td className="p-4">
-                      <Badge className="bg-blue-100 text-blue-700">
-                        SWOT Analysis
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      Considera factores internos y externos del negocio
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-4">Gestión de tareas y prioridades</td>
-                    <td className="p-4">
-                      <Badge className="bg-green-100 text-green-700">
-                        Eisenhower Matrix
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      Clasifica por urgencia e importancia
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-4">Evaluación de inversión o deal</td>
-                    <td className="p-4">
-                      <Badge className="bg-purple-100 text-purple-700">
-                        Pros and Cons
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      Pesos cuantificados para comparar opciones
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-4">Análisis de mercado o competencia</td>
-                    <td className="p-4">
-                      <Badge className="bg-blue-100 text-blue-700">
-                        SWOT Analysis
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      Identifica oportunidades y amenazas externas
-                    </td>
-                  </tr>
+                <tbody className="divide-y divide-white/5">
+                  {comparisonData.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-white/5 transition-colors">
+                      <td className="p-6 text-white">{row.situation}</td>
+                      <td className="p-6">
+                        <span className={`px-3 py-1 rounded-full bg-gradient-to-r ${row.gradient} text-white text-sm font-medium`}>
+                          {row.framework}
+                        </span>
+                      </td>
+                      <td className="p-6 text-[var(--theme-text-secondary)] text-sm">{row.reason}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -355,45 +341,23 @@ export default function FrameworksOverviewPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">
-            ¿Listo para tomar mejores decisiones?
-          </h2>
-          <p className="mb-8 text-lg text-muted-foreground">
-            Elige un framework y obtén análisis de IA experta en minutos
-          </p>
-          <Link href="/debates/new">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
-              Empezar análisis gratis
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </section>
+      <CTASection>
+        <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+          ¿Listo para tomar mejores decisiones?
+        </h2>
+        <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+          Elige un framework y obtén análisis de IA experta en minutos. 100% gratis.
+        </p>
+        <Link href="/debates/new-unified?new=1">
+          <GradientCTAButton size="lg">
+            Empezar análisis gratis
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </GradientCTAButton>
+        </Link>
+      </CTASection>
 
       {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-purple-600" />
-              <span className="font-semibold">Quoorum</span>
-            </div>
-            <nav className="flex gap-6 text-sm text-muted-foreground">
-              <Link href="/frameworks/pros-and-cons" className="hover:text-foreground">
-                Pros and Cons
-              </Link>
-              <Link href="/frameworks/swot-analysis" className="hover:text-foreground">
-                SWOT Analysis
-              </Link>
-              <Link href="/frameworks/eisenhower-matrix" className="hover:text-foreground">
-                Eisenhower Matrix
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }

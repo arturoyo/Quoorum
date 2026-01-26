@@ -98,7 +98,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
   if (!question || question.length < 10) {
     return (
       <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-        <CardContent className="py-6 text-center text-sm text-gray-400">
+        <CardContent className="py-6 text-center text-sm text-[var(--theme-text-secondary)]">
           Escribe una pregunta para ver las estrategias recomendadas
         </CardContent>
       </Card>
@@ -112,7 +112,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
           <Sparkles className="h-5 w-5 text-purple-400" />
           Estrategia de Deliberación
         </CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardDescription className="text-[var(--theme-text-secondary)]">
           Selecciona cómo quieres que se ejecute el debate
         </CardDescription>
       </CardHeader>
@@ -131,45 +131,48 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
           </Select>
         </div>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
-          </div>
-        ) : patternMode === 'auto' && strategyAnalysis ? (
-          <>
-            {/* Recommended Strategy */}
-            <div className="rounded-lg border-2 border-purple-500/50 bg-purple-900/20 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-purple-600 text-white">
-                      Recomendado ({Math.round(strategyAnalysis.confidence * 100)}%)
-                    </Badge>
-                  </div>
-                  <h3 className="font-semibold text-white mb-1">
-                    {PATTERN_LABELS[strategyAnalysis.recommendedPattern]?.label || strategyAnalysis.recommendedPattern}
-                  </h3>
-                  <p className="text-sm text-gray-300 mb-3">
-                    {PATTERN_LABELS[strategyAnalysis.recommendedPattern]?.description || strategyAnalysis.reasoning}
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-gray-400">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      <span>~{strategyAnalysis.estimatedTimeMinutes} min</span>
+        {/* Auto Mode: Show recommended strategy */}
+        {patternMode === 'auto' ? (
+          isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
+              <span className="ml-2 text-sm text-[var(--theme-text-secondary)]">Analizando estrategia...</span>
+            </div>
+          ) : strategyAnalysis ? (
+            <>
+              {/* Recommended Strategy - Always visible in auto mode */}
+              <div className="rounded-lg border-2 border-purple-500/50 bg-purple-900/20 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge className="bg-purple-600 text-white">
+                        Recomendado ({Math.round(strategyAnalysis.confidence * 100)}%)
+                      </Badge>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <DollarSign className="h-3 w-3" />
-                      <span>~${strategyAnalysis.estimatedCost.toFixed(2)}</span>
+                    <h3 className="font-semibold text-white mb-1">
+                      {PATTERN_LABELS[strategyAnalysis.recommendedPattern]?.label || strategyAnalysis.recommendedPattern}
+                    </h3>
+                    <p className="text-sm text-[var(--theme-text-secondary)] mb-3">
+                      {PATTERN_LABELS[strategyAnalysis.recommendedPattern]?.description || strategyAnalysis.reasoning}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-[var(--theme-text-secondary)]">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>~{strategyAnalysis.estimatedTimeMinutes} min</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        <span>~${strategyAnalysis.estimatedCost.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
             {/* Alternative Patterns */}
             {strategyAnalysis.alternativePatterns && strategyAnalysis.alternativePatterns.length > 0 && (
               <div className="space-y-2">
-                <Label className="text-sm text-gray-400">Estrategias Alternativas</Label>
+                <Label className="text-sm text-[var(--theme-text-secondary)]">Estrategias Alternativas</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {strategyAnalysis.alternativePatterns.map((pattern) => (
                     <Button
@@ -181,7 +184,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
                         setManualPattern(pattern)
                       }}
                       className={cn(
-                        'justify-start border-white/10 bg-slate-800/30 text-gray-300 hover:bg-purple-600/20 hover:border-purple-500/50 hover:text-white',
+                        'justify-start border-white/10 bg-slate-800/30 text-[var(--theme-text-secondary)] hover:bg-purple-600/20 hover:border-purple-500/50 hover:text-white',
                         selectedPattern === pattern && 'border-purple-500 bg-purple-600/20 text-white'
                       )}
                     >
@@ -197,7 +200,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
               <div className="rounded-lg border border-white/5 bg-slate-800/30 p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Info className="h-4 w-4 text-blue-400" />
-                  <Label className="text-xs text-gray-400">Señales Detectadas</Label>
+                  <Label className="text-xs text-[var(--theme-text-secondary)]">Señales Detectadas</Label>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {strategyAnalysis.signals
@@ -210,7 +213,15 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
                 </div>
               </div>
             )}
-          </>
+            </>
+          ) : (
+            <div className="rounded-lg border border-yellow-500/30 bg-yellow-900/10 p-4">
+              <div className="flex items-center gap-2 text-yellow-400">
+                <Info className="h-4 w-4" />
+                <span className="text-sm">No se pudo analizar la estrategia. Intenta cambiar a modo manual.</span>
+              </div>
+            </div>
+          )
         ) : (
           <div className="space-y-2">
             <Label className="text-white">Seleccionar Estrategia Manualmente</Label>
@@ -223,7 +234,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
                   <SelectItem key={pattern} value={pattern}>
                     <div>
                       <div className="font-medium">{info.label}</div>
-                      <div className="text-xs text-gray-400">{info.description}</div>
+                      <div className="text-xs text-[var(--theme-text-secondary)]">{info.description}</div>
                     </div>
                   </SelectItem>
                 ))}

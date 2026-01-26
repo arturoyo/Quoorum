@@ -5,7 +5,8 @@
 import type { AIProvider } from './ai-debate-types'
 import { db } from '@quoorum/db'
 import { companies, departments } from '@quoorum/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, inArray } from 'drizzle-orm'
+import { quoorumLogger } from '../logger'
 
 // ============================================================================
 // TYPES
@@ -247,6 +248,8 @@ export async function buildCorporateContext(
   userId: string,
   departmentIds?: string[]
 ): Promise<CorporateContext | null> {
+  quoorumLogger.info('[Corporate Context] Building corporate context for user', { userId, departmentIds })
+
   // Layer 1: Fetch company (master context)
   const [company] = await db
     .select()
@@ -255,8 +258,11 @@ export async function buildCorporateContext(
     .limit(1)
 
   if (!company) {
+    quoorumLogger.info('[Corporate Context] No company found for user', { userId })
     return null // No company configured for this user
   }
+
+  quoorumLogger.info('[Corporate Context] Company found', { companyName: company.name, companyId: company.id })
 
   // Layer 2: Fetch departments
   const conditions = [
@@ -271,13 +277,18 @@ export async function buildCorporateContext(
       .from(departments)
       .where(
         and(
-          ...conditions,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- drizzle-orm's inArray type requires any[]
-          ...(departmentIds.length ? [eq(departments.id, departmentIds[0] as any)] : [])
+          eq(departments.companyId, company.id),
+          eq(departments.isActive, true),
+          inArray(departments.id, departmentIds)
         )
       )
 
-    const filteredDepts = depts.filter((d) => departmentIds.includes(d.id))
+    const filteredDepts = depts
+    quoorumLogger.info('[Corporate Context] Departments loaded', {
+      loaded: filteredDepts.length,
+      requested: departmentIds.length,
+      departmentNames: filteredDepts.map(d => d.name),
+    })
 
     const departmentContexts: DepartmentContext[] = filteredDepts.map((dept) => ({
       id: dept.id,
@@ -308,10 +319,16 @@ export async function buildCorporateContext(
   }
 
   // Fetch all active departments if no specific IDs
+  quoorumLogger.info('[Corporate Context] Loading all active departments (no specific IDs provided)')
   const allDepartments = await db
     .select()
     .from(departments)
     .where(and(...conditions))
+
+  quoorumLogger.info('[Corporate Context] All departments loaded', {
+    count: allDepartments.length,
+    departmentNames: allDepartments.map(d => d.name),
+  })
 
   const departmentContexts: DepartmentContext[] = allDepartments.map((dept) => ({
     id: dept.id,

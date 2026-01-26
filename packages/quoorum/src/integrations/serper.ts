@@ -307,4 +307,5 @@ export const SerperAPI = {
   searchWebCached,
   clearSearchCache,
   getSearchStats,
+  isConfigured: () => !!SERPER_API_KEY,
 }

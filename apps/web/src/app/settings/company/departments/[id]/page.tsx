@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
-import { api } from '@/lib/trpc'
+import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -52,11 +52,21 @@ export default function EditDepartmentPage() {
   const [temperature, setTemperature] = useState('0.7')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('')
+  const [parentId, setParentId] = useState<string | null>(null)
 
   // Get department
   const { data: department, isLoading } = api.departments.getById.useQuery(
     { id: departmentId },
     { enabled: !!departmentId }
+  )
+
+  // Get company to fetch existing departments
+  const { data: company } = api.companies.get.useQuery()
+
+  // Get existing departments for parent selection (excluding current department)
+  const { data: existingDepartments } = api.departments.list.useQuery(
+    { companyId: company?.id ?? '00000000-0000-0000-0000-000000000000' },
+    { enabled: !!company?.id }
   )
 
   // Update mutation
@@ -84,6 +94,8 @@ export default function EditDepartmentPage() {
       setDescription(department.description || '')
       // @ts-expect-error - icon field may not be in type yet after migration
       setIcon(department.icon || '')
+      // @ts-expect-error - parentId field may not be in type yet after migration
+      setParentId(department.parentId || null)
     }
   }, [department])
 
@@ -97,6 +109,7 @@ export default function EditDepartmentPage() {
 
     updateMutation.mutate({
       id: departmentId,
+      parentId: parentId || undefined,
       name,
       type: type as any,
       departmentContext,
@@ -199,6 +212,33 @@ export default function EditDepartmentPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="parent">Departamento Padre (Opcional)</Label>
+              <Select 
+                value={parentId || 'none'} 
+                onValueChange={(value) => setParentId(value === 'none' ? null : value)}
+              >
+                <SelectTrigger id="parent">
+                  <SelectValue placeholder="Sin departamento padre (nivel raíz)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin departamento padre (nivel raíz)</SelectItem>
+                  {existingDepartments
+                    ?.filter((dept) => dept.id !== departmentId) // Exclude current department
+                    .map((dept) => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.icon && <span className="mr-2">{dept.icon}</span>}
+                        {dept.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Selecciona un departamento padre si este depende de otro (ej: "Redes Sociales" depende de "Marketing").
+                No puedes seleccionar el mismo departamento como padre.
+              </p>
             </div>
           </CardContent>
         </Card>

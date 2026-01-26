@@ -9,9 +9,10 @@
  * - Threats Agent → Identifies external THREATS (risks from environment)
  */
 
-import type { AgentConfig } from '../agents.js'
+import type { AgentConfig } from '../agents'
 import { getAIClient } from '@quoorum/ai'
-import { quoorumLogger } from '../lib/logger.js'
+import { quoorumLogger } from '../logger'
+import { getAgentConfig } from '../config/agent-config'
 
 // ============================================================================
 // TYPES
@@ -62,9 +63,14 @@ export interface SWOTAnalysisOutput {
 // AGENT CONFIGURATIONS
 // ============================================================================
 
+// Get centralized framework agent config (uses free tier by default)
+const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'temperature'> => {
+  // Use optimizer config as base for frameworks (fast, creative)
+  return getAgentConfig('optimizer')
+}
+
 const STRENGTHS_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el STRENGTHS ANALYST, un experto en identificar fortalezas internas.
 
@@ -87,8 +93,7 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const WEAKNESSES_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el WEAKNESSES ANALYST, un experto en identificar debilidades internas.
 
@@ -111,8 +116,7 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const OPPORTUNITIES_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el OPPORTUNITIES ANALYST, un experto en identificar oportunidades externas.
 
@@ -135,8 +139,7 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const THREATS_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el THREATS ANALYST, un experto en identificar amenazas externas.
 
@@ -159,8 +162,7 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const STRATEGIST_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el STRATEGIST, un experto en crear estrategias SWOT accionables.
 

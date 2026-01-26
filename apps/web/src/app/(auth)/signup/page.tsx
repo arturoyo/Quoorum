@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { api } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,11 +27,14 @@ import {
   Github,
   Chrome,
   CheckCircle,
+  Gift,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
-export default function SignupPage() {
+function SignupContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get("ref");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -39,8 +43,29 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [referralValid, setReferralValid] = useState<{
+    valid: boolean;
+    referrerName?: string;
+    message?: string;
+  } | null>(null);
 
   const supabase = createClient();
+
+  // Validate referral code if present
+  const { data: referralValidation, isLoading: isValidatingReferral } =
+    api.referrals.validateCode.useQuery(
+      { code: referralCode ?? "" },
+      {
+        enabled: !!referralCode,
+        retry: false,
+      }
+    );
+
+  useEffect(() => {
+    if (referralValidation) {
+      setReferralValid(referralValidation);
+    }
+  }, [referralValidation]);
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,8 +90,11 @@ export default function SignupPage() {
         options: {
           data: {
             full_name: name,
+            referral_code: referralCode ?? null, // Store referral code in user metadata
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/auth/callback${
+            referralCode ? `?ref=${referralCode}` : ""
+          }`,
         },
       });
 
@@ -100,7 +128,9 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard`,
+          redirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard${
+            referralCode ? `&ref=${referralCode}` : ""
+          }`,
         },
       });
 
@@ -124,13 +154,13 @@ export default function SignupPage() {
           <CardTitle className="text-2xl font-bold text-white">
             ¡Revisa tu email!
           </CardTitle>
-          <CardDescription className="text-gray-400">
+          <CardDescription className="text-[var(--theme-text-secondary)]">
             Te hemos enviado un enlace de confirmación a{" "}
             <span className="text-white font-medium">{email}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-center text-sm text-gray-400">
+          <p className="text-center text-sm text-[var(--theme-text-secondary)]">
             Haz clic en el enlace del email para activar tu cuenta y comenzar a
             usar Quoorum.
           </p>
@@ -152,7 +182,7 @@ export default function SignupPage() {
         <CardTitle className="text-2xl font-bold text-white">
           Crea tu cuenta
         </CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardDescription className="text-[var(--theme-text-secondary)]">
           Comienza gratis con 5 debates al mes
         </CardDescription>
       </CardHeader>
@@ -163,6 +193,37 @@ export default function SignupPage() {
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
+
+        {/* Referral Bonus Banner */}
+        {referralCode && (
+          <div>
+            {isValidatingReferral ? (
+              <Alert className="border-purple-500/50 bg-purple-500/10">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <AlertDescription>Validando código de referido...</AlertDescription>
+              </Alert>
+            ) : referralValid?.valid ? (
+              <Alert className="border-green-500/50 bg-green-500/10">
+                <Gift className="h-4 w-4 text-green-400" />
+                <AlertDescription className="text-green-200">
+                  <strong>¡Bonus de referido activado!</strong>
+                  <br />
+                  {referralValid.referrerName
+                    ? `${referralValid.referrerName} te ha invitado. `
+                    : ""}
+                  Obtendrás 100 créditos adicionales al completar tu registro.
+                </AlertDescription>
+              </Alert>
+            ) : referralValid && !referralValid.valid ? (
+              <Alert variant="destructive" className="border-yellow-500/50 bg-yellow-500/10">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-yellow-200">
+                  {referralValid.message || "Código de referido inválido"}
+                </AlertDescription>
+              </Alert>
+            ) : null}
+          </div>
         )}
 
         {/* OAuth Buttons */}
@@ -192,7 +253,7 @@ export default function SignupPage() {
             <Separator className="w-full bg-white/10" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-gray-500">
+            <span className="bg-transparent px-2 text-[var(--theme-text-tertiary)]">
               O continúa con email
             </span>
           </div>
@@ -201,11 +262,11 @@ export default function SignupPage() {
         {/* Email/Password Form */}
         <form onSubmit={handleEmailSignup} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-gray-300">
+            <Label htmlFor="name" className="text-[var(--theme-text-secondary)]">
               Nombre
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+              <User className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
               <Input
                 id="name"
                 type="text"
@@ -214,17 +275,17 @@ export default function SignupPage() {
                 onChange={(e) => setName(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-300">
+            <Label htmlFor="email" className="text-[var(--theme-text-secondary)]">
               Email
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
               <Input
                 id="email"
                 type="email"
@@ -233,17 +294,17 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-gray-300">
+            <Label htmlFor="password" className="text-[var(--theme-text-secondary)]">
               Contraseña
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
               <Input
                 id="password"
                 type="password"
@@ -253,7 +314,7 @@ export default function SignupPage() {
                 required
                 minLength={8}
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
               />
             </div>
           </div>
@@ -267,7 +328,7 @@ export default function SignupPage() {
             />
             <label
               htmlFor="terms"
-              className="text-sm text-gray-400 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm text-[var(--theme-text-secondary)] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Acepto los{" "}
               <Link href="/terms" className="text-purple-400 hover:text-purple-300">
@@ -298,7 +359,7 @@ export default function SignupPage() {
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-6">
-        <p className="text-center text-sm text-gray-400">
+        <p className="text-center text-sm text-[var(--theme-text-secondary)]">
           ¿Ya tienes cuenta?{" "}
           <Link
             href="/login"
@@ -309,5 +370,21 @@ export default function SignupPage() {
         </p>
       </CardFooter>
     </Card>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <Card className="border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold text-white">
+            Cargando...
+          </CardTitle>
+        </CardHeader>
+      </Card>
+    }>
+      <SignupContent />
+    </Suspense>
   );
 }

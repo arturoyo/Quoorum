@@ -144,17 +144,25 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
   ]
 
   return (
-    <>
-      <Card className="bg-white/5 border-white/10">
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2 text-[var(--theme-text-primary)]">Seguridad</h1>
+        <p className="text-[var(--theme-text-secondary)]">
+          Gestiona la seguridad de tu cuenta y sesiones activas
+        </p>
+      </div>
+
+      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
         <CardHeader>
-          <CardTitle className="text-white">Cambiar Contraseña</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-[var(--theme-text-primary)]">Cambiar Contraseña</CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
             Actualiza tu contraseña regularmente para mantener tu cuenta segura
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword" className="text-gray-300">
+            <Label htmlFor="currentPassword" className="text-[var(--theme-text-secondary)]">
               Contraseña actual
             </Label>
             <Input
@@ -164,12 +172,12 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
               onChange={(e) =>
                 setPasswordData({ ...passwordData, currentPassword: e.target.value })
               }
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword" className="text-gray-300">
+            <Label htmlFor="newPassword" className="text-[var(--theme-text-secondary)]">
               Nueva contraseña
             </Label>
             <Input
@@ -179,11 +187,11 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
               onChange={(e) =>
                 setPasswordData({ ...passwordData, newPassword: e.target.value })
               }
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
             />
             {passwordData.newPassword && (
               <div className="flex items-center gap-2 mt-2">
-                <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-[var(--theme-bg-tertiary)] rounded-full overflow-hidden">
                   <div
                     className={`h-full transition-all ${
                       passwordStrength.level === 1
@@ -202,7 +210,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-gray-300">
+            <Label htmlFor="confirmPassword" className="text-[var(--theme-text-secondary)]">
               Confirmar nueva contraseña
             </Label>
             <Input
@@ -212,21 +220,21 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
               onChange={(e) =>
                 setPasswordData({ ...passwordData, confirmPassword: e.target.value })
               }
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
             />
           </div>
 
           {passwordData.newPassword && (
-            <div className="p-4 rounded-lg bg-slate-800/50 space-y-2">
-              <p className="text-sm text-gray-400 mb-2">La contraseña debe incluir:</p>
+            <div className="p-4 rounded-lg bg-[var(--theme-bg-tertiary)] space-y-2">
+              <p className="text-sm text-[var(--theme-text-tertiary)] mb-2">La contraseña debe incluir:</p>
               {passwordRequirements.map((req, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   {req.met ? (
                     <Check className="w-4 h-4 text-green-400" />
                   ) : (
-                    <X className="w-4 h-4 text-gray-600" />
+                    <X className="w-4 h-4 text-[var(--theme-text-tertiary)]" />
                   )}
-                  <span className={req.met ? 'text-green-400' : 'text-gray-500'}>
+                  <span className={req.met ? 'text-green-400' : 'text-[var(--theme-text-tertiary)]'}>
                     {req.text}
                   </span>
                 </div>
@@ -254,18 +262,18 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/5 border-white/10">
+      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
         <CardHeader>
-          <CardTitle className="text-white">Sesiones Activas</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-[var(--theme-text-primary)]">Sesiones Activas</CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
             Gestiona dónde has iniciado sesión con tu cuenta
           </CardDescription>
         </CardHeader>
         <CardContent>
           {sessions && sessions.length === 0 ? (
             <div className="text-center py-8">
-              <Shield className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400">No hay sesiones activas registradas</p>
+              <Shield className="w-12 h-12 text-[var(--theme-text-tertiary)] mx-auto mb-4" />
+              <p className="text-[var(--theme-text-tertiary)]">No hay sesiones activas registradas</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -274,16 +282,16 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
                 return (
                   <div
                     key={session.id}
-                    className="flex items-center justify-between p-4 rounded-lg bg-white/5"
+                    className="flex items-center justify-between p-4 rounded-lg bg-[var(--theme-bg-tertiary)]"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-white font-medium">{session.device}</p>
+                        <p className="text-[var(--theme-text-primary)] font-medium">{session.device}</p>
                         {isCurrent && (
                           <Badge className="bg-green-500/20 text-green-400">Actual</Badge>
                         )}
                       </div>
-                      <p className="text-sm text-gray-400 mt-1">
+                      <p className="text-sm text-[var(--theme-text-tertiary)] mt-1">
                         {session.location || 'Ubicación desconocida'} •{' '}
                         {new Date(session.lastActive).toLocaleString('es-ES')}
                       </p>
@@ -309,36 +317,36 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
 
       <Card className="bg-yellow-500/10 border-yellow-500/30">
         <CardHeader>
-          <CardTitle className="text-yellow-400 flex items-center gap-2">
+          <CardTitle className="text-yellow-500 dark:text-yellow-400 flex items-center gap-2">
             <AlertTriangle className="w-5 h-5" />
             Autenticación de Dos Factores
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
             Añade una capa extra de seguridad a tu cuenta
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-300 mb-4">
+          <p className="text-[var(--theme-text-secondary)] mb-4">
             La autenticación de dos factores (2FA) protege tu cuenta requiriendo un código
             adicional al iniciar sesión.
           </p>
-          <Button className="bg-yellow-600 hover:bg-yellow-700">
+          <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
             Configurar 2FA
           </Button>
         </CardContent>
       </Card>
 
-      <Separator className="bg-white/10" />
+      <Separator className="bg-[var(--theme-border)]" />
 
       <Card className="bg-red-500/10 border-red-500/30">
         <CardHeader>
-          <CardTitle className="text-red-400">Eliminar Cuenta</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-red-500 dark:text-red-400">Eliminar Cuenta</CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
             Esta acción es permanente y no se puede deshacer
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-300 mb-4">
+          <p className="text-[var(--theme-text-secondary)] mb-4">
             Si eliminas tu cuenta, perderás acceso a todos tus debates, configuraciones y
             datos. Esta acción no se puede revertir.
           </p>
@@ -350,6 +358,6 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
           </Button>
         </CardContent>
       </Card>
-    </>
+    </div>
   )
 }

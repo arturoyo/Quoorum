@@ -165,7 +165,7 @@ describe('4-Layer Prompt - Size Limits', () => {
   })
 
   it('should estimate tokens correctly for large prompts', () => {
-    const hugeContext = 'word '.repeat(20_000) // 20k words = ~100k chars
+    const hugeContext = 'word '.repeat(20_000) // 20k words = ~100k chars each
 
     const tokens = estimateFourLayerTokens(mockAgent, {
       companyContext: hugeContext,
@@ -173,9 +173,10 @@ describe('4-Layer Prompt - Size Limits', () => {
       customPrompt: hugeContext,
     })
 
-    // Estimate: 100k chars / 4 = 25k tokens
-    expect(tokens).toBeGreaterThan(20_000)
-    expect(tokens).toBeLessThan(30_000)
+    // 3 contexts of ~100k chars each = ~300k chars total
+    // Estimate: 300k chars / 4 = ~75k tokens
+    expect(tokens).toBeGreaterThan(70_000)
+    expect(tokens).toBeLessThan(80_000)
   })
 
   it('should handle GPT-4 context limit (128k tokens)', () => {

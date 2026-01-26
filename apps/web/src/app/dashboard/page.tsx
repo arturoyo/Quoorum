@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { api } from "@/lib/trpc/client";
+import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,37 +23,14 @@ import {
   Zap,
   ArrowRight,
   Clock,
-  CheckCircle,
   CreditCard,
-  MessageCircle,
   Bell,
 } from "lucide-react";
 import { AppHeader } from "@/components/layout/app-header";
 import { SettingsModal } from "@/components/settings/settings-modal";
+import { TestModeToggle } from "@/components/dashboard/test-mode-toggle";
 import type { User } from "@supabase/supabase-js";
 
-interface DashboardData {
-  subscription: {
-    plan: string;
-    status: string;
-    debatesUsed: number;
-    debatesLimit: number;
-    currentPeriodEnd: string;
-  };
-  recentDebates: Array<{
-    id: string;
-    question: string;
-    status: string;
-    consensusScore: number | null;
-    createdAt: string;
-  }>;
-  stats: {
-    totalDebates: number;
-    completedDebates: number;
-    avgConsensus: number;
-    thisMonth: number;
-  };
-}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -66,6 +44,21 @@ export default function DashboardPage() {
   // Check auth
   useEffect(() => {
     async function checkAuth() {
+      // MODE TEST: Permitir acceso con cookie especial (solo en desarrollo)
+      const isTestMode = process.env.NODE_ENV !== 'production'
+      const testAuthCookie = document.cookie.includes('test-auth-bypass=test@quoorum.pro')
+
+      if (isTestMode && testAuthCookie) {
+        // En modo test, simular usuario autenticado
+        setUser({
+          id: 'f482a511-8c42-4896-b2d2-ae740194b7c9',
+          email: 'test@quoorum.pro',
+          email_confirmed_at: new Date().toISOString(),
+        } as User)
+        setIsAuthChecking(false)
+        return
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
@@ -81,7 +74,7 @@ export default function DashboardPage() {
   }, [router, supabase.auth]);
 
   // Fetch stats via tRPC (with error handling)
-  const { data: stats, isLoading: statsLoading, error: statsError } = api.debates.stats.useQuery(
+  const { data: stats, isLoading: _statsLoading, error: statsError } = api.debates.stats.useQuery(
     undefined,
     { 
       enabled: !isAuthChecking && !!user,
@@ -90,7 +83,7 @@ export default function DashboardPage() {
   );
 
   // Fetch recent debates via tRPC (with error handling)
-  const { data: recentDebates = [], isLoading: debatesLoading, error: debatesError } = api.debates.list.useQuery(
+  const { data: recentDebates = [], isLoading: _debatesLoading, error: debatesError } = api.debates.list.useQuery(
     { limit: 8, offset: 0 },
     {
       enabled: !isAuthChecking && !!user,
@@ -125,7 +118,7 @@ export default function DashboardPage() {
     }
   );
 
-  const { data: recentNotifications, error: notificationsListError } = api.quoorumNotifications.list.useQuery(
+  const { data: recentNotifications = [], error: _notificationsListError } = api.quoorumNotifications.list.useQuery(
     { limit: 3 },
     { 
       enabled: !isAuthChecking && !!user,
@@ -134,15 +127,13 @@ export default function DashboardPage() {
   );
 
   // Get current user role (to show admin menu)
-  const { data: currentUser } = api.users.getMe.useQuery(
+  const { data: _currentUser } = api.users.getMe.useQuery(
     undefined,
     { 
       enabled: !isAuthChecking && !!user,
       retry: false,
     }
   );
-
-  const isLoading = isAuthChecking || statsLoading || debatesLoading;
 
   // Show skeleton only during initial auth check or first load
   if (isAuthChecking) {
@@ -162,13 +153,55 @@ export default function DashboardPage() {
     thisMonth: 0,
   };
 
-  const displayStats = stats || defaultStats;
+  // Ensure arrays are always arrays (defensive programming)
+  // Type definitions for the data structures
+  type DebateItem = {
+    id: string;
+    question: string;
+    status: string;
+    consensusScore: number | null;
+    createdAt: string | Date;
+  };
+  type NotificationItem = {
+    id: string;
+    debateId?: string | null;
+    message: string;
+    createdAt: string | Date;
+  };
+  type ExpertItem = {
+    id: string;
+    name: string;
+  };
+
+  const safeRecentDebates: DebateItem[] = Array.isArray(recentDebates)
+    ? (recentDebates.filter(Boolean) as DebateItem[])
+    : [];
+  const safeRecentNotifications: NotificationItem[] = Array.isArray(recentNotifications)
+    ? (recentNotifications.filter(Boolean) as NotificationItem[])
+    : [];
+  const safeMyExperts: ExpertItem[] = Array.isArray(myExperts)
+    ? (myExperts.filter(Boolean) as ExpertItem[])
+    : [];
+  
+  // Ensure stats object is always defined with safe defaults
+  const safeStats = (stats && typeof stats === 'object' && !Array.isArray(stats)) ? stats : defaultStats;
   const hasDatabaseError = statsError || debatesError || notificationsError;
+  
+  // Final safety check: ensure all arrays are actually arrays before rendering
+  if (!Array.isArray(safeRecentDebates) || !Array.isArray(safeRecentNotifications) || !Array.isArray(safeMyExperts)) {
+    logger.error('[Dashboard] Array safety check failed', {
+      safeRecentDebates: typeof safeRecentDebates,
+      safeRecentNotifications: typeof safeRecentNotifications,
+      safeMyExperts: typeof safeMyExperts,
+    });
+    // Return skeleton if arrays are not properly initialized
+    return <DashboardSkeleton />;
+  }
 
   // Default subscription data (TODO: implement real subscription system)
   const subscription = {
     plan: "Free",
-    debatesUsed: displayStats.totalDebates,
+    debatesUsed: safeStats.totalDebates || 0,
     debatesLimit: 10,
   };
 
@@ -176,11 +209,11 @@ export default function DashboardPage() {
   const daysUntilRenewal = 30; // TODO: Calculate from subscription.currentPeriodEnd
 
   return (
-    <div className="min-h-screen relative bg-slate-950">
+    <div className="min-h-screen relative bg-[var(--theme-bg-primary)] transition-colors duration-300">
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[var(--theme-bg-primary)] to-blue-900/20 transition-colors duration-300" />
+        <div className="absolute inset-0 bg-[linear-gradient(var(--theme-landing-grid)_1px,transparent_1px),linear-gradient(90deg,var(--theme-landing-grid)_1px,transparent_1px)] bg-[size:72px_72px]" />
       </div>
 
       {/* Header */}
@@ -191,13 +224,13 @@ export default function DashboardPage() {
       />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8 h-[calc(100vh-64px)] flex flex-col">
+      <main className="container mx-auto px-4 pt-20 pb-24 sm:pb-28 md:pb-32 min-h-[calc(100vh-64px)] flex flex-col">
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 flex-shrink-0">
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-            ¡Hola, {user.user_metadata?.full_name || user.email?.split("@")[0]}!
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)]">
+            ¡Hola, {user?.user_metadata?.full_name || user?.email?.split("@")[0] || 'Usuario'}!
           </h1>
-          <p className="text-sm sm:text-base text-gray-300 mt-1">
+          <p className="text-sm sm:text-base text-[var(--theme-text-secondary)] mt-1">
             Aquí tienes un resumen de tu actividad en Quoorum.
           </p>
           {hasDatabaseError && (
@@ -212,14 +245,14 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 flex-shrink-0">
-          <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-300">Total de Expertos</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">
-                    {(libraryCounts?.total || 0) + (myExperts?.length || 0)}
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Total de Expertos</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
+                    {(libraryCounts?.total || 0) + (Array.isArray(safeMyExperts) ? safeMyExperts.length : 0)}
                   </p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
@@ -229,13 +262,13 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-300">Nº de Nuestros Expertos</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{myExperts?.length || 0}</p>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Nº de Nuestros Expertos</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">{Array.isArray(safeMyExperts) ? safeMyExperts.length : 0}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
                   <Users className="w-6 h-6 text-green-400" />
@@ -244,13 +277,13 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-300">Consenso Promedio</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{displayStats.avgConsensus}%</p>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Consenso Promedio</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">{safeStats.avgConsensus}%</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
                   <TrendingUp className="w-6 h-6 text-blue-400" />
@@ -259,13 +292,13 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-300">Este Mes</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{displayStats.thisMonth}</p>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Este Mes</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">{safeStats.thisMonth}</p>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
                   <Zap className="w-6 h-6 text-orange-400" />
@@ -278,15 +311,15 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 flex-1 overflow-hidden">
           {/* Recent Debates */}
           <div className="lg:col-span-2 flex flex-col overflow-hidden">
-            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group flex flex-col h-full">
+            <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group flex flex-col h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader className="relative flex flex-row items-center justify-between flex-shrink-0">
                 <div>
-                  <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Debates Recientes</CardTitle>
-                  <CardDescription className="text-gray-400">Tus últimas deliberaciones</CardDescription>
+                  <CardTitle className="bg-gradient-to-r from-[var(--theme-gradient-text-from)] to-[var(--theme-gradient-text-to)] bg-clip-text text-transparent">Debates Recientes</CardTitle>
+                  <CardDescription className="text-[var(--theme-text-tertiary)]">Tus últimas deliberaciones</CardDescription>
                 </div>
                 <Link href="/debates">
-                  <Button variant="ghost" className="text-gray-400 hover:text-blue-300 transition-colors">
+                  <Button variant="ghost" className="text-[var(--theme-text-tertiary)] hover:text-blue-300 transition-colors">
                     Ver todos
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -299,30 +332,34 @@ export default function DashboardPage() {
                       No se pudieron cargar los debates. Verifica que PostgreSQL esté corriendo.
                     </p>
                   </div>
-                ) : recentDebates.length === 0 ? (
-                  <div className="p-4 rounded-lg bg-white/5 text-center">
-                    <p className="text-gray-400 text-sm">
+                ) : (Array.isArray(safeRecentDebates) && safeRecentDebates.length === 0) ? (
+                  <div className="p-4 rounded-lg bg-[var(--theme-bg-tertiary)]/50 text-center">
+                    <p className="text-[var(--theme-text-tertiary)] text-sm">
                       No tienes debates todavía. Crea tu primer debate para empezar.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-3 pb-2">
-                    {recentDebates.map((debate) => (
+                    {safeRecentDebates.map((debate) => {
+                      if (!debate) return null;
+                      return (
                     <Link
                       key={debate.id}
                       href={`/debates/${debate.id}`}
-                      className="block p-4 rounded-lg bg-white/5 hover:bg-purple-500/10 transition-all duration-200 cursor-pointer border border-white/10 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02]"
+                      className="block p-4 rounded-lg bg-[var(--theme-bg-tertiary)]/50 hover:bg-purple-500/10 transition-all duration-200 cursor-pointer border border-[var(--theme-border)] hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02]"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <p className="text-white font-medium text-base leading-snug break-words mb-3">{debate.question}</p>
-                          <div className="flex items-center gap-4 text-sm text-gray-300">
+                          <p className="text-[var(--theme-text-primary)] font-medium text-base leading-snug break-words mb-3">{debate.question}</p>
+                          <div className="flex items-center gap-4 text-sm text-[var(--theme-text-secondary)]">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
-                              {new Date(debate.createdAt).toLocaleDateString("es-ES", {
+                              {new Date(debate.createdAt).toLocaleString("es-ES", {
                                 day: "numeric",
                                 month: "short",
                                 year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
                               })}
                             </span>
                             {debate.consensusScore !== null && (
@@ -344,8 +381,9 @@ export default function DashboardPage() {
                           {debate.status === "completed" ? "Completado" : "En progreso"}
                         </Badge>
                       </div>
-                    </Link>
-                  ))}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -355,11 +393,11 @@ export default function DashboardPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Subscription Card */}
-            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader className="relative">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Tu Plan</CardTitle>
+                  <CardTitle className="bg-gradient-to-r from-[var(--theme-gradient-text-from)] to-[var(--theme-gradient-text-to)] bg-clip-text text-transparent">Tu Plan</CardTitle>
                   <Badge className="bg-purple-500/20 text-purple-400">
                     {subscription.plan}
                   </Badge>
@@ -368,8 +406,8 @@ export default function DashboardPage() {
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-gray-300">Debates este mes</span>
-                    <span className="text-white">
+                    <span className="text-[var(--theme-text-secondary)]">Debates este mes</span>
+                    <span className="text-[var(--theme-text-primary)]">
                       {subscription.debatesUsed} / {subscription.debatesLimit}
                     </span>
                   </div>
@@ -377,12 +415,12 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">Próxima renovación</span>
-                  <span className="text-white">{daysUntilRenewal} días</span>
+                  <span className="text-[var(--theme-text-secondary)]">Próxima renovación</span>
+                  <span className="text-[var(--theme-text-primary)]">{daysUntilRenewal} días</span>
                 </div>
 
                 <Button 
-                  className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white relative z-10"
+                  className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-[var(--theme-text-primary)] relative z-10"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -399,11 +437,11 @@ export default function DashboardPage() {
 
             {/* Notifications Widget */}
             {!isAuthChecking && user && (
-              <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+              <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="relative">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                    <CardTitle className="bg-gradient-to-r from-[var(--theme-gradient-text-from)] to-[var(--theme-gradient-text-to)] bg-clip-text text-transparent">
                       Notificaciones
                     </CardTitle>
                     {(unreadCount ?? 0) > 0 && (
@@ -414,57 +452,72 @@ export default function DashboardPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {!recentNotifications || recentNotifications.length === 0 ? (
+                  {!Array.isArray(safeRecentNotifications) || safeRecentNotifications.length === 0 ? (
                     <div className="text-center py-4">
-                      <Bell className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-400">No hay notificaciones</p>
+                      <Bell className="w-8 h-8 text-[var(--theme-text-tertiary)] mx-auto mb-2" />
+                      <p className="text-sm text-[var(--theme-text-tertiary)]">No hay notificaciones</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {recentNotifications.slice(0, 3).map((notification) => (
-                        <Link
-                          key={notification.id}
-                          href={notification.debateId ? `/debates/${notification.debateId}` : '/debates'}
-                          className="block p-2 rounded-lg bg-white/5 hover:bg-white/10 transition text-sm"
-                        >
-                          <p className="text-white font-medium line-clamp-2 break-words">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {new Date(notification.createdAt).toLocaleDateString('es-ES', {
-                              day: 'numeric',
-                              month: 'short',
-                            })}
-                          </p>
+                      {Array.isArray(safeRecentNotifications) && safeRecentNotifications.length > 0 ? safeRecentNotifications.slice(0, 3).map((notification) => {
+                        if (!notification) return null;
+                        return (
+                          <Link
+                            key={notification.id}
+                            href={notification.debateId ? `/debates/${notification.debateId}` : '/debates'}
+                            className="block p-2 rounded-lg bg-[var(--theme-bg-tertiary)]/50 hover:bg-[var(--theme-bg-tertiary)] transition text-sm"
+                          >
+                            <p className="text-[var(--theme-text-primary)] font-medium line-clamp-2 break-words">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                              {new Date(notification.createdAt).toLocaleDateString('es-ES', {
+                                day: 'numeric',
+                                month: 'short',
+                              })}
+                            </p>
+                          </Link>
+                        );
+                      }) : (
+                        <p className="text-xs text-[var(--theme-text-tertiary)] text-center py-2">No hay notificaciones</p>
+                      )}
+                      {Array.isArray(safeRecentNotifications) && safeRecentNotifications.length > 0 && (
+                        <Link href="/debates" className="block mt-3">
+                          <Button variant="ghost" className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] text-xs">
+                            Ver todas
+                            <ArrowRight className="ml-2 h-3 w-3" />
+                          </Button>
                         </Link>
-                      ))}
-                      <Link href="/debates" className="block mt-3">
-                        <Button variant="ghost" className="w-full text-gray-300 hover:text-white hover:bg-white/10 text-xs">
-                          Ver todas
-                          <ArrowRight className="ml-2 h-3 w-3" />
-                        </Button>
-                      </Link>
+                      )}
                     </div>
                   )}
                 </CardContent>
               </Card>
             )}
 
+            {/* Test Mode Toggle (solo en desarrollo) */}
+            <TestModeToggle />
+
             {/* Upgrade Prompt (show if on free plan) */}
             {subscription.plan === "Free" && (
               <Card className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border-purple-500/30">
                 <CardContent className="relative p-6">
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                  <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-2">
                     Desbloquea más poder
                   </h3>
-                  <p className="text-gray-300 text-sm mb-4">
+                  <p className="text-[var(--theme-text-secondary)] text-sm mb-4">
                     Actualiza a Pro para 50 debates/mes, más expertos y exportación a PDF.
                   </p>
-                  <Link href="/pricing">
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                      Actualizar Plan
-                    </Button>
-                  </Link>
+                  <Button 
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    onClick={() => {
+                      // Abrir modal de gestión de suscripción (igual que el botón "Gestionar")
+                      setSettingsInitialSection('/settings/billing')
+                      setSettingsModalOpen(true)
+                    }}
+                  >
+                    Actualizar Plan
+                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -490,50 +543,50 @@ export default function DashboardPage() {
 
 function DashboardSkeleton() {
   return (
-    <div className="min-h-screen relative bg-slate-950">
+    <div className="min-h-screen relative bg-[var(--theme-bg-primary)] transition-colors duration-300">
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[var(--theme-bg-primary)] to-blue-900/20 transition-colors duration-300" />
+        <div className="absolute inset-0 bg-[linear-gradient(var(--theme-landing-grid)_1px,transparent_1px),linear-gradient(90deg,var(--theme-landing-grid)_1px,transparent_1px)] bg-[size:72px_72px]" />
       </div>
 
       <main className="container mx-auto px-4 py-4 sm:py-8">
-        <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-2 bg-slate-800/60" />
-        <Skeleton className="h-4 sm:h-5 w-72 sm:w-96 mb-8 bg-slate-800/40" />
+        <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-2 bg-[var(--theme-bg-tertiary)]/60" />
+        <Skeleton className="h-4 sm:h-5 w-72 sm:w-96 mb-8 bg-[var(--theme-bg-tertiary)]/40" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="bg-slate-900/60 backdrop-blur-sm border-purple-500/20">
+            <Card key={i} className="bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)]">
               <CardContent className="relative p-6">
-                <Skeleton className="h-4 w-20 mb-2 bg-slate-800/60" />
-                <Skeleton className="h-8 w-16 bg-slate-800/60" />
+                <Skeleton className="h-4 w-20 mb-2 bg-[var(--theme-bg-tertiary)]/60" />
+                <Skeleton className="h-8 w-16 bg-[var(--theme-bg-tertiary)]/60" />
               </CardContent>
             </Card>
           ))}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          <Card className="lg:col-span-2 bg-slate-900/60 backdrop-blur-sm border-purple-500/20">
+          <Card className="lg:col-span-2 bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)]">
             <CardHeader>
-              <Skeleton className="h-6 w-40 bg-slate-800/60" />
+              <Skeleton className="h-6 w-40 bg-[var(--theme-bg-tertiary)]/60" />
             </CardHeader>
             <CardContent className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-20 w-full bg-slate-800/40" />
+                <Skeleton key={i} className="h-20 w-full bg-[var(--theme-bg-tertiary)]/40" />
               ))}
             </CardContent>
           </Card>
 
           <div className="space-y-6">
-            <Card className="relative overflow-hidden bg-slate-900/60 backdrop-blur-sm border-purple-500/20 group">
+            <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader>
-                <Skeleton className="h-6 w-24 bg-slate-800/60" />
+                <Skeleton className="h-6 w-24 bg-[var(--theme-bg-tertiary)]/60" />
               </CardHeader>
               <CardContent className="space-y-4">
-                <Skeleton className="h-4 w-full bg-slate-800/40" />
-                <Skeleton className="h-2 w-full bg-slate-800/40" />
-                <Skeleton className="h-10 w-full bg-slate-800/60" />
+                <Skeleton className="h-4 w-full bg-[var(--theme-bg-tertiary)]/40" />
+                <Skeleton className="h-2 w-full bg-[var(--theme-bg-tertiary)]/40" />
+                <Skeleton className="h-10 w-full bg-[var(--theme-bg-tertiary)]/60" />
               </CardContent>
             </Card>
           </div>

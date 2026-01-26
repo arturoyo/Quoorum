@@ -1,5 +1,5 @@
-import { DepartmentsSection } from '@/components/settings/sections/departments-section'
+import { DepartmentsUnifiedSection } from '@/components/settings/sections/departments-unified-section'
 
 export default function DepartmentsPage() {
-  return <DepartmentsSection isInModal={false} />
+  return <DepartmentsUnifiedSection isInModal={false} />
 }

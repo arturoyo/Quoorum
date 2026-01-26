@@ -48,7 +48,7 @@ export function DebateComments({ debateId, showHeader = true }: DebateCommentsPr
     return (
       <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <CardContent className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+          <Loader2 className="h-6 w-6 animate-spin text-[var(--theme-text-secondary)]" />
         </CardContent>
       </Card>
     )
@@ -71,7 +71,7 @@ export function DebateComments({ debateId, showHeader = true }: DebateCommentsPr
             placeholder="Añade un comentario..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            className="border-white/10 bg-slate-800/50 text-white placeholder:text-gray-500"
+            className="border-white/10 bg-slate-800/50 text-white placeholder:text-[var(--theme-text-tertiary)]"
             rows={3}
           />
           <div className="flex justify-end gap-2">
@@ -111,7 +111,7 @@ export function DebateComments({ debateId, showHeader = true }: DebateCommentsPr
         {/* Comments List */}
         <div className="space-y-4">
           {rootComments.length === 0 ? (
-            <div className="text-center py-8 text-gray-400 text-sm">
+            <div className="text-center py-8 text-[var(--theme-text-secondary)] text-sm">
               No hay comentarios aún. Sé el primero en comentar!
             </div>
           ) : (
@@ -164,27 +164,27 @@ function CommentItem({
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs text-gray-400">
+            <Badge variant="outline" className="text-xs text-[var(--theme-text-secondary)]">
               {comment.userId.substring(0, 8)}...
             </Badge>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-[var(--theme-text-tertiary)]">
               {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: es })}
             </span>
           </div>
-          <p className="text-sm text-gray-300">{comment.content}</p>
+          <p className="text-sm text-[var(--theme-text-secondary)]">{comment.content}</p>
           {replies.length > 0 && (
             <div className="ml-4 mt-3 space-y-2 border-l-2 border-white/10 pl-4">
               {replies.map((reply) => (
                 <div key={reply.id} className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs text-gray-400">
+                    <Badge variant="outline" className="text-xs text-[var(--theme-text-secondary)]">
                       {reply.userId.substring(0, 8)}...
                     </Badge>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-[var(--theme-text-tertiary)]">
                       {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true, locale: es })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-400">{reply.content}</p>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">{reply.content}</p>
                 </div>
               ))}
             </div>
@@ -194,7 +194,7 @@ function CommentItem({
           variant="ghost"
           size="sm"
           onClick={() => onReply(comment.id)}
-          className="text-xs text-gray-400 hover:text-gray-300"
+          className="text-xs text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-secondary)]"
         >
           Responder
         </Button>

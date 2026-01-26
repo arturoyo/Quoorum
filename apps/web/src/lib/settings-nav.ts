@@ -15,6 +15,9 @@ import {
   FileText,
   Building2,
   Network,
+  Users,
+  BarChart3,
+  Palette,
 } from "lucide-react";
 import type { LucideIcon } from 'lucide-react'
 
@@ -37,29 +40,29 @@ export interface SettingsNavSubItem {
  */
 export function getSettingsNav(currentPath: string): SettingsNavItem[] {
   const navItems: Omit<SettingsNavItem, 'active'>[] = [
-    { href: '/settings', label: 'Cuenta', icon: User },
-    { href: '/settings/company', label: 'Empresa', icon: Building2 },
-    {
-      href: '/settings/departments',
-      label: 'Departamentos',
-      icon: Network,
-      subItems: [
-        { href: '/settings/departments', label: 'Nuevo' },
-        { href: '/settings/departments/library', label: 'Plantillas' },
-      ],
-    },
+    { href: '/settings', label: 'Perfil', icon: User },
+    { href: '/settings/usage', label: 'Uso', icon: BarChart3 },
     { href: '/settings/billing', label: 'Facturación', icon: CreditCard },
+    { href: '/settings/team', label: 'Equipo', icon: Users },
     { href: '/settings/api-keys', label: 'API Keys', icon: Key },
     {
       href: '/settings/experts',
-      label: 'Expertos',
+      label: 'Expertos Externos',
       icon: Sparkles,
       subItems: [
         { href: '/settings/experts', label: 'Nuevo' },
         { href: '/settings/experts/library', label: 'Biblioteca' },
       ],
     },
-    { href: '/settings/context', label: 'Contexto', icon: FileText },
+    {
+      href: '/settings/workers',
+      label: 'Profesionales',
+      icon: Users,
+      subItems: [
+        { href: '/settings/workers', label: 'Nuevo' },
+        { href: '/settings/workers/library', label: 'Biblioteca' },
+      ],
+    },
     { href: '/settings/notifications', label: 'Notificaciones', icon: Bell },
     { href: '/settings/security', label: 'Seguridad', icon: Shield },
   ]

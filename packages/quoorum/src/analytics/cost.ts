@@ -10,9 +10,16 @@ const TOKENS_PER_MILLION = 1_000_000
 const DEFAULT_MODEL = 'gpt-4o-mini'
 const DEFAULT_USER = 'user-1'
 
-// Credit system constants
+// ============================================================================
+// ESTÁNDAR QUOORUM: SISTEMA DE CRÉDITOS
+// ============================================================================
+// Valor del Crédito: $0.01 USD (100 Créditos = $1 USD)
+// Multiplicador de Servicio: 1.75x
+// Fórmula: Créditos = ⌈(Coste API USD × 1.75) / 0.01⌉
+// ============================================================================
+
 export const CREDIT_MULTIPLIER = 1.75 // Service margin (75% markup)
-export const USD_PER_CREDIT = 0.005 // 1 credit = $0.005 USD (200 credits = $1 USD)
+export const USD_PER_CREDIT = 0.01 // 1 credit = $0.01 USD (100 credits = $1 USD)
 
 // Pricing per 1M tokens (as of January 2026)
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
@@ -104,11 +111,11 @@ export function calculateCostBreakdown(debates: DebateResult[]): CostBreakdown {
 
 /**
  * Convert USD cost to credits
- * Formula: credits = (costUsd * CREDIT_MULTIPLIER) / USD_PER_CREDIT
+ * Formula: Créditos = ⌈(Coste API USD × 1.75) / 0.01⌉
  *
  * @example
- * convertUsdToCredits(0.10) // $0.10 → 35 credits
- * convertUsdToCredits(1.00) // $1.00 → 350 credits
+ * convertUsdToCredits(0.10) // $0.10 → ⌈(0.10 × 1.75) / 0.01⌉ = ⌈17.5⌉ = 18 créditos
+ * convertUsdToCredits(1.00) // $1.00 → ⌈(1.00 × 1.75) / 0.01⌉ = ⌈175⌉ = 175 créditos
  */
 export function convertUsdToCredits(costUsd: number): number {
   return Math.ceil((costUsd * CREDIT_MULTIPLIER) / USD_PER_CREDIT)

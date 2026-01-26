@@ -16,7 +16,6 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertCircle,
-  Check,
   CheckCircle,
   Loader2,
   Lock,
@@ -92,7 +91,7 @@ export default function ResetPasswordPage() {
           <CardTitle className="text-2xl font-bold text-white">
             ¡Contraseña actualizada!
           </CardTitle>
-          <CardDescription className="text-gray-400">
+          <CardDescription className="text-[var(--theme-text-secondary)]">
             Tu contraseña ha sido cambiada exitosamente. Redirigiendo al
             dashboard...
           </CardDescription>
@@ -112,7 +111,7 @@ export default function ResetPasswordPage() {
         <CardTitle className="text-2xl font-bold text-white">
           Crea una nueva contraseña
         </CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardDescription className="text-[var(--theme-text-secondary)]">
           Introduce tu nueva contraseña para acceder a tu cuenta
         </CardDescription>
       </CardHeader>
@@ -127,11 +126,11 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleResetPassword} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-gray-300">
+            <Label htmlFor="password" className="text-[var(--theme-text-secondary)]">
               Nueva contraseña
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
               <Input
                 id="password"
                 type="password"
@@ -141,17 +140,17 @@ export default function ResetPasswordPage() {
                 required
                 minLength={8}
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-gray-300">
+            <Label htmlFor="confirmPassword" className="text-[var(--theme-text-secondary)]">
               Confirmar contraseña
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
               <Input
                 id="confirmPassword"
                 type="password"
@@ -161,7 +160,7 @@ export default function ResetPasswordPage() {
                 required
                 minLength={8}
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
               />
             </div>
           </div>

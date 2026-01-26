@@ -10,7 +10,6 @@ import {
   CheckCircle,
   CheckCircle2,
   ExternalLink,
-  Link,
   Loader2,
   X,
   XCircle,
@@ -86,10 +85,10 @@ export default function TestLoggingPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-[var(--theme-text-primary)]">
               Test Sistema de Logging
             </h1>
-            <p className="text-gray-600">
+            <p className="text-[var(--theme-text-tertiary)]">
               Ejecuta tests para verificar que el sistema funciona correctamente
             </p>
           </div>
@@ -110,7 +109,7 @@ export default function TestLoggingPage() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div className="flex-1">
                 <h3 className="font-medium">Test All Levels</h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-[var(--theme-text-tertiary)]">
                   Crea 5 logs (debug, info, warn, error, fatal)
                 </p>
               </div>
@@ -135,7 +134,7 @@ export default function TestLoggingPage() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div className="flex-1">
                 <h3 className="font-medium">Test Performance</h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-[var(--theme-text-tertiary)]">
                   Mide duración de operación (100ms delay)
                 </p>
               </div>
@@ -160,7 +159,7 @@ export default function TestLoggingPage() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div className="flex-1">
                 <h3 className="font-medium">Test Batch</h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-[var(--theme-text-tertiary)]">
                   Inserta múltiples logs rápidamente
                 </p>
                 <Input
@@ -193,7 +192,7 @@ export default function TestLoggingPage() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div className="flex-1">
                 <h3 className="font-medium">Test With User</h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-[var(--theme-text-tertiary)]">
                   Log asociado a un userId específico
                 </p>
                 <Input
@@ -229,7 +228,7 @@ export default function TestLoggingPage() {
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div className="flex-1">
               <h3 className="font-medium">Test Frontend Logging</h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-[var(--theme-text-tertiary)]">
                 Crea logs desde el cliente (debug, info, warn, error, track)
               </p>
             </div>
@@ -251,7 +250,7 @@ export default function TestLoggingPage() {
         {Object.keys(results).length > 0 && (
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Resultados</h2>
-            <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+            <pre className="bg-gray-900 text-[var(--theme-text-primary)] p-4 rounded-lg overflow-x-auto text-sm">
               {JSON.stringify(results, null, 2)}
             </pre>
           </Card>

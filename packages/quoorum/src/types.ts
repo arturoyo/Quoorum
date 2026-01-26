@@ -49,7 +49,8 @@ export interface DebateMessage {
   agentKey: string
   agentName: string
   narrativeId?: string // Narrative character ID (e.g., 'atenea', 'arturo') - for UI anonymization
-  content: string
+  content: string // Versión expandida/legible para mostrar al usuario
+  compressedContent?: string // Versión comprimida original de la IA (para análisis/optimización)
   isCompressed: boolean
   tokensUsed: number
   costUsd: number

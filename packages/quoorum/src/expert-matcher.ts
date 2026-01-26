@@ -34,6 +34,8 @@ export interface MatchingOptions {
   minScore?: number
   /** Incluir siempre al crítico */
   alwaysIncludeCritic?: boolean
+  /** Solo seleccionar expertos de empresa (SaaS, VC, General) - excluye vida-personal e históricos */
+  companyOnly?: boolean
 }
 
 /**
@@ -43,9 +45,10 @@ export function matchExperts(
   analysis: QuestionAnalysis,
   options: MatchingOptions = {}
 ): ExpertMatch[] {
-  const { minExperts = 4, maxExperts = 7, minScore = 30, alwaysIncludeCritic = true } = options
+  const { minExperts = 4, maxExperts = 7, minScore = 30, alwaysIncludeCritic = true, companyOnly = true } = options
 
-  const allExperts = getAllExperts()
+  // Only select company/business experts (exclude vida-personal and historicos)
+  const allExperts = getAllExperts(companyOnly)
   const matches: ExpertMatch[] = []
 
   // Calculate score for each expert

@@ -209,7 +209,7 @@ export function DebateProgressCascade({
           <div className="space-y-2">
             <Progress value={progress} className="h-2" />
             {currentPhase?.currentRound && currentPhase?.totalRounds && (
-              <p className="text-xs text-gray-300 bg-slate-800/50 px-2 py-0.5 rounded">
+              <p className="text-xs text-[var(--theme-text-secondary)] bg-slate-800/50 px-2 py-0.5 rounded">
                 Ronda {currentPhase.currentRound} de {currentPhase.totalRounds}
               </p>
             )}
@@ -224,7 +224,7 @@ export function DebateProgressCascade({
               {phases.map((phase, index) => {
                 const isCompleted = index < phases.length - 1 || status === "completed";
                 const isCurrent = index === phases.length - 1 && status === "in_progress";
-                const phaseColor = PHASE_COLORS[phase.phase] || "text-gray-400";
+                const phaseColor = PHASE_COLORS[phase.phase] || "text-[var(--theme-text-secondary)]";
                 const phaseIcon = PHASE_ICONS[phase.phase] || <Circle className="h-5 w-5" />;
                 const hasMessages = phase.roundMessages && phase.roundMessages.length > 0;
 
@@ -265,13 +265,13 @@ export function DebateProgressCascade({
                       <div className="flex-1 min-w-0">
                         <p
                           className={`text-sm font-medium ${
-                            isCurrent ? "text-white" : "text-gray-300"
+                            isCurrent ? "text-white" : "text-[var(--theme-text-secondary)]"
                           }`}
                         >
                           {phase.message}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <p className="text-xs text-gray-300">
+                          <p className="text-xs text-[var(--theme-text-secondary)]">
                             {new Date(phase.timestamp).toLocaleTimeString("es-ES")}
                           </p>
                           {phase.currentRound && phase.totalRounds && (
@@ -296,7 +296,7 @@ export function DebateProgressCascade({
                               ? "bg-green-500/10 text-green-400 border-green-500/30"
                               : isCurrent
                                 ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
-                                : "bg-gray-500/10 text-gray-400 border-gray-500/30"
+                                : "bg-gray-500/10 text-[var(--theme-text-secondary)] border-gray-500/30"
                           }`}
                         >
                           {phase.progress}%
@@ -334,7 +334,7 @@ export function DebateProgressCascade({
                           {/* Deliberation Progress Bar */}
                           {phase.phase === 'deliberating' && isCurrent && (
                             <div className="px-3 pt-3">
-                              <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                              <div className="flex items-center justify-between text-xs text-[var(--theme-text-secondary)] mb-1">
                                 <span>Progreso de la ronda</span>
                                 <span>
                                   {phase.roundMessages?.length || 0} de ~{Math.ceil((phase.totalRounds || 5) / 2)} agentes
@@ -369,12 +369,12 @@ export function DebateProgressCascade({
                                 </div>
 
                                 {/* Agent Message */}
-                                <p className="text-sm text-gray-300 leading-relaxed">
+                                <p className="text-sm text-[var(--theme-text-secondary)] leading-relaxed">
                                   {msg.content}
                                 </p>
 
                                 {/* Timestamp */}
-                                <p className="text-xs text-gray-300 mt-2">
+                                <p className="text-xs text-[var(--theme-text-secondary)] mt-2">
                                   {new Date(msg.timestamp).toLocaleTimeString("es-ES")}
                                 </p>
                               </motion.div>

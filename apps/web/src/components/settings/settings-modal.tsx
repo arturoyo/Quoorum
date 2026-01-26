@@ -24,9 +24,9 @@ export function SettingsModal({
 }: SettingsModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
+      <DialogContent
         className={cn(
-          'max-w-5xl max-h-[80vh] w-[95vw] sm:w-full overflow-hidden !p-0 !bg-slate-900 !text-white backdrop-blur-xl border-purple-500/20',
+          'max-w-5xl max-h-[80vh] w-[95vw] sm:w-full overflow-hidden !p-0 bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] backdrop-blur-xl border-[var(--theme-border)]',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'

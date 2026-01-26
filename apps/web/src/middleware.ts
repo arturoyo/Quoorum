@@ -57,16 +57,34 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // MODE TEST: Permitir acceso con cookie especial (solo en desarrollo)
+  const isTestMode = process.env.NODE_ENV !== 'production'
+  const testAuthCookie = request.cookies.get('test-auth-bypass')?.value
 
   // Check if the route is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+
+  if (isTestMode && testAuthCookie === 'test@quoorum.pro') {
+    // En modo test, permitir acceso sin validar Supabase
+    if (isProtectedRoute) {
+      // Permitir acceso al dashboard en modo test
+      return response;
+    }
+
+    if (isAuthRoute) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    return response;
+  }
+
+  // Refresh session if expired
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Redirect to login if accessing protected route without auth
   if (isProtectedRoute && !user) {

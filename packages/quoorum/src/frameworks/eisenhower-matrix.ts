@@ -9,9 +9,10 @@
  * - Q4 (Not Urgent + Not Important): ELIMINATE - Time wasters, busy work
  */
 
-import type { AgentConfig } from '../agents.js'
+import type { AgentConfig } from '../agents'
 import { getAIClient } from '@quoorum/ai'
-import { quoorumLogger } from '../lib/logger.js'
+import { quoorumLogger } from '../logger'
+import { getAgentConfig } from '../config/agent-config'
 
 // ============================================================================
 // TYPES
@@ -61,9 +62,14 @@ export interface EisenhowerMatrixOutput {
 // AGENT CONFIGURATIONS
 // ============================================================================
 
+// Get centralized framework agent config (uses free tier by default)
+const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'temperature'> => {
+  // Use optimizer config as base for frameworks (fast, creative)
+  return getAgentConfig('optimizer')
+}
+
 const CLASSIFIER_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el TASK CLASSIFIER, un experto en priorización según la Matriz de Eisenhower.
 
@@ -109,8 +115,7 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const PRIORITY_AGENT_CONFIG: AgentConfig = {
-  provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  ...getFrameworkAgentConfig(),
   temperature: 0.3,
   systemPrompt: `Eres el PRIORITY STRATEGIST, un experto en time management y productividad.
 

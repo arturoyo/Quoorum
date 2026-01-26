@@ -20,7 +20,6 @@ import {
   AlertCircle,
   Chrome,
   Github,
-  Link,
   Loader2,
   Lock,
   Mail,
@@ -98,7 +97,7 @@ function LoginContent() {
         <CardTitle className="text-2xl font-bold text-white">
           Bienvenido de nuevo
         </CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardDescription className="text-[var(--theme-text-secondary)]">
           Inicia sesión para acceder a Quoorum
         </CardDescription>
       </CardHeader>
@@ -138,7 +137,7 @@ function LoginContent() {
             <Separator className="w-full bg-white/10" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-gray-500">
+            <span className="bg-transparent px-2 text-[var(--theme-text-tertiary)]">
               O continúa con email
             </span>
           </div>
@@ -147,11 +146,11 @@ function LoginContent() {
         {/* Email/Password Form */}
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-300">
+            <Label htmlFor="email" className="text-[var(--theme-text-secondary)]">
               Email
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
               <Input
                 id="email"
                 type="email"
@@ -160,14 +159,14 @@ function LoginContent() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-gray-300">
+              <Label htmlFor="password" className="text-[var(--theme-text-secondary)]">
                 Contraseña
               </Label>
               <Link
@@ -178,7 +177,7 @@ function LoginContent() {
               </Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
               <Input
                 id="password"
                 type="password"
@@ -187,7 +186,7 @@ function LoginContent() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
               />
             </div>
           </div>
@@ -210,7 +209,7 @@ function LoginContent() {
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-6">
-        <p className="text-center text-sm text-gray-400">
+        <p className="text-center text-sm text-[var(--theme-text-secondary)]">
           ¿No tienes cuenta?{" "}
           <Link
             href="/signup"

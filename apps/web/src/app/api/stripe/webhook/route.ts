@@ -190,7 +190,7 @@ export async function POST(request: Request) {
       eventType: event.type,
       processed: false,
       processingStartedAt: new Date(),
-      payload: event.data.object as Record<string, unknown>,
+      payload: event.data.object as unknown as Record<string, unknown>,
     });
   }
 
@@ -241,11 +241,13 @@ export async function POST(request: Request) {
             // Record transaction for audit trail
             await db.insert(creditTransactions).values({
               userId,
+              debateId: null,
+              type: 'addition',
+              source: 'purchase',
               amount: creditsToAdd,
-              type: 'credit_purchase',
-              description: `One-time credit purchase: ${creditsToAdd} credits`,
               balanceBefore,
               balanceAfter,
+              reason: `One-time credit purchase: ${creditsToAdd} credits`,
               metadata: {
                 stripeSessionId: session.id,
                 stripeCustomerId: session.customer as string,
@@ -314,11 +316,13 @@ export async function POST(request: Request) {
         // Record transaction for audit trail
         await db.insert(creditTransactions).values({
           userId,
+          debateId: null,
+          type: 'addition',
+          source: 'monthly_allocation',
           amount: monthlyCredits,
-          type: 'subscription_start',
-          description: `Subscription started: ${plan.name} plan (${monthlyCredits} monthly credits)`,
           balanceBefore,
           balanceAfter,
+          reason: `Subscription started: ${plan.name} plan (${monthlyCredits} monthly credits)`,
           metadata: {
             planId,
             planName: plan.name,
@@ -479,11 +483,13 @@ export async function POST(request: Request) {
             // Record transaction for audit trail
             await db.insert(creditTransactions).values({
               userId: sub.userId,
+              debateId: null,
+              type: 'addition',
+              source: 'monthly_allocation',
               amount: sub.monthlyCredits,
-              type: 'subscription_renewal',
-              description: `Monthly subscription renewal: ${sub.monthlyCredits} credits`,
               balanceBefore,
               balanceAfter,
+              reason: `Monthly subscription renewal: ${sub.monthlyCredits} credits`,
               metadata: {
                 stripeInvoiceId: invoice.id,
                 stripeCustomerId: customerId,

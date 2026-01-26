@@ -104,7 +104,7 @@ export function LoadingOverlay({ message }: { message?: string }) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4">
         <Spinner size="lg" />
-        {message && <p className="text-gray-700 font-medium">{message}</p>}
+        {message && <p className="text-[var(--theme-text-secondary)] font-medium">{message}</p>}
       </div>
     </div>
   )
@@ -119,7 +119,7 @@ export function DebateProgress({ current, total }: { current: number; total: num
   
   return (
     <div className="space-y-2">
-      <div className="flex justify-between text-sm text-gray-600">
+      <div className="flex justify-between text-sm text-[var(--theme-text-tertiary)]">
         <span>Ronda {current} de {total}</span>
         <span>{Math.round(percentage)}%</span>
       </div>
@@ -139,7 +139,7 @@ export function ConsensusProgress({ score }: { score: number }) {
   
   return (
     <div className="space-y-2">
-      <div className="flex justify-between text-sm text-gray-600">
+      <div className="flex justify-between text-sm text-[var(--theme-text-tertiary)]">
         <span>Consenso</span>
         <span>{percentage.toFixed(1)}%</span>
       </div>
@@ -161,8 +161,8 @@ export function EmptyDebateList() {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">💬</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">No hay debates aún</h3>
-      <p className="text-gray-600 mb-6">Crea tu primer debate para empezar</p>
+      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No hay debates aún</h3>
+      <p className="text-[var(--theme-text-tertiary)] mb-6">Crea tu primer debate para empezar</p>
       <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
         Crear Debate
       </button>
@@ -174,8 +174,8 @@ export function EmptySearchResults({ query }: { query: string }) {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">🔍</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">No se encontraron resultados</h3>
-      <p className="text-gray-600">No hay debates que coincidan con "{query}"</p>
+      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No se encontraron resultados</h3>
+      <p className="text-[var(--theme-text-tertiary)]">No hay debates que coincidan con "{query}"</p>
     </div>
   )
 }
@@ -184,8 +184,8 @@ export function NoExperts() {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">👥</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">No hay expertos personalizados</h3>
-      <p className="text-gray-600 mb-6">Crea expertos personalizados para tus debates</p>
+      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No hay expertos personalizados</h3>
+      <p className="text-[var(--theme-text-tertiary)] mb-6">Crea expertos personalizados para tus debates</p>
       <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
         Crear Experto
       </button>
@@ -201,8 +201,8 @@ export function ErrorState({ error, retry }: { error: string; retry?: () => void
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">⚠️</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">Algo salió mal</h3>
-      <p className="text-gray-600 mb-6">{error}</p>
+      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">Algo salió mal</h3>
+      <p className="text-[var(--theme-text-tertiary)] mb-6">{error}</p>
       {retry && (
         <button 
           onClick={retry}
@@ -219,8 +219,8 @@ export function NetworkError({ retry }: { retry?: () => void }) {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">📡</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">Sin conexión</h3>
-      <p className="text-gray-600 mb-6">Verifica tu conexión a internet</p>
+      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">Sin conexión</h3>
+      <p className="text-[var(--theme-text-tertiary)] mb-6">Verifica tu conexión a internet</p>
       {retry && (
         <button 
           onClick={retry}

@@ -6,10 +6,10 @@
  */
 
 import type { AgentConfig, AgentRole } from './types'
-import { getAgentConfig } from './config/agent-config'
+import { getAgentConfig, getConfigByUserTier } from './config/agent-config'
 
 // ============================================================================
-// AGENT CONFIGURATIONS
+// AGENT CONFIGURATIONS (Default - Free Tier)
 // ============================================================================
 
 // Get provider configurations from environment (with free tier defaults)
@@ -153,6 +153,58 @@ export function getAllAgents(): AgentConfig[] {
 
 export function getAgentName(key: string): string {
   return QUOORUM_AGENTS[key]?.name ?? key
+}
+
+// ============================================================================
+// TIER-BASED AGENT CONFIGURATION
+// ============================================================================
+
+/**
+ * Get agents configured for a specific user tier
+ * Free/Starter: Free tier models (gemini-2.0-flash-exp)
+ * Pro/Business: Premium models (Claude 3.5 Sonnet for synthesis)
+ * 
+ * @param userTier - User subscription tier
+ * @returns Agents configured for the tier
+ */
+export function getAgentsByTier(
+  userTier: 'free' | 'starter' | 'pro' | 'business' | 'enterprise' = 'free'
+): Record<string, AgentConfig> {
+  // Get tier-specific configs
+  const optimizerTierConfig = getConfigByUserTier(userTier, 'optimizer')
+  const criticTierConfig = getConfigByUserTier(userTier, 'critic')
+  const analystTierConfig = getConfigByUserTier(userTier, 'analyst')
+  const synthesizerTierConfig = getConfigByUserTier(userTier, 'synthesizer')
+
+  // Synthesizer config is already handled by getConfigByUserTier
+  // Starter+ tiers automatically get Claude 3.5 Sonnet for synthesis
+
+  return {
+    optimizer: {
+      ...QUOORUM_AGENTS.optimizer,
+      provider: optimizerTierConfig.provider,
+      model: optimizerTierConfig.model,
+      temperature: optimizerTierConfig.temperature,
+    },
+    critic: {
+      ...QUOORUM_AGENTS.critic,
+      provider: criticTierConfig.provider,
+      model: criticTierConfig.model,
+      temperature: criticTierConfig.temperature,
+    },
+    analyst: {
+      ...QUOORUM_AGENTS.analyst,
+      provider: analystTierConfig.provider,
+      model: analystTierConfig.model,
+      temperature: analystTierConfig.temperature,
+    },
+    synthesizer: {
+      ...QUOORUM_AGENTS.synthesizer,
+      provider: synthesizerConfig.provider,
+      model: synthesizerConfig.model,
+      temperature: synthesizerConfig.temperature,
+    },
+  }
 }
 
 // ============================================================================

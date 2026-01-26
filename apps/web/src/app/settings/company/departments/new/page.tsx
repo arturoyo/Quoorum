@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
-import { api } from '@/lib/trpc'
+import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -48,9 +48,16 @@ export default function NewDepartmentPage() {
   const [temperature, setTemperature] = useState('0.7')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('')
+  const [parentId, setParentId] = useState<string | null>(null)
 
   // Get company
   const { data: company, isLoading: loadingCompany } = api.companies.get.useQuery()
+
+  // Get existing departments for parent selection
+  const { data: existingDepartments } = api.departments.list.useQuery(
+    { companyId: company?.id ?? '00000000-0000-0000-0000-000000000000' },
+    { enabled: !!company?.id }
+  )
 
   // Get predefined departments for templates
   const { data: predefinedDepartments } = api.departments.listPredefined.useQuery()
@@ -82,6 +89,7 @@ export default function NewDepartmentPage() {
 
     createMutation.mutate({
       companyId: company.id,
+      parentId: parentId || undefined,
       name,
       type: type as any,
       departmentContext,
@@ -195,6 +203,27 @@ export default function NewDepartmentPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="parent">Departamento Padre (Opcional)</Label>
+              <Select value={parentId || 'none'} onValueChange={(value) => setParentId(value === 'none' ? null : value)}>
+                <SelectTrigger id="parent">
+                  <SelectValue placeholder="Sin departamento padre (nivel raíz)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin departamento padre (nivel raíz)</SelectItem>
+                  {existingDepartments?.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.icon && <span className="mr-2">{dept.icon}</span>}
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Selecciona un departamento padre si este depende de otro (ej: "Redes Sociales" depende de "Marketing")
+              </p>
             </div>
           </CardContent>
         </Card>

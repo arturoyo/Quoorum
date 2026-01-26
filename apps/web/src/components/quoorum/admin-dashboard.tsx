@@ -76,7 +76,7 @@ export function AdminDashboard({ overview, growth, topUsers }: AdminDashboardPro
 
       {/* Top Users */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Users</h3>
+        <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-4">Top Users</h3>
         <div className="space-y-3">
           {topUsers.map((user, i) => (
             <div
@@ -84,19 +84,19 @@ export function AdminDashboard({ overview, growth, topUsers }: AdminDashboardPro
               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <span className="text-lg font-bold text-gray-400">#{i + 1}</span>
+                <span className="text-lg font-bold text-[var(--theme-text-secondary)]">#{i + 1}</span>
                 <div>
-                  <div className="font-medium text-gray-900">{user.userId}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="font-medium text-[var(--theme-text-primary)]">{user.userId}</div>
+                  <div className="text-sm text-[var(--theme-text-tertiary)]">
                     {user.debateCount} debates • ${user.totalCost.toFixed(2)}
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-[var(--theme-text-primary)]">
                   {(user.avgConsensus * 100).toFixed(0)}%
                 </div>
-                <div className="text-xs text-gray-500">avg consensus</div>
+                <div className="text-xs text-[var(--theme-text-tertiary)]">avg consensus</div>
               </div>
             </div>
           ))}
@@ -142,9 +142,9 @@ function StatCard({
           </span>
         )}
       </div>
-      <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
-      <div className="text-sm text-gray-500">{title}</div>
-      <div className="text-xs text-gray-400 mt-1">{subtitle}</div>
+      <div className="text-2xl font-bold text-[var(--theme-text-primary)] mb-1">{value}</div>
+      <div className="text-sm text-[var(--theme-text-tertiary)]">{title}</div>
+      <div className="text-xs text-[var(--theme-text-secondary)] mt-1">{subtitle}</div>
     </div>
   )
 }
@@ -156,9 +156,9 @@ function StatCard({
 function ChartPlaceholder({ title }: { title: string }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+      <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-4">{title}</h3>
       <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-        <div className="text-gray-400 text-sm">Chart visualization</div>
+        <div className="text-[var(--theme-text-secondary)] text-sm">Chart visualization</div>
       </div>
     </div>
   )
@@ -182,25 +182,25 @@ export function CostTrackingTable({
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="p-6 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">Cost Tracking</h3>
+        <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">Cost Tracking</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--theme-text-tertiary)] uppercase">
                 Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--theme-text-tertiary)] uppercase">
                 Operation
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--theme-text-tertiary)] uppercase">
                 Model
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-right text-xs font-medium text-[var(--theme-text-tertiary)] uppercase">
                 Tokens
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-right text-xs font-medium text-[var(--theme-text-tertiary)] uppercase">
                 Cost
               </th>
             </tr>
@@ -208,13 +208,13 @@ export function CostTrackingTable({
           <tbody className="divide-y divide-gray-200">
             {costs.map((cost, i) => (
               <tr key={i} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm text-gray-900">{cost.date}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{cost.operation}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{cost.model}</td>
-                <td className="px-6 py-4 text-sm text-gray-600 text-right">
+                <td className="px-6 py-4 text-sm text-[var(--theme-text-primary)]">{cost.date}</td>
+                <td className="px-6 py-4 text-sm text-[var(--theme-text-primary)]">{cost.operation}</td>
+                <td className="px-6 py-4 text-sm text-[var(--theme-text-tertiary)]">{cost.model}</td>
+                <td className="px-6 py-4 text-sm text-[var(--theme-text-tertiary)] text-right">
                   {cost.tokens.toLocaleString()}
                 </td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900 text-right">
+                <td className="px-6 py-4 text-sm font-medium text-[var(--theme-text-primary)] text-right">
                   ${cost.cost.toFixed(4)}
                 </td>
               </tr>
@@ -243,8 +243,8 @@ export function UsageMetricsPanel({
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Usage Metrics</h3>
-        <div className="text-sm text-gray-500">
+        <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">Usage Metrics</h3>
+        <div className="text-sm text-[var(--theme-text-tertiary)]">
           {metrics.period.start.toLocaleDateString()} -{' '}
           {metrics.period.end.toLocaleDateString()}
         </div>
@@ -253,7 +253,7 @@ export function UsageMetricsPanel({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Debates */}
         <div>
-          <h4 className="text-sm font-medium text-gray-500 mb-3">Debates</h4>
+          <h4 className="text-sm font-medium text-[var(--theme-text-tertiary)] mb-3">Debates</h4>
           <div className="space-y-2">
             <MetricRow label="Total" value={metrics.debates.total} />
             <MetricRow label="Completed" value={metrics.debates.completed} />
@@ -264,7 +264,7 @@ export function UsageMetricsPanel({
 
         {/* Costs */}
         <div>
-          <h4 className="text-sm font-medium text-gray-500 mb-3">Costs</h4>
+          <h4 className="text-sm font-medium text-[var(--theme-text-tertiary)] mb-3">Costs</h4>
           <div className="space-y-2">
             <MetricRow label="Total" value={`$${metrics.costs.total.toFixed(2)}`} />
             <MetricRow label="Per Debate" value={`$${metrics.costs.avgPerDebate.toFixed(2)}`} />
@@ -273,7 +273,7 @@ export function UsageMetricsPanel({
 
         {/* Performance */}
         <div>
-          <h4 className="text-sm font-medium text-gray-500 mb-3">Performance</h4>
+          <h4 className="text-sm font-medium text-[var(--theme-text-tertiary)] mb-3">Performance</h4>
           <div className="space-y-2">
             <MetricRow label="Avg Duration" value={`${(metrics.performance.avgDuration / 60).toFixed(1)}m`} />
             <MetricRow label="Avg Quality" value={`${(metrics.performance.avgQuality * 100).toFixed(0)}%`} />
@@ -288,8 +288,8 @@ export function UsageMetricsPanel({
 function MetricRow({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-600">{label}</span>
-      <span className="text-sm font-medium text-gray-900">{value}</span>
+      <span className="text-sm text-[var(--theme-text-tertiary)]">{label}</span>
+      <span className="text-sm font-medium text-[var(--theme-text-primary)]">{value}</span>
     </div>
   )
 }

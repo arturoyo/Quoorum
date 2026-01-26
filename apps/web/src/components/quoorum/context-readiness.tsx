@@ -144,7 +144,7 @@ export function ContextReadiness({
               {getReadinessLabel(assessment.readinessLevel).text}
             </Badge>
           </div>
-          <CardDescription className="text-gray-400">
+          <CardDescription className="text-[var(--theme-text-secondary)]">
             {assessment.summary}
           </CardDescription>
         </CardHeader>
@@ -152,7 +152,7 @@ export function ContextReadiness({
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Nivel de contexto</span>
+              <span className="text-[var(--theme-text-secondary)]">Nivel de contexto</span>
               <span className={`font-bold ${getScoreColor(assessment.overallScore)}`}>
                 {assessment.overallScore}%
               </span>
@@ -171,7 +171,7 @@ export function ContextReadiness({
                 <div className="w-[25%] border-r border-white/20" />
               </div>
             </div>
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-[var(--theme-text-tertiary)]">
               <span>Insuficiente</span>
               <span>Básico</span>
               <span>Bueno</span>
@@ -184,7 +184,7 @@ export function ContextReadiness({
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-between text-gray-400 hover:text-white"
+                className="w-full justify-between text-[var(--theme-text-secondary)] hover:text-white"
               >
                 <span className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
@@ -223,7 +223,7 @@ export function ContextReadiness({
                           style={{ width: `${dim.score}%` }}
                         />
                       </div>
-                      <span className="text-xs text-gray-400 w-8">{dim.score}%</span>
+                      <span className="text-xs text-[var(--theme-text-secondary)] w-8">{dim.score}%</span>
                     </div>
                   </div>
                 ))}
@@ -253,12 +253,12 @@ export function ContextReadiness({
                 )}
               </div>
               {activeSection === 'assumptions' ? (
-                <ChevronUp className="h-5 w-5 text-gray-400" />
+                <ChevronUp className="h-5 w-5 text-[var(--theme-text-secondary)]" />
               ) : (
-                <ChevronDown className="h-5 w-5 text-gray-400" />
+                <ChevronDown className="h-5 w-5 text-[var(--theme-text-secondary)]" />
               )}
             </div>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-[var(--theme-text-secondary)]">
               He hecho algunas suposiciones. ¿Son correctas?
             </CardDescription>
           </CardHeader>
@@ -308,12 +308,12 @@ export function ContextReadiness({
                 )}
               </div>
               {activeSection === 'questions' ? (
-                <ChevronUp className="h-5 w-5 text-gray-400" />
+                <ChevronUp className="h-5 w-5 text-[var(--theme-text-secondary)]" />
               ) : (
-                <ChevronDown className="h-5 w-5 text-gray-400" />
+                <ChevronDown className="h-5 w-5 text-[var(--theme-text-secondary)]" />
               )}
             </div>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-[var(--theme-text-secondary)]">
               Responder estas preguntas mejorará la calidad del debate
             </CardDescription>
           </CardHeader>
@@ -349,7 +349,7 @@ export function ContextReadiness({
           <CardTitle className="text-base text-[#e9edef]">
             ¿Algo más que añadir?
           </CardTitle>
-          <CardDescription className="text-gray-400">
+          <CardDescription className="text-[var(--theme-text-secondary)]">
             Cualquier detalle adicional que pueda ser relevante
           </CardDescription>
         </CardHeader>
@@ -358,7 +358,7 @@ export function ContextReadiness({
             value={answers.additionalContext}
             onChange={(e) => handleAdditionalContext(e.target.value)}
             placeholder="Contexto adicional, detalles importantes, restricciones específicas..."
-            className="min-h-[100px] border-[#2a3942] bg-[#1a2730] text-[#e9edef] placeholder:text-gray-500"
+            className="min-h-[100px] border-[#2a3942] bg-[#1a2730] text-[#e9edef] placeholder:text-[var(--theme-text-tertiary)]"
           />
         </CardContent>
       </Card>
@@ -369,7 +369,7 @@ export function ContextReadiness({
           variant="outline"
           onClick={onRefine}
           disabled={isAnalyzing}
-          className="border-[#2a3942] text-gray-300 hover:bg-[#1a2730]"
+          className="border-[#2a3942] text-[var(--theme-text-secondary)] hover:bg-[#1a2730]"
         >
           {isAnalyzing ? (
             <>
@@ -404,7 +404,7 @@ export function ContextReadiness({
 
       {/* Recommendation message */}
       {assessment.recommendedAction !== 'proceed' && (
-        <p className="text-center text-sm text-gray-400">
+        <p className="text-center text-sm text-[var(--theme-text-secondary)]">
           {assessment.recommendedAction === 'clarify' && (
             <>
               <AlertCircle className="mr-1 inline h-4 w-4 text-yellow-400" />
@@ -446,7 +446,7 @@ function AssumptionCard({
           className={
             response === true
               ? 'bg-green-600 hover:bg-green-700'
-              : 'border-[#2a3942] text-gray-300 hover:bg-[#2a3942]'
+              : 'border-[#2a3942] text-[var(--theme-text-secondary)] hover:bg-[#2a3942]'
           }
         >
           <CheckCircle className="mr-1 h-3 w-3" />
@@ -459,7 +459,7 @@ function AssumptionCard({
           className={
             response === false
               ? 'bg-red-600 hover:bg-red-700'
-              : 'border-[#2a3942] text-gray-300 hover:bg-[#2a3942]'
+              : 'border-[#2a3942] text-[var(--theme-text-secondary)] hover:bg-[#2a3942]'
           }
         >
           <AlertCircle className="mr-1 h-3 w-3" />
@@ -468,14 +468,14 @@ function AssumptionCard({
       </div>
       {response === false && assumption.alternatives && assumption.alternatives.length > 0 && (
         <div className="mt-3 space-y-2">
-          <p className="text-xs text-gray-400">¿Cuál aplica mejor?</p>
+          <p className="text-xs text-[var(--theme-text-secondary)]">¿Cuál aplica mejor?</p>
           <RadioGroup className="gap-2">
             {assumption.alternatives.map((alt, i) => (
               <div key={i} className="flex items-center space-x-2">
                 <RadioGroupItem value={alt} id={`${assumption.id}-alt-${i}`} />
                 <Label
                   htmlFor={`${assumption.id}-alt-${i}`}
-                  className="text-sm text-gray-300"
+                  className="text-sm text-[var(--theme-text-secondary)]"
                 >
                   {alt}
                 </Label>
@@ -507,7 +507,7 @@ function QuestionCard({
   const priorityBadge = {
     critical: { text: 'Crítica', color: 'bg-red-500/20 text-red-400' },
     important: { text: 'Importante', color: 'bg-yellow-500/20 text-yellow-400' },
-    'nice-to-have': { text: 'Opcional', color: 'bg-gray-500/20 text-gray-400' },
+    'nice-to-have': { text: 'Opcional', color: 'bg-gray-500/20 text-[var(--theme-text-secondary)]' },
   };
 
   return (
@@ -530,7 +530,7 @@ function QuestionCard({
               <RadioGroupItem value={option} id={`${question.id}-opt-${i}`} />
               <Label
                 htmlFor={`${question.id}-opt-${i}`}
-                className="text-sm text-gray-300"
+                className="text-sm text-[var(--theme-text-secondary)]"
               >
                 {option}
               </Label>
@@ -542,7 +542,7 @@ function QuestionCard({
           value={typeof response === 'string' ? response : ''}
           onChange={(e) => onResponse(e.target.value)}
           placeholder="Tu respuesta..."
-          className="min-h-[80px] border-[#2a3942] bg-[#1a2730] text-[#e9edef] placeholder:text-gray-500"
+          className="min-h-[80px] border-[#2a3942] bg-[#1a2730] text-[#e9edef] placeholder:text-[var(--theme-text-tertiary)]"
         />
       )}
     </div>

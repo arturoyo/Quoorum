@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2,
@@ -10,12 +9,16 @@ import {
   X,
   Sparkles,
   ArrowRight,
-  Brain,
   Grid2x2,
   Target,
   Users,
   TrendingUp,
 } from "lucide-react";
+import { AppHeader } from "@/components/layout/app-header";
+import { LandingFooter } from "@/components/layout/landing-footer";
+import { SectionHeader } from "@/components/ui/section-header";
+import { CTASection } from "@/components/ui/cta-section";
+import { GradientCTAButton } from "@/components/ui/gradient-cta-button";
 
 export const metadata: Metadata = {
   title: "Free Eisenhower Matrix Template - AI Powered | Quoorum",
@@ -38,6 +41,83 @@ export const metadata: Metadata = {
   },
 };
 
+const quadrants = [
+  {
+    id: "Q1",
+    title: "DO FIRST (Crisis)",
+    description: "Emergencias que requieren acción inmediata",
+    urgentLabel: "Urgente",
+    importantLabel: "Importante",
+    icon: AlertTriangle,
+    gradient: "from-red-500 to-pink-500",
+    bgColor: "bg-red-500/10",
+    borderColor: "border-red-500/20",
+    textColor: "text-red-400",
+    items: ["Crisis y emergencias", "Deadlines inminentes", "Problemas críticos"],
+    tip: "Minimizar tiempo aquí. Si vives en Q1, estás en \"modo crisis\".",
+  },
+  {
+    id: "Q2",
+    title: "SCHEDULE (Crecimiento)",
+    description: "El cuadrante más valioso - prevención y desarrollo",
+    urgentLabel: "No Urgente",
+    importantLabel: "Importante",
+    icon: TrendingUp,
+    gradient: "from-green-500 to-emerald-500",
+    bgColor: "bg-green-500/10",
+    borderColor: "border-green-500/20",
+    textColor: "text-green-400",
+    items: ["Planificación estratégica", "Prevención y mantenimiento", "Desarrollo personal"],
+    tip: "¡Maximizar tiempo aquí! 50-60% de tu semana debería estar en Q2.",
+  },
+  {
+    id: "Q3",
+    title: "DELEGATE (Interrupciones)",
+    description: "Urgente para otros, no importante para ti",
+    urgentLabel: "Urgente",
+    importantLabel: "No Importante",
+    icon: Users,
+    gradient: "from-orange-500 to-amber-500",
+    bgColor: "bg-orange-500/10",
+    borderColor: "border-orange-500/20",
+    textColor: "text-orange-400",
+    items: ["Interrupciones", "Algunas llamadas/emails", "Reuniones improductivas"],
+    tip: "Delegar o rechazar. No confundir urgencia con importancia.",
+  },
+  {
+    id: "Q4",
+    title: "ELIMINATE (Time Wasters)",
+    description: "Actividades que no aportan valor",
+    urgentLabel: "No Urgente",
+    importantLabel: "No Importante",
+    icon: X,
+    gradient: "from-gray-500 to-slate-500",
+    bgColor: "bg-gray-500/10",
+    borderColor: "border-gray-500/20",
+    textColor: "text-[var(--theme-text-secondary)]",
+    items: ["Time wasters", "Redes sociales sin propósito", "Busy work"],
+    tip: "Eliminar completamente. Si estás aquí, estás perdiendo el tiempo.",
+  },
+];
+
+const features = [
+  {
+    icon: Target,
+    title: "Clasificación Objetiva",
+    description: "IA clasifica sin sesgos emocionales. Urgencia ≠ Importancia.",
+  },
+  {
+    icon: Clock,
+    title: "Time Allocation",
+    description: "Te dice qué % de tiempo dedicar a cada cuadrante.",
+  },
+  {
+    icon: Grid2x2,
+    title: "Matriz Visual",
+    description: "Ve dónde pasas tu tiempo y dónde DEBERÍAS pasarlo.",
+  },
+];
+
 export default function EisenhowerMatrixLandingPage() {
   const schemaData = {
     "@context": "https://schema.org",
@@ -47,7 +127,7 @@ export default function EisenhowerMatrixLandingPage() {
     offers: {
       "@type": "Offer",
       price: "0",
-      priceCurrency": "EUR",
+      priceCurrency: "EUR",
     },
   };
 
@@ -58,345 +138,185 @@ export default function EisenhowerMatrixLandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-950">
-        {/* Header */}
-        <header className="border-b bg-white/50 backdrop-blur-sm dark:bg-gray-950/50">
-          <div className="container mx-auto flex h-16 items-center justify-between px-4">
-            <Link href="/" className="flex items-center gap-2">
-              <Brain className="h-6 w-6 text-green-600" />
-              <span className="text-xl font-bold">Quoorum</span>
-            </Link>
-            <nav className="flex items-center gap-4">
-              <Link href="/frameworks" className="text-sm text-muted-foreground hover:text-foreground">
-                Frameworks
-              </Link>
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  Iniciar sesión
-                </Button>
-              </Link>
-              <Link href="/debates/new">
-                <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                  Probar gratis
-                </Button>
-              </Link>
-            </nav>
-          </div>
-        </header>
+      <div className="min-h-screen bg-[var(--theme-landing-bg)]">
+        <AppHeader variant="landing" showAuth={true} />
 
-        {/* Hero Section */}
-        <section className="container mx-auto px-4 py-16 md:py-24">
-          <div className="mx-auto max-w-4xl text-center">
-            <Badge className="mb-4 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-              <Sparkles className="mr-1 h-3 w-3" />
-              Matriz de Eisenhower Gratis - IA Experta
-            </Badge>
+        {/* Hero */}
+        <section className="pt-40 pb-24 px-4">
+          <div className="container mx-auto max-w-4xl text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
+              <Sparkles className="w-4 h-4 text-green-400" />
+              <span>Matriz de Eisenhower Gratis - IA Experta</span>
+            </div>
 
-            <h1 className="mb-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight">
               Matriz de{" "}
-              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                 Eisenhower
-              </span>
-              {" "}con IA
+              </span>{" "}
+              con IA
             </h1>
 
-            <p className="mb-8 text-xl text-muted-foreground">
+            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed mb-8">
               Prioriza tareas según urgencia e importancia en 2 minutos.
-              <br />
               IA clasifica automáticamente en 4 cuadrantes y optimiza tu time management.
             </p>
 
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link href="/debates/new?framework=eisenhower-matrix">
-                <Button size="lg" className="bg-green-600 hover:bg-green-700">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+              <Link href="/debates/new-unified?framework=eisenhower-matrix&new=1">
+                <GradientCTAButton size="lg">
                   Priorizar mis tareas gratis
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </GradientCTAButton>
               </Link>
               <Link href="#matrix">
-                <Button size="lg" variant="outline">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-white/10 text-white hover:bg-white/5"
+                >
                   Ver matriz
                 </Button>
               </Link>
             </div>
 
             {/* Stats */}
-            <div className="mt-12 grid grid-cols-3 gap-8 border-t pt-8">
+            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10">
               <div>
-                <div className="text-3xl font-bold text-green-600">4</div>
-                <div className="text-sm text-muted-foreground">Cuadrantes</div>
+                <div className="text-3xl font-bold text-green-400">4</div>
+                <div className="text-sm text-[var(--theme-text-tertiary)]">Cuadrantes</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-green-600">2 min</div>
-                <div className="text-sm text-muted-foreground">Promedio</div>
+                <div className="text-3xl font-bold text-green-400">2 min</div>
+                <div className="text-sm text-[var(--theme-text-tertiary)]">Promedio</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-green-600">100%</div>
-                <div className="text-sm text-muted-foreground">Gratis</div>
+                <div className="text-3xl font-bold text-green-400">100%</div>
+                <div className="text-sm text-[var(--theme-text-tertiary)]">Gratis</div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Matrix Explanation */}
-        <section id="matrix" className="border-y bg-gray-50 py-16 dark:bg-gray-900">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-4xl">
-              <div className="mb-12 text-center">
-                <h2 className="mb-4 text-3xl font-bold">Los 4 Cuadrantes</h2>
-                <p className="text-lg text-muted-foreground">
-                  Clasifica tareas según dos dimensiones: Urgente vs Importante
-                </p>
-              </div>
+        <section id="matrix" className="py-24 px-4">
+          <div className="container mx-auto max-w-6xl">
+            <SectionHeader
+              title="Los 4 Cuadrantes"
+              subtitle="Clasifica tareas según dos dimensiones: Urgente vs Importante"
+            />
 
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Q1 */}
-                <Card className="border-red-200 dark:border-red-900">
-                  <CardHeader>
-                    <div className="mb-2 flex items-center justify-between">
-                      <Badge className="bg-red-100 text-red-700">Q1</Badge>
-                      <div className="flex gap-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> Urgente
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" /> Importante
-                        </span>
+            <div className="grid md:grid-cols-2 gap-6">
+              {quadrants.map((quadrant) => {
+                const Icon = quadrant.icon;
+                return (
+                  <div
+                    key={quadrant.id}
+                    className="relative p-6 rounded-2xl overflow-hidden"
+                  >
+                    <div className={`absolute inset-0 ${quadrant.bgColor} backdrop-blur-xl`} />
+                    <div className={`absolute inset-0 border ${quadrant.borderColor} rounded-2xl`} />
+
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <Badge className={`${quadrant.bgColor} ${quadrant.textColor} border ${quadrant.borderColor}`}>
+                          {quadrant.id}
+                        </Badge>
+                        <div className="flex gap-2 text-xs text-[var(--theme-text-tertiary)]">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {quadrant.urgentLabel}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            {quadrant.importantLabel}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 mb-4">
+                        <div
+                          className={`w-10 h-10 rounded-xl bg-gradient-to-br ${quadrant.gradient} flex items-center justify-center`}
+                        >
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className={`text-lg font-semibold ${quadrant.textColor}`}>
+                            {quadrant.title}
+                          </h3>
+                          <p className="text-xs text-[var(--theme-text-tertiary)]">{quadrant.description}</p>
+                        </div>
+                      </div>
+
+                      <ul className="space-y-2 mb-4">
+                        {quadrant.items.map((item, itemIdx) => (
+                          <li key={itemIdx} className="flex items-start gap-2 text-sm text-[var(--theme-text-secondary)]">
+                            <Icon className={`w-4 h-4 ${quadrant.textColor} flex-shrink-0 mt-0.5`} />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className={`p-3 rounded-lg ${quadrant.bgColor}`}>
+                        <p className={`text-xs ${quadrant.textColor}`}>
+                          <strong>Objetivo:</strong> {quadrant.tip}
+                        </p>
                       </div>
                     </div>
-                    <CardTitle className="text-lg text-red-600">DO FIRST (Crisis)</CardTitle>
-                    <CardDescription>Emergencias que requieren acción inmediata</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
-                        <span>Crisis y emergencias</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
-                        <span>Deadlines inminentes</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
-                        <span>Problemas críticos</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 rounded-lg bg-red-50 p-3 dark:bg-red-950">
-                      <p className="text-xs text-red-700 dark:text-red-400">
-                        <strong>Objetivo:</strong> Minimizar tiempo aquí. Si vives en Q1, estás en "modo crisis".
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Q2 */}
-                <Card className="border-green-200 dark:border-green-900">
-                  <CardHeader>
-                    <div className="mb-2 flex items-center justify-between">
-                      <Badge className="bg-green-100 text-green-700">Q2</Badge>
-                      <div className="flex gap-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> No Urgente
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" /> Importante
-                        </span>
-                      </div>
-                    </div>
-                    <CardTitle className="text-lg text-green-600">SCHEDULE (Crecimiento)</CardTitle>
-                    <CardDescription>El cuadrante más valioso - prevención y desarrollo</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <TrendingUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-                        <span>Planificación estratégica</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <TrendingUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-                        <span>Prevención y mantenimiento</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <TrendingUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-                        <span>Desarrollo personal</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 rounded-lg bg-green-50 p-3 dark:bg-green-950">
-                      <p className="text-xs text-green-700 dark:text-green-400">
-                        <strong>Objetivo:</strong> ¡Maximizar tiempo aquí! 50-60% de tu semana debería estar en Q2.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Q3 */}
-                <Card className="border-orange-200 dark:border-orange-900">
-                  <CardHeader>
-                    <div className="mb-2 flex items-center justify-between">
-                      <Badge className="bg-orange-100 text-orange-700">Q3</Badge>
-                      <div className="flex gap-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> Urgente
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <X className="h-3 w-3" /> No Importante
-                        </span>
-                      </div>
-                    </div>
-                    <CardTitle className="text-lg text-orange-600">DELEGATE (Interrupciones)</CardTitle>
-                    <CardDescription>Urgente para otros, no importante para ti</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <Users className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600" />
-                        <span>Interrupciones</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Users className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600" />
-                        <span>Algunas llamadas/emails</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Users className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600" />
-                        <span>Reuniones improductivas</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 rounded-lg bg-orange-50 p-3 dark:bg-orange-950">
-                      <p className="text-xs text-orange-700 dark:text-orange-400">
-                        <strong>Objetivo:</strong> Delegar o rechazar. No confundir urgencia con importancia.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Q4 */}
-                <Card className="border-gray-200 dark:border-gray-800">
-                  <CardHeader>
-                    <div className="mb-2 flex items-center justify-between">
-                      <Badge className="bg-gray-100 text-gray-700">Q4</Badge>
-                      <div className="flex gap-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> No Urgente
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <X className="h-3 w-3" /> No Importante
-                        </span>
-                      </div>
-                    </div>
-                    <CardTitle className="text-lg text-gray-600">ELIMINATE (Time Wasters)</CardTitle>
-                    <CardDescription>Actividades que no aportan valor</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <X className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-600" />
-                        <span>Time wasters</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <X className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-600" />
-                        <span>Redes sociales sin propósito</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <X className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-600" />
-                        <span>Busy work</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 rounded-lg bg-gray-50 p-3 dark:bg-gray-950">
-                      <p className="text-xs text-gray-700 dark:text-gray-400">
-                        <strong>Objetivo:</strong> Eliminar completamente. Si estás aquí, estás perdiendo el tiempo.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* Features */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-4xl">
-              <div className="mb-12 text-center">
-                <h2 className="mb-4 text-3xl font-bold">¿Por qué usar IA para priorizar?</h2>
-              </div>
+        <section className="py-24 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <SectionHeader
+              title="¿Por qué usar IA para priorizar?"
+            />
 
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                  <CardHeader>
-                    <Brain className="mb-2 h-8 w-8 text-green-600" />
-                    <CardTitle className="text-lg">Clasificación Objetiva</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    IA clasifica sin sesgos emocionales. Urgencia ≠ Importancia.
-                  </CardContent>
-                </Card>
+            <div className="grid sm:grid-cols-3 gap-6">
+              {features.map((feature, idx) => {
+                const Icon = feature.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="relative p-6 rounded-2xl overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
+                    <div className="absolute inset-0 border border-white/10 rounded-2xl" />
 
-                <Card>
-                  <CardHeader>
-                    <Target className="mb-2 h-8 w-8 text-green-600" />
-                    <CardTitle className="text-lg">Time Allocation</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    Te dice qué % de tiempo dedicar a cada cuadrante.
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <Grid2x2 className="mb-2 h-8 w-8 text-green-600" />
-                    <CardTitle className="text-lg">Matriz Visual</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    Ve dónde pasas tu tiempo y dónde DEBERÍAS pasarlo.
-                  </CardContent>
-                </Card>
-              </div>
+                    <div className="relative z-10">
+                      <Icon className="w-8 h-8 text-green-400 mb-4" />
+                      <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                      <p className="text-sm text-[var(--theme-text-secondary)]">{feature.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* CTA Final */}
-        <section className="bg-gradient-to-r from-green-600 to-emerald-600 py-16 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold">
-              ¿Listo para optimizar tu tiempo?
-            </h2>
-            <p className="mb-8 text-lg opacity-90">
-              Clasifica tus tareas con IA en 2 minutos
-            </p>
-            <Link href="/debates/new?framework=eisenhower-matrix">
-              <Button size="lg" variant="secondary" className="bg-white text-green-600 hover:bg-gray-100">
-                Crear Matriz de Eisenhower gratis
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </section>
+        {/* CTA */}
+        <CTASection>
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            ¿Listo para optimizar tu tiempo?
+          </h2>
+          <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+            Clasifica tus tareas con IA en 2 minutos
+          </p>
+          <Link href="/debates/new-unified?framework=eisenhower-matrix&new=1">
+            <GradientCTAButton size="lg">
+              Crear Matriz de Eisenhower gratis
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </GradientCTAButton>
+          </Link>
+        </CTASection>
 
-        {/* Footer */}
-        <footer className="border-t py-8">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-              <div className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-green-600" />
-                <span className="font-semibold">Quoorum</span>
-              </div>
-              <nav className="flex gap-6 text-sm text-muted-foreground">
-                <Link href="/frameworks" className="hover:text-foreground">
-                  Frameworks
-                </Link>
-                <Link href="/frameworks/pros-and-cons" className="hover:text-foreground">
-                  Pros and Cons
-                </Link>
-                <Link href="/frameworks/swot-analysis" className="hover:text-foreground">
-                  SWOT Analysis
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </footer>
+        <LandingFooter />
       </div>
     </>
   );
