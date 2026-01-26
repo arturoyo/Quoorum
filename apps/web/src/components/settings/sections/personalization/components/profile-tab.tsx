@@ -68,9 +68,10 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
   })
 
   // Get profile data from PostgreSQL via tRPC (source of truth)
-  const { data: profileData, isLoading: isLoadingProfile } = api.users.getProfile.useQuery()
+  // This is the PRIMARY source - PostgreSQL local, not Supabase Auth
+  const { data: fetchedProfileData, isLoading: isLoadingProfile } = api.users.getProfile.useQuery()
 
-  // Load user data from Supabase Auth (for phone and user ID)
+  // Load user ID from Supabase Auth (only for user.id, not for profile data)
   useEffect(() => {
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -82,25 +83,32 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
 
       setUser(user)
 
-      // Get phone from Supabase Auth metadata (if available)
-      const phone = user.user_metadata?.phone || user.phone || ''
-
-      // If we have profile data from tRPC, use it (source of truth)
-      if (profileData) {
+      // PRIORITY: Use fetchedProfileData from PostgreSQL (tRPC) as source of truth
+      // Only use Supabase Auth for phone (if not in profiles table) and user.id
+      if (fetchedProfileData && !isLoadingProfile) {
         // Split fullName into first and last name
-        const fullName = profileData.fullName || profileData.name || ''
+        const fullName = fetchedProfileData.fullName || fetchedProfileData.name || ''
         const nameParts = fullName.split(' ')
         const firstName = nameParts[0] || ''
         const lastName = nameParts.slice(1).join(' ') || ''
 
+        // Get phone from Supabase Auth metadata (if available) - phone not in profiles table yet
+        const phone = user.user_metadata?.phone || user.phone || ''
+
         setAccountFormData({
-          firstName: firstName || profileData.name || '',
+          firstName: firstName || fetchedProfileData.name || '',
           lastName: lastName || '',
-          email: profileData.email || user.email || '',
-          phone: phone,
+          email: fetchedProfileData.email || '', // Use PostgreSQL email (source of truth)
+          phone: phone, // Phone comes from Supabase Auth metadata (not in profiles table)
         })
-      } else {
-        // Fallback to Supabase Auth data if profile not loaded yet
+        
+        setIsLoading(false)
+        setTimeout(() => {
+          initialLoadRef.current = false
+        }, 100)
+      } else if (!isLoadingProfile) {
+        // Only use Supabase Auth as fallback if fetchedProfileData is not available
+        // This should rarely happen if PostgreSQL is working correctly
         const fullName = user.user_metadata?.full_name || ''
         const nameParts = fullName.split(' ')
         const firstName = nameParts[0] || ''
@@ -110,18 +118,21 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
           firstName: (user.user_metadata?.first_name || firstName || ''),
           lastName: (user.user_metadata?.last_name || lastName || ''),
           email: (user.email || ''),
-          phone: phone,
+          phone: (user.user_metadata?.phone || user.phone || ''),
         })
+        
+        setIsLoading(false)
+        setTimeout(() => {
+          initialLoadRef.current = false
+        }, 100)
       }
-      
-      setIsLoading(false)
-      setTimeout(() => {
-        initialLoadRef.current = false
-      }, 100)
     }
 
-    loadUser()
-  }, [supabase.auth, profileData])
+    // Only run when fetchedProfileData changes or when not loading profile
+    if (!isLoadingProfile) {
+      void loadUser()
+    }
+  }, [supabase.auth, fetchedProfileData, isLoadingProfile])
 
   // Auto-save account data
   const saveAccountData = useCallback(async (data: typeof accountFormData) => {
