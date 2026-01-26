@@ -18,7 +18,14 @@ export function QuoorumLogo({
   
   // Cuando showGradient=true, usar logo completo (quoorum-logo-ok.svg)
   // Cuando showGradient=false, usar imagotipo (quoorum-imagotipo.svg)
-  const logoSrc = showGradient ? "/quoorum-logo-ok.svg" : "/quoorum-imagotipo.svg"
+  // Añadir cache-busting parameter para forzar recarga del logo
+  const logoBase = showGradient ? "/quoorum-logo-ok.svg" : "/quoorum-imagotipo.svg"
+  // Hash MD5 de los archivos para cache-busting estable:
+  // quoorum-logo-ok.svg: 19DBF9111224825802DD79F0E8C58A25
+  // quoorum-imagotipo.svg: AB2FFF268AB627FDD8C1CF755DC9D703
+  // Usar hash + timestamp para forzar recarga inmediata
+  const logoHash = showGradient ? "19DBF9111224825802DD79F0E8C58A25" : "AB2FFF268AB627FDD8C1CF755DC9D703"
+  const logoSrc = React.useMemo(() => `${logoBase}?v=${logoHash}&t=${Date.now()}`, [logoBase, logoHash])
 
   // Usar React state para manejar el hover
   const [isHovered, setIsHovered] = React.useState(false)
