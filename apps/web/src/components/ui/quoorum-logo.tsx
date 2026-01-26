@@ -23,9 +23,11 @@ export function QuoorumLogo({
   // Hash MD5 de los archivos para cache-busting estable:
   // quoorum-logo-ok.svg: 19DBF9111224825802DD79F0E8C58A25
   // quoorum-imagotipo.svg: AB2FFF268AB627FDD8C1CF755DC9D703
-  // Usar hash + timestamp para forzar recarga inmediata
+  // Usar hash + timestamp único por montaje del componente para forzar recarga
   const logoHash = showGradient ? "19DBF9111224825802DD79F0E8C58A25" : "AB2FFF268AB627FDD8C1CF755DC9D703"
-  const logoSrc = React.useMemo(() => `${logoBase}?v=${logoHash}&t=${Date.now()}`, [logoBase, logoHash])
+  // Timestamp único por instancia del componente (se genera una vez al montar)
+  const [logoVersion] = React.useState(() => Date.now())
+  const logoSrc = React.useMemo(() => `${logoBase}?v=${logoHash}&t=${logoVersion}`, [logoBase, logoHash, logoVersion])
 
   // Usar React state para manejar el hover
   const [isHovered, setIsHovered] = React.useState(false)
