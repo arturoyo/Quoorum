@@ -58,6 +58,7 @@ const INITIAL_EXPERTOS: ExpertosState = {
 const INITIAL_ESTRATEGIA: EstrategiaState = {
   selectedStrategy: '',
   recommendedStrategy: null,
+  selectedFrameworkId: null,
 }
 
 const INITIAL_REVISION: RevisionState = {
@@ -532,14 +533,14 @@ export function useUnifiedDebateState(urlSessionId?: string) {
   
   // Helper para construir mensaje de evaluación con advertencias
   const buildEvaluationMessage = useCallback((result: ContextEvaluation) => {
-    let message = `📊 **Contexto evaluado: ${result.score}/100**\n\n${result.reasoning}`
+    let message = `**Contexto evaluado: ${result.score}/100**\n\n${result.reasoning}`
     
     if (result.contradictions && result.contradictions.length > 0) {
-      message += `\n\n⚠️ **Contradicciones detectadas:**\n${result.contradictions.map(c => `- ${c}`).join('\n')}\n\nPor favor, revisa tus respuestas anteriores.`
+      message += `\n\n**Contradicciones detectadas:**\n${result.contradictions.map(c => `- ${c}`).join('\n')}\n\nPor favor, revisa tus respuestas anteriores.`
     }
     
     if (result.duplicatedInfo && result.duplicatedInfo.length > 0) {
-      message += `\n\nℹ️ **Información duplicada:**\n${result.duplicatedInfo.map(d => `- ${d}`).join('\n')}`
+      message += `\n\n**Información duplicada:**\n${result.duplicatedInfo.map(d => `- ${d}`).join('\n')}`
     }
     
     if (result.qualityIssues && result.qualityIssues.length > 0) {
@@ -547,7 +548,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       const missing = result.qualityIssues.includes('missing_critical_info') ? 'Información crítica faltante' : ''
       const issuesList = [issues, missing].filter(Boolean).join(', ')
       if (issuesList) {
-        message += `\n\n⚠️ **Problemas de calidad:** ${issuesList}`
+        message += `\n\n**Problemas de calidad:** ${issuesList}`
       }
     }
     
@@ -666,22 +667,22 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         let warningTitle = ''
         
         if (!validation.isRelevant) {
-          warningTitle = '❌ Respuesta no relacionada'
+          warningTitle = 'Respuesta no relacionada'
           errorMessage = `${validation.reasoning}\n\n${validation.suggestion || 'Por favor, proporciona una respuesta más relevante o explica la conexión.'}`
         } else if (validation.isVague) {
-          warningTitle = '⚠️ Respuesta demasiado vaga'
+          warningTitle = 'Respuesta demasiado vaga'
           errorMessage = `Tu respuesta es demasiado genérica o vaga.\n\n${validation.suggestion || validation.reasoning}\n\nPor favor, proporciona más detalles específicos.`
         } else if (validation.isTooShort) {
-          warningTitle = '⚠️ Respuesta demasiado corta'
+          warningTitle = 'Respuesta demasiado corta'
           errorMessage = `Tu respuesta es demasiado breve para esta pregunta.\n\n${validation.suggestion || validation.reasoning}\n\nPor favor, desarrolla más tu respuesta.`
         } else if (validation.qualityIssues && validation.qualityIssues.includes('evasive')) {
-          warningTitle = '⚠️ Respuesta evasiva'
+          warningTitle = 'Respuesta evasiva'
           errorMessage = `Tu respuesta parece evasiva ("no sé", "depende", etc.).\n\n${validation.suggestion || validation.reasoning}\n\nPor favor, intenta proporcionar información útil aunque sea aproximada.`
         } else if (validation.requiresExplanation) {
-          warningTitle = '⚠️ Necesita más contexto'
+          warningTitle = 'Necesita más contexto'
           errorMessage = `${validation.suggestion || validation.reasoning}\n\nPor favor, explica cómo tu respuesta se relaciona con la pregunta.`
         } else {
-          warningTitle = '⚠️ Respuesta necesita mejorar'
+          warningTitle = 'Respuesta necesita mejorar'
           errorMessage = `${validation.suggestion || validation.reasoning}`
         }
         
@@ -831,12 +832,20 @@ export function useUnifiedDebateState(urlSessionId?: string) {
   
   // Estrategia handlers
   const handleStrategySelection = useCallback((strategy: string) => {
-    setEstrategia({
+    setEstrategia((prev) => ({
+      ...prev,
       selectedStrategy: strategy,
       recommendedStrategy: null, // TODO: Get recommendation from API
-    })
+    }))
     updatePhaseProgress(3, strategy ? 100 : 0)
   }, [updatePhaseProgress])
+
+  const handleFrameworkSelection = useCallback((frameworkId: string | null) => {
+    setEstrategia((prev) => ({
+      ...prev,
+      selectedFrameworkId: frameworkId,
+    }))
+  }, [])
   
   // Create debate
   const handleCreateDebate = useCallback(async () => {
@@ -936,6 +945,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         selectedExpertIds: expertos.selectedExpertIds,
         selectedDepartmentIds: expertos.selectedDepartmentIds.length > 0 ? expertos.selectedDepartmentIds : undefined,
         selectedWorkerIds: expertos.selectedWorkerIds.length > 0 ? expertos.selectedWorkerIds : undefined,
+        frameworkId: estrategia.selectedFrameworkId || undefined, // Framework de decisión seleccionado
         context: fullContext, // Pass as string, not object
       })
       
@@ -1403,6 +1413,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           handleDeclineInternetSearch, // Nuevo: rechazar búsqueda en internet
     handleParticipantUpdate,
     handleStrategySelection,
+    handleFrameworkSelection,
     handleCreateDebate,
     clearProgress, // Nuevo: limpiar progreso guardado
   }

@@ -134,6 +134,7 @@ export interface ExpertosState {
 export interface EstrategiaState {
   selectedStrategy: string
   recommendedStrategy: string | null
+  selectedFrameworkId: string | null // Framework de decisión seleccionado (FODA, ROI, Delphi, etc.)
 }
 
 /**

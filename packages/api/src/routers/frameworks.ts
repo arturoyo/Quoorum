@@ -4,6 +4,8 @@ import { db } from "@quoorum/db/client";
 import { frameworks, debateFrameworks } from "@quoorum/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { getAIClient } from "@quoorum/ai";
+import { logger } from "../lib/logger";
 import {
   runProsAndCons,
   runSWOTAnalysis,
@@ -88,6 +90,136 @@ export const frameworksRouter = router({
 
     return framework;
   }),
+
+  /**
+   * Suggest frameworks automatically based on question context using AI
+   * Analyzes the question and suggests the most appropriate decision framework
+   */
+  suggest: protectedProcedure
+    .input(z.object({ question: z.string().min(10), context: z.string().optional() }))
+    .query(async ({ ctx, input }) => {
+      // Get all active frameworks
+      const allFrameworks = await db
+        .select()
+        .from(frameworks)
+        .where(eq(frameworks.isActive, true))
+        .orderBy(frameworks.name);
+
+      if (allFrameworks.length === 0) {
+        return [];
+      }
+
+      // Use AI to analyze the question and suggest frameworks
+      try {
+        const aiClient = getAIClient();
+        
+        const systemPrompt = `Eres un experto en frameworks de toma de decisiones.
+Analiza la pregunta del usuario y sugiere el framework más apropiado para estructurar la respuesta final del debate.
+
+Frameworks disponibles:
+${allFrameworks.map((f, i) => `${i + 1}. ${f.name} (${f.slug}): ${f.description}`).join('\n')}
+
+Responde SOLO con un JSON array de frameworks sugeridos, ordenados por relevancia (más relevante primero).
+Cada framework debe incluir:
+- slug: el slug del framework
+- matchScore: puntuación de 0-100 de qué tan apropiado es
+- reasoning: explicación breve de por qué es apropiado
+
+Ejemplo de respuesta:
+[
+  {
+    "slug": "swot-analysis",
+    "matchScore": 85,
+    "reasoning": "La pregunta requiere análisis de fortalezas, debilidades, oportunidades y amenazas"
+  },
+  {
+    "slug": "pros-and-cons",
+    "matchScore": 60,
+    "reasoning": "Alternativa válida para comparar opciones"
+  }
+]`;
+
+        const userPrompt = `Pregunta del usuario: "${input.question}"
+${input.context ? `Contexto adicional: "${input.context}"` : ''}
+
+¿Qué framework(s) de decisión sería(n) más apropiado(s) para estructurar la respuesta final?`;
+
+        const response = await aiClient.generate(userPrompt, {
+          systemPrompt,
+          modelId: "gemini-2.0-flash-exp",
+          temperature: 0.3,
+          maxTokens: 1000,
+        });
+
+        // Parse JSON response
+        const jsonMatch = response.text.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) {
+          // Fallback: return first framework
+          return allFrameworks.slice(0, 1).map((f) => ({
+            id: f.id,
+            slug: f.slug,
+            name: f.name,
+            description: f.description,
+            matchScore: 50,
+            reasoning: "Framework sugerido automáticamente",
+          }));
+        }
+
+        const suggested = JSON.parse(jsonMatch[0]) as Array<{
+          slug: string;
+          matchScore: number;
+          reasoning: string;
+        }>;
+
+        // Map to framework data
+        const result = suggested
+          .map((s) => {
+            const framework = allFrameworks.find((f) => f.slug === s.slug);
+            if (!framework) return null;
+            return {
+              id: framework.id,
+              slug: framework.slug,
+              name: framework.name,
+              description: framework.description,
+              matchScore: s.matchScore,
+              reasoning: s.reasoning,
+            };
+          })
+          .filter((f): f is NonNullable<typeof f> => f !== null);
+
+        // If no matches, return first framework as fallback
+        if (result.length === 0) {
+          return allFrameworks.slice(0, 1).map((f) => ({
+            id: f.id,
+            slug: f.slug,
+            name: f.name,
+            description: f.description,
+            matchScore: 50,
+            reasoning: "Framework sugerido automáticamente",
+          }));
+        }
+
+        logger.info('[frameworks.suggest] AI suggestions:', {
+          question: input.question.substring(0, 100),
+          suggestionsCount: result.length,
+          topSuggestion: result[0]?.slug,
+        });
+
+        return result;
+      } catch (error) {
+        logger.error('[frameworks.suggest] AI suggestion failed:', error instanceof Error ? error : undefined);
+        
+        // Fallback: return first framework
+        return allFrameworks.slice(0, 1).map((f) => ({
+          id: f.id,
+          slug: f.slug,
+          name: f.name,
+          description: f.description,
+          matchScore: 50,
+          reasoning: "Framework sugerido automáticamente",
+        }));
+      }
+    }),
 
   /**
    * Run Pros and Cons analysis

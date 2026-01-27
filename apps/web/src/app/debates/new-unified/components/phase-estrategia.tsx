@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import { Sparkles, Target, ArrowRight, AlertCircle, Coins } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { StrategySelector } from '@/components/quoorum/strategy-selector'
+import { FrameworkSelector } from '@/components/quoorum/framework-selector'
 import { DebateStickyHeader } from './debate-sticky-header'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import type { EstrategiaState, ContextoState } from '../types'
@@ -20,6 +21,7 @@ interface PhaseEstrategiaProps {
   state: EstrategiaState
   contexto: ContextoState
   onStrategySelect: (strategy: string) => void
+  onFrameworkSelect?: (frameworkId: string | null) => void
   onContinue?: () => void
   creditBalance?: number
   accumulatedCosts?: PhaseCostEstimate[]
@@ -31,6 +33,7 @@ export function PhaseEstrategia({
   state,
   contexto,
   onStrategySelect,
+  onFrameworkSelect,
   onContinue,
   creditBalance = 0,
   accumulatedCosts = [],
@@ -68,21 +71,50 @@ export function PhaseEstrategia({
           Elige cómo quieres que se desarrolle el debate
         </p>
       </div>
-      <div className="bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg p-6">
-        <StrategySelector
-          question={contexto.mainQuestion}
-          onStrategySelect={onStrategySelect}
-          selectedPattern={state.selectedStrategy}
-        />
+      <div className="space-y-6">
+        {/* Strategy Selection */}
+        <div className="bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg p-6">
+          <StrategySelector
+            question={contexto.mainQuestion}
+            onStrategySelect={onStrategySelect}
+            selectedPattern={state.selectedStrategy}
+          />
+        </div>
+
+        {/* Framework Selection */}
+        {onFrameworkSelect && (
+          <div className="bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg p-6">
+            <FrameworkSelector
+              selectedFrameworkId={state.selectedFrameworkId || null}
+              onSelectionChange={onFrameworkSelect}
+              question={contexto.mainQuestion}
+              context={Object.entries(contexto.answers)
+                .map(([id, answer]) => {
+                  const q = contexto.questions.find((x) => x.id === id)
+                  return q ? `${q.content}: ${answer}` : answer
+                })
+                .join('\n')}
+              defaultOpen={true}
+            />
+          </div>
+        )}
       </div>
       
       {/* Selection Summary */}
-      {state.selectedStrategy && (
-        <div className="mt-6 bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-          <p className="text-sm text-purple-300">
-            <Sparkles className="inline h-4 w-4 mr-2" />
-            Estrategia seleccionada: <strong>{state.selectedStrategy}</strong>
-          </p>
+      {(state.selectedStrategy || state.selectedFrameworkId) && (
+        <div className="mt-6 bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 space-y-2">
+          {state.selectedStrategy && (
+            <p className="text-sm text-purple-300">
+              <Sparkles className="inline h-4 w-4 mr-2" />
+              Estrategia seleccionada: <strong>{state.selectedStrategy}</strong>
+            </p>
+          )}
+          {state.selectedFrameworkId && (
+            <p className="text-sm text-purple-300">
+              <Target className="inline h-4 w-4 mr-2" />
+              Framework seleccionado: <strong>{state.selectedFrameworkId}</strong>
+            </p>
+          )}
         </div>
       )}
 

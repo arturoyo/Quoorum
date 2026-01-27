@@ -331,6 +331,7 @@ export default function NewUnifiedDebatePageWithSession() {
                   state={state.estrategia}
                   contexto={state.contexto}
                   onStrategySelect={state.handleStrategySelection}
+                  onFrameworkSelect={state.handleFrameworkSelection}
                   onContinue={state.goToNextPhase}
                   creditBalance={creditBalance}
                   accumulatedCosts={accumulatedCosts}

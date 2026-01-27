@@ -10,8 +10,8 @@ import { z } from "zod";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { router, protectedProcedure, expensiveRateLimitedProcedure } from "../trpc";
 import { db } from "@quoorum/db";
-import { quoorumDebates, users, userContextFiles as userContextFilesTable, profiles, companies, departments, workers } from "@quoorum/db/schema";
-import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator, buildCorporateContext, selectTheme } from "@quoorum/quoorum";
+import { quoorumDebates, users, userContextFiles as userContextFilesTable, profiles, companies, departments, workers, debateFrameworks, scenarios, scenarioUsage } from "@quoorum/db/schema";
+import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator, buildCorporateContext, selectTheme, applyScenario, appliedScenarioToRunOptions } from "@quoorum/quoorum";
 import { searchInternet } from "@quoorum/quoorum/context-loader";
 import type { ExpertProfile, PatternType, DebateResult, DebateSequence } from "@quoorum/quoorum";
 import { logger } from "../lib/logger";
@@ -148,6 +148,9 @@ export const debatesRouter = router({
         selectedExpertIds: z.array(z.string().min(1)).optional(), // IDs de expertos personalizados seleccionados por el usuario (pueden ser slugs como "april_dunford" o UUIDs)
         selectedDepartmentIds: z.array(z.string().uuid()).optional(), // IDs de departamentos corporativos seleccionados por el usuario
         selectedWorkerIds: z.array(z.string().uuid()).optional(), // IDs de profesionales que intervienen en el debate
+        frameworkId: z.string().uuid().optional(), // ID del framework de decisión seleccionado (FODA, ROI, Delphi, etc.)
+        scenarioId: z.string().uuid().optional(), // ID del escenario preconfigurado (Decision Playbook)
+        scenarioVariables: z.record(z.string()).optional(), // Variables para el prompt template del escenario (ej: { user_input: "...", context: "..." })
         assessment: z
           .object({
             overallScore: z.number(),
@@ -197,11 +200,79 @@ export const debatesRouter = router({
 
       const profileId = profile.id; // Use profile.id for foreign key
 
+      // ============================================================================
+      // SCENARIO APPLICATION (if scenarioId provided)
+      // ============================================================================
+      let appliedScenario: ReturnType<typeof applyScenario> | null = null
+      let finalQuestion = input.question
+      let finalSelectedExpertIds = input.selectedExpertIds
+      let finalSelectedDepartmentIds = input.selectedDepartmentIds
+      let finalFrameworkId = input.frameworkId
+
+      if (input.scenarioId) {
+        // Load scenario from database
+        const [scenario] = await db
+          .select()
+          .from(scenarios)
+          .where(
+            and(
+              eq(scenarios.id, input.scenarioId),
+              eq(scenarios.status, 'active')
+            )
+          )
+          .limit(1)
+
+        if (!scenario) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Escenario no encontrado o no está activo',
+          })
+        }
+
+        // Check tier access
+        // TODO: Implement tier checking based on user subscription
+
+        // Apply scenario configuration
+        const variableValues = {
+          user_input: input.question, // Use question as user_input
+          context: input.context,
+          ...input.scenarioVariables,
+        }
+
+        try {
+          appliedScenario = applyScenario(
+            scenario as any, // Type assertion needed because DB schema doesn't match exactly
+            variableValues
+          )
+
+          // Override debate configuration with scenario values
+          finalQuestion = appliedScenario.masterPrompt
+          finalSelectedExpertIds = appliedScenario.selectedExpertIds
+          finalSelectedDepartmentIds = appliedScenario.selectedDepartmentIds
+          finalFrameworkId = appliedScenario.frameworkId
+
+          logger.info('Scenario applied to debate', {
+            scenarioId: input.scenarioId,
+            scenarioName: appliedScenario.scenarioName,
+            expertIds: appliedScenario.selectedExpertIds,
+          })
+        } catch (scenarioError) {
+          logger.error('Error applying scenario', scenarioError instanceof Error ? scenarioError : new Error(String(scenarioError)), {
+            scenarioId: input.scenarioId,
+          })
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Error al aplicar el escenario: ${scenarioError instanceof Error ? scenarioError.message : String(scenarioError)}`,
+          })
+        }
+      }
+
       logger.info(input.draftId ? "Updating draft debate" : "Creating debate", {
         userId: ctx.user.id,
         profileId: profileId,
-        question: input.question.substring(0, 50),
-        draftId: input.draftId
+        question: finalQuestion.substring(0, 50),
+        draftId: input.draftId,
+        scenarioId: input.scenarioId,
       });
 
       // Get user's active context files
@@ -310,7 +381,7 @@ export const debatesRouter = router({
           .insert(quoorumDebates)
           .values({
             userId: profileId, // Use profile.id, not users.id
-            question: input.question,
+            question: finalQuestion, // Use scenario's master prompt if scenario applied
             context: debateContext,
             mode: "dynamic",
             status: "pending",
@@ -319,6 +390,8 @@ export const debatesRouter = router({
               expertCount: input.expertCount,
               maxRounds: input.maxRounds,
               category: input.category,
+              scenarioId: input.scenarioId, // Store scenario ID in metadata
+              scenarioName: appliedScenario?.scenarioName,
             },
           })
           .returning();
@@ -361,6 +434,63 @@ export const debatesRouter = router({
         }
       })();
 
+      // Save selected framework if provided (from scenario or direct input)
+      if (finalFrameworkId) {
+        try {
+          await db.insert(debateFrameworks).values({
+            debateId: debate.id,
+            frameworkId: finalFrameworkId,
+          });
+          logger.info("Framework saved for debate", {
+            debateId: debate.id,
+            frameworkId: finalFrameworkId,
+          });
+        } catch (frameworkError) {
+          // Log error but don't fail debate creation
+          logger.warn("Failed to save framework for debate", {
+            debateId: debate.id,
+            frameworkId: finalFrameworkId,
+            error: frameworkError instanceof Error ? frameworkError.message : String(frameworkError),
+          });
+        }
+      }
+
+      // Track scenario usage if scenario was applied (fire-and-forget)
+      if (input.scenarioId && appliedScenario) {
+        void (async () => {
+          try {
+            // Import scenarioUsage table directly
+            const { scenarioUsage } = await import('@quoorum/db')
+            const { sql } = await import('drizzle-orm')
+            
+            // Increment usage count
+            await db
+              .update(scenarios)
+              .set({
+                usageCount: sql`${scenarios.usageCount} + 1`,
+              })
+              .where(eq(scenarios.id, input.scenarioId!))
+
+            // Create usage record
+            await db
+              .insert(scenarioUsage)
+              .values({
+                scenarioId: input.scenarioId!,
+                debateId: debate.id,
+                userId: profileId,
+                variablesUsed: input.scenarioVariables || {},
+              })
+          } catch (trackError) {
+            // Log but don't fail debate creation
+            logger.warn("Failed to track scenario usage", {
+              scenarioId: input.scenarioId,
+              debateId: debate.id,
+              error: trackError instanceof Error ? trackError.message : String(trackError),
+            })
+          }
+        })()
+      }
+
       // Also start debate inline (fallback if Inngest not configured or as primary method)
       logger.info("Starting debate execution", {
         debateId: debate.id,
@@ -369,7 +499,7 @@ export const debatesRouter = router({
         hasInngest: true, // Inngest attempt was made (may have failed)
       });
       
-      runDebateAsync(debate.id, profileId, input.question, debateContext, input.executionStrategy, (input.pattern as PatternType | undefined), input.selectedExpertIds, input.selectedDepartmentIds, input.selectedWorkerIds).catch(
+      runDebateAsync(debate.id, profileId, finalQuestion, debateContext, input.executionStrategy, (input.pattern as PatternType | undefined), finalSelectedExpertIds, finalSelectedDepartmentIds, input.selectedWorkerIds).catch(
         (error: unknown) => {
           logger.error(
             "Error starting debate",
@@ -1298,6 +1428,7 @@ export const debatesRouter = router({
 
   /**
    * Get dashboard stats for debates
+   * Returns metrics that show the real business value of Quoorum
    */
   stats: protectedProcedure.query(async ({ ctx }) => {
     // Total debates
@@ -1314,9 +1445,16 @@ export const debatesRouter = router({
 
     const totalDebates = allDebates.length;
 
-    // Completed debates
-    const completedDebates = await db
-      .select({ id: quoorumDebates.id })
+    // Completed debates with full data for metrics
+    const completedDebatesData = await db
+      .select({
+        id: quoorumDebates.id,
+        consensusScore: quoorumDebates.consensusScore,
+        totalCostUsd: quoorumDebates.totalCostUsd,
+        totalRounds: quoorumDebates.totalRounds,
+        createdAt: quoorumDebates.createdAt,
+        completedAt: quoorumDebates.completedAt,
+      })
       .from(quoorumDebates)
       .where(
         and(
@@ -1326,26 +1464,65 @@ export const debatesRouter = router({
         )
       );
 
-    const completedCount = completedDebates.length;
+    const completedCount = completedDebatesData.length;
 
-    // Average consensus
-    const debatesWithConsensus = await db
-      .select({ consensusScore: quoorumDebates.consensusScore })
-      .from(quoorumDebates)
-      .where(
-        and(
-          eq(quoorumDebates.userId, ctx.userId),
-          eq(quoorumDebates.status, "completed"),
-          isNull(quoorumDebates.deletedAt),
-          sql`${quoorumDebates.consensusScore} IS NOT NULL`
-        )
-      );
+    // Debates with consensus score for average calculation
+    const debatesWithConsensus = completedDebatesData.filter(
+      (d) => d.consensusScore !== null && d.consensusScore !== undefined
+    );
 
+    // Average consensus (0-100%)
     const avgConsensus =
       debatesWithConsensus.length > 0
         ? Math.round(
             debatesWithConsensus.reduce((sum, d) => sum + (d.consensusScore || 0), 0) /
               debatesWithConsensus.length * 100
+          )
+        : 0;
+
+    // Consensus distribution (high >= 90%, medium 70-89%, low < 70%)
+    const consensusDistribution = {
+      high: debatesWithConsensus.filter((d) => (d.consensusScore || 0) >= 0.9).length,
+      medium: debatesWithConsensus.filter(
+        (d) => (d.consensusScore || 0) >= 0.7 && (d.consensusScore || 0) < 0.9
+      ).length,
+      low: debatesWithConsensus.filter((d) => (d.consensusScore || 0) < 0.7).length,
+    };
+
+    // Average duration (in minutes) - calculated from createdAt to completedAt
+    const debatesWithDuration = completedDebatesData.filter(
+      (d) => d.createdAt && d.completedAt
+    );
+    const avgDurationMinutes =
+      debatesWithDuration.length > 0
+        ? Math.round(
+            debatesWithDuration.reduce((sum, d) => {
+              if (!d.createdAt || !d.completedAt) return sum;
+              const durationMs =
+                new Date(d.completedAt).getTime() - new Date(d.createdAt).getTime();
+              return sum + durationMs / (1000 * 60); // Convert to minutes
+            }, 0) / debatesWithDuration.length
+          )
+        : 0;
+
+    // Cost metrics
+    const debatesWithCost = completedDebatesData.filter(
+      (d) => d.totalCostUsd !== null && d.totalCostUsd !== undefined && d.totalCostUsd > 0
+    );
+    const totalCostUsd =
+      debatesWithCost.reduce((sum, d) => sum + (d.totalCostUsd || 0), 0);
+    const avgCostUsd =
+      debatesWithCost.length > 0 ? totalCostUsd / debatesWithCost.length : 0;
+
+    // Average rounds
+    const debatesWithRounds = completedDebatesData.filter(
+      (d) => d.totalRounds !== null && d.totalRounds !== undefined && d.totalRounds > 0
+    );
+    const avgRounds =
+      debatesWithRounds.length > 0
+        ? Math.round(
+            debatesWithRounds.reduce((sum, d) => sum + (d.totalRounds || 0), 0) /
+              debatesWithRounds.length
           )
         : 0;
 
@@ -1368,10 +1545,17 @@ export const debatesRouter = router({
     const thisMonthCount = thisMonthDebates.length;
 
     return {
+      // Legacy fields (for backwards compatibility)
       totalDebates,
       completedDebates: completedCount,
       avgConsensus,
       thisMonth: thisMonthCount,
+      // New value-focused metrics
+      consensusDistribution,
+      avgDurationMinutes,
+      totalCostUsd,
+      avgCostUsd,
+      avgRounds,
     };
   }),
 
@@ -3297,7 +3481,7 @@ async function runDebateAsync(
     );
 
     // Update debate with results
-    // ⚠️ IMPORTANT: Respect result.status - could be 'failed' if execution failed
+    // [WARNING] IMPORTANT: Respect result.status - could be 'failed' if execution failed
     const [currentDebate] = await db
       .select({ metadata: quoorumDebates.metadata })
       .from(quoorumDebates)
