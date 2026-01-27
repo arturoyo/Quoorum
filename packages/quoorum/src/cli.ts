@@ -21,7 +21,8 @@ void (0 as unknown as _DebateResult)
 // ============================================================================
 
 async function createDebate(question: string, mode: 'static' | 'dynamic' = 'dynamic') {
-  console.log(`\n🎯 Creating debate: ${question}`)
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.log(`\n[INFO] Creating debate: ${question}`)
   console.log(`Mode: ${mode}\n`)
 
   try {
@@ -34,13 +35,15 @@ async function createDebate(question: string, mode: 'static' | 'dynamic' = 'dyna
       context: { sources: [], combinedContext: '' },
     })
 
-    console.log('\n✅ Debate completed!')
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    console.log('\n[OK] Debate completed!')
     console.log(`Consensus: ${(result.consensusScore * 100).toFixed(0)}%`)
     console.log(`Rounds: ${result.rounds?.length || 0}`)
     console.log(`Cost: $${result.totalCostUsd?.toFixed(3) || 0}`)
 
     if (result.ranking && result.ranking.length > 0) {
-      console.log('\n📊 Top Recommendations:')
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      console.log('\n[INFO] Top Recommendations:')
       result.ranking.slice(0, 3).forEach((option, i) => {
         console.log(`  ${i + 1}. ${option.option} (${option.successRate.toFixed(1)}%)`)
       })
@@ -58,7 +61,8 @@ async function createDebate(question: string, mode: 'static' | 'dynamic' = 'dyna
 }
 
 function listExperts(): void {
-  console.log('\n👥 Available Experts:\n')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.log('\n[INFO] Available Experts:\n')
 
   const categories: Record<string, (typeof EXPERT_DATABASE)[string][]> = {}
 
@@ -82,18 +86,20 @@ function listExperts(): void {
 
 function exportDebate(debateId: string, format: 'pdf' | 'json' | 'md' = 'pdf'): void {
   const formatStr = typeof format === 'string' ? format : 'pdf'
-  console.log(`\n📄 Exporting debate ${debateId} as ${formatStr}...\n`)
+  // Removed emojis to avoid UTF-8 encoding issues on Windows
+  console.log(`\n[INFO] Exporting debate ${debateId} as ${formatStr}...\n`)
 
   // In a real implementation, would fetch debate from DB
-  console.log('⚠️  This is a demo. In production, would fetch debate from database.')
-  console.log('✅ Export would be saved to: ./exports/debate-' + debateId + '.' + format)
+  console.log('[WARN] This is a demo. In production, would fetch debate from database.')
+  console.log('[OK] Export would be saved to: ./exports/debate-' + debateId + '.' + format)
 }
 
 function analyzeDebate(debateId: string): void {
-  console.log(`\n📊 Analyzing debate ${debateId}...\n`)
+  // Removed emojis to avoid UTF-8 encoding issues on Windows
+  console.log(`\n[INFO] Analyzing debate ${debateId}...\n`)
 
   // In a real implementation, would fetch and analyze debate
-  console.log('⚠️  This is a demo. In production, would analyze debate from database.')
+  console.log('[WARN] This is a demo. In production, would analyze debate from database.')
   console.log('\nAnalysis would include:')
   console.log('  • Consensus score')
   console.log('  • Expert contributions')
@@ -103,7 +109,8 @@ function analyzeDebate(debateId: string): void {
 }
 
 async function benchmarkExperts() {
-  console.log('\n⚡ Benchmarking experts...\n')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.log('\n[INFO] Benchmarking experts...\n')
 
   const testQuestions = [
     'Should we pivot to B2B?',
@@ -126,38 +133,46 @@ async function benchmarkExperts() {
       })
 
       const duration = Date.now() - start
-      console.log(`  ✅ Completed in ${(duration / 1000).toFixed(1)}s`)
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      console.log(`  [OK] Completed in ${(duration / 1000).toFixed(1)}s`)
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
-      console.log(`  ❌ Failed: ${errorMsg}`)
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      console.log(`  [ERROR] Failed: ${errorMsg}`)
     }
   }
 
-  console.log('\n✅ Benchmark complete!\n')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.log('\n[OK] Benchmark complete!\n')
 }
 
 function cleanupOldDebates(days: number = 30): void {
-  console.log(`\n🧹 Cleaning up debates older than ${days} days...\n`)
+  // Removed emojis to avoid UTF-8 encoding issues on Windows
+  console.log(`\n[INFO] Cleaning up debates older than ${days} days...\n`)
 
   // In a real implementation, would delete old debates from DB
-  console.log('⚠️  This is a demo. In production, would delete from database.')
+  console.log('[WARN] This is a demo. In production, would delete from database.')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
   console.log(
-    '✅ Would delete debates older than ' +
+    '[OK] Would delete debates older than ' +
       new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
   )
 }
 
 function migrateData(): void {
-  console.log('\n🔄 Running data migration...\n')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.log('\n[INFO] Running data migration...\n')
 
-  console.log('⚠️  This is a demo. In production, would run actual migrations.')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.log('[WARN] This is a demo. In production, would run actual migrations.')
   console.log('Steps:')
   console.log('  1. Backup existing data')
   console.log('  2. Run schema migrations')
   console.log('  3. Migrate debate data')
   console.log('  4. Verify data integrity')
   console.log('  5. Update indexes')
-  console.log('\n✅ Migration would be complete!')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.log('\n[OK] Migration would be complete!')
 }
 
 // ============================================================================
@@ -241,8 +256,9 @@ async function main() {
 }
 
 function printHelp() {
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
   console.log(`
-🎯 Forum CLI - Command-line interface for Quoorum Dynamic System
+[INFO] Forum CLI - Command-line interface for Quoorum Dynamic System
 
 USAGE:
   forum <command> [options]

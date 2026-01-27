@@ -17,7 +17,7 @@ export default function AuthLayout({
         <div className="container mx-auto px-4 py-6">
           <QuoorumLogoWithText 
             href="/"
-            iconSize={192}
+            iconSize={48}
             showGradient={true}
             showText={false}
           />

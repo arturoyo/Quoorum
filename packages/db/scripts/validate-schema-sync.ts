@@ -15,7 +15,8 @@ import { sql } from 'drizzle-orm'
 
 // Validate DATABASE_URL is set
 if (!process.env.DATABASE_URL) {
-  console.error('❌ DATABASE_URL no está configurada')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.error('[ERROR] DATABASE_URL no está configurada')
   console.error('   Ejecuta este script desde el root con: pnpm validate:schema')
   console.error('   O configura DATABASE_URL en packages/db/.env')
   process.exit(1)
@@ -104,19 +105,20 @@ async function validateTableColumns(tableName: string, expectedColumns: string[]
           type: 'missing_column',
           table: tableName,
           column: col,
-          message: `❌ Columna faltante: ${tableName}.${col}`,
+          message: `[ERROR] Columna faltante: ${tableName}.${col}`,
         })
       }
     }
 
     if (errors.filter((e) => e.table === tableName).length === 0) {
-      console.log(`  ✅ Todas las columnas de ${tableName} existen`)
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      console.log(`  [OK] Todas las columnas de ${tableName} existen`)
     }
   } catch (error) {
     errors.push({
       type: 'missing_column',
       table: tableName,
-      message: `❌ Error al verificar tabla ${tableName}: ${error}`,
+      message: `[ERROR] Error al verificar tabla ${tableName}: ${error}`,
     })
   }
 }
@@ -137,18 +139,19 @@ async function validateEnumValues(enumName: string, expectedValues: string[]) {
           type: 'missing_enum_value',
           expected: value,
           actual: actualValues.join(', '),
-          message: `❌ Valor enum faltante: ${enumName}.${value}`,
+          message: `[ERROR] Valor enum faltante: ${enumName}.${value}`,
         })
       }
     }
 
     if (errors.filter((e) => e.type === 'missing_enum_value').length === 0) {
-      console.log(`  ✅ Enum ${enumName} completo`)
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      console.log(`  [OK] Enum ${enumName} completo`)
     }
   } catch (error) {
     errors.push({
       type: 'missing_enum_value',
-      message: `❌ Error al verificar enum ${enumName}: ${error}`,
+      message: `[ERROR] Error al verificar enum ${enumName}: ${error}`,
     })
   }
 }
@@ -173,19 +176,20 @@ async function validateForeignKeys(tableName: string, expectedFks: string[]) {
           type: 'missing_foreign_key',
           table: tableName,
           expected: fk,
-          message: `❌ Foreign key faltante: ${fk}`,
+          message: `[ERROR] Foreign key faltante: ${fk}`,
         })
       }
     }
 
     if (errors.filter((e) => e.table === tableName && e.type === 'missing_foreign_key').length === 0) {
-      console.log(`  ✅ Foreign keys de ${tableName} OK`)
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      console.log(`  [OK] Foreign keys de ${tableName} OK`)
     }
   } catch (error) {
     errors.push({
       type: 'missing_foreign_key',
       table: tableName,
-      message: `❌ Error al verificar foreign keys de ${tableName}: ${error}`,
+      message: `[ERROR] Error al verificar foreign keys de ${tableName}: ${error}`,
     })
   }
 }
@@ -204,7 +208,7 @@ async function validateTableExists(tableName: string) {
       errors.push({
         type: 'missing_column',
         table: tableName,
-        message: `❌ Tabla ${tableName} NO existe en PostgreSQL`,
+        message: `[ERROR] Tabla ${tableName} NO existe en PostgreSQL`,
       })
       return false
     }
@@ -213,7 +217,7 @@ async function validateTableExists(tableName: string) {
     errors.push({
       type: 'missing_column',
       table: tableName,
-      message: `❌ Error al verificar existencia de tabla ${tableName}: ${error}`,
+      message: `[ERROR] Error al verificar existencia de tabla ${tableName}: ${error}`,
     })
     return false
   }
@@ -224,7 +228,8 @@ async function validateTableExists(tableName: string) {
 // ═══════════════════════════════════════════════════════════
 
 async function validateSchemaSync() {
-  console.log('🔍 SCHEMA SYNC VALIDATION')
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.log('[INFO] SCHEMA SYNC VALIDATION')
   console.log('=' .repeat(60))
   console.log('')
 
@@ -249,7 +254,8 @@ async function validateSchemaSync() {
   console.log('=' .repeat(60))
 
   if (errors.length === 0) {
-    console.log('✅ SCHEMA SINCRONIZADO - Todo OK')
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    console.log('[OK] SCHEMA SINCRONIZADO - Todo OK')
     console.log('')
     console.log('   - Todas las tablas existen')
     console.log('   - Todas las columnas presentes')
@@ -258,11 +264,12 @@ async function validateSchemaSync() {
     console.log('')
     process.exit(0)
   } else {
-    console.log(`❌ SCHEMA DESINCRONIZADO - ${errors.length} errores encontrados:`)
+    // Removed emojis to avoid UTF-8 encoding issues on Windows
+    console.log(`[ERROR] SCHEMA DESINCRONIZADO - ${errors.length} errores encontrados:`)
     console.log('')
     errors.forEach((err) => console.log(err.message))
     console.log('')
-    console.log('💡 SOLUCIONES:')
+    console.log('[INFO] SOLUCIONES:')
     console.log('')
     console.log('   1. Si faltan columnas/enums:')
     console.log('      → Actualiza packages/db/src/schema/')
@@ -283,6 +290,7 @@ async function validateSchemaSync() {
 
 // Run validation
 validateSchemaSync().catch((error) => {
-  console.error('❌ Error fatal durante validación:', error)
+  // Removed emoji to avoid UTF-8 encoding issues on Windows
+  console.error('[ERROR] Error fatal durante validación:', error)
   process.exit(1)
 })

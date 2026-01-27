@@ -28,47 +28,67 @@ const plans = [
     monthlyPrice: 0,
     yearlyPrice: 0,
     featureList: [
-      "5 debates al mes",
-      "Hasta 4 expertos",
-      "3 rondas por debate",
+      "100 créditos una vez",
+      "93 expertos especializados",
+      "Deliberación multi-agente",
       "Historial 30 días",
+      "Exportar a PDF",
     ],
     cta: "Empezar Gratis",
     ctaLink: "/signup",
     popular: false,
   },
   {
+    id: "starter",
+    name: "Starter",
+    description: "Síntesis estratégica de alta calidad",
+    monthlyPrice: 29,
+    yearlyPrice: 290, // 29€/mes * 10 = 290€/año con 17% descuento
+    featureList: [
+      "3,500 créditos/mes",
+      "93 expertos especializados",
+      "300 créditos diarios de actualización",
+      "Modelos de IA estándar",
+      "Sistema de 4 capas de contexto",
+      "Acceso anticipado a funciones beta",
+    ],
+    cta: "Comenzar Prueba Gratis",
+    ctaLink: "/signup?plan=starter",
+    popular: true,
+  },
+  {
     id: "pro",
     name: "Pro",
-    description: "Para profesionales y equipos pequeños",
-    monthlyPrice: 29,
-    yearlyPrice: 290, // 29€/mes * 12 = 348€/año, pero con descuento anual
+    description: "Inteligencia Corporativa de espectro completo",
+    monthlyPrice: 79,
+    yearlyPrice: 790, // 79€/mes * 10 = 790€/año con 17% descuento
     featureList: [
-      "50 debates al mes",
-      "Hasta 8 expertos",
-      "5 rondas por debate",
-      "Historial ilimitado",
-      "Exportar a PDF",
+      "10,000 créditos/mes",
+      "93 expertos + 7 departamentos corporativos",
+      "Modelos de IA especializados",
+      "Personalización de BasePrompts",
+      "Exportar a PDF profesional",
       "Soporte prioritario",
     ],
     cta: "Comenzar Prueba Gratis",
     ctaLink: "/signup?plan=pro",
-    popular: true,
+    popular: false,
   },
   {
     id: "business",
     name: "Business",
-    description: "Para empresas y equipos grandes",
-    monthlyPrice: 99,
-    yearlyPrice: 990, // 99€/mes * 12 = 1188€/año, pero con descuento anual
+    description: "Control estratégico empresarial",
+    monthlyPrice: 199,
+    yearlyPrice: 1990, // 199€/mes * 10 = 1990€/año con 17% descuento
     featureList: [
-      "Debates ilimitados",
-      "Hasta 15 expertos",
-      "10 rondas por debate",
-      "API access",
-      "SSO / SAML",
-      "Soporte dedicado",
-      "Custom experts",
+      "30,000 créditos/mes",
+      "93 expertos + 7 departamentos corporativos",
+      "Los mejores modelos de IA",
+      "Panel de Administración completo",
+      "Gestión de usuarios y equipos",
+      "Multiplicador de crédito ajustable",
+      "SLA y seguridad empresarial",
+      "Soporte dedicado 24/7",
     ],
     cta: "Contactar Ventas",
     ctaLink: "/contact?plan=business",
@@ -110,15 +130,18 @@ const faqs = [
 ];
 
 const comparisonFeatures = [
-  { name: "Debates al mes", free: "5", pro: "50", business: "Ilimitados" },
-  { name: "Máximo de expertos", free: "4", pro: "8", business: "15" },
-  { name: "Rondas por debate", free: "3", pro: "5", business: "10" },
-  { name: "Historial", free: "30 días", pro: "Ilimitado", business: "Ilimitado" },
-  { name: "Exportar a PDF", free: false, pro: true, business: true },
-  { name: "API access", free: false, pro: false, business: true },
-  { name: "SSO / SAML", free: false, pro: false, business: true },
-  { name: "Custom experts", free: false, pro: false, business: true },
-  { name: "Soporte", free: "Comunidad", pro: "Prioritario", business: "Dedicado" },
+  { name: "Créditos mensuales", free: "100 (una vez)", starter: "3,500", pro: "10,000", business: "30,000" },
+  { name: "Expertos disponibles", free: "93", starter: "93", pro: "93 + 7 dept.", business: "93 + 7 dept." },
+  { name: "Créditos diarios de actualización", free: "-", starter: "300", pro: "300", business: "300" },
+  { name: "Modelos de IA", free: "Básicos", starter: "Estándar", pro: "Especializados", business: "Los mejores" },
+  { name: "Historial", free: "30 días", starter: "Ilimitado", pro: "Ilimitado", business: "Ilimitado" },
+  { name: "Exportar a PDF", free: true, starter: true, pro: true, business: true },
+  { name: "Sistema de 4 capas de contexto", free: false, starter: true, pro: true, business: true },
+  { name: "Inteligencia Corporativa (7 dept.)", free: false, starter: false, pro: true, business: true },
+  { name: "Panel de Administración", free: false, starter: false, pro: false, business: true },
+  { name: "Multiplicador de crédito ajustable", free: false, starter: false, pro: false, business: true },
+  { name: "SLA empresarial", free: false, starter: false, pro: false, business: true },
+  { name: "Soporte", free: "Comunidad", starter: "Prioritario", pro: "Prioritario", business: "Dedicado 24/7" },
 ];
 
 export default function PricingPage() {
@@ -242,7 +265,8 @@ export default function PricingPage() {
                 <tr className="border-b border-[var(--theme-landing-border)]">
                   <th className="text-left py-4 px-3 text-[var(--theme-text-secondary)] font-medium">Característica</th>
                   <th className="text-center py-4 px-3 text-[var(--theme-text-primary)] font-medium">Free</th>
-                  <th className="text-center py-4 px-3 text-purple-400 font-medium">Pro</th>
+                  <th className="text-center py-4 px-3 text-purple-400 font-medium">Starter</th>
+                  <th className="text-center py-4 px-3 text-[var(--theme-text-primary)] font-medium">Pro</th>
                   <th className="text-center py-4 px-3 text-[var(--theme-text-primary)] font-medium">Business</th>
                 </tr>
               </thead>
@@ -262,6 +286,17 @@ export default function PricingPage() {
                       )}
                     </td>
                     <td className="py-4 px-3 text-center bg-purple-500/10">
+                      {typeof feature.starter === "boolean" ? (
+                        feature.starter ? (
+                          <CheckCircle className="w-5 h-5 text-green-400 mx-auto" />
+                        ) : (
+                          <X className="w-5 h-5 text-[var(--theme-text-tertiary)] mx-auto" />
+                        )
+                      ) : (
+                        <span className="text-[var(--theme-text-primary)] text-sm">{feature.starter}</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-3 text-center">
                       {typeof feature.pro === "boolean" ? (
                         feature.pro ? (
                           <CheckCircle className="w-5 h-5 text-green-400 mx-auto" />
@@ -269,7 +304,7 @@ export default function PricingPage() {
                           <X className="w-5 h-5 text-[var(--theme-text-tertiary)] mx-auto" />
                         )
                       ) : (
-                        <span className="text-[var(--theme-text-primary)] text-sm">{feature.pro}</span>
+                        <span className="text-[var(--theme-text-secondary)] text-sm">{feature.pro}</span>
                       )}
                     </td>
                     <td className="py-4 px-3 text-center">

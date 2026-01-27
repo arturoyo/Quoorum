@@ -309,18 +309,22 @@ if (typeof window === 'undefined' && env.nodeEnv === 'development') {
   const result = validateEnv();
   
   if (result.errors.length > 0) {
-    console.error('❌ Environment Validation Errors:');
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    console.error('[ERROR] Environment Validation Errors:');
     result.errors.forEach((error) => console.error(`  - ${error}`));
-    console.error('\n💡 Create .env.local file from .env.example and fill in the required values.');
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    console.error('\n[INFO] Create .env.local file from .env.example and fill in the required values.');
   }
   
   if (result.warnings.length > 0) {
-    console.warn('⚠️  Environment Validation Warnings:');
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    console.warn('[WARN] Environment Validation Warnings:');
     result.warnings.forEach((warning) => console.warn(`  - ${warning}`));
   }
   
   if (result.valid && result.warnings.length === 0) {
-    console.log('✅ Environment variables validated successfully');
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    console.log('[OK] Environment variables validated successfully');
   }
 }
 

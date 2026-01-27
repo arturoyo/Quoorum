@@ -87,12 +87,12 @@ async function processFile(filePath) {
     if (hasChanges) {
       await writeFile(filePath, modified, 'utf8');
       stats.filesModified++;
-      console.log(`✓ Modified: ${filePath}`);
+      console.log(`[OK] Modified: ${filePath}`);
     }
 
     stats.filesProcessed++;
   } catch (error) {
-    console.error(`✗ Error processing ${filePath}:`, error.message);
+    console.error(`[ERROR] Error processing ${filePath}:`, error.message);
   }
 }
 
@@ -114,20 +114,20 @@ async function renameFiles(dirPath) {
             const newPath = join(dirPath, newName);
             await renameFile(fullPath, newPath);
             stats.filesRenamed++;
-            console.log(`✓ Renamed: ${entry.name} → ${newName}`);
+            console.log(`[OK] Renamed: ${entry.name} → ${newName}`);
             break;
           } else if (entry.name === from) {
             const newPath = join(dirPath, to);
             await renameFile(fullPath, newPath);
             stats.filesRenamed++;
-            console.log(`✓ Renamed: ${entry.name} → ${to}`);
+            console.log(`[OK] Renamed: ${entry.name} → ${to}`);
             break;
           }
         }
       }
     }
   } catch (error) {
-    console.error(`✗ Error in directory ${dirPath}:`, error.message);
+    console.error(`[ERROR] Error in directory ${dirPath}:`, error.message);
   }
 }
 
@@ -140,7 +140,7 @@ async function processDirectory(dirPath) {
 
       if (entry.isDirectory()) {
         if (await shouldExcludeDir(fullPath)) {
-          console.log(`⊘ Skipping: ${fullPath}`);
+          console.log(`[SKIP] Skipping: ${fullPath}`);
           continue;
         }
         await processDirectory(fullPath);
@@ -151,27 +151,27 @@ async function processDirectory(dirPath) {
       }
     }
   } catch (error) {
-    console.error(`✗ Error reading directory ${dirPath}:`, error.message);
+    console.error(`[ERROR] Error reading directory ${dirPath}:`, error.message);
   }
 }
 
 async function main() {
-  console.log('🚀 Starting Forum → Quoorum refactoring...\n');
+  console.log('[INFO] Starting Forum → Quoorum refactoring...\n');
 
   const startTime = Date.now();
 
   // Step 1: Rename files first
-  console.log('📝 Step 1: Renaming files...');
+  console.log('[INFO] Step 1: Renaming files...');
   await renameFiles(__dirname);
-  console.log(`\n✓ Files renamed: ${stats.filesRenamed}\n`);
+  console.log(`\n[OK] Files renamed: ${stats.filesRenamed}\n`);
 
   // Step 2: Process content
-  console.log('📝 Step 2: Updating file contents...');
+  console.log('[INFO] Step 2: Updating file contents...');
   await processDirectory(__dirname);
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
-  console.log('\n✅ Refactoring complete!');
+  console.log('\n[OK] Refactoring complete!');
   console.log(`\nStats:`);
   console.log(`  Files processed: ${stats.filesProcessed}`);
   console.log(`  Files modified: ${stats.filesModified}`);

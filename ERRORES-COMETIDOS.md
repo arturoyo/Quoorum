@@ -14,6 +14,7 @@
 | 2 | [Column does not exist: deleted_at](#error-2-column-does-not-exist-deleted_at) | 2025-01-15 | 🔴 Crítico | ✅ Documentado |
 | 3 | [Enum value 'draft' no existe](#error-3-enum-value-draft-no-existe) | 2025-01-15 | 🟡 Moderado | ✅ Documentado |
 | 4 | [Debates en Supabase cloud vs PostgreSQL local](#error-4-debates-en-supabase-cloud-vs-postgresql-local) | 2025-01-15 | 🔴 Crítico | ✅ Documentado |
+| 5 | [Emojis en console.log causan error UTF-8 en Windows](#error-5-emojis-en-consolelog-causan-error-utf-8-en-windows) | 2026-01-27 | 🔴 Crítico | ✅ Documentado |
 
 ---
 
@@ -275,6 +276,122 @@ Código: Cambiado de Supabase client a Drizzle ORM
 
 ---
 
+## ERROR #5: Emojis en console.log causan error UTF-8 en Windows
+
+### 🚨 SÍNTOMA (ERROR CRÍTICO - BLOQUEA DESARROLLO COMPLETAMENTE)
+
+```
+× Internal errors encountered: Windows stdio in
+  │ console mode does not support writing non-UTF-8
+  │ byte sequences
+
+ ELIFECYCLE  Command failed with exit code 1.
+```
+
+**⚠️ GRAVEDAD:** 🔴 CRÍTICO - Bloquea completamente el desarrollo. El servidor NO inicia.
+**⚠️ FRECUENCIA:** Ha ocurrido múltiples veces, causando pérdida de horas de trabajo.
+**⚠️ REGLA:** Bajo pena de muerte - NUNCA usar emojis en código.
+
+### 📍 Contexto
+
+**Cuándo ocurre:**
+- Al ejecutar `pnpm dev` en Windows
+- El código contiene `console.log/error/warn` con emojis (✅❌⚠️🔐📄🚀📊🎯💬)
+- Next.js intenta escribir a la consola durante el build/cache
+
+**Por qué ocurre:**
+- Windows en modo consola no soporta escribir secuencias de bytes no-UTF-8
+- Los emojis son caracteres Unicode que requieren codificación UTF-8
+- La consola de Windows en modo "console" tiene limitaciones de encoding
+
+**Archivos afectados:**
+- `apps/web/src/app/layout.tsx` - `console.error("❌ Environment validation failed")`
+- `apps/web/src/lib/env.ts` - `console.error('❌ Environment Validation Errors:')`
+- `packages/db/src/client.ts` - `console.log('[DB Client] Connecting to:')` (aunque este no tenía emojis)
+
+### ✅ Solución
+
+**Paso 1: Eliminar emojis de todos los console.log/error/warn**
+
+```typescript
+// ❌ MAL - Causa error UTF-8 en Windows
+console.error('❌ Environment validation failed')
+console.warn('⚠️  Warning message')
+console.log('✅ Success message')
+console.error('💡 Create .env.local file')
+
+// ✅ BIEN - Usar etiquetas de texto
+console.error('[ERROR] Environment validation failed')
+console.warn('[WARN] Warning message')
+console.log('[OK] Success message')
+console.error('[INFO] Create .env.local file')
+```
+
+**Paso 2: Usar logger estructurado cuando sea posible**
+
+```typescript
+// ✅ MEJOR - Logger estructurado no tiene problemas de encoding
+import { logger } from '@/lib/logger'
+logger.error('Environment validation failed', { missing: validation.missing })
+logger.warn('Warning message', { context: 'env' })
+logger.info('Success message', { validated: true })
+```
+
+**Archivos corregidos:**
+- ✅ `apps/web/src/app/layout.tsx` - Emoji ❌ eliminado
+- ✅ `apps/web/src/lib/env.ts` - Emojis ❌⚠️✅💡 eliminados
+- ✅ `packages/db/src/client.ts` - console.log deshabilitados (ya no se usan)
+
+### 🔧 Prevención
+
+**REGLA DE ORO: NUNCA usar emojis en código. Punto.**
+
+**Antes de usar console.log/error/warn/Write-Host/logger:**
+
+1. ✅ **NUNCA usar emojis** en mensajes de código
+   - ❌ Prohibido: `console.log('✅ Success')`
+   - ❌ Prohibido: `Write-Host "🔧 Fixing..."`
+   - ❌ Prohibido: `logger.info('🎯 Target')`
+   - ✅ Permitido: `console.log('[OK] Success')`
+   - ✅ Permitido: `Write-Host "[INFO] Fixing..."`
+   - ✅ Permitido: `logger.info('[INFO] Target')`
+
+2. ✅ **Usar etiquetas de texto** en lugar de emojis:
+   - `[ERROR]` en lugar de ❌
+   - `[WARN]` en lugar de ⚠️
+   - `[OK]` en lugar de ✅
+   - `[INFO]` en lugar de 💡 o ℹ️
+   - `[DEBUG]` en lugar de 🔍
+   - `[FIX]` en lugar de 🔧
+   - `[SUCCESS]` en lugar de 🎉
+
+3. ✅ **Preferir logger estructurado** cuando sea posible:
+   - `logger.error()` en lugar de `console.error()`
+   - `logger.warn()` en lugar de `console.warn()`
+   - `logger.info()` en lugar de `console.log()`
+
+4. ✅ **Verificar antes de commit:**
+   ```bash
+   # Buscar emojis en cualquier salida de código
+   # El auto-fix detectará y reemplazará automáticamente
+   ```
+
+### 📝 Checklist
+
+- [ ] No hay emojis en ningún `console.log/error/warn`
+- [ ] Se usan etiquetas de texto (`[ERROR]`, `[WARN]`, `[OK]`, `[INFO]`)
+- [ ] Se prefiere logger estructurado cuando sea posible
+- [ ] Se verifica con grep antes de commit
+- [ ] El servidor inicia sin errores UTF-8 en Windows
+
+### 📋 Reglas Añadidas a CLAUDE.md
+
+- ✅ Añadido a **PROHIBICIONES ABSOLUTAS**: "Emojis en `console.log/error/warn`"
+- ✅ Añadido ejemplo específico en sección de **Ejemplos Específicos**
+- ✅ Documentado en **ERRORES-COMETIDOS.md** (este archivo)
+
+---
+
 ## 🎯 PROTOCOLO DE PREVENCIÓN
 
 ### Antes de CUALQUIER cambio importante:
@@ -301,13 +418,13 @@ Código: Cambiado de Supabase client a Drizzle ORM
 
 ## 📊 ESTADÍSTICAS
 
-- **Total de errores documentados:** 4
-- **Errores críticos:** 3
+- **Total de errores documentados:** 5
+- **Errores críticos:** 4
 - **Errores moderados:** 1
-- **Errores resueltos:** 4
+- **Errores resueltos:** 5
 - **Tasa de repetición:** 0% (objetivo: mantener en 0%)
 
 ---
 
-_Última actualización: 2025-01-15_
+_Última actualización: 2026-01-27_
 _Próxima revisión: Antes de CADA cambio importante_

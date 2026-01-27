@@ -324,7 +324,7 @@ function main() {
     join(rootDir, 'packages'),
   ]
 
-  console.log('🔍 Auto-fixing common errors...\n')
+  console.log('[INFO] Auto-fixing common errors...\n')
 
   const allResults: FixResult[] = []
   let totalFixed = 0
@@ -332,26 +332,26 @@ function main() {
   for (const dir of appDirs) {
     try {
       const files = findFiles(dir, ['.tsx', '.ts'])
-      
+
       for (const file of files) {
         const result = autoFix(file)
         if (result.fixed > 0) {
           const relPath = relative(rootDir, file)
-          console.log(`✅ Fixed ${result.fixed} issue(s) in ${relPath}`)
+          console.log(`[OK] Fixed ${result.fixed} issue(s) in ${relPath}`)
           totalFixed += result.fixed
         }
         allResults.push(result)
       }
     } catch (error) {
-      console.error(`❌ Error processing ${dir}:`, error)
+      console.error(`[ERROR] Error processing ${dir}:`, error)
     }
   }
 
-  console.log(`\n✨ Fixed ${totalFixed} issue(s) in total`)
+  console.log(`\n[OK] Fixed ${totalFixed} issue(s) in total`)
 
   const allErrors = allResults.flatMap((r) => r.errors)
   if (allErrors.length > 0) {
-    console.log(`\n⚠️  ${allErrors.length} error(s) could not be auto-fixed:`)
+    console.log(`\n[WARN] ${allErrors.length} error(s) could not be auto-fixed:`)
     for (const error of allErrors) {
       const relPath = relative(rootDir, error.file)
       console.log(`   - ${relPath}:${error.line}: ${error.message}`)

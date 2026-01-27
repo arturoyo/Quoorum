@@ -8,7 +8,7 @@
  * 3. Descomentar código abajo
  */
 
-// ⚠️ DESCOMENTAR CUANDO SENTRY ESTÉ INSTALADO
+// [WARN] DESCOMENTAR CUANDO SENTRY ESTÉ INSTALADO
 /*
 import * as Sentry from "@sentry/nextjs";
 
@@ -59,7 +59,7 @@ if (SENTRY_DSN) {
   });
 } else if (process.env.NODE_ENV === "development") {
   // eslint-disable-next-line no-console
-  console.log("ℹ️ Sentry Edge disabled: SENTRY_DSN not set");
+  console.log("[INFO] Sentry Edge disabled: SENTRY_DSN not set");
 }
 */
 

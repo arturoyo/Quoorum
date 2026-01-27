@@ -190,7 +190,17 @@
       "Bash(Format-Table)",
       "Bash(for file in \"apps/web/src/app/\\(auth\\)/login/page.tsx\" \"packages/quoorum/src/frameworks/swot-analysis.ts\" \"apps/web/src/app/debates/new-unified/components/phase-contexto.tsx\")",
       "Bash(do echo \"  - $file\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(Where-Object { $_ProcessName -eq \"node\" })",
+      "Bash(Select-Object Id, ProcessName, CPU)",
+      "Bash(Get-Process -Name \"Docker Desktop\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object ProcessName, Id)",
+      "Bash(/c/Program Files/Docker/Docker/resources/bin/docker ps -a)",
+      "Bash(Where-Object {$_ProcessName -eq \"node\"})",
+      "Bash(Select-Object Id,ProcessName,StartTime)",
+      "Bash(Get-ChildItem -Path \"apps\\\\web\\\\src\",\"packages\\\\db\\\\src\",\"packages\\\\api\\\\src\" -Recurse -Include *.ts,*.tsx,*.js,*.jsx -File)",
+      "Bash(Select-String -Pattern \"[✅❌⚠️🔐📄🚀📊🎯💬💡🔍]\" -SimpleMatch)",
+      "Bash(byte sequences\" error during Next.js compilation.\n\nChanges:\n- apps/web/src/app/api/stripe/webhook/route.ts: Replace 🚨 with [ALERT]\n- packages/db/scripts: Remove emojis from seed and update scripts\n- packages/quoorum/test: Remove emojis from test files\n- apps/web/next.config.ts: Remove emoji from comment\n- Multiple files: Replace emojis with text labels [ERROR], [WARN], [INFO]\n\nFixes ERROR #5 from ERRORES-COMETIDOS.md\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

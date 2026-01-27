@@ -220,3 +220,81 @@ export function parseRuntimeErrors(logOutput: string): DetectedError[] {
 
   return errors
 }
+
+/**
+ * Detecta emojis en console.log/error/warn/info/debug y Write-Host (PowerShell)
+ * Escanea archivos en busca de emojis que causan problemas UTF-8 en Windows
+ */
+export async function parseEmojiErrors(
+  filePaths: string[],
+  readFileFn: (path: string) => Promise<string>
+): Promise<DetectedError[]> {
+  const errors: DetectedError[] = []
+  // Detectar TODOS los emojis Unicode posibles (rangos completos)
+  // Rangos Unicode de emojis según Unicode Standard:
+  // - U+1F300-U+1F5FF: Miscellaneous Symbols and Pictographs
+  // - U+1F600-U+1F64F: Emoticons (caras)
+  // - U+1F680-U+1F6FF: Transport and Map Symbols
+  // - U+1F700-U+1F77F: Alchemical Symbols
+  // - U+1F780-U+1F7FF: Geometric Shapes Extended
+  // - U+1F800-U+1F8FF: Supplemental Arrows-C
+  // - U+1F900-U+1F9FF: Supplemental Symbols and Pictographs
+  // - U+1FA00-U+1FA6F: Chess Symbols
+  // - U+1FA70-U+1FAFF: Symbols and Pictographs Extended-A
+  // - U+1FAB0-U+1FABF: Symbols and Pictographs Extended-B
+  // - U+1FAC0-U+1FAFF: Symbols and Pictographs Extended-C
+  // - U+2600-U+26FF: Miscellaneous Symbols
+  // - U+2700-U+27BF: Dingbats
+  // - U+FE00-U+FE0F: Variation Selectors (modificadores de emojis)
+  // - U+1F1E0-U+1F1FF: Regional Indicator Symbols (banderas)
+  // - U+2190-U+21FF: Arrows (algunos usados como emojis)
+  // - U+2300-U+23FF: Miscellaneous Technical (algunos usados como emojis)
+  // - U+2B00-U+2BFF: Miscellaneous Symbols and Arrows
+  // - U+200D: Zero Width Joiner (ZWJ) - usado para emojis compuestos
+  // - U+20E3: Combining Enclosing Keycap
+  // - U+FE0F: Variation Selector-16 (fuerza renderizado como emoji)
+  const emojiPattern = /[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{1FAB0}-\u{1FABF}\u{1FAC0}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F1E0}-\u{1F1FF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{200D}\u{20E3}\u{FE0F}]/gu
+
+  for (const filePath of filePaths) {
+    try {
+      const content = await readFileFn(filePath)
+      const lines = content.split('\n')
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        const lineNumber = i + 1
+
+        // Detectar console.log/error/warn/info/debug con emojis
+        const hasConsoleLog = /console\.(log|error|warn|info|debug)\(/g.test(line)
+        // Detectar Write-Host con emojis (PowerShell)
+        const hasWriteHost = /Write-Host\s+/g.test(line)
+        // Detectar logger.info/error/warn con emojis
+        const hasLogger = /(logger|quoorumLogger|systemLogger)\.(info|error|warn|debug)\(/g.test(line)
+
+        // Si la línea contiene un log statement Y un emoji, reportar error
+        if ((hasConsoleLog || hasWriteHost || hasLogger) && emojiPattern.test(line)) {
+          // Encontrar el emoji específico en la línea
+          const emojiMatch = line.match(emojiPattern)
+          const emojiFound = emojiMatch ? emojiMatch[0] : 'emoji'
+
+          errors.push({
+            type: 'runtime',
+            severity: 'safe', // Safe porque solo reemplaza emojis con texto
+            file: filePath,
+            line: lineNumber,
+            message: `Emoji detected in log statement: ${emojiFound}`,
+            code: 'EMOJI_IN_LOG',
+            rawError: line.trim(),
+            autoFixable: true,
+            fixStrategy: 'replace-emoji-with-text',
+          })
+        }
+      }
+    } catch (err) {
+      // Ignorar errores de lectura (archivo no existe, permisos, etc.)
+      continue
+    }
+  }
+
+  return errors
+}

@@ -39,15 +39,15 @@ SyntaxError: Unexpected token '}'
 // ============================================================================
 
 async function testParsers() {
-  console.log('🧪 Testing Error Parsers...\n')
+  console.log('[INFO] Testing Error Parsers...\n')
 
   // Test TypeScript parser
-  console.log('📘 TypeScript Errors:')
+  console.log('[INFO] TypeScript Errors:')
   const tsErrors = parseTypeScriptErrors(sampleTypeScriptOutput)
   console.log(`  Found ${tsErrors.length} errors`)
   tsErrors.forEach((err) => {
     console.log(`  - ${err.file}:${err.line} [${err.severity}] ${err.message}`)
-    console.log(`    Auto-fixable: ${err.autoFixable ? '✅' : '❌'}`)
+    console.log(`    Auto-fixable: ${err.autoFixable ? '[OK]' : '[ERROR]'}`)
     if (err.fixStrategy) {
       console.log(`    Strategy: ${err.fixStrategy}`)
     }
@@ -55,12 +55,12 @@ async function testParsers() {
   console.log()
 
   // Test ESLint parser
-  console.log('🔧 ESLint Errors:')
+  console.log('[INFO] ESLint Errors:')
   const eslintErrors = parseESLintErrors(sampleESLintOutput)
   console.log(`  Found ${eslintErrors.length} errors`)
   eslintErrors.forEach((err) => {
     console.log(`  - ${err.file}:${err.line} [${err.severity}] ${err.message}`)
-    console.log(`    Auto-fixable: ${err.autoFixable ? '✅' : '❌'}`)
+    console.log(`    Auto-fixable: ${err.autoFixable ? '[OK]' : '[ERROR]'}`)
     if (err.fixStrategy) {
       console.log(`    Strategy: ${err.fixStrategy}`)
     }
@@ -68,18 +68,18 @@ async function testParsers() {
   console.log()
 
   // Test Build parser
-  console.log('🏗️ Build Errors:')
+  console.log('[INFO] Build Errors:')
   const buildErrors = parseBuildErrors(sampleBuildOutput)
   console.log(`  Found ${buildErrors.length} errors`)
   buildErrors.forEach((err) => {
     console.log(`  - ${err.message}`)
-    console.log(`    Auto-fixable: ${err.autoFixable ? '✅' : '❌'}`)
+    console.log(`    Auto-fixable: ${err.autoFixable ? '[OK]' : '[ERROR]'}`)
   })
   console.log()
 }
 
 async function testFixApplier() {
-  console.log('🔧 Testing Auto-Fix Appliers...\n')
+  console.log('[INFO] Testing Auto-Fix Appliers...\n')
 
   // Solo mostrar qué haría, no ejecutar realmente
   const testError = {
@@ -95,18 +95,18 @@ async function testFixApplier() {
     fixStrategy: 'fix-malformed-imports',
   }
 
-  console.log('📝 Would apply fix:')
+  console.log('[INFO] Would apply fix:')
   console.log(`  File: ${testError.file}`)
   console.log(`  Line: ${testError.line}`)
   console.log(`  Strategy: ${testError.fixStrategy}`)
   console.log(`  Severity: ${testError.severity}`)
   console.log()
-  console.log('⚠️  Dry run mode - no files will be modified')
+  console.log('[WARN] Dry run mode - no files will be modified')
   console.log('   To actually apply fixes, run the worker via Inngest')
 }
 
 function showUsageExamples() {
-  console.log('\n📚 Usage Examples:\n')
+  console.log('\n[INFO] Usage Examples:\n')
 
   console.log('1. Trigger worker manually:')
   console.log('   import { inngest } from "@quoorum/workers"')
@@ -127,7 +127,7 @@ function showUsageExamples() {
 // ============================================================================
 
 async function main() {
-  console.log('🔧 Auto-Healer Test Suite\n')
+  console.log('[INFO] Auto-Healer Test Suite\n')
   console.log('=' .repeat(60))
   console.log()
 
@@ -135,7 +135,7 @@ async function main() {
   await testFixApplier()
   showUsageExamples()
 
-  console.log('✅ Test suite completed')
+  console.log('[OK] Test suite completed')
 }
 
 main().catch(console.error)

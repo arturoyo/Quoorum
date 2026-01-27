@@ -132,7 +132,7 @@ class ErrorParser {
 
 async function sendToSentry(errors: BuildError[]): Promise<void> {
   // TODO: Implementar con @sentry/node cuando esté configurado
-  console.log('\n📊 Would send to Sentry:')
+  console.log('\n[INFO] Would send to Sentry:')
   console.log(JSON.stringify(errors, null, 2))
 
   // Ejemplo de integración real:
@@ -168,12 +168,12 @@ async function sendToSlack(summary: ReturnType<typeof ErrorParser.prototype.getS
   const webhookUrl = process.env.SLACK_WEBHOOK_URL
 
   if (!webhookUrl) {
-    console.log('ℹ️  SLACK_WEBHOOK_URL not configured, skipping Slack notification')
+    console.log('[INFO] SLACK_WEBHOOK_URL not configured, skipping Slack notification')
     return
   }
 
   const message = {
-    text: '🚨 Build Failed',
+    text: '[ERROR] Build Failed',
     blocks: [
       {
         type: 'section',
@@ -236,7 +236,7 @@ async function main() {
     terminal: false,
   })
 
-  console.log('📝 Monitoring build output for errors...\n')
+  console.log('[INFO] Monitoring build output for errors...\n')
 
   for await (const line of rl) {
     // Print line to stdout (passthrough)
@@ -250,7 +250,7 @@ async function main() {
   const summary = parser.getSummary()
 
   if (errors.length === 0) {
-    console.log('\n✅ No build errors detected')
+    console.log('\n[OK] No build errors detected')
     return
   }
 
@@ -273,7 +273,7 @@ async function main() {
   await sendToSentry(errors)
   await sendToSlack(summary)
 
-  console.log('\n✅ Errors logged to monitoring services')
+  console.log('\n[OK] Errors logged to monitoring services')
 
   // Exit with error code if there are errors
   if (summary.bySeverity.error && summary.bySeverity.error > 0) {

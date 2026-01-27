@@ -191,7 +191,7 @@ interface QuoorumLogoWithTextProps {
 }
 
 export function QuoorumLogoWithText({
-  iconSize = 192, // 4x el tamaño original (48 * 4 = 192)
+  iconSize = 48, // Tamaño por defecto razonable para headers (antes era 192, demasiado grande)
   textSize = '2xl',
   className = '',
   href,

@@ -48,6 +48,9 @@ export async function applyAutoFix(error: DetectedError): Promise<FixResult> {
       case 'install-dependency':
         return await installMissingDependency(error)
 
+      case 'replace-emoji-with-text':
+        return await replaceEmojiWithText(error)
+
       default:
         return {
           success: false,
@@ -351,5 +354,74 @@ async function installMissingDependency(error: DetectedError): Promise<FixResult
     file: error.file,
     changes: [],
     error: `Dependency installation requires manual approval: pnpm add ${packageName}`,
+  }
+}
+
+/**
+ * Reemplaza emojis en console.log/error/warn/info/debug y Write-Host con etiquetas de texto
+ * Mapeo de emojis comunes a etiquetas de texto
+ */
+async function replaceEmojiWithText(error: DetectedError): Promise<FixResult> {
+  const content = await readFile(error.file, 'utf-8')
+  const lines = content.split('\n')
+
+  if (!error.line) {
+    return {
+      success: false,
+      file: error.file,
+      changes: [],
+      error: 'No line number provided',
+    }
+  }
+
+  const lineIndex = error.line - 1
+  const originalLine = lines[lineIndex]
+
+  // REGLA SIMPLE: NUNCA usar emojis en código. Reemplazar TODOS con [EMOJI] genérico.
+  // No intentamos mapear cada emoji específico - simplemente los eliminamos/reemplazamos.
+  // Esto previene el error UTF-8 en Windows console y es más simple de mantener.
+
+  // Crear regex para encontrar TODOS los emojis Unicode posibles (mismo patrón que en error-parsers.ts)
+  const emojiPattern = /[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{1FAB0}-\u{1FABF}\u{1FAC0}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F1E0}-\u{1F1FF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{200D}\u{20E3}\u{FE0F}]/gu
+
+  let modifiedLine = originalLine
+  const changes: string[] = []
+  let hasChanges = false
+
+  // Reemplazar TODOS los emojis encontrados con [EMOJI] genérico
+  // No intentamos mapear cada emoji específico - simplemente los eliminamos
+  modifiedLine = modifiedLine.replace(emojiPattern, (emoji) => {
+    hasChanges = true
+    changes.push(`Removed emoji: ${emoji}`)
+    return '[EMOJI]' // Reemplazo genérico - el desarrollador debe reescribir el mensaje sin emoji
+  })
+
+  if (hasChanges) {
+    // Si hay cambios, añadir comentario explicativo si no existe
+    const prevLine = lines[lineIndex - 1]?.trim() || ''
+    if (!prevLine.includes('Removed emoji') && !prevLine.includes('avoid UTF-8')) {
+      // Añadir comentario en la línea anterior si es posible
+      const indent = originalLine.match(/^(\s*)/)?.[1] || ''
+      lines.splice(lineIndex, 0, `${indent}// Removed emoji to avoid UTF-8 encoding issues on Windows`)
+      // Actualizar índice después del splice
+      lines[lineIndex + 1] = modifiedLine
+    } else {
+      // Si ya hay comentario, solo actualizar la línea
+      lines[lineIndex] = modifiedLine
+    }
+    await writeFile(error.file, lines.join('\n'), 'utf-8')
+
+    return {
+      success: true,
+      file: error.file,
+      changes,
+    }
+  }
+
+  return {
+    success: false,
+    file: error.file,
+    changes: [],
+    error: 'No emojis found in line',
   }
 }

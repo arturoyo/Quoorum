@@ -27,59 +27,59 @@ import { GradientCTAButton } from "@/components/ui/gradient-cta-button";
 
 const features = [
   {
-    icon: Users,
-    title: "93 Expertos en 8 Categorías",
+    icon: Shield,
+    title: "Decision Evidence Engine",
     description:
-      "SaaS, Venture Capital, Engineering, Legal, Design/UX, y más. Cada experto con su área de expertise verificada.",
+      "Certificados inmutables con SHA-256, compliance ISO 27001/NIST/GDPR y audit trail completo. Evidencia auditable para cada decisión.",
     gradient: "from-blue-500 to-cyan-500",
   },
   {
     icon: Brain,
-    title: "Deliberación Multi-Agente",
+    title: "93 Expertos IA Multi-Agente",
     description:
-      "Los expertos debaten entre sí automáticamente, identificando puntos ciegos y asunciones peligrosas en tiempo real.",
+      "Expertos especializados en 8 categorías debaten automáticamente. Identifican puntos ciegos, sesgos y asunciones peligrosas.",
     gradient: "from-purple-500 to-pink-500",
   },
   {
-    icon: Zap,
-    title: "Debates Rastreables",
+    icon: Layers,
+    title: "Argument Intelligence Engine",
     description:
-      "Historial completo de cada argumento, voto y cambio de opinión. Transparencia total del proceso de decisión.",
+      "Grafo interactivo de argumentos. Visualiza premisas, conclusiones, objeciones y relaciones con ReactFlow en tiempo real.",
     gradient: "from-yellow-500 to-orange-500",
   },
   {
     icon: BarChart3,
-    title: "Algoritmo de Consenso",
+    title: "Algoritmo de Consenso + Votación Cuadrática",
     description:
-      "Calcula consenso dinámicamente basado en fuerza de argumentos, no en popularidad o sesgos.",
+      "Consenso automático (≥70%) o votación cuadrática donde N puntos = N² costo. Detecta divergencias fundamentales.",
     gradient: "from-green-500 to-emerald-500",
   },
   {
-    icon: Shield,
-    title: "Métricas de Calidad en Tiempo Real",
+    icon: Zap,
+    title: "iMAD: Cost Control Inteligente",
     description:
-      "Monitorea calidad de argumentos, profundidad de análisis y citaciones de fuentes automáticamente.",
+      "Stop automático cuando consenso ≥85% o estancamiento detectado. Optimiza costos sin sacrificar calidad de análisis.",
     gradient: "from-red-500 to-rose-500",
   },
   {
     icon: Target,
-    title: "Notificaciones Inteligentes",
+    title: "DaaS: Decision-as-a-Service",
     description:
-      "Alertas cuando un debate alcanza consenso, cuando necesita tu input, o cuando hay divergencias importantes.",
+      "Integración con Slack, Teams y tu stack. Crea debates desde mensajes, recibe insights en tu canal, automatiza decisiones.",
     gradient: "from-indigo-500 to-purple-500",
   },
   {
     icon: Sparkles,
-    title: "Exportación a PDF",
+    title: "Exportación a PDF Profesional",
     description:
-      "Genera reportes profesionales con análisis completo, argumentos, consenso y recomendaciones accionables.",
+      "Reportes ejecutivos con análisis completo, consenso alcanzado, recomendaciones accionables y compliance badges.",
     gradient: "from-pink-500 to-rose-500",
   },
   {
     icon: Database,
-    title: "Búsqueda Vectorial (Pinecone)",
+    title: "Búsqueda Vectorial + Algorithmic Governance",
     description:
-      "Encuentra debates similares del pasado con búsqueda semántica. Reutiliza conocimiento acumulado.",
+      "Pinecone para búsqueda semántica de debates similares. Compliance automático ISO 27001, NIST CSF, GDPR, SOC 2.",
     gradient: "from-cyan-500 to-blue-500",
   },
 ];
@@ -229,30 +229,28 @@ export default function HomePage() {
 
           {/* Main headline */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-[var(--theme-text-primary)] max-w-5xl mx-auto leading-[1.1] mb-6 sm:mb-8 tracking-tight">
-            Toma mejores decisiones
+            Inteligencia de Decisión
             <br />
-            con{" "}
+            para tu{" "}
             <span className="relative inline-block">
               <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 blur-3xl opacity-50" />
               <span className="relative bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-                Quoorum
+                empresa
               </span>
             </span>
-            <br />
-            de expertos IA
           </h1>
 
           {/* Subheadline */}
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed">
-            Sistema de deliberación multi-agente con{" "}
+            Plataforma de{" "}
             <span className="text-[var(--theme-text-primary)] font-medium">
-              93 expertos especializados en 8 áreas
+              Decision Intelligence
             </span>{" "}
-            que debaten automáticamente hasta alcanzar consenso. Con{" "}
+            que transforma deliberaciones complejas en insights accionables. Con{" "}
             <span className="text-[var(--theme-text-primary)] font-medium">
-              búsqueda vectorial, exportación a PDF, y métricas de calidad en tiempo real,
+              93 expertos IA, algoritmos de consenso y certificados inmutables,
             </span>{" "}
-            tomas decisiones informadas en minutos, no días.
+            convierte cada decisión en evidencia auditable en minutos, no días.
           </p>
 
           {/* CTAs */}
@@ -284,7 +282,7 @@ export default function HomePage() {
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-purple-500/20 group-hover:border-purple-500/40 transition-all">
                 <CheckCircle className="w-4 h-4 text-purple-500 dark:text-purple-400" />
               </div>
-              <span className="group-hover:text-[var(--theme-text-secondary)] transition-colors">5 debates gratis</span>
+              <span className="group-hover:text-[var(--theme-text-secondary)] transition-colors">100 créditos gratis</span>
             </div>
             <div className="flex items-center gap-2 group">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center border border-cyan-500/20 group-hover:border-cyan-500/40 transition-all">

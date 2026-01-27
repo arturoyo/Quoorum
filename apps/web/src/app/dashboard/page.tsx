@@ -25,6 +25,9 @@ import {
   Clock,
   CreditCard,
   Bell,
+  CheckCircle,
+  DollarSign,
+  Target,
 } from "lucide-react";
 import { AppHeader } from "@/components/layout/app-header";
 import { SettingsModal } from "@/components/settings/settings-modal";
@@ -151,6 +154,12 @@ export default function DashboardPage() {
     inProgressDebates: 0,
     avgConsensus: 0,
     thisMonth: 0,
+    // New value-focused metrics
+    consensusDistribution: { high: 0, medium: 0, low: 0 },
+    avgDurationMinutes: 0,
+    totalCostUsd: 0,
+    avgCostUsd: 0,
+    avgRounds: 0,
   };
 
   // Ensure arrays are always arrays (defensive programming)
@@ -184,7 +193,10 @@ export default function DashboardPage() {
     : [];
   
   // Ensure stats object is always defined with safe defaults
-  const safeStats = (stats && typeof stats === 'object' && !Array.isArray(stats)) ? stats : defaultStats;
+  type StatsType = typeof defaultStats;
+  const safeStats: StatsType = (stats && typeof stats === 'object' && !Array.isArray(stats)) 
+    ? { ...defaultStats, ...stats } as StatsType
+    : defaultStats;
   const hasDatabaseError = statsError || debatesError || notificationsError;
   
   // Final safety check: ensure all arrays are actually arrays before rendering
@@ -201,11 +213,11 @@ export default function DashboardPage() {
   // Default subscription data (TODO: implement real subscription system)
   const subscription = {
     plan: "Free",
-    debatesUsed: safeStats.totalDebates || 0,
-    debatesLimit: 10,
+    creditsUsed: 0, // TODO: Fetch from api.billing.getCreditsUsage
+    creditsLimit: 100, // Free tier: 100 créditos una vez
   };
 
-  const usagePercentage = (subscription.debatesUsed / subscription.debatesLimit) * 100;
+  const usagePercentage = (subscription.creditsUsed / subscription.creditsLimit) * 100;
   const daysUntilRenewal = 30; // TODO: Calculate from subscription.currentPeriodEnd
 
   return (
@@ -245,63 +257,101 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 flex-shrink-0">
+          {/* Card 1: Decisiones Completadas */}
           <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">Total de Expertos</p>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Decisiones Completadas</p>
                   <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
-                    {(libraryCounts?.total || 0) + (Array.isArray(safeMyExperts) ? safeMyExperts.length : 0)}
+                    {safeStats.completedDebates || 0}
                   </p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-purple-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-            <CardContent className="relative p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">Nº de Nuestros Expertos</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">{Array.isArray(safeMyExperts) ? safeMyExperts.length : 0}</p>
+                  {safeStats.totalDebates > 0 && (
+                    <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                      de {safeStats.totalDebates} total
+                    </p>
+                  )}
                 </div>
                 <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-green-400" />
+                  <CheckCircle className="w-6 h-6 text-green-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Card 2: Tiempo Promedio */}
           <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">Consenso Promedio</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">{safeStats.avgConsensus}%</p>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Tiempo Promedio</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
+                    {safeStats.avgDurationMinutes > 0
+                      ? `${safeStats.avgDurationMinutes} min`
+                      : "—"}
+                  </p>
+                  {safeStats.avgDurationMinutes > 0 && (
+                    <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                      vs semanas de reuniones
+                    </p>
+                  )}
                 </div>
                 <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-blue-400" />
+                  <Clock className="w-6 h-6 text-blue-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Card 3: Consenso Alto */}
           <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">Este Mes</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">{safeStats.thisMonth}</p>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Consenso Alto</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
+                    {safeStats.consensusDistribution?.high || 0}
+                  </p>
+                  {safeStats.completedDebates > 0 && (
+                    <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                      {Math.round(
+                        ((safeStats.consensusDistribution?.high || 0) /
+                          safeStats.completedDebates) *
+                          100
+                      )}% de decisiones
+                    </p>
+                  )}
+                </div>
+                <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <Target className="w-6 h-6 text-purple-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card 4: Inversión Total */}
+          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            <CardContent className="relative p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Inversión Total</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
+                    {safeStats.totalCostUsd > 0
+                      ? `$${safeStats.totalCostUsd.toFixed(2)}`
+                      : "$0.00"}
+                  </p>
+                  {safeStats.avgCostUsd > 0 && (
+                    <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                      ${safeStats.avgCostUsd.toFixed(2)} por decisión
+                    </p>
+                  )}
                 </div>
                 <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-orange-400" />
+                  <DollarSign className="w-6 h-6 text-orange-400" />
                 </div>
               </div>
             </CardContent>
@@ -406,9 +456,9 @@ export default function DashboardPage() {
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-[var(--theme-text-secondary)]">Debates este mes</span>
+                    <span className="text-[var(--theme-text-secondary)]">Créditos disponibles</span>
                     <span className="text-[var(--theme-text-primary)]">
-                      {subscription.debatesUsed} / {subscription.debatesLimit}
+                      {subscription.creditsUsed} / {subscription.creditsLimit}
                     </span>
                   </div>
                   <Progress value={usagePercentage} className="h-2" />
@@ -506,7 +556,7 @@ export default function DashboardPage() {
                     Desbloquea más poder
                   </h3>
                   <p className="text-[var(--theme-text-secondary)] text-sm mb-4">
-                    Actualiza a Pro para 50 debates/mes, más expertos y exportación a PDF.
+                    Actualiza a Pro para 10,000 créditos/mes, Inteligencia Corporativa y exportación a PDF profesional.
                   </p>
                   <Button 
                     className="w-full bg-purple-600 hover:bg-purple-700"

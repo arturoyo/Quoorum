@@ -173,6 +173,7 @@ grep -r "pattern" src/
 | **Hacer query a DB**           | [Reglas Inviolables #5](#5--seguridad-validar-todo-confiar-en-nada)       | ¿Filtra por `userId`? ¿Validación Zod?                           |
 | **Hacer commit**               | [Checklist Pre-Commit](#-checklist-pre-commit)                            | TypeCheck + Lint + Tests + No console.log                        |
 | **Crear nueva feature**        | [Orden de Desarrollo](#7--orden-de-desarrollo-backend-first)              | Backend First: Schema → Router → Tests → UI                      |
+| **Usar emojis en código**      | [Prohibiciones Absolutas](#-prohibiciones-absolutas)                      | ❌ NUNCA - Causa error UTF-8 en Windows - Usar `[OK]`, `[ERROR]`, etc. |
 | **Usar `any` o `@ts-ignore`**  | [Prohibiciones Absolutas](#-prohibiciones-absolutas)                      | ❌ NUNCA - Buscar alternativa correcta                           |
 | **Añadir `console.log`**       | [Prohibiciones Absolutas](#-prohibiciones-absolutas)                      | ❌ NUNCA en prod - Usar logger estructurado                      |
 | **Duplicar código**            | [Reglas Inviolables #3](#3--arquitectura-respetar-separación-de-concerns) | ¿Puedo extraer función/componente reutilizable?                  |
@@ -2859,10 +2860,39 @@ fallbackManager.resetAllHealth()
 
 ## ❌ PROHIBICIONES ABSOLUTAS
 
+### 🚨 REGLA #0: NUNCA EMOJIS EN CÓDIGO (BAJO PENA DE MUERTE)
+
+**⚠️ ESTA ES LA REGLA MÁS CRÍTICA DEL PROYECTO**
+
+**Causa:** Error UTF-8 en Windows que bloquea completamente el desarrollo
+**Síntoma:** `Windows stdio in console mode does not support writing non-UTF-8 byte sequences`
+**Impacto:** El servidor NO inicia, desarrollo completamente bloqueado
+**Frecuencia:** Ha ocurrido múltiples veces, causando pérdida de horas de trabajo
+
+**PROHIBICIÓN ABSOLUTA:**
+- ❌ **NUNCA** usar emojis en `console.log/error/warn/info/debug`
+- ❌ **NUNCA** usar emojis en `Write-Host` (PowerShell)
+- ❌ **NUNCA** usar emojis en `logger.info/error/warn/debug`
+- ❌ **NUNCA** usar emojis en cualquier salida de código
+
+**✅ SIEMPRE usar etiquetas de texto:**
+- `[OK]` en lugar de ✅
+- `[ERROR]` en lugar de ❌
+- `[WARN]` en lugar de ⚠️
+- `[INFO]` en lugar de 💡 o ℹ️
+- `[DEBUG]` en lugar de 🔍
+- `[FIX]` en lugar de 🔧
+- `[SUCCESS]` en lugar de 🎉
+
+**El auto-fix detectará y reemplazará automáticamente, pero es mejor prevenir.**
+
+---
+
 ### NO hacer NUNCA
 
 | ❌ Prohibido                   | ✅ Hacer en su lugar                        |
 | ------------------------------ | ------------------------------------------- |
+| **🚫 EMOJIS en código** | **NUNCA usar emojis en console.log/error/warn/info/debug, Write-Host, logger, o cualquier salida de código. Usar etiquetas de texto: `[OK]`, `[ERROR]`, `[WARN]`, `[INFO]`** |
 | `any`                          | Tipo explícito o `unknown` con type guard   |
 | `as` type assertion            | Type guards o validación Zod                |
 | `// @ts-ignore`                | Arreglar el tipo correctamente              |
@@ -2906,6 +2936,28 @@ fallbackManager.resetAllHealth()
 ### Ejemplos Específicos
 
 ```typescript
+// ═══════════════════════════════════════════════════════════
+// EMOJIS EN CÓDIGO - PROHIBIDO ABSOLUTAMENTE
+// ═══════════════════════════════════════════════════════════
+// ❌ MAL - Causa error UTF-8 en Windows console
+console.log('✅ Success')
+console.error('❌ Error occurred')
+console.warn('⚠️ Warning message')
+Write-Host "🔧 Fixing issue..."
+logger.info('🎯 Target achieved')
+
+// ✅ BIEN - Usar etiquetas de texto
+console.log('[OK] Success')
+console.error('[ERROR] Error occurred')
+console.warn('[WARN] Warning message')
+Write-Host "[INFO] Fixing issue..."
+logger.info('[INFO] Target achieved')
+
+// ✅ MEJOR - Logger estructurado (no tiene problemas de encoding)
+logger.info('Success', { action: 'completed' })
+logger.error('Error occurred', { error: err })
+logger.warn('Warning message', { context: 'validation' })
+
 // ═══════════════════════════════════════════════════════════
 // ANY
 // ═══════════════════════════════════════════════════════════
@@ -2981,6 +3033,26 @@ console.log('User logged in', userId)
 
 // ✅ BIEN
 logger.info('User logged in', { userId, timestamp: new Date() })
+
+// ═══════════════════════════════════════════════════════════
+// EMOJIS EN CONSOLE.LOG (PROHIBIDO - Windows UTF-8)
+// ═══════════════════════════════════════════════════════════
+// ❌ MAL - Emojis causan "Windows stdio in console mode does not support writing non-UTF-8 byte sequences"
+console.error('❌ Environment validation failed')
+console.warn('⚠️  Warning message')
+console.log('✅ Success message')
+console.error('💡 Create .env.local file')
+
+// ✅ BIEN - Usar etiquetas de texto en lugar de emojis
+console.error('[ERROR] Environment validation failed')
+console.warn('[WARN] Warning message')
+console.log('[OK] Success message')
+console.error('[INFO] Create .env.local file')
+
+// ✅ MEJOR - Usar logger estructurado (no tiene problemas de encoding)
+logger.error('Environment validation failed', { missing: validation.missing })
+logger.warn('Warning message', { context: 'env' })
+logger.info('Success message', { validated: true })
 
 // ═══════════════════════════════════════════════════════════
 // SECRETS

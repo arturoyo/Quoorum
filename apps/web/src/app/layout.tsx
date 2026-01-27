@@ -21,7 +21,8 @@ export default function RootLayout({
     if (!validation.valid && process.env.NODE_ENV === "development") {
       // Only log in development - use structured logging in production via monitoring
       // eslint-disable-next-line no-console
-      console.error("❌ Environment validation failed. Check your .env.local file.", {
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      console.error("[ERROR] Environment validation failed. Check your .env.local file.", {
         missing: validation.missing,
       });
     }

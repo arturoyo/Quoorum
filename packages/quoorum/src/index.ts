@@ -476,3 +476,27 @@ export type {
   DepartmentContext,
   // Note: CorporateContext is exported from runner-dynamic.ts
 } from './orchestration/company-context'
+
+// ============================================================================
+// SCENARIOS (Decision Playbooks - Escenarios de Oro)
+// ============================================================================
+
+export {
+  applyScenario,
+  appliedScenarioToRunOptions,
+} from './scenarios/apply-scenario'
+
+export {
+  scenarioConfigSchema,
+} from './scenarios/types'
+
+export type {
+  ScenarioConfig,
+  ScenarioSegment,
+  PromptVariable,
+  SuccessMetric,
+  AgentBehaviorOverride,
+  TokenOptimization,
+  AppliedScenario,
+  ScenarioVariableValues,
+} from './scenarios/types'

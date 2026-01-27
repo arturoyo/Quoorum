@@ -11,7 +11,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 async function syncProfiles() {
-  console.log('🔄 Sincronizando perfiles de Supabase a PostgreSQL local...')
+  console.log('[INFO] Sincronizando perfiles de Supabase a PostgreSQL local...')
 
   const supabase = createClient(supabaseUrl, supabaseKey)
 
@@ -21,16 +21,16 @@ async function syncProfiles() {
     .select('*')
 
   if (error) {
-    console.error('❌ Error obteniendo perfiles de Supabase:', error)
+    console.error('[ERROR] Error obteniendo perfiles de Supabase:', error)
     process.exit(1)
   }
 
   if (!supabaseProfiles || supabaseProfiles.length === 0) {
-    console.log('⚠️ No hay perfiles en Supabase')
+    console.log('[WARN] No hay perfiles en Supabase')
     process.exit(0)
   }
 
-  console.log(`📦 Encontrados ${supabaseProfiles.length} perfiles en Supabase`)
+  console.log(`[INFO] Encontrados ${supabaseProfiles.length} perfiles en Supabase`)
 
   // Insertar cada perfil en PostgreSQL local
   let syncedCount = 0
@@ -52,23 +52,23 @@ async function syncProfiles() {
       }).onConflictDoNothing()
 
       syncedCount++
-      console.log(`✅ Sincronizado: ${profile.email} (${profile.id})`)
+      console.log(`[OK] Sincronizado: ${profile.email} (${profile.id})`)
     } catch (err) {
       skippedCount++
-      console.log(`⏭️ Ya existe: ${profile.email}`)
+      console.log(`[INFO] Ya existe: ${profile.email}`)
     }
   }
 
-  console.log('\n📊 Resumen:')
-  console.log(`   ✅ Sincronizados: ${syncedCount}`)
-  console.log(`   ⏭️ Ya existían: ${skippedCount}`)
-  console.log(`   📦 Total: ${supabaseProfiles.length}`)
-  console.log('\n🎉 ¡Sincronización completa!')
+  console.log('\n[INFO] Resumen:')
+  console.log(`   [OK] Sincronizados: ${syncedCount}`)
+  console.log(`   [INFO] Ya existían: ${skippedCount}`)
+  console.log(`   [INFO] Total: ${supabaseProfiles.length}`)
+  console.log('\n[OK] Sincronización completa!')
 
   process.exit(0)
 }
 
 syncProfiles().catch((error) => {
-  console.error('❌ Error fatal:', error)
+  console.error('[ERROR] Error fatal:', error)
   process.exit(1)
 })

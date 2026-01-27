@@ -4,7 +4,7 @@
  * Valida que todas las variables de entorno críticas están configuradas
  * Falla explícitamente si falta alguna variable crítica
  *
- * ⚠️ NO USAR PLACEHOLDERS SILENCIOSOS
+ * [WARN] NO USAR PLACEHOLDERS SILENCIOSOS
  */
 
 import { logger } from './logger'

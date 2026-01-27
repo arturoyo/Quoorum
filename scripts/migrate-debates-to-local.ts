@@ -13,7 +13,7 @@ const SUPABASE_URL = 'https://ipcbpkbvrftchbmpemlg.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwY2Jwa2J2cmZ0Y2hibXBlbWxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4ODI2MTQsImV4cCI6MjA1MDQ1ODYxNH0.GTKJP9xo_Ar-uLy3SQdOaIDv1sV3TXDzK3JF3cIyLBk'
 
 async function migrateDebates() {
-  console.log('🚀 Iniciando migración de debates...')
+  console.log('[INFO] Iniciando migración de debates...')
 
   // Conectar a Supabase cloud
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -25,16 +25,16 @@ async function migrateDebates() {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('❌ Error obteniendo debates de Supabase:', error)
+    console.error('[ERROR] Error obteniendo debates de Supabase:', error)
     return
   }
 
   if (!debates || debates.length === 0) {
-    console.log('ℹ️  No hay debates en Supabase cloud')
+    console.log('[INFO] No hay debates en Supabase cloud')
     return
   }
 
-  console.log(`📊 Encontrados ${debates.length} debates en Supabase cloud`)
+  console.log(`[INFO] Encontrados ${debates.length} debates en Supabase cloud`)
 
   // Insertar cada debate en PostgreSQL local
   let migrated = 0
@@ -71,25 +71,25 @@ async function migrateDebates() {
         deletedAt: debate.deleted_at ? new Date(debate.deleted_at) : null,
       })
       migrated++
-      console.log(`✅ Migrado: ${debate.metadata?.title || debate.question.substring(0, 50)}`)
+      console.log(`[OK] Migrado: ${debate.metadata?.title || debate.question.substring(0, 50)}`)
     } catch (err) {
       errors++
-      console.error(`❌ Error migrando debate ${debate.id}:`, err)
+      console.error(`[ERROR] Error migrando debate ${debate.id}:`, err)
     }
   }
 
-  console.log(`\n🎉 Migración completada:`)
-  console.log(`   ✅ Migrados: ${migrated}`)
-  console.log(`   ❌ Errores: ${errors}`)
+  console.log(`\n[OK] Migración completada:`)
+  console.log(`   [OK] Migrados: ${migrated}`)
+  console.log(`   [ERROR] Errores: ${errors}`)
 }
 
 // Ejecutar migración
 migrateDebates()
   .then(() => {
-    console.log('✅ Script completado')
+    console.log('[OK] Script completado')
     process.exit(0)
   })
   .catch((error) => {
-    console.error('❌ Error fatal:', error)
+    console.error('[ERROR] Error fatal:', error)
     process.exit(1)
   })

@@ -29,10 +29,10 @@ const colors = {
 
 function log(level: 'info' | 'success' | 'error' | 'warning', message: string) {
   const prefix = {
-    info: `${colors.blue}ℹ${colors.reset}`,
-    success: `${colors.green}✓${colors.reset}`,
-    error: `${colors.red}✗${colors.reset}`,
-    warning: `${colors.yellow}⚠${colors.reset}`,
+    info: `${colors.blue}[INFO]${colors.reset}`,
+    success: `${colors.green}[OK]${colors.reset}`,
+    error: `${colors.red}[ERROR]${colors.reset}`,
+    warning: `${colors.yellow}[WARN]${colors.reset}`,
   }[level]
 
   console.log(`${prefix} ${message}`)
@@ -362,19 +362,19 @@ async function main() {
   }
 
   // 1. Database Schema
-  console.log('\n📊 [1/4] BASE DE DATOS\n')
+  console.log('\n[INFO] [1/4] BASE DE DATOS\n')
   results.database = await verifyDatabaseSchema()
 
   // 2. File System
-  console.log('\n📁 [2/4] ARCHIVOS\n')
+  console.log('\n[INFO] [2/4] ARCHIVOS\n')
   results.filesystem = verifyFilesystem()
 
   // 3. Exports
-  console.log('\n📦 [3/4] EXPORTS\n')
+  console.log('\n[INFO] [3/4] EXPORTS\n')
   results.exports = await verifyExports()
 
   // 4. Integration Test
-  console.log('\n🧪 [4/4] TEST DE INTEGRACIÓN\n')
+  console.log('\n[INFO] [4/4] TEST DE INTEGRACIÓN\n')
   results.integration = await testIntegration()
 
   // Summary
@@ -390,7 +390,7 @@ async function main() {
   ]
 
   summary.forEach((item) => {
-    const status = item.status ? `${colors.green}✓ OK${colors.reset}` : `${colors.red}✗ FAIL${colors.reset}`
+    const status = item.status ? `${colors.green}[OK]${colors.reset}` : `${colors.red}[ERROR]${colors.reset}`
     console.log(`  ${item.name.padEnd(20)} ${status}`)
   })
 
@@ -398,10 +398,10 @@ async function main() {
 
   console.log('\n' + '='.repeat(70))
   if (allPassed) {
-    console.log(`${colors.green}✓ TODAS LAS VERIFICACIONES PASARON${colors.reset}`)
-    console.log('El sistema está listo para producción ✨')
+    console.log(`${colors.green}[OK] TODAS LAS VERIFICACIONES PASARON${colors.reset}`)
+    console.log('El sistema está listo para producción')
   } else {
-    console.log(`${colors.red}✗ ALGUNAS VERIFICACIONES FALLARON${colors.reset}`)
+    console.log(`${colors.red}[ERROR] ALGUNAS VERIFICACIONES FALLARON${colors.reset}`)
     console.log('Revisa los errores arriba y corrige antes de deployar')
   }
   console.log('='.repeat(70) + '\n')
