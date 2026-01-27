@@ -16,8 +16,8 @@ OBJETIVO: Minimizar tokens al maximo manteniendo informacion completa.
 
 HERRAMIENTAS:
 1. Emojis (1 token)
-   💰=dinero 📈📉=tendencias ✓✗=si/no ⚠️=riesgo 🎯=objetivo
-   👑=premium 🐌🚀=lento/rapido 👍👎=apoyo 🔥=critico 💡=idea
+   💰=dinero 📈📉=tendencias ✓✗=si/no [WARN]=riesgo [INFO]=objetivo
+   👑=premium 🐌[INFO]=lento/rapido 👍👎=apoyo [WARN]=critico 💡=idea
    🤔=duda ⏰=tiempo 💪=fuerte 🎲=incierto
 
 2. Simbolos matematicos
@@ -40,10 +40,10 @@ ESTRUCTURA:
 [EMOJI_ROL][CONTENIDO_COMPRIMIDO][SCORE][APOYO]
 
 EJEMPLOS:
-💡49€ ✓77%📈 WTP✓ 👑pos ⚠️🐌adopt 75% 👍2
-⚠️49€ ✗PMF? 🔥anchor ∆conv↓ 45% 👎
+💡49€ ✓77%📈 WTP✓ 👑pos [WARN]🐌adopt 75% 👍2
+[WARN]49€ ✗PMF? [WARN]anchor ∆conv↓ 45% 👎
 📊49€:77%📈 29€:58%📈 ∴49€if≥30% 70%
-🎯#1💰49€ 75%👍2 #2💰29€ 60%👍1 ∆15%∴49€
+[INFO]#1💰49€ 75%👍2 #2💰29€ 60%👍1 ∆15%∴49€
 
 RESPONDE SOLO en lenguaje ultra-optimizado. Max 15 tokens.
 `
@@ -73,10 +73,10 @@ MENSAJE COMPRIMIDO:
 // Estimacion simple: 1 token ≈ 4 caracteres en ingles, 3 en espanol
 export function estimateTokens(text: string): number {
   // Emojis cuentan como 1-2 tokens cada uno
-  // Regex para emojis: usar patrón simple sin rangos problemáticos
-  // Detecta emojis comunes usados en el sistema de compresión
-  // eslint-disable-next-line security/detect-unsafe-regex -- Simple emoji pattern, safe
-  const emojiPattern = /[💰📈📉✓✗⚠️🎯👑🐌🚀👍👎🔥💡🤔⏰💪🎲]/gu
+  // Regex para emojis: usar Unicode ranges en lugar de emojis literales
+  // Detecta emojis usando rangos Unicode estándar
+  // eslint-disable-next-line security/detect-unsafe-regex -- Unicode emoji pattern, safe
+  const emojiPattern = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
   const emojiCount = (text.match(emojiPattern) || []).length
   // Caracteres restantes
   const charCount = text.replace(emojiPattern, '').length
@@ -89,25 +89,25 @@ export function estimateTokens(text: string): number {
 // ============================================================================
 
 export const EMOJI_MAP: Record<string, string> = {
-  dinero: '💰',
-  precio: '💰',
-  tendencia_positiva: '📈',
-  tendencia_negativa: '📉',
-  positivo: '✓',
-  negativo: '✗',
-  riesgo: '⚠️',
-  objetivo: '🎯',
-  premium: '👑',
-  lento: '🐌',
-  rapido: '🚀',
-  apoyo: '👍',
-  rechazo: '👎',
-  critico: '🔥',
-  idea: '💡',
-  duda: '🤔',
-  tiempo: '⏰',
-  fuerte: '💪',
-  incierto: '🎲',
+  dinero: '\u{1F4B0}',        // 💰
+  precio: '\u{1F4B0}',        // 💰
+  tendencia_positiva: '\u{1F4C8}',  // 📈
+  tendencia_negativa: '\u{1F4C9}',  // 📉
+  positivo: '\u2713',         // ✓
+  negativo: '\u2717',         // ✗
+  riesgo: '[WARN]',
+  objetivo: '[INFO]',
+  premium: '\u{1F451}',       // 👑
+  lento: '\u{1F40C}',         // 🐌
+  rapido: '[INFO]',
+  apoyo: '\u{1F44D}',         // 👍
+  rechazo: '\u{1F44E}',       // 👎
+  critico: '[WARN]',
+  idea: '\u{1F4A1}',          // 💡
+  duda: '\u{1F914}',          // 🤔
+  tiempo: '\u23F0',           // ⏰
+  fuerte: '\u{1F4AA}',        // 💪
+  incierto: '\u{1F3B2}',      // 🎲
 }
 
 export const REVERSE_EMOJI_MAP: Record<string, string> = Object.fromEntries(
@@ -119,14 +119,14 @@ export const REVERSE_EMOJI_MAP: Record<string, string> = Object.fromEntries(
 // ============================================================================
 
 export const ROLE_EMOJI: Record<string, string> = {
-  optimizer: '💡',
-  critic: '⚠️',
-  analyst: '📊',
-  synthesizer: '🎯',
+  optimizer: '\u{1F4A1}',     // 💡
+  critic: '[WARN]',
+  analyst: '\u{1F4CA}',       // 📊
+  synthesizer: '[INFO]',
 }
 
 export function getRoleEmoji(role: string): string {
-  return ROLE_EMOJI[role] ?? '💬'
+  return ROLE_EMOJI[role] ?? '\u{1F4AC}'  // 💬
 }
 
 // ============================================================================
@@ -142,7 +142,7 @@ Comprime el siguiente contexto a un formato ultra-optimizado manteniendo TODA la
 OBJETIVO: Reducir tokens al máximo sin perder información crítica.
 
 HERRAMIENTAS:
-1. Emojis (1 token): 💰=dinero 📈=sube 📉=baja ✓=sí ✗=no ⚠️=riesgo 🎯=objetivo
+1. Emojis (1 token): 💰=dinero 📈=sube 📉=baja ✓=sí ✗=no [WARN]=riesgo [INFO]=objetivo
 2. Símbolos: ∆=cambio →=implica ∴=por_tanto ≈=aprox
 3. Abreviaturas: O=Opción R=Riesgo S=Score P=Pros C=Cons
 4. Números directos: 49 no "cuarenta y nueve"
@@ -157,7 +157,7 @@ REGLAS:
 
 EJEMPLO:
 Input: "La opción de 49 euros tiene un margen del 77% que es positivo, el willingness to pay está validado, hay posicionamiento premium pero riesgo de adopción lenta, probabilidad de éxito del 75% con 2 apoyos"
-Output: "O49€ ✓77%📈 WTP✓ 👑pos ⚠️🐌adopt 75% 👍2"
+Output: "O49€ ✓77%📈 WTP✓ 👑pos [WARN]🐌adopt 75% 👍2"
 
 CONTEXTO A COMPRIMIR:
 `
@@ -219,9 +219,9 @@ export async function compressInput(context: string): Promise<string> {
  */
 export async function decompressOutput(compressedMessage: string): Promise<string> {
   // Si el mensaje no parece comprimido (no tiene emojis ni símbolos), devolver tal cual
-  // Regex para detectar emojis y símbolos de compresión (sin rangos problemáticos)
-  // eslint-disable-next-line security/detect-unsafe-regex -- Simple pattern, safe
-  const hasCompressionMarkers = /[💰📈📉✓✗⚠️🎯👑🐌🚀👍👎🔥💡🤔⏰💪🎲∆→∴≈]/.test(compressedMessage)
+  // Regex para detectar emojis y símbolos de compresión usando Unicode ranges
+  // eslint-disable-next-line security/detect-unsafe-regex -- Unicode emoji pattern, safe
+  const hasCompressionMarkers = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u2713\u2717∆→∴≈]|(\[WARN\])|(\[INFO\])/u.test(compressedMessage)
   if (!hasCompressionMarkers) {
     return compressedMessage // Ya está legible
   }
