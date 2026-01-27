@@ -420,6 +420,106 @@ export const SILENCED_ERROR_CATEGORIES = [
 
 ---
 
+## 7. Type Inference from DB Enums {#type-inference}
+
+### 🎯 Problema
+
+Frontend define tipos manualmente que duplican enums de DB → Desincronización inevitable
+
+### ✅ Solución: Inferir Tipos desde DB (Single Source of Truth)
+
+```typescript
+// ═══════════════════════════════════════════════════════════
+// DB SCHEMA (packages/db/src/schema/quoorum-debates.ts)
+// ═══════════════════════════════════════════════════════════
+export const debateStatusEnum = pgEnum('debate_status', [
+  'draft',
+  'pending',
+  'in_progress',
+  'completed',
+  'failed',
+  'cancelled',
+])
+
+// ═══════════════════════════════════════════════════════════
+// FRONTEND TYPE (apps/web/src/app/debates/[id]/types.ts)
+// ═══════════════════════════════════════════════════════════
+
+// ❌ INCORRECTO - Hardcoded (se desincroniza)
+export type DebateStatus = 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed'
+// ← Falta 'cancelled', TypeScript no detecta el error
+
+// ✅ CORRECTO - Inferido desde DB (single source of truth)
+import type { debateStatusEnum } from '@quoorum/db/schema'
+
+export type DebateStatus = (typeof debateStatusEnum.enumValues)[number]
+// Resultado automático: 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled'
+```
+
+### ⚠️ Para Añadir Nuevo Enum en Frontend
+
+**NUNCA hardcodear manualmente. SIEMPRE inferir desde DB:**
+
+```typescript
+// 1. Crear enum en DB
+// packages/db/src/schema/my-table.ts
+export const myStatusEnum = pgEnum('my_status', ['active', 'inactive', 'pending'])
+
+// 2. Exportar desde index
+// packages/db/src/schema/index.ts
+export { myStatusEnum } from './my-table'
+
+// 3. Inferir en frontend (NO hardcodear)
+// apps/web/src/components/my-feature/types.ts
+import type { myStatusEnum } from '@quoorum/db/schema'
+
+export type MyStatus = (typeof myStatusEnum.enumValues)[number]
+// ✅ Automáticamente sincronizado con DB
+```
+
+### 🔍 Verificar Sincronización
+
+**Test automatizado** (packages/db/src/__tests__/enum-sync.test.ts):
+
+```typescript
+import { describe, it, expect } from 'vitest'
+import { debateStatusEnum } from '../schema'
+
+describe('DebateStatus', () => {
+  it('should have exactly 6 status values', () => {
+    expect(debateStatusEnum.enumValues).toHaveLength(6)
+  })
+
+  it('should include all expected values', () => {
+    const expected = ['draft', 'pending', 'in_progress', 'completed', 'failed', 'cancelled']
+    expected.forEach((value) => {
+      expect(debateStatusEnum.enumValues).toContain(value)
+    })
+  })
+})
+```
+
+### 📊 Enums Auditados
+
+Ver lista completa de 40 enums en:
+- **[AUDITORIA-CAPAS-MULTIPLES.md](../../AUDITORIA-CAPAS-MULTIPLES.md)** - Inventario completo
+- **[ERRORES-COMETIDOS.md#error-6](../../ERRORES-COMETIDOS.md#error-6)** - Historia del problema
+
+### 🚨 Consecuencias de NO Inferir
+
+- ❌ Frontend no reconoce valores nuevos del enum
+- ❌ TypeScript no detecta desincronización (archivos separados)
+- ❌ Errores en runtime al renderizar status
+- ❌ Pérdida de tiempo manteniendo 2 lugares sincronizados
+- ❌ Bugs sutiles difíciles de debuggear
+
+### 💡 Regla de Oro
+
+> **"Si un enum existe en DB, NUNCA lo definas manualmente en frontend.
+> SIEMPRE infiere el tipo desde DB."**
+
+---
+
 ## 📖 Ver Todos los Patrones
 
 Patrones completos con más ejemplos en:

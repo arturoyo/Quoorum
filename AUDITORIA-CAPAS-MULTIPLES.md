@@ -202,19 +202,70 @@ El sistema de error parsing en `packages/workers/src/lib/error-parsers.ts` es in
 
 ---
 
+## 📊 INVENTARIO COMPLETO DE ENUMS (39 enums encontrados)
+
+| # | Enum | Archivo | Valores | Status Frontend |
+|---|------|---------|---------|-----------------|
+| 1 | adminRoleEnum | admin.ts | super_admin, admin, moderator, support | ✅ No usado en frontend |
+| 2 | creditTransactionTypeEnum | credit-transactions.ts | subscription, addon, referral_bonus, manual_adjustment | ⚠️ Verificar |
+| 3 | creditTransactionSourceEnum | credit-transactions.ts | stripe, manual, referral, bonus | ⚠️ Verificar |
+| 4 | dealStageEnum | deals.ts | prospect, qualification, proposal, negotiation, closed_won, closed_lost | ⚠️ Verificar |
+| 5 | departmentTypeEnum | departments.ts | ventas, marketing, producto, ingenieria, finanzas, rrhh, operaciones, otro | ⚠️ Verificar |
+| 6 | processStatusEnum | process-timeline.ts | pending, in_progress, completed, failed, cancelled | ⚠️ Verificar |
+| 7 | processPhaseStatusEnum | process-timeline.ts | pending, active, completed, skipped | ⚠️ Verificar |
+| 8 | consultationTriggerEnum | quoorum-consultations.ts | auto_email, auto_deal, auto_meeting, manual, scheduled | ⚠️ Verificar |
+| 9 | responseApproachEnum | quoorum-consultations.ts | empathetic, direct, consultative, collaborative, advisory | ⚠️ Verificar |
+| 10 | consultationUrgencyEnum | quoorum-consultations.ts | routine, normal, priority, urgent | ⚠️ Verificar |
+| 11 | debateDealContextEnum | quoorum-deals.ts | pre_qualification, qualification, proposal_prep, negotiation, post_close | ⚠️ Verificar |
+| 12 | debateInfluenceEnum | quoorum-deals.ts | high, medium, low, none | ⚠️ Verificar |
+| 13 | debateModeEnum | quoorum-debates.ts | static, dynamic | ✅ No usado como tipo |
+| 14 | **debateStatusEnum** | quoorum-debates.ts | draft, pending, in_progress, completed, failed, cancelled | ✅ **ARREGLADO** |
+| 15 | debateVisibilityEnum | quoorum-debates.ts | private, team, public | ⚠️ Verificar |
+| 16 | feedbackSentimentEnum | quoorum-feedback.ts | positive, neutral, negative, mixed | ⚠️ Verificar |
+| 17 | quoorumNotificationTypeEnum | quoorum-notifications.ts | debate_started, debate_completed, etc. (10 valores) | ⚠️ Verificar |
+| 18 | forumNotificationChannelEnum | quoorum-notifications.ts | in_app, email, webhook, slack, push | ⚠️ Verificar |
+| 19 | forumNotificationPriorityEnum | quoorum-notifications.ts | low, normal, high, urgent | ⚠️ Verificar |
+| 20 | **quoorumReportTypeEnum** | quoorum-reports.ts | single_debate, weekly_summary, monthly_summary, deal_analysis, expert_performance, custom | ✅ **ARREGLADO** |
+| 21 | forumReportStatusEnum | quoorum-reports.ts | pending, generating, completed, failed | ⚠️ Verificar |
+| 22 | forumReportFormatEnum | quoorum-reports.ts | pdf, html, markdown | ⚠️ Verificar |
+| 23 | referralStatusEnum | referrals.ts | pending, active, completed, expired, cancelled | ⚠️ Verificar |
+| 24 | referralRewardTypeEnum | referrals.ts | credits, discount, cash, free_tier_upgrade | ⚠️ Verificar |
+| 25 | scenarioSegmentEnum | scenarios.ts | b2b_saas, ecommerce, marketplace, agency, consulting, other | ⚠️ Verificar |
+| 26 | scenarioStatusEnum | scenarios.ts | draft, active, archived | ⚠️ Verificar |
+| 27 | subscriptionStatusEnum | subscriptions.ts | active, cancelled, past_due, unpaid, trialing | ⚠️ Verificar |
+| 28 | planTierEnum | subscriptions.ts | free, starter, pro, business | ⚠️ Verificar |
+| 29 | logLevelEnum | system-logs.ts | debug, info, warn, error, fatal | ⚠️ Verificar |
+| 30 | logSourceEnum | system-logs.ts | api, worker, webhook, system, ai, client | ⚠️ Verificar |
+| 31 | teamMemberRoleEnum | team-members.ts | owner, admin, member, viewer | ⚠️ Verificar |
+| 32 | teamMemberStatusEnum | team-members.ts | active, inactive, invited, suspended | ⚠️ Verificar |
+| 33 | roleEnum (user_role_type) | user-backstory.ts | founder, ceo, cto, cmo, etc. (10 valores) | ⚠️ Verificar |
+| 34 | industryEnum | user-backstory.ts | saas, ecommerce, fintech, etc. (12 valores) | ⚠️ Verificar |
+| 35 | companySizeEnum | user-backstory.ts | solo, micro, small, medium, large, enterprise | ⚠️ Verificar |
+| 36 | companyStageEnum | user-backstory.ts | idea, mvp, early_revenue, growth, scaling, mature | ⚠️ Verificar |
+| 37 | decisionStyleEnum | user-backstory.ts | data_driven, intuitive, collaborative, agile, strategic | ⚠️ Verificar |
+| 38 | userTierEnum | users.ts | free, starter, pro, business | ⚠️ Verificar |
+| 39 | workerRoleEnum | workers.ts | 16 valores (email_classifier, sentiment_analyzer, etc.) | ⚠️ Verificar |
+| 40 | workerTypeEnum | workers.ts | classifier, analyzer, processor, monitor, etc. (12 valores) | ⚠️ Verificar |
+
+**Leyenda:**
+- ✅ **ARREGLADO** = Ahora infiere tipo desde DB (single source of truth)
+- ⚠️ **Verificar** = Requiere auditoría para ver si se usa en frontend
+- ✅ **No usado** = No se usa como tipo en frontend (solo en queries)
+
 ## 📋 PLAN DE ACCIÓN
 
-### Prioridad 1 - Inmediato (Esta Sesión)
+### Prioridad 1 - Inmediato (Esta Sesión) ✅ COMPLETADO
 
-- [ ] **Problema #1:** Sincronizar DebateStatus enum
-  - Inferir tipo desde DB o crear fuente única de verdad
-  - Actualizar frontend para incluir 'cancelled'
-  - Añadir test que verifique sincronización
+- [x] **Problema #1:** Sincronizar DebateStatus enum
+  - [x] Inferir tipo desde DB (apps/web/src/app/debates/[id]/types.ts)
+  - [x] Frontend ahora incluye 'cancelled'
+  - [ ] Añadir test que verifique sincronización
 
-- [ ] **Problema #2:** Sincronizar ReportType enum
-  - Inferir tipo desde DB
-  - Actualizar frontend para incluir 'deal_analysis'
-  - Añadir test que verifique sincronización
+- [x] **Problema #2:** Sincronizar ReportType enum
+  - [x] Inferir tipo desde DB (apps/web/src/components/quoorum/reports/types.ts)
+  - [x] Frontend ahora incluye 'deal_analysis'
+  - [x] Actualizado reportTypeLabels con 'Análisis de Operación'
+  - [ ] Añadir test que verifique sincronización
 
 ### Prioridad 2 - Corto Plazo (Esta Semana)
 
