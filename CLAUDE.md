@@ -65,6 +65,7 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | **Supabase vs PostgreSQL** | [03-database.md#arquitectura-hibrida](./docs/claude/03-database.md) |
 | **Zod validation** | [05-patterns.md#validacion-zod](./docs/claude/05-patterns.md) |
 | **Drizzle ORM** | [05-patterns.md#schema-drizzle-pattern](./docs/claude/05-patterns.md) |
+| **Type inference from DB enums** | [05-patterns.md#type-inference](./docs/claude/05-patterns.md) - Rule #23 |
 | **Tests unitarios** | [09-testing.md](./docs/claude/09-testing.md) |
 | **Tests E2E (Playwright)** | [09-testing.md#tests-e2e](./docs/claude/09-testing.md) |
 | **Paleta de colores** | [08-design-system.md](./docs/claude/08-design-system.md) |
@@ -109,6 +110,7 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | **Hacer commit** | [11-faq.md#checklist-pre-commit](./docs/claude/11-faq.md) | TypeCheck + Lint + Tests |
 | **Usar procedimiento tRPC** | [06-prohibitions.md#procedimientos-trpc](./docs/claude/06-prohibitions.md) | ⚠️ ¿El procedimiento existe en el router? |
 | **Importar componente/icono** | [06-prohibitions.md#imports-duplicados](./docs/claude/06-prohibitions.md) | ⚠️ ¿Ya existe import con este nombre? |
+| **Crear type/enum** | [05-patterns.md#type-inference](./docs/claude/05-patterns.md) | ⚠️ ¿Ya existe en DB? Inferir en lugar de duplicar |
 | **Silenciar tipo de error** | [05-patterns.md#error-handling](./docs/claude/05-patterns.md) | ⚠️ Actualizar AMBAS capas (console.error + React Query) o usar `silenced-error-types.ts` |
 
 **📖 Ver tabla completa:** [02-checkpoint-protocol.md](./docs/claude/02-checkpoint-protocol.md)
@@ -119,7 +121,7 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 
 **ANTES de hacer CUALQUIER cambio, lee:** [ERRORES-COMETIDOS.md](./ERRORES-COMETIDOS.md)
 
-**Top 6 errores más críticos:**
+**Top 7 errores más críticos:**
 
 1. **🚫 EMOJIS EN CÓDIGO** - Causa error UTF-8 en Windows que bloquea el desarrollo completamente
 2. **Foreign Key Violations** - Usuario existe en Supabase Auth pero NO en PostgreSQL local
@@ -127,6 +129,7 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 4. **React Hooks después de early returns** - VIOLA Rules of Hooks, app se rompe
 5. **Colores hardcodeados en UI** - Usar variables CSS de tema, no `text-white`
 6. **Fix incompleto en sistema de múltiples capas** - Identificar TODAS las capas antes de hacer fix (ver `silenced-error-types.ts`)
+7. **Hardcodear Enums de DB en Frontend** - SIEMPRE inferir tipos desde DB: `type Status = (typeof statusEnum.enumValues)[number]`
 
 **📖 Ver lista completa:** [ERRORES-COMETIDOS.md](./ERRORES-COMETIDOS.md)
 

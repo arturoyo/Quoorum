@@ -16,6 +16,7 @@
 | 4 | [Debates en Supabase cloud vs PostgreSQL local](#error-4-debates-en-supabase-cloud-vs-postgresql-local) | 2025-01-15 | 🔴 Crítico | ✅ Documentado |
 | 5 | [Emojis en console.log causan error UTF-8 en Windows](#error-5-emojis-en-consolelog-causan-error-utf-8-en-windows) | 2026-01-27 | 🔴 Crítico | ✅ Documentado |
 | 6 | [Dos capas de interceptación de errores - fix incompleto](#error-6-dos-capas-de-interceptación-de-errores---fix-incompleto) | 2026-01-27 | 🟡 Moderado | ✅ Documentado |
+| 7 | [Hardcodear Enums de DB en Frontend](#error-7-hardcodear-enums-de-db-en-frontend) | 2026-01-27 | 🔴 Crítico | ✅ Documentado |
 
 ---
 
@@ -593,15 +594,209 @@ if (arg.includes('NOT_FOUND') ||        // ✅ AÑADIDO
 
 ---
 
+## ERROR #7: Hardcodear Enums de DB en Frontend
+
+### 🚨 Síntoma
+
+```typescript
+// Frontend
+export type DebateStatus = 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed'
+// ← Falta 'cancelled' que existe en DB
+
+// Resultado en runtime:
+// - UI no renderiza status 'cancelled' correctamente
+// - TypeScript no detecta el problema (archivos separados)
+// - Error difícil de debuggear
+```
+
+### 📍 Contexto
+
+**Cuándo ocurre:**
+- Frontend define tipos manualmente: `type Status = 'draft' | 'pending' | 'completed'`
+- DB añade nuevo valor al enum: `'cancelled'`
+- Frontend NO se actualiza
+- Resultado: **Desincronización silenciosa**
+
+**Por qué ocurre:**
+- Frontend y backend son archivos separados
+- TypeScript NO detecta cuando un enum cambia en la DB
+- No hay validación automática de sincronización
+- Desarrollador olvida actualizar ambos lugares
+
+**Ejemplo real encontrado (27 Ene 2026):**
+
+1. **`debateStatusEnum` (DB):**
+   ```typescript
+   // packages/db/src/schema/quoorum-debates.ts
+   export const debateStatusEnum = pgEnum('debate_status', [
+     'draft', 'pending', 'in_progress', 'completed', 'failed', 'cancelled'
+   ])
+   // ✅ 6 valores
+   ```
+
+2. **`DebateStatus` (Frontend - HARDCODED):**
+   ```typescript
+   // apps/web/src/app/debates/[id]/types.ts
+   export type DebateStatus = 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed'
+   // ❌ 5 valores - Falta 'cancelled'
+   ```
+
+3. **Resultado:**
+   - Frontend no reconoce status 'cancelled'
+   - UI renderiza incorrectamente
+   - No hay error de compilación
+   - TypeScript no ayuda (archivos separados)
+
+### ✅ Solución
+
+**Patrón correcto: Inferir tipo desde DB (Single Source of Truth)**
+
+```typescript
+// ❌ INCORRECTO - Hardcoded
+export type DebateStatus = 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed'
+
+// ✅ CORRECTO - Inferido desde DB
+import type { debateStatusEnum } from '@quoorum/db/schema'
+
+export type DebateStatus = (typeof debateStatusEnum.enumValues)[number]
+// Resultado automático: 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled'
+```
+
+**Aplicado en ambos casos encontrados:**
+
+1. **DebateStatus (Fixed in commit `638d1f3`):**
+   ```typescript
+   // apps/web/src/app/debates/[id]/types.ts
+   import type { debateStatusEnum } from '@quoorum/db/schema'
+
+   export type DebateStatus = (typeof debateStatusEnum.enumValues)[number]
+   ```
+
+2. **ReportType (Fixed in commit `638d1f3`):**
+   ```typescript
+   // apps/web/src/components/quoorum/reports/types.ts
+   import type { quoorumReportTypeEnum } from '@quoorum/db/schema'
+
+   export type ReportType = (typeof quoorumReportTypeEnum.enumValues)[number]
+
+   export const reportTypeLabels: Record<ReportType, string> = {
+     single_debate: 'Debate Individual',
+     weekly_summary: 'Resumen Semanal',
+     monthly_summary: 'Resumen Mensual',
+     deal_analysis: 'Análisis de Operación',  // ✅ Ahora sincronizado
+     expert_performance: 'Rendimiento de Expertos',
+     custom: 'Personalizado',
+   }
+   ```
+
+### 🔧 Prevención
+
+**Sistema de prevención implementado (27 Ene 2026):**
+
+1. **Script de verificación automática (`scripts/verify-enum-sync.ts`):**
+   - Escanea todos los archivos TypeScript en frontend
+   - Detecta patrones de enums hardcodeados
+   - Compara contra enums conocidos de DB
+   - Exit code 1 si encuentra problemas
+
+2. **Tests automatizados (`packages/db/src/__tests__/enum-sync.test.ts`):**
+   ```typescript
+   describe('DebateStatus', () => {
+     it('should have exactly 6 status values', () => {
+       expect(debateStatusEnum.enumValues).toHaveLength(6)
+     })
+
+     it('should include all expected values', () => {
+       const expected = ['draft', 'pending', 'in_progress', 'completed', 'failed', 'cancelled']
+       expectedValues.forEach((value) => {
+         expect(debateStatusEnum.enumValues).toContain(value)
+       })
+     })
+   })
+   ```
+
+3. **Pre-flight check (`scripts/pre-flight.sh` - Check #8):**
+   ```bash
+   echo "→ Verificando sincronización de enums..."
+   if tsx scripts/verify-enum-sync.ts 2>&1 | grep -q "Verification PASSED"; then
+     echo "  [OK] Todos los enums infieren desde DB"
+   else
+     echo "  [ERROR] Detectados enums hardcodeados"
+     echo "     Ejecuta: pnpm validate:enums"
+     exit 1
+   fi
+   ```
+
+4. **Comando npm (`package.json`):**
+   ```json
+   "validate:enums": "tsx scripts/verify-enum-sync.ts"
+   ```
+
+5. **Documentación (Rule #23 + Pattern #7):**
+   - `docs/claude/04-rules.md` → Regla #23
+   - `docs/claude/05-patterns.md` → Sección #7: Type Inference
+   - `docs/claude/02-checkpoint-protocol.md` → Checkpoint para crear types
+
+### 📝 Checklist
+
+**Antes de crear un type/enum en frontend:**
+
+- [ ] ¿Ya existe un enum en DB con estos valores?
+- [ ] ¿Puedo inferir el tipo desde `@quoorum/db/schema`?
+- [ ] ¿Usé el patrón `(typeof enumName.enumValues)[number]`?
+- [ ] Si creé un nuevo type manual, ¿documenté POR QUÉ no se puede inferir?
+
+**Antes de añadir valor a enum de DB:**
+
+- [ ] ¿Dónde se usa este enum en frontend?
+- [ ] ¿Los tipos frontend infieren automáticamente desde DB?
+- [ ] Si NO infieren, ¿actualicé manualmente los tipos frontend?
+- [ ] ¿Añadí labels/traducciones para el nuevo valor?
+
+**Al hacer code review:**
+
+- [ ] ¿Hay tipos con valores literales (`'draft' | 'pending'`)?
+- [ ] ¿Estos valores coinciden con un enum de DB?
+- [ ] Si SÍ, solicitar cambio a inferencia: `import type { enum } from '@quoorum/db/schema'`
+
+### 🎯 Regla de Oro
+
+> **"Si un enum existe en DB, NUNCA lo definas manualmente en frontend. SIEMPRE infiere el tipo desde DB."**
+
+**Patrón a memorizar:**
+```typescript
+import type { myEnum } from '@quoorum/db/schema'
+export type MyType = (typeof myEnum.enumValues)[number]
+```
+
+### 🚨 Consecuencias de NO Inferir
+
+- ❌ Frontend no reconoce valores nuevos del enum
+- ❌ TypeScript no detecta desincronización (archivos separados)
+- ❌ Errores en runtime al renderizar status/labels
+- ❌ Pérdida de tiempo manteniendo 2 lugares sincronizados
+- ❌ Bugs sutiles difíciles de debuggear
+
+### 📊 Inventario de Enums Auditados
+
+Ver inventario completo en: [AUDITORIA-CAPAS-MULTIPLES.md](./AUDITORIA-CAPAS-MULTIPLES.md)
+
+- **Total enums en DB:** 40
+- **Problemas encontrados:** 2 (DebateStatus, ReportType)
+- **Problemas corregidos:** 2 ✅
+- **Sistema de prevención:** Implementado ✅
+
+---
+
 ## 📊 ESTADÍSTICAS
 
-- **Total de errores documentados:** 6
-- **Errores críticos:** 4
+- **Total de errores documentados:** 7
+- **Errores críticos:** 5
 - **Errores moderados:** 2
-- **Errores resueltos:** 6
+- **Errores resueltos:** 7
 - **Tasa de repetición:** 0% (objetivo: mantener en 0%)
 
 ---
 
-_Última actualización: 2026-01-27 (Error #6: Dos capas de interceptación)_
+_Última actualización: 2026-01-27 (Error #7: Hardcodear enums de DB en frontend)_
 _Próxima revisión: Antes de CADA cambio importante_
