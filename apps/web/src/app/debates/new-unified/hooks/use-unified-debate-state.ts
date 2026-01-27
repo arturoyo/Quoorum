@@ -453,7 +453,11 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       })
       return
     }
-    
+
+    // CRÍTICO: Establecer estado de carga ANTES de cualquier cambio de fase
+    // Esto previene que el componente muestre "estado corrupto" durante la carga
+    setIsGeneratingQuestions(true)
+
     // Crear draft del debate inmediatamente cuando el usuario escribe la primera pregunta
     let draftId: string | undefined
     try {
@@ -490,23 +494,45 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       ],
       phase: 'critical',
     }))
-    
-    setIsGeneratingQuestions(true)
+
     updatePhaseProgress(1, 10)
-    
+
     try {
-      const rawQuestions = await generateCriticalQuestions.mutateAsync({ question })
-      // Ensure all questions have required fields (id, priority)
-      const questions = rawQuestions.map((q, i) => ({
-        ...q,
-        id: q.id || `q-${Date.now()}-${i}`,
-        priority: (q.priority || 'medium') as 'critical' | 'high' | 'medium' | 'low',
-      }))
+      const response = await generateCriticalQuestions.mutateAsync({ question })
+      // El endpoint retorna { questions, creditsDeducted, remainingCredits }
+      const rawQuestions = response.questions
+
+      if (!rawQuestions || !Array.isArray(rawQuestions)) {
+        throw new Error('No se recibieron preguntas válidas del servidor')
+      }
+
+      // Ensure all questions have ALL required fields (id, priority, questionType)
+      // IMPORTANTE: Normalizar questionType para evitar que falten campos de input
+      const validTypes = ['yes_no', 'multiple_choice', 'free_text'] as const
+      const questions = rawQuestions.map((q, i) => {
+        // Validar que questionType sea uno de los tipos válidos
+        const normalizedType = validTypes.includes(q.questionType)
+          ? q.questionType
+          : 'free_text' // Por defecto, usar texto libre
+
+        return {
+          ...q,
+          id: q.id || `q-${Date.now()}-${i}`,
+          priority: (q.priority || 'medium') as 'critical' | 'high' | 'medium' | 'low',
+          questionType: normalizedType,
+          // Si es multiple_choice pero no tiene options, cambiar a free_text
+          ...(normalizedType === 'multiple_choice' && (!q.options || q.options.length === 0)
+            ? { questionType: 'free_text' as const }
+            : {}),
+        }
+      })
 
       setContexto((prev) => ({
         ...prev,
         questions,
         currentQuestionIndex: 0,
+        // Actualizar créditos deducidos si el servidor los reporta
+        realCreditsDeducted: prev.realCreditsDeducted + (response.creditsDeducted ?? 0),
         messages: [
           ...prev.messages,
           ...(questions.length > 0
@@ -522,14 +548,34 @@ export function useUnifiedDebateState(urlSessionId?: string) {
             : []),
         ],
       }))
-      
+
       updatePhaseProgress(1, 20)
       setIsGeneratingQuestions(false)
+
+      logger.info('Critical questions generated successfully', {
+        questionCount: questions.length,
+        creditsDeducted: response.creditsDeducted,
+        remainingCredits: response.remainingCredits,
+      })
     } catch (error) {
-      toast.error('Error al generar preguntas')
+      logger.error('Error generating critical questions:', error instanceof Error ? error : undefined)
+      toast.error('Error al generar preguntas', {
+        description: 'Por favor, intenta de nuevo.',
+        duration: 5000,
+      })
+      // CRÍTICO: Resetear al estado inicial si falla la generación de preguntas
+      // para evitar el estado "corrupto" donde phase='critical' pero questions=[]
+      setContexto((prev) => ({
+        ...prev,
+        mainQuestion: '',
+        phase: 'initial',
+        questions: [],
+        messages: [],
+      }))
       setIsGeneratingQuestions(false)
+      updatePhaseProgress(1, 0)
     }
-  }, [generateCriticalQuestions, updatePhaseProgress])
+  }, [generateCriticalQuestions, updatePhaseProgress, createDraft])
   
   // Helper para construir mensaje de evaluación con advertencias
   const buildEvaluationMessage = useCallback((result: ContextEvaluation) => {
@@ -573,12 +619,26 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       // Cap: máx 8 respuestas y solo 1 ronda de follow-ups (critical → deep)
       const allowMore = result.shouldContinue && result.followUpQuestions.length > 0 && totalAnswersCount < MAX_CONTEXT_ANSWERS
       const nextPhase = allowMore && contexto.phase === 'critical' ? 'deep' : 'ready'
-      // Ensure follow-up questions have required fields (id, priority)
-      const followUpWithIds = result.followUpQuestions.map((q, i) => ({
-        ...q,
-        id: q.id || `followup-${Date.now()}-${i}`,
-        priority: (q.priority || 'medium') as 'critical' | 'high' | 'medium' | 'low',
-      }))
+      // Ensure follow-up questions have ALL required fields (id, priority, questionType)
+      // IMPORTANTE: Normalizar questionType para evitar que falten campos de input
+      const followUpWithIds = result.followUpQuestions.map((q, i) => {
+        // Validar que questionType sea uno de los tipos válidos
+        const validTypes = ['yes_no', 'multiple_choice', 'free_text'] as const
+        const normalizedType = validTypes.includes(q.questionType)
+          ? q.questionType
+          : 'free_text' // Por defecto, usar texto libre para preguntas de seguimiento
+
+        return {
+          ...q,
+          id: q.id || `followup-${Date.now()}-${i}`,
+          priority: (q.priority || 'medium') as 'critical' | 'high' | 'medium' | 'low',
+          questionType: normalizedType,
+          // Si es multiple_choice pero no tiene options, cambiar a free_text
+          ...(normalizedType === 'multiple_choice' && (!q.options || q.options.length === 0)
+            ? { questionType: 'free_text' as const }
+            : {}),
+        }
+      })
 
       // Actualizar créditos reales deducidos si la evaluación retornó créditos deducidos
       const creditsDeducted = (result as { creditsDeducted?: number }).creditsDeducted || 0

@@ -297,10 +297,13 @@ export function QuestionCard({
     setAdditionalContext('')
   }
 
+  // IMPORTANTE: También considerar como texto si es multiple_choice sin opciones válidas
   const isTextOrTextarea =
     (showAnswerInput || !!answer) &&
-    question.questionType !== 'multiple_choice' &&
-    question.questionType !== 'yes_no'
+    (
+      (question.questionType !== 'multiple_choice' && question.questionType !== 'yes_no') ||
+      (question.questionType === 'multiple_choice' && (!question.options || question.options.length === 0))
+    )
 
   const showSkipPhase =
     (contextProgress ?? 0) >= 80 && typeof onSkipToNextPhase === 'function'
@@ -685,7 +688,11 @@ export function QuestionCard({
         ) : null}
         
         {/* Input de texto (para preguntas que no son multiple_choice ni yes_no) */}
-        {(showAnswerInput || answer) && question.questionType !== 'multiple_choice' && question.questionType !== 'yes_no' && (
+        {/* IMPORTANTE: También mostrar texto si es multiple_choice pero NO tiene opciones válidas */}
+        {(showAnswerInput || answer) && (
+          question.questionType !== 'multiple_choice' && question.questionType !== 'yes_no' ||
+          (question.questionType === 'multiple_choice' && (!question.options || question.options.length === 0))
+        ) && (
           <div className="space-y-4">
             {answerType === 'long' ? (
               <Textarea
@@ -733,7 +740,7 @@ export function QuestionCard({
             {/* Mensaje de validación */}
             {validationError && (
               <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-4">
-                <p className="text-sm text-red-300 font-medium mb-1">⚠️ Respuesta no válida</p>
+                <p className="text-sm text-red-300 font-medium mb-1">[WARN] Respuesta no válida</p>
                 <p className="text-sm text-red-200 whitespace-pre-wrap">{validationError}</p>
                 <p className="text-xs text-red-300/80 mt-2">
                   Por favor, edita tu respuesta o explica cómo se relaciona con la pregunta.

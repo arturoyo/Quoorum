@@ -56,7 +56,8 @@ export function PhaseEstrategia({
   
   // Verificar si hay créditos suficientes
   const hasSufficientCredits = creditBalance >= totalEstimatedCredits
-  const canContinue = !!state.selectedStrategy && hasSufficientCredits
+  // IMPORTANTE: Requerir tanto estrategia como framework para continuar
+  const canContinue = !!state.selectedStrategy && !!state.selectedFrameworkId && hasSufficientCredits
   return (
     <div className="w-full max-w-2xl mx-auto">
       <DebateStickyHeader
@@ -156,9 +157,14 @@ export function PhaseEstrategia({
       {/* Botón Seguir */}
       {onContinue && (
         <div className="flex flex-col items-center gap-4 pt-6">
-          {!hasSufficientCredits && state.selectedStrategy && (
+          {state.selectedStrategy && !state.selectedFrameworkId && (
             <p className="text-sm text-amber-400 text-center">
-              ⚠️ No puedes continuar sin créditos suficientes
+              [WARN] Selecciona un framework de decision para continuar
+            </p>
+          )}
+          {!hasSufficientCredits && state.selectedStrategy && state.selectedFrameworkId && (
+            <p className="text-sm text-amber-400 text-center">
+              [WARN] No puedes continuar sin creditos suficientes
             </p>
           )}
           <Button
