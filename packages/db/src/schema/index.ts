@@ -134,3 +134,10 @@ export type { ProcessTimeline, NewProcessTimeline, ProcessPhase, ProcessStatus }
 // Referrals
 export { referralCodes, referralCodesRelations, referrals, referralsRelations, referralStatusEnum, referralRewardTypeEnum } from "./referrals";
 export type { ReferralCode, NewReferralCode, Referral, NewReferral } from "./referrals";
+
+// Scenarios (Decision Playbooks)
+export { scenarios, scenariosRelations, scenarioSegmentEnum, scenarioStatusEnum } from "./scenarios";
+export type { Scenario, NewScenario, ScenarioSegment, ScenarioStatus } from "./scenarios";
+
+export { scenarioUsage } from "./scenario-usage";
+export type { ScenarioUsage, NewScenarioUsage } from "./scenario-usage";

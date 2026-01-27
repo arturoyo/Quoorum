@@ -45,6 +45,8 @@ import {
   processTimelineRouter,
   // Referrals
   referralsRouter,
+  // Scenarios (Decision Playbooks)
+  scenariosRouter,
   // Integrations
   slackRouter,
 } from "./routers/index";
@@ -95,6 +97,8 @@ export const appRouter = router({
   processTimeline: processTimelineRouter,
   // Referrals
   referrals: referralsRouter,
+  // Scenarios (Decision Playbooks)
+  scenarios: scenariosRouter,
   // Integrations
   slack: slackRouter,
 });

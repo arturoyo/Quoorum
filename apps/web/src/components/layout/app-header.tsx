@@ -14,7 +14,7 @@ import { logger } from '@/lib/logger'
 import { classifyTRPCError } from '@/lib/trpc/error-handler'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
-import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff } from 'lucide-react'
+import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles } from 'lucide-react'
 import { ThemeDropdown } from '@/components/theme'
 import { CreditCounter } from '@/components/quoorum/credit-counter'
 import { AppFooter } from '@/components/layout/app-footer'
@@ -170,7 +170,7 @@ export function AppHeader({
             <div className="flex-1">
               <QuoorumLogoWithText
                 href="/"
-                iconSize={192}
+                iconSize={48}
                 showGradient={true}
                 showText={false}
                 className="transition-opacity group-hover:opacity-80"
@@ -293,7 +293,7 @@ export function AppHeader({
           <div className="relative flex h-16 items-center justify-between">
             <QuoorumLogoWithText
               href="/dashboard"
-              iconSize={192}
+              iconSize={48}
               showGradient={true}
               showText={false}
               className="transition-opacity group-hover:opacity-80"
@@ -357,6 +357,15 @@ export function AppHeader({
                   title="Debates"
                 >
                   <MessageCircle className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/scenarios">
+                <Button
+                  variant="ghost"
+                  className="hidden sm:block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2"
+                  title="Escenarios de Oro"
+                >
+                  <Sparkles className="h-4 w-4" />
                 </Button>
               </Link>
               {/* Theme toggle */}
@@ -474,6 +483,15 @@ export function AppHeader({
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Debates
+                    </Button>
+                  </Link>
+                  <Link href="/scenarios" onClick={() => setMobileMenuOpen(false)}>
+                    <Button
+                      variant="ghost"
+                      className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] justify-start"
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Escenarios
                     </Button>
                   </Link>
                   <Button

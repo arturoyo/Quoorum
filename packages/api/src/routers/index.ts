@@ -53,3 +53,6 @@ export { processTimelineRouter } from "./process-timeline";
 
 // Referrals
 export { referralsRouter } from "./referrals";
+
+// Scenarios (Decision Playbooks)
+export { scenariosRouter } from "./scenarios";
