@@ -113,7 +113,7 @@ const quickLinks: QuickLink[] = [
   },
   {
     title: "Contactar soporte",
-    href: "/contact",
+    href: "/soporte",
     description: "Obtén ayuda personalizada",
     icon: HelpCircle,
   },
@@ -576,8 +576,8 @@ export default function DocsPage() {
                     dado que tenemos 50% de margen y 3 competidores locales?&quot;
                   </p>
                   <div className="flex gap-4 text-sm">
-                    <span className="text-red-400">❌ Vago</span>
-                    <span className="text-green-400">✅ Específico con contexto</span>
+                    <span className="text-red-400">[ERROR] Vago</span>
+                    <span className="text-green-400">[OK] Específico con contexto</span>
                   </div>
                 </div>
 
@@ -637,7 +637,7 @@ export default function DocsPage() {
                   Estamos trabajando en una API pública para que puedas integrar
                   Quoorum en tus aplicaciones y flujos de trabajo.
                 </p>
-                <Link href="/contact">
+                <Link href="/soporte">
                   <Button variant="outline" className="border-white/10 text-white hover:bg-white/5">
                     Solicitar acceso anticipado
                   </Button>
@@ -675,7 +675,7 @@ export default function DocsPage() {
                 <p className="text-[var(--theme-text-secondary)] text-sm mb-4">
                   Nuestro equipo está aquí para ayudarte.
                 </p>
-                <Link href="/contact">
+                <Link href="/soporte">
                   <Button className="bg-purple-600 hover:bg-purple-500 text-white">
                     Contactar soporte
                   </Button>

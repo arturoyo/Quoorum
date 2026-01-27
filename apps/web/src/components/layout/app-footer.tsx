@@ -31,7 +31,7 @@ export function AppFooter({ className }: AppFooterProps) {
           {/* Left: Links */}
           <div className="flex flex-wrap items-center gap-6 text-sm">
             <Link
-              href="/contact"
+              href="/soporte"
               className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1.5"
             >
               <HelpCircle className="h-3.5 w-3.5" />

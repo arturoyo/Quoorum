@@ -91,7 +91,7 @@ const plans = [
       "Soporte dedicado 24/7",
     ],
     cta: "Contactar Ventas",
-    ctaLink: "/contact?plan=business",
+    ctaLink: "/soporte?plan=business",
     popular: false,
   },
 ];
@@ -334,7 +334,7 @@ export default function PricingPage() {
           </h2>
           <p className="text-[var(--theme-text-secondary)] text-center mb-12">
             ¿Tienes otras preguntas?{" "}
-            <Link href="/contact" className="text-purple-400 hover:text-purple-300">
+            <Link href="/soporte" className="text-purple-400 hover:text-purple-300">
               Contáctanos
             </Link>
           </p>
@@ -377,7 +377,7 @@ export default function PricingPage() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/contact">
+              <Link href="/soporte">
                 <Button
                   size="lg"
                   variant="outline"

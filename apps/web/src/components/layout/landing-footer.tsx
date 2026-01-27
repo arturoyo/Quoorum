@@ -45,7 +45,7 @@ export function LandingFooter() {
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="/soporte"
                   className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
                 >
                   Soporte
@@ -76,7 +76,7 @@ export function LandingFooter() {
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="/soporte"
                   className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
                 >
                   Contacto
