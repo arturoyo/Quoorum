@@ -167,10 +167,11 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
             // La interceptación global de console.error ya los maneja
             onError: (error) => {
               const errorInfo = classifyTRPCError(error);
-              if (errorInfo.type !== 'payment-required' && 
-                  errorInfo.type !== 'unauthorized' && 
-                  errorInfo.type !== 'network') {
-                // Solo loggear errores que NO son payment-required, unauthorized ni network
+              if (errorInfo.type !== 'payment-required' &&
+                  errorInfo.type !== 'unauthorized' &&
+                  errorInfo.type !== 'network' &&
+                  errorInfo.type !== 'not-found') {
+                // Solo loggear errores que NO son payment-required, unauthorized, network ni not-found
                 logger.error('[React Query] Query error:', error);
               }
             },
@@ -180,10 +181,11 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
             // La interceptación global de console.error ya los maneja
             onError: (error) => {
               const errorInfo = classifyTRPCError(error);
-              if (errorInfo.type !== 'payment-required' && 
-                  errorInfo.type !== 'unauthorized' && 
-                  errorInfo.type !== 'network') {
-                // Solo loggear errores que NO son payment-required, unauthorized ni network
+              if (errorInfo.type !== 'payment-required' &&
+                  errorInfo.type !== 'unauthorized' &&
+                  errorInfo.type !== 'network' &&
+                  errorInfo.type !== 'not-found') {
+                // Solo loggear errores que NO son payment-required, unauthorized, network ni not-found
                 logger.error('[React Query] Mutation error:', error);
               }
             },
