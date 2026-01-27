@@ -5,6 +5,7 @@
  */
 
 import { CheckCircle, Loader2, AlertCircle, Clock, FileText } from 'lucide-react'
+import type { quoorumReportTypeEnum } from '@quoorum/db/schema'
 
 // ═══════════════════════════════════════════════════════════
 // INTERFACES
@@ -67,12 +68,9 @@ export interface ScheduledReport {
 // TYPES
 // ═══════════════════════════════════════════════════════════
 
-export type ReportType =
-  | 'single_debate'
-  | 'weekly_summary'
-  | 'monthly_summary'
-  | 'expert_performance'
-  | 'custom'
+// Infer type from DB enum (single source of truth)
+// Includes: 'single_debate' | 'weekly_summary' | 'monthly_summary' | 'deal_analysis' | 'expert_performance' | 'custom'
+export type ReportType = (typeof quoorumReportTypeEnum.enumValues)[number]
 
 export type ReportFormat = 'pdf' | 'html' | 'markdown'
 
@@ -86,6 +84,7 @@ export const reportTypeLabels: Record<ReportType, string> = {
   single_debate: 'Debate Individual',
   weekly_summary: 'Resumen Semanal',
   monthly_summary: 'Resumen Mensual',
+  deal_analysis: 'Análisis de Operación',
   expert_performance: 'Rendimiento de Expertos',
   custom: 'Personalizado',
 }

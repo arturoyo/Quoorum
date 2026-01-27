@@ -2,6 +2,8 @@
  * Types for Debate Detail Page
  */
 
+import type { debateStatusEnum } from '@quoorum/db/schema'
+
 export interface DebatePageProps {
   params: Promise<{
     id: string
@@ -29,7 +31,9 @@ export interface ProcessedMessage extends RoundMessage {
 
 export type DebatePhase = 'contexto' | 'debate' | 'conclusion'
 
-export type DebateStatus = 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed'
+// Infer type from DB enum (single source of truth)
+// Includes: 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled'
+export type DebateStatus = (typeof debateStatusEnum.enumValues)[number]
 
 export interface StatusConfig {
   label: string
