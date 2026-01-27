@@ -15,6 +15,7 @@
 | 3 | [Enum value 'draft' no existe](#error-3-enum-value-draft-no-existe) | 2025-01-15 | 🟡 Moderado | ✅ Documentado |
 | 4 | [Debates en Supabase cloud vs PostgreSQL local](#error-4-debates-en-supabase-cloud-vs-postgresql-local) | 2025-01-15 | 🔴 Crítico | ✅ Documentado |
 | 5 | [Emojis en console.log causan error UTF-8 en Windows](#error-5-emojis-en-consolelog-causan-error-utf-8-en-windows) | 2026-01-27 | 🔴 Crítico | ✅ Documentado |
+| 6 | [Dos capas de interceptación de errores - fix incompleto](#error-6-dos-capas-de-interceptación-de-errores---fix-incompleto) | 2026-01-27 | 🟡 Moderado | ✅ Documentado |
 
 ---
 
@@ -416,15 +417,191 @@ logger.info('Success message', { validated: true })
 
 ---
 
+## ERROR #6: Dos capas de interceptación de errores - fix incompleto
+
+### 🚨 Síntoma
+
+```
+TRPCClientError: Debate no encontrado
+[ERROR] [React Query] Query error: ...
+```
+
+**Error persiste** después de aplicar un fix que aparentemente debería silenciarlo.
+
+### 📍 Contexto
+
+**Cuándo ocurre:**
+- Usuario reporta error "Debate no encontrado" en la consola
+- Se aplica fix añadiendo 'not-found' al handler `onError` de React Query
+- El error **sigue apareciendo** en la consola
+
+**Por qué ocurre:**
+- El sistema de manejo de errores tiene **DOS capas de interceptación**:
+  1. **Interceptación de `console.error`** (líneas 15-137 en provider.tsx)
+  2. **Handler `onError` de React Query** (líneas 168-176 en provider.tsx)
+- Al hacer el fix, solo se arregló la capa #2
+- El error todavía pasaba por la capa #1 (interceptación de console.error)
+
+**Arquitectura del sistema de errores en `apps/web/src/lib/trpc/provider.tsx`:**
+
+```typescript
+// CAPA 1: Interceptación de console.error (líneas 15-137)
+// Verifica strings específicos en los argumentos:
+if (arg.includes('PAYMENT_REQUIRED')) return true
+if (arg.includes('UNAUTHORIZED')) return true
+if (arg.includes('Failed to fetch')) return true
+// ❌ FALTABA: if (arg.includes('NOT_FOUND')) return true
+
+// CAPA 2: Handler onError de React Query (líneas 168-176)
+onError: (error) => {
+  const errorInfo = classifyTRPCError(error)
+  if (errorInfo.type !== 'payment-required' &&
+      errorInfo.type !== 'unauthorized' &&
+      errorInfo.type !== 'network') {
+    // ❌ FALTABA: errorInfo.type !== 'not-found'
+    logger.error('[React Query] Query error:', error)
+  }
+}
+```
+
+### ✅ Solución
+
+**Commit 1 (`fbaedbf`):** Añadir 'not-found' al handler onError de React Query
+```typescript
+// Líneas 168-176
+onError: (error) => {
+  const errorInfo = classifyTRPCError(error)
+  if (errorInfo.type !== 'payment-required' &&
+      errorInfo.type !== 'unauthorized' &&
+      errorInfo.type !== 'network' &&
+      errorInfo.type !== 'not-found') { // ✅ AÑADIDO
+    logger.error('[React Query] Query error:', error)
+  }
+}
+```
+
+**Commit 2 (`3cc9f08`):** Añadir NOT_FOUND a la interceptación de console.error
+```typescript
+// Líneas 100-122
+if (arg.includes('NOT_FOUND') ||        // ✅ AÑADIDO
+    arg.includes('404') ||              // ✅ AÑADIDO
+    arg.includes('no encontrado') ||    // ✅ AÑADIDO
+    arg.includes('not found')) {        // ✅ AÑADIDO
+  return true
+}
+```
+
+### 🔧 Prevención
+
+**REGLA: Cuando existe sistema de múltiples capas, identificar TODAS antes de hacer fix**
+
+**Antes de silenciar un tipo de error:**
+
+1. ✅ **Identificar TODAS las capas del sistema de manejo de errores**
+   ```bash
+   # Buscar todas las referencias al error
+   grep -r "PAYMENT_REQUIRED\|UNAUTHORIZED\|network" apps/web/src/lib/trpc/
+   ```
+
+2. ✅ **Documentar la arquitectura de capas**
+   ```
+   provider.tsx tiene 2 capas:
+   - Interceptación console.error (líneas 15-137)
+   - Handler onError React Query (líneas 168-176)
+   ```
+
+3. ✅ **Aplicar fix en TODAS las capas simultáneamente**
+   - No hacer un commit parcial
+   - O si se hace, verificar inmediatamente que funciona
+
+4. ✅ **Verificar que el fix funciona ANTES de commit final**
+   - Probar en el navegador que el error ya no aparece
+   - Si sigue apareciendo, investigar qué capa falta
+
+5. ✅ **Crear fuente única de verdad para tipos de errores silenciados**
+   ```typescript
+   // Propuesta: Constante compartida
+   const SILENCED_ERROR_TYPES = [
+     'payment-required',
+     'unauthorized',
+     'network',
+     'not-found'
+   ] as const
+
+   // Usar en ambas capas
+   ```
+
+### 📝 Checklist
+
+**Cuando se necesita silenciar un tipo de error:**
+
+- [ ] Identificar todas las capas de interceptación de errores
+- [ ] Documentar dónde está cada capa (líneas de código)
+- [ ] Aplicar cambio en TODAS las capas
+- [ ] Verificar en navegador que el error ya no aparece
+- [ ] Si persiste, buscar capas adicionales que se hayan omitido
+- [ ] Considerar refactorizar a fuente única de verdad
+
+**Patrones a buscar para identificar capas:**
+- `console.error =` → Interceptación de console
+- `onError:` → Handlers de React Query / tRPC
+- `try { } catch { }` → Manejo manual de errores
+- `classifyError()` / `classifyTRPCError()` → Clasificación de errores
+
+### 🎯 Mejoras propuestas (para futuro)
+
+1. **Refactorizar a fuente única de verdad:**
+   ```typescript
+   // apps/web/src/lib/trpc/error-types.ts
+   export const SILENCED_ERROR_TYPES = {
+     PAYMENT_REQUIRED: ['PAYMENT_REQUIRED', '402', 'Créditos insuficientes'],
+     UNAUTHORIZED: ['UNAUTHORIZED', '401', 'No autenticado'],
+     NETWORK: ['Failed to fetch', 'NetworkError'],
+     NOT_FOUND: ['NOT_FOUND', '404', 'no encontrado', 'not found']
+   } as const
+
+   // Usar en ambas capas:
+   import { SILENCED_ERROR_TYPES } from './error-types'
+   ```
+
+2. **Documentar arquitectura en comentarios:**
+   ```typescript
+   /**
+    * Sistema de manejo de errores - 2 CAPAS
+    *
+    * CAPA 1: Interceptación de console.error (líneas 15-137)
+    * - Verifica strings específicos en argumentos
+    * - Silencia: PAYMENT_REQUIRED, UNAUTHORIZED, NETWORK, NOT_FOUND
+    *
+    * CAPA 2: Handler onError de React Query (líneas 168-176)
+    * - Usa classifyTRPCError() para clasificación
+    * - Silencia los mismos tipos que capa 1
+    *
+    * ⚠️ IMPORTANTE: Al añadir nuevo tipo silenciado, actualizar AMBAS capas
+    */
+   ```
+
+3. **Test para verificar sincronización:**
+   ```typescript
+   // Verificar que ambas capas tienen los mismos tipos silenciados
+   test('error interception layers are synchronized', () => {
+     const layer1Types = extractTypesFromConsoleInterception()
+     const layer2Types = extractTypesFromOnErrorHandler()
+     expect(layer1Types).toEqual(layer2Types)
+   })
+   ```
+
+---
+
 ## 📊 ESTADÍSTICAS
 
-- **Total de errores documentados:** 5
+- **Total de errores documentados:** 6
 - **Errores críticos:** 4
-- **Errores moderados:** 1
-- **Errores resueltos:** 5
+- **Errores moderados:** 2
+- **Errores resueltos:** 6
 - **Tasa de repetición:** 0% (objetivo: mantener en 0%)
 
 ---
 
-_Última actualización: 2026-01-27_
+_Última actualización: 2026-01-27 (Error #6: Dos capas de interceptación)_
 _Próxima revisión: Antes de CADA cambio importante_

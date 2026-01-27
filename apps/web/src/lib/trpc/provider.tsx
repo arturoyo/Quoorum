@@ -7,11 +7,32 @@ import superjson from "superjson";
 import { api } from "./client";
 import { handleTRPCError, classifyTRPCError } from "./error-handler";
 import { logger } from "@/lib/logger";
+import { containsSilencedPattern, isSilencedCategory } from "./silenced-error-types";
 
-// Interceptar console.error para silenciar errores PAYMENT_REQUIRED y UNAUTHORIZED
-// NOTA: Esta interceptación puede causar un warning de deprecación de React Query,
-// pero es necesario para silenciar errores esperados de créditos insuficientes y autenticación.
-// El warning no afecta la funcionalidad y se puede ignorar de forma segura.
+/**
+ * Sistema de manejo de errores - 2 CAPAS
+ *
+ * CAPA 1: Interceptación de console.error (líneas ~15-90)
+ * - Verifica strings específicos en argumentos usando containsSilencedPattern()
+ * - Silencia: PAYMENT_REQUIRED, UNAUTHORIZED, NETWORK, NOT_FOUND
+ *
+ * CAPA 2: Handler onError de React Query (líneas ~114-135)
+ * - Usa classifyTRPCError() para clasificación + isSilencedCategory()
+ * - Silencia los mismos tipos que capa 1
+ *
+ * FUENTE ÚNICA DE VERDAD: silenced-error-types.ts
+ * - Define SILENCED_ERROR_PATTERNS (para capa 1)
+ * - Define SILENCED_ERROR_CATEGORIES (para capa 2)
+ *
+ * ⚠️ IMPORTANTE: Para añadir un nuevo tipo silenciado, actualizar silenced-error-types.ts
+ *               Las dos capas se actualizarán automáticamente.
+ *
+ * NOTA: Esta interceptación puede causar un warning de deprecación de React Query,
+ * pero es necesario para silenciar errores esperados. El warning no afecta la funcionalidad.
+ *
+ * @see apps/web/src/lib/trpc/silenced-error-types.ts
+ * @see docs/ERRORES-COMETIDOS.md#error-6
+ */
 if (typeof window !== 'undefined' && !(console.error as { __intercepted?: boolean }).__intercepted) {
   const originalConsoleError = console.error;
   const interceptedConsoleError = (...args: unknown[]) => {
@@ -19,110 +40,48 @@ if (typeof window !== 'undefined' && !(console.error as { __intercepted?: boolea
     const hasExpectedError = args.some(arg => {
       if (arg instanceof Error) {
         const errorInfo = classifyTRPCError(arg);
-        return errorInfo.type === 'payment-required' || 
-               errorInfo.type === 'unauthorized' || 
-               errorInfo.type === 'network';
+        return isSilencedCategory(errorInfo.type);
       }
       if (arg && typeof arg === 'object') {
         try {
           const argStr = JSON.stringify(arg);
-          // Verificar PAYMENT_REQUIRED
-          if (argStr.includes('PAYMENT_REQUIRED') || 
-              argStr.includes('402 Payment Required') ||
-              argStr.includes('Créditos insuficientes')) {
-            return true;
-          }
-          // Verificar UNAUTHORIZED
-          if (argStr.includes('UNAUTHORIZED') || 
-              argStr.includes('401 Unauthorized') ||
-              argStr.includes('must be logged in') ||
-              argStr.includes('You must be logged in') ||
-              argStr.includes('No autenticado')) {
-            return true;
-          }
-          // Verificar NETWORK (Failed to fetch)
-          if (argStr.includes('Failed to fetch') || 
-              argStr.includes('failed to fetch') ||
-              argStr.includes('NetworkError') ||
-              argStr.includes('network error')) {
-            return true;
-          }
-          // Verificar por errorInfo.type
-          if (argStr.includes('"type":"payment-required"') || 
-              argStr.includes('"type":"unauthorized"') ||
-              argStr.includes('"type":"network"')) {
+          // Usar fuente única de verdad para patrones silenciados
+          if (containsSilencedPattern(argStr)) {
             return true;
           }
           return false;
         } catch {
           // Si falla la serialización, verificar propiedades directamente
           const errorObj = arg as Record<string, unknown>;
+
+          // Verificar mensaje del error
           if (errorObj.message && typeof errorObj.message === 'string') {
-            // Verificar PAYMENT_REQUIRED
-            if (errorObj.message.includes('PAYMENT_REQUIRED') || 
-                errorObj.message.includes('402 Payment Required') ||
-                errorObj.message.includes('Créditos insuficientes')) {
-              return true;
-            }
-            // Verificar UNAUTHORIZED
-            if (errorObj.message.includes('UNAUTHORIZED') || 
-                errorObj.message.includes('401 Unauthorized') ||
-                errorObj.message.includes('must be logged in') ||
-                errorObj.message.includes('You must be logged in') ||
-                errorObj.message.includes('No autenticado')) {
-              return true;
-            }
-            // Verificar NETWORK (Failed to fetch)
-            if (errorObj.message.includes('Failed to fetch') || 
-                errorObj.message.includes('failed to fetch') ||
-                errorObj.message.includes('NetworkError') ||
-                errorObj.message.includes('network error')) {
+            if (containsSilencedPattern(errorObj.message)) {
               return true;
             }
           }
-          // Verificar errorInfo.type directamente
+
+          // Verificar errorInfo.type directamente usando la categoría
           if (errorObj.errorInfo && typeof errorObj.errorInfo === 'object') {
             const errorInfo = errorObj.errorInfo as Record<string, unknown>;
-            if (errorInfo.type === 'payment-required' || 
-                errorInfo.type === 'unauthorized' || 
-                errorInfo.type === 'network') {
-              return true;
+            if (errorInfo.type && typeof errorInfo.type === 'string') {
+              if (isSilencedCategory(errorInfo.type)) {
+                return true;
+              }
             }
           }
+
           // Verificar status 401 o 402
           if (errorObj.status === 401 || errorObj.status === 402) {
             return true;
           }
+
           return false;
         }
       }
       if (typeof arg === 'string') {
-        // Verificar PAYMENT_REQUIRED
-        if (arg.includes('PAYMENT_REQUIRED') || 
-            arg.includes('402 Payment Required') ||
-            arg.includes('Créditos insuficientes')) {
-          return true;
-        }
-        // Verificar UNAUTHORIZED
-        if (arg.includes('UNAUTHORIZED') || 
-            arg.includes('401 Unauthorized') ||
-            arg.includes('must be logged in') ||
-            arg.includes('You must be logged in') ||
-            arg.includes('No autenticado')) {
-          return true;
-        }
-        // Verificar NETWORK (Failed to fetch)
-        if (arg.includes('Failed to fetch') ||
-            arg.includes('failed to fetch') ||
-            arg.includes('NetworkError') ||
-            arg.includes('network error')) {
-          return true;
-        }
-        // Verificar NOT_FOUND
-        if (arg.includes('NOT_FOUND') ||
-            arg.includes('404') ||
-            arg.includes('no encontrado') ||
-            arg.includes('not found')) {
+        // Usar fuente única de verdad para patrones silenciados
+        if (containsSilencedPattern(arg)) {
           return true;
         }
       }
@@ -170,29 +129,23 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
             retryDelay: (attemptIndex) => {
               return Math.min(1000 * Math.pow(2, attemptIndex), 10000);
             },
-            // Silenciar errores PAYMENT_REQUIRED, UNAUTHORIZED y NETWORK en la consola (son esperados o temporales)
-            // La interceptación global de console.error ya los maneja
+            // Silenciar errores definidos en SILENCED_ERROR_CATEGORIES (son esperados o temporales)
+            // Ver silenced-error-types.ts para la lista completa
             onError: (error) => {
               const errorInfo = classifyTRPCError(error);
-              if (errorInfo.type !== 'payment-required' &&
-                  errorInfo.type !== 'unauthorized' &&
-                  errorInfo.type !== 'network' &&
-                  errorInfo.type !== 'not-found') {
-                // Solo loggear errores que NO son payment-required, unauthorized, network ni not-found
+              // Solo loggear errores que NO están en la lista de errores silenciados
+              if (!isSilencedCategory(errorInfo.type)) {
                 logger.error('[React Query] Query error:', error);
               }
             },
           },
           mutations: {
-            // Silenciar errores PAYMENT_REQUIRED, UNAUTHORIZED y NETWORK en la consola (son esperados o temporales)
-            // La interceptación global de console.error ya los maneja
+            // Silenciar errores definidos en SILENCED_ERROR_CATEGORIES (son esperados o temporales)
+            // Ver silenced-error-types.ts para la lista completa
             onError: (error) => {
               const errorInfo = classifyTRPCError(error);
-              if (errorInfo.type !== 'payment-required' &&
-                  errorInfo.type !== 'unauthorized' &&
-                  errorInfo.type !== 'network' &&
-                  errorInfo.type !== 'not-found') {
-                // Solo loggear errores que NO son payment-required, unauthorized, network ni not-found
+              // Solo loggear errores que NO están en la lista de errores silenciados
+              if (!isSilencedCategory(errorInfo.type)) {
                 logger.error('[React Query] Mutation error:', error);
               }
             },
