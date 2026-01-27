@@ -525,7 +525,7 @@ export function PhaseContexto({
   const isRecentValidation = recentMessages.some(msg => msg.type === 'validation')
   
   const validationError = validationMessage && isRecentValidation
-    ? validationMessage.content.replace(/⚠️ \*\*.*?\*\*\n\n|❌ \*\*.*?\*\*\n\n/g, '').trim()
+    ? validationMessage.content.replace(/\u26A0\uFE0F \*\*.*?\*\*\n\n|\u274C \*\*.*?\*\*\n\n/g, '').trim()
     : null
 
   return (
