@@ -8,6 +8,7 @@
 import { Loader2 } from 'lucide-react'
 import { UsersSection } from './sections/users-section'
 import { RolesSection } from './sections/roles-section'
+import { ScenariosSection } from './sections/scenarios-section'
 import { CreditsSection } from './sections/credits-section'
 import { CostsSection } from './sections/costs-section'
 import { LogsSection } from './sections/logs-section'
@@ -40,6 +41,8 @@ export function AdminSectionRenderer({ activePath, isInModal = false }: AdminSec
         return <UsersSection isInModal={isInModal} />
       case 'roles':
         return <RolesSection isInModal={isInModal} />
+      case 'scenarios':
+        return <ScenariosSection isInModal={isInModal} />
       case 'credits':
         return <CreditsSection isInModal={isInModal} />
       case 'costs':

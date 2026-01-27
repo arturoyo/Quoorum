@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   LayoutDashboard,
   FileText,
+  Sparkles,
 } from "lucide-react"
 import type { LucideIcon } from 'lucide-react'
 
@@ -31,6 +32,7 @@ export function getAdminNav(currentPath: string): AdminNavItem[] {
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/users', label: 'Usuarios', icon: Users },
     { href: '/admin/roles', label: 'Roles y Permisos', icon: Shield },
+    { href: '/admin/scenarios', label: 'Escenarios', icon: Sparkles },
     { href: '/admin/credits', label: 'Créditos', icon: CreditCard },
     { href: '/admin/costs', label: 'Costos y Analytics', icon: BarChart3 },
     { href: '/admin/logs', label: 'Logs del Sistema', icon: FileText },
