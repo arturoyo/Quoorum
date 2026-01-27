@@ -18,6 +18,7 @@ export interface AgentConfig {
   name: string
   role: AgentRole
   prompt: string
+  systemPrompt?: string // System prompt for frameworks (distinct from regular prompt)
   provider: AIProviderType
   model: string
   temperature: number

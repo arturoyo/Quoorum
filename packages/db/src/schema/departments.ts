@@ -30,7 +30,7 @@ export const departments = pgTable('departments', {
     .notNull()
     .references(() => companies.id, { onDelete: 'cascade' }),
   parentId: uuid('parent_id')
-    .references((): any => departments.id, { onDelete: 'set null' }), // Self-reference for hierarchy
+    .references(() => departments.id, { onDelete: 'set null' }), // Self-reference for hierarchy
 
   // Department information
   name: varchar('name', { length: 100 }).notNull(), // "Finanzas", "Marketing", etc.

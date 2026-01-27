@@ -54,14 +54,14 @@ Analiza el debate completo y genera un informe ejecutivo que incluya:
 
 ## CRITERIOS DE CALIDAD
 
-✅ HACER:
+[OK] HACER:
 - Ignorar argumentos emocionales
 - Enfocarse en datos y hechos mencionados
 - Identificar patrones de consenso
 - Señalar riesgos que TODOS los expertos mencionaron
 - Ser honesto si no hay consenso claro
 
-❌ NO HACER:
+[ERROR] NO HACER:
 - Inventar datos que no estén en el debate
 - Favorecer a un agente sobre otro
 - Usar jerga sin explicar
@@ -156,7 +156,6 @@ export async function generateFinalSynthesis(
       modelId: 'gpt-4o', // Usar modelo potente para síntesis final
       temperature: 0.2, // Baja temperatura para precisión
       maxTokens: 2000,
-      responseFormat: 'json',
     })
 
     // Parse JSON response

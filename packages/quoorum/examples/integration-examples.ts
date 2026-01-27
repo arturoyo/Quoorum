@@ -200,7 +200,22 @@ export async function forceModeExample() {
 /**
  * Ejemplo de integración con API REST
  */
-export async function apiIntegrationExample(req: any, res: any) {
+interface RequestBody {
+  question: string
+  context?: unknown
+  sessionId: string
+}
+
+interface Request {
+  body: RequestBody
+}
+
+interface Response {
+  status(code: number): Response
+  json(data: unknown): void
+}
+
+export async function apiIntegrationExample(req: Request, res: Response) {
   try {
     const { question, context, sessionId } = req.body
 

@@ -181,7 +181,7 @@ export async function searchInternet(
     )
     
     if (!deductionResult.success) {
-      quoorumLogger.error('[Internet Search] Credit deduction failed', {
+      quoorumLogger.error('[Internet Search] Credit deduction failed', undefined, {
         userId,
         credits: INTERNET_SEARCH_CREDITS,
         error: deductionResult.error,

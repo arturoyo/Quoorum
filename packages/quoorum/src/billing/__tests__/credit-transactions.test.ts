@@ -86,7 +86,7 @@ describe('Credit Transactions - Basic Operations', () => {
     await deductCredits(TEST_USER_ID, 200)
 
     // Then refund
-    const result = await refundCredits(TEST_USER_ID, 50, 'test-debate-123', 'Test refund')
+    const result = await refundCredits(TEST_USER_ID, 50, 'test-debate-123', 'refund', 'Test refund')
 
     expect(result.success).toBe(true)
     expect(result.newBalance).toBe(850) // 1000 - 200 + 50
@@ -181,7 +181,7 @@ describe('Credit Transactions - Atomic Operations (Race Conditions)', () => {
     // Attempt concurrent deduction of 400 and refund of 200
     const [deductResult, refundResult] = await Promise.all([
       deductCredits(TEST_USER_ID, 400),
-      refundCredits(TEST_USER_ID, 200, 'test-debate', 'Test refund'),
+      refundCredits(TEST_USER_ID, 200, 'test-debate', 'refund', 'Test refund'),
     ])
 
     expect(deductResult.success).toBe(true)
@@ -228,7 +228,7 @@ describe('Credit Transactions - Edge Cases', () => {
     await deductCredits(TEST_USER_ID, INITIAL_CREDITS)
 
     // Refund some
-    const result = await refundCredits(TEST_USER_ID, 100, 'test-debate', 'Refund to zero balance')
+    const result = await refundCredits(TEST_USER_ID, 100, 'test-debate', 'refund', 'Refund to zero balance')
 
     expect(result.success).toBe(true)
     expect(result.newBalance).toBe(100)

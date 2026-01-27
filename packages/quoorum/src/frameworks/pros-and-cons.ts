@@ -207,7 +207,6 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
         `${contextPrompt}\n\nOutput format:\n{\n  "pros": [\n    {\n      "title": "...",\n      "description": "...",\n      "weight": 80\n    }\n  ]\n}`,
         {
           modelId: PROS_AGENT_CONFIG.model,
-          provider: PROS_AGENT_CONFIG.provider,
           temperature: PROS_AGENT_CONFIG.temperature,
           maxTokens: 2000,
         }
@@ -219,7 +218,6 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
         `${contextPrompt}\n\nOutput format:\n{\n  "cons": [\n    {\n      "title": "...",\n      "description": "...",\n      "weight": 70\n    }\n  ]\n}`,
         {
           modelId: CONS_AGENT_CONFIG.model,
-          provider: CONS_AGENT_CONFIG.provider,
           temperature: CONS_AGENT_CONFIG.temperature,
           maxTokens: 2000,
         }
@@ -231,7 +229,6 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
         `${contextPrompt}\n\nOutput format:\n{\n  "feasibility": "...",\n  "contextNotes": "..."\n}`,
         {
           modelId: ANALYST_AGENT_CONFIG.model,
-          provider: ANALYST_AGENT_CONFIG.provider,
           temperature: ANALYST_AGENT_CONFIG.temperature,
           maxTokens: 1500,
         }
@@ -274,7 +271,6 @@ Output format:
       synthesisPrompt,
       {
         modelId: SYNTHESIZER_AGENT_CONFIG.model,
-        provider: SYNTHESIZER_AGENT_CONFIG.provider,
         temperature: SYNTHESIZER_AGENT_CONFIG.temperature,
         maxTokens: 1000,
       }
@@ -300,7 +296,7 @@ Output format:
       executionTimeMs,
     }
   } catch (error) {
-    quoorumLogger.error('Failed to run Pros and Cons analysis', {
+    quoorumLogger.error('Failed to run Pros and Cons analysis', undefined, {
       error: error instanceof Error ? error.message : String(error),
       question: input.question,
     })

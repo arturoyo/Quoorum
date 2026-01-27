@@ -180,9 +180,10 @@ async function checkTypeScript(): Promise<DetectedError[]> {
 
     const output = stdout + stderr
     return parseTypeScriptErrors(output)
-  } catch (error: any) {
+  } catch (error: unknown) {
     // typecheck falla si hay errores (exit code != 0)
-    const output = error.stdout + error.stderr
+    const execError = error as { stdout: string; stderr: string }
+    const output = execError.stdout + execError.stderr
     return parseTypeScriptErrors(output)
   }
 }
@@ -198,8 +199,9 @@ async function checkESLint(): Promise<DetectedError[]> {
 
     const output = stdout + stderr
     return parseESLintErrors(output)
-  } catch (error: any) {
-    const output = error.stdout + error.stderr
+  } catch (error: unknown) {
+    const execError = error as { stdout: string; stderr: string }
+    const output = execError.stdout + execError.stderr
     return parseESLintErrors(output)
   }
 }
@@ -318,10 +320,10 @@ async function logToTimeline(fixes: FixResult[], remainingErrors: DetectedError[
 **Solicitado por:** Sistema (Auto-Healer Worker)
 **Descripción:** Monitoreo automático de errores y corrección de código
 **Acciones realizadas:**
-${fixes.map((fix) => `- ✅ ${fix.file}: ${fix.changes.join(', ')}`).join('\n')}
+${fixes.map((fix) => `- [OK] ${fix.file}: ${fix.changes.join(', ')}`).join('\n')}
 **Errores restantes:** ${remainingErrors.length}
-${remainingErrors.length > 0 ? `**Requieren atención manual:**\n${remainingErrors.slice(0, 5).map((err) => `- ⚠️ ${err.file}:${err.line ?? '?'} - ${err.message}`).join('\n')}` : ''}
-**Resultado:** ${fixes.length > 0 ? '✅ Correcciones aplicadas' : '⚠️ Sin correcciones posibles'}
+${remainingErrors.length > 0 ? `**Requieren atención manual:**\n${remainingErrors.slice(0, 5).map((err) => `- [WARN] ${err.file}:${err.line ?? '?'} - ${err.message}`).join('\n')}` : ''}
+**Resultado:** ${fixes.length > 0 ? '[OK] Correcciones aplicadas' : '[WARN] Sin correcciones posibles'}
 **Timestamp:** ${timestamp}
 ---
 `

@@ -197,7 +197,6 @@ export async function runEisenhowerMatrix(
       `${contextPrompt}\n\nOutput format:\n{\n  "tasks": [\n    {\n      "task": "...",\n      "quadrant": "Q1" | "Q2" | "Q3" | "Q4",\n      "urgency": 85,\n      "importance": 90,\n      "rationale": "...",\n      "recommendedAction": "..."\n    }\n  ]\n}`,
       {
         modelId: CLASSIFIER_AGENT_CONFIG.model,
-        provider: CLASSIFIER_AGENT_CONFIG.provider,
         temperature: CLASSIFIER_AGENT_CONFIG.temperature,
         maxTokens: 3000,
       }
@@ -250,7 +249,6 @@ Output format:
       priorityPrompt,
       {
         modelId: PRIORITY_AGENT_CONFIG.model,
-        provider: PRIORITY_AGENT_CONFIG.provider,
         temperature: PRIORITY_AGENT_CONFIG.temperature,
         maxTokens: 1000,
       }
@@ -280,7 +278,7 @@ Output format:
       executionTimeMs,
     }
   } catch (error) {
-    quoorumLogger.error('Failed to run Eisenhower Matrix analysis', {
+    quoorumLogger.error('Failed to run Eisenhower Matrix analysis', undefined, {
       error: error instanceof Error ? error.message : String(error),
       question: input.question,
     })

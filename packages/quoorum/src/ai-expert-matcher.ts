@@ -107,7 +107,6 @@ export async function matchExpertsWithAI(
       title: expert.title,
       expertise: expert.expertise,
       topics: expert.topics,
-      description: expert.description || '',
       perspective: expert.perspective || '',
     }))
 
