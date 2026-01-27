@@ -59,6 +59,15 @@ Se ha implementado completamente el sistema de **Escenarios de Oro (Decision Pla
    - ✅ Botón "Lanzar" que inicia debate con escenario
    - ✅ Link en AppHeader para acceso rápido
 
+8. **Panel Admin para Gestión de Escenarios**
+   - ✅ Sección completa en `/admin/scenarios`
+   - ✅ CRUD completo (Crear, Leer, Actualizar, Archivar)
+   - ✅ Filtros por segmento y estado
+   - ✅ Búsqueda de escenarios
+   - ✅ Editor de Master Prompt Template
+   - ✅ Visualización de estadísticas de uso
+   - ✅ Integrado en Admin Modal y navegación
+
 ---
 
 ## 🚀 Pasos para Activar
@@ -158,13 +167,19 @@ Deberías ver:
 4. Introducir caso/pregunta
 5. El sistema pre-configura expertos, framework y prompt automáticamente
 
-### Para Admins (Futuro)
+### Para Admins
 
-1. Ir a `/admin/scenarios` (pendiente de implementar)
-2. Crear/editar escenarios
-3. Configurar expertos, frameworks, prompts
-4. Definir success metrics
-5. Publicar escenario
+1. Ir a `/admin/scenarios` o abrir Admin Modal → Escenarios
+2. Crear nuevo escenario con botón "Nuevo Escenario"
+3. Editar escenarios existentes (click en icono de editar)
+4. Configurar:
+   - Nombre, descripción, segmento
+   - Master Prompt Template con variables
+   - Estado (Borrador/Activo/Archivado)
+   - Tier mínimo requerido
+   - Visibilidad pública
+5. Archivar escenarios (soft delete)
+6. Ver estadísticas de uso por escenario
 
 ---
 
@@ -181,6 +196,8 @@ Deberías ver:
 - `packages/quoorum/src/scenarios/apply-scenario.ts` - Función de aplicación
 - `packages/api/src/routers/scenarios.ts` - Router tRPC
 - `apps/web/src/app/scenarios/page.tsx` - UI de escenarios
+- `apps/web/src/components/admin/sections/scenarios-section.tsx` - Panel admin completo
+- `apps/web/src/app/admin/scenarios/page.tsx` - Página admin de escenarios
 
 ### Archivos Modificados
 
@@ -190,16 +207,18 @@ Deberías ver:
 - `packages/api/src/index.ts` - Añadido scenariosRouter a appRouter
 - `packages/api/src/routers/debates.ts` - Soporte para scenarioId
 - `apps/web/src/components/layout/app-header.tsx` - Link a escenarios
+- `apps/web/src/lib/admin-nav.ts` - Añadido "Escenarios" a navegación admin
+- `apps/web/src/components/admin/admin-section-renderer.tsx` - Renderer para sección scenarios
 
 ---
 
 ## 🔧 Próximos Pasos (Opcional)
 
-1. **Panel Admin para Editar Escenarios**
-   - UI en `/admin/scenarios`
-   - Editor de prompt templates con preview
-   - Selector visual de expertos
-   - Configuración de success metrics
+1. ~~**Panel Admin para Editar Escenarios**~~ ✅ **COMPLETADO**
+   - ✅ UI en `/admin/scenarios`
+   - ✅ Editor de prompt templates
+   - ⚠️ Selector visual de expertos (pendiente - actualmente se edita manualmente)
+   - ⚠️ Configuración avanzada de success metrics (pendiente - estructura básica implementada)
 
 2. **Extract Success Metrics Automáticamente**
    - Después del debate, extraer métricas usando los extractors definidos
