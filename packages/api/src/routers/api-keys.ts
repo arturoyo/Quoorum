@@ -89,7 +89,7 @@ export const apiKeysRouter = router({
         });
       }
 
-      // ⚠️ IMPORTANTE: Solo devolver la key AHORA
+      // [WARNING] IMPORTANTE: Solo devolver la key AHORA
       // No se podrá recuperar después
       return {
         id: created.id,

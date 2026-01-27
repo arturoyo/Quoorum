@@ -13,13 +13,15 @@
 
 import { exec } from 'child_process'
 import { promisify } from 'util'
-import { appendFile } from 'fs/promises'
+import { appendFile, readFile } from 'fs/promises'
+import { glob } from 'glob'
 import { inngest } from '../client'
 import { logger } from '../lib/logger'
 import {
   parseTypeScriptErrors,
   parseESLintErrors,
   parseBuildErrors,
+  parseEmojiErrors,
   type DetectedError,
 } from '../lib/error-parsers'
 import { applyAutoFix, type FixResult } from '../lib/auto-fix-appliers'
@@ -76,11 +78,17 @@ export const nextjsAutoHealer = inngest.createFunction(
       return await checkBuild()
     })
 
+    // Step 4: Check for emojis in log statements (Windows UTF-8 issue)
+    const emojiErrors = await step.run('check-emojis', async () => {
+      return await checkEmojisInLogs()
+    })
+
     // Combinar todos los errores
-    const allErrors = [...typescriptErrors, ...eslintErrors, ...buildErrors]
+    const allErrors = [...typescriptErrors, ...eslintErrors, ...buildErrors, ...emojiErrors]
 
     if (allErrors.length === 0) {
-      logger.info('[Auto-Healer] No errors detected. System healthy ✅')
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      logger.info('[Auto-Healer] No errors detected. System healthy [OK]')
       return {
         success: true,
         errorsFound: 0,
@@ -95,7 +103,7 @@ export const nextjsAutoHealer = inngest.createFunction(
       build: buildErrors.length,
     })
 
-    // Step 4: Clasificar errores por auto-fixability
+    // Step 5: Clasificar errores por auto-fixability
     const fixableErrors = allErrors.filter(
       (err) => err.autoFixable && AUTO_HEAL_CONFIG.autoFixSeverities.includes(err.severity)
     )
@@ -116,24 +124,24 @@ export const nextjsAutoHealer = inngest.createFunction(
       }
     }
 
-    // Step 5: Aplicar fixes automáticos
+    // Step 6: Aplicar fixes automáticos
     const fixResults = await step.run('apply-auto-fixes', async () => {
       return await applyAutoFixes(fixableErrors.slice(0, AUTO_HEAL_CONFIG.maxFixesPerRun))
     })
 
     const successfulFixes = fixResults.filter((r) => r.success)
 
-    // Step 6: Re-verificar después de fixes
+    // Step 7: Re-verificar después de fixes
     const remainingErrors = await step.run('re-verify', async () => {
       return await reVerify()
     })
 
-    // Step 7: Registrar en TIMELINE.md
+    // Step 8: Registrar en TIMELINE.md
     await step.run('log-to-timeline', async () => {
       await logToTimeline(successfulFixes, remainingErrors)
     })
 
-    // Step 8: Notificar resultados
+    // Step 9: Notificar resultados
     await step.run('notify-results', async () => {
       await notifyHealingResults(successfulFixes, remainingErrors)
     })
@@ -203,6 +211,38 @@ async function checkBuild(): Promise<DetectedError[]> {
   // Build es costoso, solo ejecutar si detectamos cambios recientes
   // Por ahora, retornar vacío y dejar para futuro
   return []
+}
+
+/**
+ * Escanea archivos en busca de emojis en console.log/error/warn/info/debug y Write-Host
+ * Detecta el problema UTF-8 en Windows console
+ */
+async function checkEmojisInLogs(): Promise<DetectedError[]> {
+  try {
+    // Archivos a escanear (TypeScript, JavaScript, PowerShell)
+    const patterns = [
+      'apps/web/src/**/*.{ts,tsx,js,jsx}',
+      'packages/**/src/**/*.{ts,tsx,js,jsx}',
+      'scripts/**/*.{ps1,psm1}',
+      'apps/web/scripts/**/*.{js,ts}',
+    ]
+
+    const allFiles: string[] = []
+    for (const pattern of patterns) {
+      const files = await glob(pattern, {
+        ignore: ['**/node_modules/**', '**/.next/**', '**/dist/**', '**/*.test.{ts,tsx,js,jsx}'],
+      })
+      allFiles.push(...files)
+    }
+
+    // Usar parseEmojiErrors con readFile
+    return await parseEmojiErrors(allFiles, async (path: string) => {
+      return await readFile(path, 'utf-8')
+    })
+  } catch (error) {
+    logger.error('[Auto-Healer] Error scanning for emojis', error as Error)
+    return []
+  }
 }
 
 /**
@@ -312,7 +352,8 @@ async function notifyHealingResults(
   }
 
   if (remainingErrors.length > 0) {
-    logger.warn('[Auto-Healer] ⚠️ Manual intervention required', {
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    logger.warn('[Auto-Healer] [WARN] Manual intervention required', {
       errorCount: remainingErrors.length,
       criticalErrors: remainingErrors.filter((e) => e.severity === 'dangerous').length,
     })
@@ -372,10 +413,16 @@ export const nextjsAutoHealerManual = inngest.createFunction(
       return await checkBuild()
     })
 
-    const allErrors = [...typescriptErrors, ...eslintErrors, ...buildErrors]
+    // Step 4: Check for emojis in log statements (Windows UTF-8 issue)
+    const emojiErrors = await step.run('check-emojis', async () => {
+      return await checkEmojisInLogs()
+    })
+
+    const allErrors = [...typescriptErrors, ...eslintErrors, ...buildErrors, ...emojiErrors]
 
     if (allErrors.length === 0) {
-      logger.info('[Auto-Healer] No errors detected. System healthy ✅')
+      // Removed emoji to avoid UTF-8 encoding issues on Windows
+      logger.info('[Auto-Healer] No errors detected. System healthy [OK]')
       return { success: true, errorsFound: 0, errorsFixed: 0 }
     }
 

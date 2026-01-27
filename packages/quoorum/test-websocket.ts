@@ -35,12 +35,12 @@ async function testWebSocketServer() {
 
     await new Promise<void>((resolve, reject) => {
       client.on('open', () => {
-        console.log('   ✅ Client connected successfully')
+        console.log('   [OK] Client connected successfully')
         passedTests++
         resolve()
       })
       client.on('error', (err) => {
-        console.log(`   ❌ Connection failed: ${err.message}`)
+        console.log(`   [ERROR] Connection failed: ${err.message}`)
         reject(err)
       })
       setTimeout(() => reject(new Error('Connection timeout')), 5000)
@@ -53,13 +53,13 @@ async function testWebSocketServer() {
       client.on('message', (data) => {
         const message = JSON.parse(data.toString())
         if (message.type === 'connected') {
-          console.log('   ✅ Received welcome message')
+          console.log('   [OK] Received welcome message')
           passedTests++
           resolve()
         }
       })
       setTimeout(() => {
-        console.log('   ⚠️ No welcome message received (may have been received earlier)')
+        console.log('   [WARN] No welcome message received (may have been received earlier)')
         passedTests++ // Count as pass since connection worked
         resolve()
       }, 1000)
@@ -75,7 +75,7 @@ async function testWebSocketServer() {
       const messageHandler = (data: WebSocket.Data) => {
         const message = JSON.parse(data.toString())
         if (message.type === 'subscribed' && message.debateId === debateId) {
-          console.log('   ✅ Successfully subscribed to debate')
+          console.log('   [OK] Successfully subscribed to debate')
           passedTests++
           client.off('message', messageHandler)
           resolve()
@@ -83,7 +83,7 @@ async function testWebSocketServer() {
       }
       client.on('message', messageHandler)
       setTimeout(() => {
-        console.log('   ❌ Subscription confirmation not received')
+        console.log('   [ERROR] Subscription confirmation not received')
         client.off('message', messageHandler)
         resolve()
       }, 2000)
@@ -98,7 +98,7 @@ async function testWebSocketServer() {
       const messageHandler = (data: WebSocket.Data) => {
         const message = JSON.parse(data.toString())
         if (message.type === 'pong') {
-          console.log('   ✅ Received pong response')
+          console.log('   [OK] Received pong response')
           passedTests++
           client.off('message', messageHandler)
           resolve()
@@ -106,7 +106,7 @@ async function testWebSocketServer() {
       }
       client.on('message', messageHandler)
       setTimeout(() => {
-        console.log('   ❌ Pong not received')
+        console.log('   [ERROR] Pong not received')
         client.off('message', messageHandler)
         resolve()
       }, 2000)
@@ -121,7 +121,7 @@ async function testWebSocketServer() {
       const messageHandler = (data: WebSocket.Data) => {
         const message = JSON.parse(data.toString())
         if (message.type === 'round_complete' && message.debateId === debateId) {
-          console.log('   ✅ Received broadcast update')
+          console.log('   [OK] Received broadcast update')
           passedTests++
           client.off('message', messageHandler)
           resolve()
@@ -129,7 +129,7 @@ async function testWebSocketServer() {
       }
       client.on('message', messageHandler)
       setTimeout(() => {
-        console.log('   ❌ Broadcast update not received')
+        console.log('   [ERROR] Broadcast update not received')
         client.off('message', messageHandler)
         resolve()
       }, 2000)
@@ -153,7 +153,7 @@ async function testWebSocketServer() {
       const messageHandler = (data: WebSocket.Data) => {
         const message = JSON.parse(data.toString())
         if (message.type === 'unsubscribed' && message.debateId === debateId) {
-          console.log('   ✅ Successfully unsubscribed from debate')
+          console.log('   [OK] Successfully unsubscribed from debate')
           passedTests++
           client.off('message', messageHandler)
           resolve()
@@ -161,7 +161,7 @@ async function testWebSocketServer() {
       }
       client.on('message', messageHandler)
       setTimeout(() => {
-        console.log('   ❌ Unsubscribe confirmation not received')
+        console.log('   [ERROR] Unsubscribe confirmation not received')
         client.off('message', messageHandler)
         resolve()
       }, 2000)
@@ -170,7 +170,7 @@ async function testWebSocketServer() {
     // Cleanup
     client.close()
   } catch (error) {
-    console.log(`   ❌ Test failed: ${error}`)
+    console.log(`   [ERROR] Test failed: ${error}`)
   }
 
   // Close server
@@ -190,7 +190,7 @@ testWebSocketServer()
     if (!success) {
       process.exit(1)
     }
-    console.log('\n✅ All WebSocket tests passed!\n')
+    console.log('\n[OK] All WebSocket tests passed!\n')
     process.exit(0)
   })
   .catch((error) => {

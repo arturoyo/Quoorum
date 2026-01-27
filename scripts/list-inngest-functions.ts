@@ -4,7 +4,7 @@
 
 import { quoorumFunctions } from '../packages/workers/src/index'
 
-console.log('📋 Inngest Functions Registered:\n')
+console.log('[INFO] Inngest Functions Registered:\n')
 console.log(`Total: ${quoorumFunctions.length} functions\n`)
 
 quoorumFunctions.forEach((fn, index) => {

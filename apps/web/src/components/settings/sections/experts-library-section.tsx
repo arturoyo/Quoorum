@@ -96,7 +96,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
     { enabled: isAuthenticated }
   )
 
-  // ⚠️ Fork deshabilitado - expertos personalizados eliminados
+  // [WARNING] Fork deshabilitado - expertos personalizados eliminados
   const forkExpert = api.experts.forkFromLibrary.useMutation({
     onSuccess: () => {},
     onError: () => {},

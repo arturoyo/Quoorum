@@ -77,12 +77,12 @@ function expertProfileToExpert(expert: ExpertProfile) {
  * Seed experts library from EXPERT_DATABASE
  */
 async function seedExpertsLibrary() {
-  console.log('🌱 Seeding experts library...')
+  console.log('[SEED] Seeding experts library...')
 
   try {
     // Get all experts from EXPERT_DATABASE
     const expertProfiles = getAllExperts()
-    console.log(`📚 Found ${expertProfiles.length} experts in EXPERT_DATABASE`)
+    console.log(`[INFO] Found ${expertProfiles.length} experts in EXPERT_DATABASE`)
 
     // Check how many already exist in DB
     const existingExperts = await db
@@ -90,7 +90,7 @@ async function seedExpertsLibrary() {
       .from(experts)
       .where(isNull(experts.userId))
 
-    console.log(`📊 Found ${existingExperts.length} existing library experts in DB`)
+    console.log(`[INFO] Found ${existingExperts.length} existing library experts in DB`)
 
     // Convert to experts table format
     const expertsToInsert = expertProfiles.map(expertProfileToExpert)
@@ -117,13 +117,13 @@ async function seedExpertsLibrary() {
         await db.insert(experts).values(expert)
         inserted++
       } catch (error) {
-        console.error(`❌ Error inserting expert ${expert.name}:`, error)
+        console.error(`[ERROR] Error inserting expert ${expert.name}:`, error)
       }
     }
 
-    console.log(`✅ Inserted ${inserted} new experts`)
+    console.log(`[OK] Inserted ${inserted} new experts`)
     if (skipped > 0) {
-      console.log(`⏭️  Skipped ${skipped} existing experts`)
+      console.log(`[INFO] Skipped ${skipped} existing experts`)
     }
 
     // Verify final count
@@ -132,10 +132,10 @@ async function seedExpertsLibrary() {
       .from(experts)
       .where(isNull(experts.userId))
 
-    console.log(`📊 Final library experts count: ${finalCount.length}`)
-    console.log('✅ Experts library seed complete!')
+    console.log(`[INFO] Final library experts count: ${finalCount.length}`)
+    console.log('[OK] Experts library seed complete!')
   } catch (error) {
-    console.error('❌ Error seeding experts library:', error)
+    console.error('[ERROR] Error seeding experts library:', error)
     throw error
   }
 }
@@ -144,11 +144,11 @@ async function seedExpertsLibrary() {
 if (import.meta.url.endsWith(process.argv[1]?.replace(/\\/g, '/')) || import.meta.url.includes('seed-experts.ts')) {
   seedExpertsLibrary()
     .then(() => {
-      console.log('🎉 Seed completed successfully')
+      console.log('[OK] Seed completed successfully')
       process.exit(0)
     })
     .catch((error) => {
-      console.error('💥 Seed failed:', error)
+      console.error('[ERROR] Seed failed:', error)
       process.exit(1)
     })
 }

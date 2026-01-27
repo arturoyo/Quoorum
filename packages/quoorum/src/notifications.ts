@@ -150,13 +150,15 @@ async function sendInAppNotification(userId: string, debate: DebateResult): Prom
       quoorumLogger.warn('WebSocket not available for notification', {})
     }
 
-    quoorumLogger.info('✅ In-app notification sent successfully', {
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    quoorumLogger.info('[OK] In-app notification sent successfully', {
       userId,
       debateId: debate.sessionId,
       type: 'debate_completed',
     })
   } catch (error) {
-    quoorumLogger.error('❌ Failed to send in-app notification', error instanceof Error ? error : new Error(String(error)), {
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    quoorumLogger.error('[ERROR] Failed to send in-app notification', error instanceof Error ? error : new Error(String(error)), {
       userId,
       debateId: debate.sessionId,
     })
@@ -410,14 +412,16 @@ export async function notifyQualityIssue(
       },
     })
 
-    quoorumLogger.info('✅ Quality issue notification sent', {
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    quoorumLogger.info('[OK] Quality issue notification sent', {
       debateId,
       issueType,
       severity,
       userId,
     })
   } catch (error) {
-    quoorumLogger.error('❌ Failed to send quality issue notification', error instanceof Error ? error : new Error(String(error)), {
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    quoorumLogger.error('[ERROR] Failed to send quality issue notification', error instanceof Error ? error : new Error(String(error)), {
       debateId,
       issueType,
       severity,
@@ -454,13 +458,15 @@ export async function notifyIntervention(
       },
     })
 
-    quoorumLogger.info('✅ Intervention notification sent', {
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    quoorumLogger.info('[OK] Intervention notification sent', {
       debateId,
       interventionType,
       userId,
     })
   } catch (error) {
-    quoorumLogger.error('❌ Failed to send intervention notification', error instanceof Error ? error : new Error(String(error)), {
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    quoorumLogger.error('[ERROR] Failed to send intervention notification', error instanceof Error ? error : new Error(String(error)), {
       debateId,
       interventionType,
       userId,

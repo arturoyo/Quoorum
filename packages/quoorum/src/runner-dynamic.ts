@@ -110,7 +110,8 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       options.selectedDepartmentIds,
       options.userTier || 'free'
     )
-    quoorumLogger.info('🎯 Debate Mode Determined', {
+    // Removed emoji to avoid UTF-8 encoding issues on Windows
+    quoorumLogger.info('[INFO] Debate Mode Determined', {
       mode: debateMode.mode,
       estimatedRounds: debateMode.estimatedRounds,
       reason: debateMode.reason,

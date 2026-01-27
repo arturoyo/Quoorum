@@ -258,7 +258,7 @@ export async function POST(request: Request) {
 
             // Admin notification for large purchases (>10,000 credits)
             if (creditsToAdd > 10000) {
-              logWarning(`🚨 LARGE CREDIT PURCHASE: ${creditsToAdd} credits purchased by user ${userId}`, {
+              logWarning(`[ALERT] LARGE CREDIT PURCHASE: ${creditsToAdd} credits purchased by user ${userId}`, {
                 userId,
                 credits: creditsToAdd,
                 amountUsd: session.amount_total ? session.amount_total / 100 : 0,
@@ -422,7 +422,7 @@ export async function POST(request: Request) {
             .where(eq(users.id, sub.userId));
 
           // Admin notification for subscription cancellation
-          logWarning(`🚨 SUBSCRIPTION CANCELED: User ${sub.userId} canceled subscription`, {
+          logWarning(`[ALERT] SUBSCRIPTION CANCELED: User ${sub.userId} canceled subscription`, {
             userId: sub.userId,
             previousPlanId: sub.planId,
             stripeCustomerId: customerId,

@@ -87,7 +87,7 @@ export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
     checkAuth()
   }, [router, supabase.auth, isInModal])
 
-  // ⚠️ EXPERTOS PERSONALES ELIMINADOS
+  // [WARNING] EXPERTOS PERSONALES ELIMINADOS
   // Los expertos personalizados han sido eliminados del sistema
   // Solo se usan expertos del sistema (EXPERT_DATABASE)
   const { data: experts = [], isLoading = false } = api.experts.myExperts.useQuery(

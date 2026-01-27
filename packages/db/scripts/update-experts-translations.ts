@@ -49,12 +49,12 @@ function mapCategory(expertId: string, oldCategory: string | undefined): string 
  * Update library experts with translations from EXPERT_DATABASE
  */
 async function updateExpertsTranslations() {
-  console.log('🌍 Actualizando traducciones de expertos...')
+  console.log('[UPDATE] Actualizando traducciones de expertos...')
 
   try {
     // Get all experts from EXPERT_DATABASE
     const expertProfiles = getAllExperts()
-    console.log(`📚 Found ${expertProfiles.length} experts in EXPERT_DATABASE`)
+    console.log(`[INFO] Found ${expertProfiles.length} experts in EXPERT_DATABASE`)
 
     // Get all library experts from DB
     const libraryExperts = await db
@@ -62,7 +62,7 @@ async function updateExpertsTranslations() {
       .from(experts)
       .where(isNull(experts.userId))
 
-    console.log(`📊 Found ${libraryExperts.length} library experts in DB`)
+    console.log(`[INFO] Found ${libraryExperts.length} library experts in DB`)
 
     let updated = 0
     let skipped = 0
@@ -101,20 +101,20 @@ async function updateExpertsTranslations() {
           .where(eq(experts.id, dbExpert.id))
 
         updated++
-        console.log(`✅ Updated: ${expertProfile.name}`)
+        console.log(`[OK] Updated: ${expertProfile.name}`)
       } catch (error) {
-        console.error(`❌ Error updating expert ${expertProfile.name}:`, error)
+        console.error(`[ERROR] Error updating expert ${expertProfile.name}:`, error)
       }
     }
 
-    console.log(`✅ Updated ${updated} experts`)
+    console.log(`[OK] Updated ${updated} experts`)
     if (skipped > 0) {
-      console.log(`⏭️  Skipped ${skipped} experts (not found in DB)`)
+      console.log(`[INFO] Skipped ${skipped} experts (not found in DB)`)
     }
 
-    console.log('✅ Experts translations update complete!')
+    console.log('[OK] Experts translations update complete!')
   } catch (error) {
-    console.error('❌ Error updating experts translations:', error)
+    console.error('[ERROR] Error updating experts translations:', error)
     throw error
   }
 }
@@ -123,11 +123,11 @@ async function updateExpertsTranslations() {
 if (import.meta.url.endsWith(process.argv[1]?.replace(/\\/g, '/')) || import.meta.url.includes('update-experts-translations.ts')) {
   updateExpertsTranslations()
     .then(() => {
-      console.log('🎉 Translations update completed successfully')
+      console.log('[OK] Translations update completed successfully')
       process.exit(0)
     })
     .catch((error) => {
-      console.error('💥 Translations update failed:', error)
+      console.error('[ERROR] Translations update failed:', error)
       process.exit(1)
     })
 }

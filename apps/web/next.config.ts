@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // ⚠️ DESCOMENTAR cuando instales Sentry (ver SENTRY_SETUP.md)
+  // [WARNING] DESCOMENTAR cuando instales Sentry (ver SENTRY_SETUP.md)
   // experimental: {
   //   instrumentationHook: true,
   // },

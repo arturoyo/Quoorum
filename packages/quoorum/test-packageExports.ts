@@ -32,13 +32,13 @@ async function testPackageExports() {
 
     const missingExports = requiredExports.filter(exp => !(exp in mainExports))
     if (missingExports.length === 0) {
-      console.log('   ✅ All required exports found')
+      console.log('   [OK] All required exports found')
       passedTests++
     } else {
-      console.log(`   ❌ Missing exports: ${missingExports.join(', ')}`)
+      console.log(`   [ERROR] Missing exports: ${missingExports.join(', ')}`)
     }
   } catch (error) {
-    console.log(`   ❌ Import failed: ${error}`)
+    console.log(`   [ERROR] Import failed: ${error}`)
   }
 
   // Test 2: Runner export
@@ -47,13 +47,13 @@ async function testPackageExports() {
   try {
     const runner = await import('./src/runner.ts')
     if ('runDebate' in runner && typeof runner.runDebate === 'function') {
-      console.log('   ✅ runDebate function exported correctly')
+      console.log('   [OK] runDebate function exported correctly')
       passedTests++
     } else {
-      console.log('   ❌ runDebate not found or not a function')
+      console.log('   [ERROR] runDebate not found or not a function')
     }
   } catch (error) {
-    console.log(`   ❌ Import failed: ${error}`)
+    console.log(`   [ERROR] Import failed: ${error}`)
   }
 
   // Test 3: Runner-dynamic export
@@ -62,13 +62,13 @@ async function testPackageExports() {
   try {
     const runnerDynamic = await import('./src/runner-dynamic.ts')
     if ('runDebate' in runnerDynamic && typeof runnerDynamic.runDebate === 'function') {
-      console.log('   ✅ runDebate (dynamic) function exported correctly')
+      console.log('   [OK] runDebate (dynamic) function exported correctly')
       passedTests++
     } else {
-      console.log('   ❌ runDebate (dynamic) not found or not a function')
+      console.log('   [ERROR] runDebate (dynamic) not found or not a function')
     }
   } catch (error) {
-    console.log(`   ❌ Import failed: ${error}`)
+    console.log(`   [ERROR] Import failed: ${error}`)
   }
 
   // Test 4: Expert database export
@@ -78,13 +78,13 @@ async function testPackageExports() {
     const expertDb = await import('./src/expert-database/index.ts')
     if ('EXPERT_DATABASE' in expertDb && typeof expertDb.EXPERT_DATABASE === 'object') {
       const expertCount = Object.keys(expertDb.EXPERT_DATABASE).length
-      console.log(`   ✅ EXPERT_DATABASE exported with ${expertCount} experts`)
+      console.log(`   [OK] EXPERT_DATABASE exported with ${expertCount} experts`)
       passedTests++
     } else {
-      console.log('   ❌ EXPERT_DATABASE not found or not an object')
+      console.log('   [ERROR] EXPERT_DATABASE not found or not an object')
     }
   } catch (error) {
-    console.log(`   ❌ Import failed: ${error}`)
+    console.log(`   [ERROR] Import failed: ${error}`)
   }
 
   // Test 5: Quality monitor export
@@ -93,13 +93,13 @@ async function testPackageExports() {
   try {
     const qualityMonitor = await import('./src/quality-monitor.ts')
     if ('analyzeDebateQuality' in qualityMonitor) {
-      console.log('   ✅ Quality monitor functions exported')
+      console.log('   [OK] Quality monitor functions exported')
       passedTests++
     } else {
-      console.log('   ❌ analyzeDebateQuality not found')
+      console.log('   [ERROR] analyzeDebateQuality not found')
     }
   } catch (error) {
-    console.log(`   ❌ Import failed: ${error}`)
+    console.log(`   [ERROR] Import failed: ${error}`)
   }
 
   // Test 6: Meta-moderator export
@@ -108,13 +108,13 @@ async function testPackageExports() {
   try {
     const metaMod = await import('./src/meta-moderator.ts')
     if ('shouldIntervene' in metaMod && 'generateIntervention' in metaMod) {
-      console.log('   ✅ Meta-moderator functions exported')
+      console.log('   [OK] Meta-moderator functions exported')
       passedTests++
     } else {
-      console.log('   ❌ Meta-moderator functions not found')
+      console.log('   [ERROR] Meta-moderator functions not found')
     }
   } catch (error) {
-    console.log(`   ❌ Import failed: ${error}`)
+    console.log(`   [ERROR] Import failed: ${error}`)
   }
 
   // Test 7: Learning system export
@@ -123,13 +123,13 @@ async function testPackageExports() {
   try {
     const learning = await import('./src/learning-system.ts')
     if ('getExpertPerformance' in learning && 'updateExpertPerformance' in learning) {
-      console.log('   ✅ Learning system functions exported')
+      console.log('   [OK] Learning system functions exported')
       passedTests++
     } else {
-      console.log('   ❌ Learning system functions not found')
+      console.log('   [ERROR] Learning system functions not found')
     }
   } catch (error) {
-    console.log(`   ❌ Import failed: ${error}`)
+    console.log(`   [ERROR] Import failed: ${error}`)
   }
 
   // Test 8: Types export
@@ -139,10 +139,10 @@ async function testPackageExports() {
     const types = await import('./src/types.ts')
     const requiredTypes = ['DebateResult', 'DebateRound', 'DebateMessage']
     // Note: Types are compile-time only, we just verify the module loads
-    console.log('   ✅ Types module loads correctly')
+    console.log('   [OK] Types module loads correctly')
     passedTests++
   } catch (error) {
-    console.log(`   ❌ Import failed: ${error}`)
+    console.log(`   [ERROR] Import failed: ${error}`)
   }
 
   // Summary
@@ -159,7 +159,7 @@ testPackageExports()
     if (!success) {
       process.exit(1)
     }
-    console.log('\n✅ All package export tests passed!\n')
+    console.log('\n[OK] All package export tests passed!\n')
   })
   .catch(error => {
     console.error('Test error:', error)

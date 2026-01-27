@@ -17,6 +17,9 @@ try {
 }
 
 const createContext = async (opts?: FetchCreateContextFnOptions) => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:19',message:'createContext ENTRY',data:{hasOpts:!!opts,hasReq:!!opts?.req},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+  // #endregion
   try {
     // Get cookies from request headers
     const cookieHeader = opts?.req.headers.get("cookie") || "";
@@ -24,9 +27,20 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
 
     if (cookieHeader) {
       cookieHeader.split(";").forEach((cookie) => {
-        const [name, value] = cookie.trim().split("=");
-        if (name && value) {
-          cookies[name] = decodeURIComponent(value);
+        const trimmed = cookie.trim();
+        const equalIndex = trimmed.indexOf("=");
+        if (equalIndex > 0) {
+          const name = trimmed.substring(0, equalIndex).trim();
+          const value = trimmed.substring(equalIndex + 1).trim();
+          if (name && value) {
+            // Handle URL-encoded values (e.g., test%40quoorum.pro -> test@quoorum.pro)
+            try {
+              cookies[name] = decodeURIComponent(value);
+            } catch {
+              // If decode fails, use raw value
+              cookies[name] = value;
+            }
+          }
         }
       });
     }
@@ -34,6 +48,13 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
     // PostgreSQL-only mode: Get user email from cookie
     // Support both test-auth-bypass and user-email cookies
     const userEmail = cookies['test-auth-bypass'] || cookies['user-email'] || null;
+
+    // Debug: Log cookie parsing
+    systemLogger.debug("[tRPC Context] Cookie parsing", {
+      cookieHeader: cookieHeader.substring(0, 100), // First 100 chars
+      cookiesKeys: Object.keys(cookies),
+      userEmail,
+    });
 
     if (!userEmail) {
       systemLogger.debug("[tRPC Context] No user email in cookies - unauthenticated");
@@ -49,6 +70,26 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
     systemLogger.debug("[tRPC Context] PostgreSQL-only mode - looking up user", { email: userEmail });
 
     // Find profile in PostgreSQL local by email
+    // Debug: Test database connection first
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:70',message:'Before DB connection test',data:{userEmail,dbExists:!!db},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    try {
+      const testQueryStart = Date.now();
+      const testQuery = await db.select({ count: sql<number>`count(*)` }).from(profiles).limit(1);
+      const testQueryTime = Date.now() - testQueryStart;
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:73',message:'DB connection test SUCCESS',data:{profilesCount:testQuery[0]?.count,queryTimeMs:testQueryTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      systemLogger.debug("[tRPC Context] Database connection test successful", { profilesCount: testQuery[0]?.count });
+    } catch (dbError) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:76',message:'DB connection test FAILED',data:{errorMessage:(dbError as Error).message,errorName:(dbError as Error).name,errorStack:(dbError as Error).stack?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      systemLogger.error("[tRPC Context] Database connection test failed", dbError as Error);
+      throw dbError;
+    }
+
     const [profile] = await db
       .select()
       .from(profiles)
@@ -157,6 +198,9 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       authUserId: profile.userId, // Original user ID from auth system (if any)
     };
   } catch (error) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:187',message:'createContext ERROR',data:{errorMessage:(error as Error).message,errorName:(error as Error).name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     systemLogger.error("[tRPC Context] Error creating context", error as Error);
     return {
       db,
@@ -169,6 +213,9 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
 };
 
 const handler = async (req: Request) => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:195',message:'tRPC handler ENTRY',data:{method:req.method,url:req.url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
   try {
     // HEAD: health check; responder 200 sin ejecutar tRPC
     if (req.method === "HEAD") {
@@ -182,7 +229,19 @@ const handler = async (req: Request) => {
       onError(opts) {
         const { error, path, type, input } = opts;
         const is500 = error.code === "INTERNAL_SERVER_ERROR";
+        const isUnauthorized = error.code === "UNAUTHORIZED";
         const err = error.cause instanceof Error ? error.cause : error;
+
+        // No loggear errores UNAUTHORIZED - son esperados cuando el usuario no está autenticado
+        // Las queries del frontend usan `enabled: false` para evitar ejecutarlas sin auth,
+        // pero algunos errores pueden llegar aquí durante SSR o prefetch
+        if (isUnauthorized) {
+          // Solo loggear en modo debug si es necesario
+          systemLogger.debug(
+            `[tRPC] UNAUTHORIZED on ${type} ${path ?? "(no path)"} - expected when user not authenticated`
+          );
+          return;
+        }
 
         systemLogger.error(
           `[tRPC] ${error.code} on ${type} ${path ?? "(no path)"}: ${error.message}`,
@@ -196,14 +255,8 @@ const handler = async (req: Request) => {
           }
         );
 
-        if (is500 && process.env.NODE_ENV === "development") {
-          // eslint-disable-next-line no-console
-          console.error("[tRPC 500] path:", path, "| message:", error.message);
-          if (error.cause) {
-            // eslint-disable-next-line no-console
-            console.error("[tRPC 500] cause:", error.cause);
-          }
-        }
+        // Removed console.error to avoid UTF-8 encoding issues on Windows
+        // Errors are already logged via systemLogger.error above
       },
     });
   } catch (error) {
