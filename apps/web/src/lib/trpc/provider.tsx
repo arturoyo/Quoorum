@@ -112,17 +112,24 @@ if (typeof window !== 'undefined' && !(console.error as { __intercepted?: boolea
           return true;
         }
         // Verificar NETWORK (Failed to fetch)
-        if (arg.includes('Failed to fetch') || 
+        if (arg.includes('Failed to fetch') ||
             arg.includes('failed to fetch') ||
             arg.includes('NetworkError') ||
             arg.includes('network error')) {
           return true;
         }
+        // Verificar NOT_FOUND
+        if (arg.includes('NOT_FOUND') ||
+            arg.includes('404') ||
+            arg.includes('no encontrado') ||
+            arg.includes('not found')) {
+          return true;
+        }
       }
       return false;
     });
-    
-    // Si es un error esperado (PAYMENT_REQUIRED o UNAUTHORIZED), no loggearlo
+
+    // Si es un error esperado (PAYMENT_REQUIRED, UNAUTHORIZED, NETWORK o NOT_FOUND), no loggearlo
     if (hasExpectedError) {
       return;
     }
