@@ -215,32 +215,34 @@ export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
             Ver Biblioteca de Expertos
           </Button>
         </Link>
-        {/* Botón de crear deshabilitado - expertos personalizados eliminados */}
-        {/* Dialog deshabilitado - expertos personalizados eliminados */}
-        {false && (
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open)
-            if (!open) {
-              resetForm()
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button className="bg-purple-600 hover:bg-purple-700" disabled>
-                <Plus className="mr-2 h-4 w-4" />
-                Crear Experto
-              </Button>
-            </DialogTrigger>
-          <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl text-[var(--theme-text-primary)]">
-            <DialogHeader className="border-b-0 pb-0">
-              <DialogTitle className="text-[var(--theme-text-primary)]">
-                {editingExpert ? 'Editar Experto' : 'Crear Nuevo Experto'}
-              </DialogTitle>
-              <DialogDescription className="text-[var(--theme-text-tertiary)]">
-                Define el nombre, expertise, prompt del sistema y configuración AI
-              </DialogDescription>
-            </DialogHeader>
+        <Button 
+          className="bg-purple-600 hover:bg-purple-700"
+          onClick={() => {
+            resetForm()
+            setIsDialogOpen(true)
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Crear Experto
+        </Button>
+      </div>
 
-            <DialogBody className="space-y-4">
+      {/* Dialog para crear/editar expertos */}
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open)
+        if (!open) {
+          resetForm()
+        }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-6">
+          <DialogHeader>
+            <DialogTitle>{editingExpert ? 'Editar Experto' : 'Crear Nuevo Experto'}</DialogTitle>
+            <DialogDescription className="text-[var(--theme-text-tertiary)]">
+              Define el nombre, expertise, prompt del sistema y configuración AI
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-[var(--theme-text-secondary)]">Nombre *</Label>
                 <Input
@@ -355,35 +357,33 @@ export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
                   className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
                 />
               </div>
-            </DialogBody>
+          </div>
 
-            <DialogFooter className="border-t-0 pt-0">
-              <Button
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleCreate}
-                disabled={createExpert.isPending || updateExpert.isPending}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                {(createExpert.isPending || updateExpert.isPending) ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : editingExpert ? (
-                  <Edit className="mr-2 h-4 w-4" />
-                ) : (
-                  <Plus className="mr-2 h-4 w-4" />
-                )}
-                {editingExpert ? 'Actualizar' : 'Crear'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-          </Dialog>
-        )}
-      </div>
+          <DialogFooter className="border-t border-[var(--theme-border)] pt-4 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleCreate}
+              disabled={createExpert.isPending || updateExpert.isPending}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              {(createExpert.isPending || updateExpert.isPending) ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : editingExpert ? (
+                <Edit className="mr-2 h-4 w-4" />
+              ) : (
+                <Plus className="mr-2 h-4 w-4" />
+              )}
+              {editingExpert ? 'Actualizar' : 'Crear'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* [WARN] EXPERTOS PERSONALES ELIMINADOS */}
       <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
