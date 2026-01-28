@@ -30,7 +30,8 @@
     "./cost-control/imad": "./src/cost-control/imad.ts",
     "./governance/decision-evidence": "./src/governance/decision-evidence.ts",
     "./voting/quadratic-voting": "./src/voting/quadratic-voting.ts",
-    "./analytics/phase-cost-estimator": "./src/analytics/phase-cost-estimator.ts"
+    "./analytics/phase-cost-estimator": "./src/analytics/phase-cost-estimator.ts",
+    "./scenarios/types": "./src/scenarios/types.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
