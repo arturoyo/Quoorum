@@ -159,3 +159,17 @@ export type {
   PricingChangeHistory,
   NewPricingChangeHistory,
 } from "./pricing-config";
+
+// AI Cost Tracking
+export {
+  aiCostTracking,
+  aiCostTrackingRelations,
+  AI_OPERATION_TYPES,
+  AI_PROVIDERS,
+} from "./ai-cost-tracking";
+export type {
+  AICostTracking,
+  NewAICostTracking,
+  AIOperationType,
+  AIProvider,
+} from "./ai-cost-tracking";

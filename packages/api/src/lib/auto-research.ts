@@ -5,6 +5,7 @@
 
 import { getAIClient, parseAIJson } from '@quoorum/ai'
 import { logger } from './logger'
+import { trackAICall } from '@quoorum/quoorum/ai-cost-tracking'
 
 // ============================================================================
 // TYPES
@@ -35,6 +36,7 @@ export interface AutoResearchOutput {
 
 async function generateResearchQueries(
   question: string,
+  userId: string,
   domain?: string
 ): Promise<string[]> {
   // Analizar la pregunta primero para entender qué información específica necesita
@@ -77,14 +79,29 @@ Return ONLY a JSON array of search queries, no additional text.`
 
   try {
     const aiClient = getAIClient()
-    
+
     // Paso 1: Analizar la pregunta para entender qué necesita
+    const startTime1 = Date.now()
     const analysisResponse = await aiClient.generate(analysisPrompt, {
       modelId: 'gemini-2.0-flash-exp',
       temperature: 0.2,
       maxTokens: 300,
     })
-    
+
+    // Track AI cost for analysis
+    void trackAICall({
+      userId,
+      operationType: 'auto_research_analysis',
+      provider: 'google',
+      modelId: 'gemini-2.0-flash-exp',
+      promptTokens: analysisResponse.usage?.promptTokens || 0,
+      completionTokens: analysisResponse.usage?.completionTokens || 0,
+      latencyMs: Date.now() - startTime1,
+      success: true,
+      inputSummary: question.substring(0, 500),
+      outputSummary: analysisResponse.text.substring(0, 500),
+    })
+
     const analysis = analysisResponse.text.trim()
     
     // Paso 2: Generar queries específicas basadas en el análisis
@@ -95,6 +112,7 @@ ${analysis}
 
 Ahora genera las queries específicas:`
 
+    const startTime2 = Date.now()
     const response = await aiClient.generate(queryPrompt, {
       modelId: 'gemini-2.0-flash-exp',
       systemPrompt: 'You are an expert research query generator. You create specific, data-focused search queries. Output ONLY valid JSON array.',
@@ -102,26 +120,54 @@ Ahora genera las queries específicas:`
       maxTokens: 500,
     })
 
+    // Track AI cost for query generation
+    void trackAICall({
+      userId,
+      operationType: 'auto_research_queries',
+      provider: 'google',
+      modelId: 'gemini-2.0-flash-exp',
+      promptTokens: response.usage?.promptTokens || 0,
+      completionTokens: response.usage?.completionTokens || 0,
+      latencyMs: Date.now() - startTime2,
+      success: true,
+      inputSummary: question.substring(0, 500),
+      outputSummary: response.text.substring(0, 500),
+    })
+
     const queries = parseAIJson<string[]>(response.text)
-    
+
     // Validar y limpiar queries
     const validQueries = queries
       .filter((q) => q && typeof q === 'string' && q.trim().length > 0)
       .map((q) => q.trim())
       .slice(0, 5)
-    
+
     if (validQueries.length === 0) {
       throw new Error('No valid queries generated')
     }
-    
+
     logger.info(`[Auto-Research] Generated ${validQueries.length} contextual queries`, {
       question,
       domain,
       queries: validQueries,
     })
-    
+
     return validQueries
   } catch (error) {
+    // Track failed AI call
+    void trackAICall({
+      userId,
+      operationType: 'auto_research_queries',
+      provider: 'google',
+      modelId: 'gemini-2.0-flash-exp',
+      promptTokens: 0,
+      completionTokens: 0,
+      latencyMs: 0,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      inputSummary: question.substring(0, 500),
+    })
+
     logger.error('Failed to generate research queries:', error instanceof Error ? error : undefined)
     
     // Fallback mejorado: generar queries más específicas basadas en keywords
@@ -525,6 +571,7 @@ Solo incluye campos relevantes para esta decisión específica.`
 
 export async function performAutoResearch(
   question: string,
+  userId: string,
   options?: {
     maxResults?: number
     domain?: string // Business domain (hiring, pricing, growth, etc.)
@@ -557,7 +604,7 @@ export async function performAutoResearch(
     logger.info(`[Auto-Research] Using ${hasGoogleSearch ? 'Google Custom Search API' : 'Serper API'}`)
 
     // Step 1: Generate research queries (with domain context if available)
-    const queries = await generateResearchQueries(question, options?.domain)
+    const queries = await generateResearchQueries(question, userId, options?.domain)
     logger.info(`[Auto-Research] Generated ${queries.length} queries for: "${question}"`, {
       domain: options?.domain,
     })

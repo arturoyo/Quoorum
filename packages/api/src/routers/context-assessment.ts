@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../trpc";
 import { getAIClient } from "@quoorum/ai";
 import { logger } from "../lib/logger";
+import { trackAICall } from "@quoorum/quoorum/ai-cost-tracking";
 
 // Import schemas and constants from context-assessment module
 import {
@@ -267,9 +268,11 @@ async function analyzeWithAI(
   userInput: string,
   debateType: string,
   dimensions: { id: string; name: string; description: string; weight: number }[],
+  userId: string,
   businessDomain?: BusinessDomain
 ): Promise<z.infer<typeof aiAnalysisSchema> & { reflection?: string; domain?: BusinessDomain }> {
   const aiClient = getAIClient();
+  const startTime = Date.now();
 
   // Detect business domain for targeted questions
   const domain = businessDomain || detectBusinessDomain(userInput);
@@ -405,6 +408,20 @@ Analiza el contexto y devuelve el JSON con tu evaluación.`;
       maxTokens: 2500, // Más tokens para suposiciones detalladas
     });
 
+    // Track AI cost
+    void trackAICall({
+      userId,
+      operationType: 'context_assessment',
+      provider: 'google',
+      modelId: 'gemini-2.0-flash-exp',
+      promptTokens: response.usage?.promptTokens || 0,
+      completionTokens: response.usage?.completionTokens || 0,
+      latencyMs: Date.now() - startTime,
+      success: true,
+      inputSummary: userInput.substring(0, 500),
+      outputSummary: response.text.substring(0, 500),
+    });
+
     logger.info("[Context Assessment] AI response received, parsing JSON...");
 
     // Parse and validate the response
@@ -433,6 +450,20 @@ Analiza el contexto y devuelve el JSON con tu evaluación.`;
 
     return { ...validated, reflection, domain };
   } catch (error) {
+    // Track failed AI call
+    void trackAICall({
+      userId,
+      operationType: 'context_assessment',
+      provider: 'google',
+      modelId: 'gemini-2.0-flash-exp',
+      promptTokens: 0,
+      completionTokens: 0,
+      latencyMs: Date.now() - startTime,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      inputSummary: userInput.substring(0, 500),
+    });
+
     logger.error("[Context Assessment] AI analysis failed, using fallback:", error instanceof Error ? error : undefined, { error: error instanceof Error ? error.message : String(error) });
     // Fallback to keyword-based analysis if AI fails
     const fallback = fallbackAnalysis(userInput, dimensions);
@@ -571,7 +602,7 @@ export const contextAssessmentRouter = router({
       })
     )
     .output(contextAssessmentSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       // Auto-detectar categoría SIEMPRE (ignorar lo que mande el usuario)
       const debateType = await detectDebateType(input.userInput);
       const dimensions = DIMENSION_TEMPLATES[debateType] ?? DIMENSION_TEMPLATES.general ?? [];
@@ -579,7 +610,7 @@ export const contextAssessmentRouter = router({
       logger.info("[Context Assessment] Auto-detected debate type:", { debateType });
 
       // Use AI for analysis
-      const aiResult = await analyzeWithAI(input.userInput, debateType, dimensions);
+      const aiResult = await analyzeWithAI(input.userInput, debateType, dimensions, ctx.userId);
 
       // Convert AI result to ContextAssessment
       const analyzedDimensions = aiResult.dimensions.map((d) => {
@@ -651,7 +682,7 @@ export const contextAssessmentRouter = router({
       })
     )
     .output(contextAssessmentSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       // Build enhanced input with answers - formato estructurado para la IA
       let enhancedInput = `CONTEXTO ORIGINAL:\n${input.originalInput}\n\n`;
 
@@ -820,7 +851,7 @@ Responde SOLO con el JSON.`;
       } catch (error) {
         logger.error("[Context Assessment - Refine] AI failed, using fallback:", error instanceof Error ? error : undefined, { error: String(error) });
         // Fallback: usar analyze normal
-        const aiResult = await analyzeWithAI(enhancedInput, debateType, dimensions);
+        const aiResult = await analyzeWithAI(enhancedInput, debateType, dimensions, ctx.userId);
 
         const analyzedDimensions = aiResult.dimensions.map((d) => {
           const template = dimensions.find((t) => t.id === d.id);
@@ -960,7 +991,7 @@ Responde SOLO con el JSON.`;
       // Ya no usamos prefixes - el sistema de generación de queries ahora analiza
       // la pregunta y genera queries específicas basadas en el dominio
       try {
-        const result = await performAutoResearch(input.question, {
+        const result = await performAutoResearch(input.question, userId, {
           maxResults: 5,
           domain, // Pasar el dominio detectado para queries más específicas
         });
@@ -1240,8 +1271,9 @@ Responde SOLO con el JSON.`;
       overallScore: z.number(),
       summary: z.string(), // The AI-generated summary from assessment
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const aiClient = getAIClient();
+      const startTime = Date.now();
 
       // Build context from responses
       const responsesSummary = Object.entries(input.responses)
@@ -1343,6 +1375,20 @@ Genera el JSON con el resumen memorable.`;
           maxTokens: 1000,
         });
 
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'memorable_summary',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: input.question.substring(0, 500),
+          outputSummary: response.text.substring(0, 500),
+        });
+
         logger.info("[Memorable Summary] AI response received, parsing JSON...");
 
         const jsonMatch = response.text.match(/\{[\s\S]*\}/);
@@ -1372,6 +1418,20 @@ Genera el JSON con el resumen memorable.`;
 
         return result;
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'memorable_summary',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: input.question.substring(0, 500),
+        });
+
         logger.error("[Memorable Summary] AI failed, using fallback:", error instanceof Error ? error : undefined, { error: String(error) });
 
         // Fallback: extract what we can directly from the input

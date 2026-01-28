@@ -5,7 +5,7 @@
  */
 
 import { db } from '@quoorum/db'
-import { aiCostTracking, type AIOperationType, type AIProvider } from '@quoorum/db/schema/ai-cost-tracking'
+import { aiCostTracking, type AIOperationType, type AIProvider } from '@quoorum/db/schema'
 import { logger } from './logger'
 
 // ============================================================================

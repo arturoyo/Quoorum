@@ -35,7 +35,8 @@
     "./governance/decision-evidence": "./src/governance/decision-evidence.ts",
     "./voting/quadratic-voting": "./src/voting/quadratic-voting.ts",
     "./analytics/phase-cost-estimator": "./src/analytics/phase-cost-estimator.ts",
-    "./scenarios/types": "./src/scenarios/types.ts"
+    "./scenarios/types": "./src/scenarios/types.ts",
+    "./ai-cost-tracking": "./src/ai-cost-tracking.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
