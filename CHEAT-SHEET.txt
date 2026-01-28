@@ -1,0 +1,65 @@
+# ⚡ CHEAT SHEET - Ventana de Trabajo
+
+## 🚀 AL PRINCIPIO
+
+```bash
+git pull origin main
+git checkout -b feat/nombre-cosa
+```
+
+## ✏️ MIENTRAS TRABAJAS
+
+```bash
+# Ver qué cambió
+git status
+
+# Cuando termines algo
+git add .
+git commit -m "descripción"
+
+# Si necesitas cambiar de ventana SIN terminar
+git stash save "WIP: qué estabas haciendo"
+
+# Al volver
+git stash pop
+```
+
+## 📤 AL TERMINAR
+
+```bash
+git add .
+git commit -m "descripción final"
+git push origin feat/nombre-cosa
+```
+
+## 🚨 PROBLEMAS
+
+| Situación | Comando |
+|-----------|---------|
+| Cambios sin guardar | `git stash save "desc"` |
+| Volver lo último | `git revert HEAD` |
+| Borrar cambios locales | `git checkout -- .` |
+| Empezar de cero | `git reset --hard origin/main` |
+| Ver qué pasó | `git log --oneline` |
+
+## 🎯 TIPOS DE RAMA
+
+```
+feat/        → Nueva cosa
+fix/         → Bug corregido
+style/       → Visual
+refactor/    → Reorganizar
+perf/        → Más rápido
+```
+
+## ✅ CHECKLIST DE SALIDA
+
+```
+☐ git status (sin cambios)
+☐ git log --oneline (veo mis commits)
+☐ Puedo cerrar sin miedo
+```
+
+---
+
+**Copy-paste esto en tu monitor** 📌
