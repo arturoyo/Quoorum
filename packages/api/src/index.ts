@@ -51,6 +51,8 @@ import {
   slackRouter,
   // Admin Pricing
   adminPricingRouter,
+  // Admin Prompts
+  adminPromptsRouter,
 } from "./routers/index";
 
 export const appRouter = router({
@@ -105,6 +107,8 @@ export const appRouter = router({
   slack: slackRouter,
   // Admin Pricing Configuration
   adminPricing: adminPricingRouter,
+  // Admin Prompts Management
+  adminPrompts: adminPromptsRouter,
 });
 
 export type AppRouter = typeof appRouter;

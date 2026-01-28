@@ -59,3 +59,6 @@ export { scenariosRouter } from "./scenarios";
 
 // Admin Pricing Configuration
 export { adminPricingRouter } from "./admin-pricing";
+
+// Admin Prompts Management
+export { adminPromptsRouter } from "./admin-prompts";
