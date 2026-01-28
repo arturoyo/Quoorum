@@ -8,7 +8,7 @@
 
 import { getAIClient } from '@quoorum/ai'
 import { quoorumLogger } from './logger'
-import { calculateTokenCost } from './analytics/cost'
+import { calculateAICost } from './ai-cost-tracking'
 import type { DebateRound, FinalSynthesis, FinalSynthesisOption } from './types'
 
 // ============================================================================
@@ -184,7 +184,12 @@ export async function generateFinalSynthesis(
 
     // Calculate cost for tracking
     const tokensUsed = (response.usage?.promptTokens || 0) + (response.usage?.completionTokens || 0)
-    const costUsd = calculateTokenCost(modelId, response.usage?.promptTokens || 0, response.usage?.completionTokens || 0)
+    const { costUsdTotal: costUsd } = calculateAICost(
+      'openai',
+      modelId,
+      response.usage?.promptTokens || 0,
+      response.usage?.completionTokens || 0
+    )
 
     quoorumLogger.info('[Final Synthesis] Synthesis generated successfully', {
       sessionId,

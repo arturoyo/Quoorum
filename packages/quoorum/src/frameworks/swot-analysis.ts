@@ -63,13 +63,18 @@ export interface SWOTAnalysisOutput {
 // AGENT CONFIGURATIONS
 // ============================================================================
 
+// Framework agent config type (partial AgentConfig with only needed fields)
+type FrameworkAgentConfig = Pick<AgentConfig, 'provider' | 'model' | 'temperature'> & {
+  systemPrompt: string
+}
+
 // Get centralized framework agent config (uses free tier by default)
 const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'temperature'> => {
   // Use optimizer config as base for frameworks (fast, creative)
   return getAgentConfig('optimizer')
 }
 
-const STRENGTHS_AGENT_CONFIG: AgentConfig = {
+const STRENGTHS_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el STRENGTHS ANALYST, un experto en identificar fortalezas internas.
@@ -92,7 +97,7 @@ Sé exhaustivo pero realista. No inventes fortalezas.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const WEAKNESSES_AGENT_CONFIG: AgentConfig = {
+const WEAKNESSES_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el WEAKNESSES ANALYST, un experto en identificar debilidades internas.
@@ -115,7 +120,7 @@ Sé exhaustivo pero constructivo. El objetivo es mejorar.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const OPPORTUNITIES_AGENT_CONFIG: AgentConfig = {
+const OPPORTUNITIES_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el OPPORTUNITIES ANALYST, un experto en identificar oportunidades externas.
@@ -138,7 +143,7 @@ Sé visionario pero pragmático.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const THREATS_AGENT_CONFIG: AgentConfig = {
+const THREATS_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el THREATS ANALYST, un experto en identificar amenazas externas.
@@ -161,7 +166,7 @@ Sé realista pero no catastrófico.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const STRATEGIST_AGENT_CONFIG: AgentConfig = {
+const STRATEGIST_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el STRATEGIST, un experto en crear estrategias SWOT accionables.
@@ -240,7 +245,6 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
           `${contextPrompt}\n\nOutput format:\n{\n  "strengths": [\n    {\n      "title": "...",\n      "description": "...",\n      "impact": 85\n    }\n  ]\n}`,
           {
             modelId: STRENGTHS_AGENT_CONFIG.model,
-            provider: STRENGTHS_AGENT_CONFIG.provider,
             temperature: STRENGTHS_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -252,7 +256,6 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
           `${contextPrompt}\n\nOutput format:\n{\n  "weaknesses": [\n    {\n      "title": "...",\n      "description": "...",\n      "severity": 70\n    }\n  ]\n}`,
           {
             modelId: WEAKNESSES_AGENT_CONFIG.model,
-            provider: WEAKNESSES_AGENT_CONFIG.provider,
             temperature: WEAKNESSES_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -264,7 +267,6 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
           `${contextPrompt}\n\nOutput format:\n{\n  "opportunities": [\n    {\n      "title": "...",\n      "description": "...",\n      "potential": 80\n    }\n  ]\n}`,
           {
             modelId: OPPORTUNITIES_AGENT_CONFIG.model,
-            provider: OPPORTUNITIES_AGENT_CONFIG.provider,
             temperature: OPPORTUNITIES_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -276,7 +278,6 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
           `${contextPrompt}\n\nOutput format:\n{\n  "threats": [\n    {\n      "title": "...",\n      "description": "...",\n      "risk": 65\n    }\n  ]\n}`,
           {
             modelId: THREATS_AGENT_CONFIG.model,
-            provider: THREATS_AGENT_CONFIG.provider,
             temperature: THREATS_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -327,7 +328,6 @@ Output format:
       strategiesPrompt,
       {
         modelId: STRATEGIST_AGENT_CONFIG.model,
-        provider: STRATEGIST_AGENT_CONFIG.provider,
         temperature: STRATEGIST_AGENT_CONFIG.temperature,
         maxTokens: 1500,
       }
@@ -356,7 +356,7 @@ Output format:
     }
   } catch (error) {
     quoorumLogger.error('Failed to run SWOT Analysis', {
-      error: error instanceof Error ? error.message : String(error),
+      errorMessage: error instanceof Error ? error.message : String(error),
       question: input.question,
     })
     throw error

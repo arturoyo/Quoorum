@@ -14,6 +14,11 @@ import { getAIClient } from '@quoorum/ai'
 import { quoorumLogger } from '../logger'
 import { getAgentConfig } from '../config/agent-config'
 
+// Framework-specific agent config type (partial AgentConfig)
+type FrameworkAgentConfig = Pick<AgentConfig, 'provider' | 'model' | 'temperature'> & {
+  systemPrompt: string
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -68,7 +73,7 @@ const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'te
   return getAgentConfig('optimizer')
 }
 
-const CLASSIFIER_AGENT_CONFIG: AgentConfig = {
+const CLASSIFIER_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el TASK CLASSIFIER, un experto en priorización según la Matriz de Eisenhower.
@@ -114,7 +119,7 @@ El objetivo es maximizar tiempo en Q2 (Important but Not Urgent).
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const PRIORITY_AGENT_CONFIG: AgentConfig = {
+const PRIORITY_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.3,
   systemPrompt: `Eres el PRIORITY STRATEGIST, un experto en time management y productividad.

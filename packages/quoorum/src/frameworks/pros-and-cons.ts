@@ -58,13 +58,18 @@ export interface ProsAndConsOutput {
 // AGENT CONFIGURATIONS
 // ============================================================================
 
+// Framework agent config type (partial AgentConfig with only needed fields)
+type FrameworkAgentConfig = Pick<AgentConfig, 'provider' | 'model' | 'temperature'> & {
+  systemPrompt: string
+}
+
 // Get centralized framework agent config (uses free tier by default)
 const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'temperature'> => {
   // Use optimizer config as base for frameworks (fast, creative)
   return getAgentConfig('optimizer')
 }
 
-const PROS_AGENT_CONFIG: AgentConfig = {
+const PROS_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el OPTIMIZER, un experto en identificar ventajas y oportunidades.
@@ -86,7 +91,7 @@ Sé exhaustivo pero realista. No inventes beneficios, pero tampoco los minimices
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const CONS_AGENT_CONFIG: AgentConfig = {
+const CONS_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el CRITIC, un experto en identificar riesgos y desventajas.
@@ -108,7 +113,7 @@ Sé exhaustivo pero realista. No exageres los riesgos, pero tampoco los minimice
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const ANALYST_AGENT_CONFIG: AgentConfig = {
+const ANALYST_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el ANALYST, un experto en evaluar factibilidad y contexto.
@@ -131,7 +136,7 @@ Sé práctico y objetivo. Provee insights que ayuden a tomar la decisión.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const SYNTHESIZER_AGENT_CONFIG: AgentConfig = {
+const SYNTHESIZER_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.3,
   systemPrompt: `Eres el SYNTHESIZER, un experto en crear recomendaciones balanceadas.
@@ -297,7 +302,7 @@ Output format:
     }
   } catch (error) {
     quoorumLogger.error('Failed to run Pros and Cons analysis', undefined, {
-      error: error instanceof Error ? error.message : String(error),
+      errorMessage: error instanceof Error ? error.message : String(error),
       question: input.question,
     })
     throw error

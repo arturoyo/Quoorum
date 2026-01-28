@@ -263,15 +263,18 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
 
         // Create virtual message for synthesis phase (for cost tracking)
         const synthesisMessage: DebateMessage = {
+          id: `${sessionId}-synthesis`,
+          sessionId,
+          round: rounds.length + 1,
           agentKey: 'synthesis',
           agentName: 'Secretario del Tribunal',
           content: `Síntesis ejecutiva generada: ${finalSynthesis.recommendation.option}`,
+          isCompressed: false,
           provider: synthesisResult.provider as any,
-          model: synthesisResult.model,
+          modelId: synthesisResult.model,
           tokensUsed: synthesisResult.tokensUsed,
           costUsd: synthesisResult.costUsd,
-          timestamp: new Date(),
-          phase: 'synthesis', // Track synthesis phase cost
+          createdAt: new Date(),
         }
 
         // Add synthesis as a virtual round for cost tracking
@@ -297,6 +300,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
         userId,
         creditsToRefund,
         sessionId,
+        'refund',
         'Refund unused credits after debate completion'
       )
       refundIssued = refundResult.success
