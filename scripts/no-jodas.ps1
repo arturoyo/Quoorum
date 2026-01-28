@@ -6,23 +6,23 @@
 .DESCRIPTION
     Te gu√≠a paso a paso para NO cometer errores tontos
 .EXAMPLE
-    ./no-jodas.ps1
+    ./no-jodas.ps[EMOJI]
 #>
 
-Write-Host "‚ïî‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïó" -ForegroundColor Cyan
-Write-Host "‚ïë  üéØ ASISTENTE: NO JODAS ESTO (v1.0)          ‚ïë" -ForegroundColor Cyan
-Write-Host "‚ïö‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïù" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI][EMOJI]" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI]  [EMOJI][EMOJI][EMOJI][EMOJI] ASISTENTE: NO JODAS ESTO (v[EMOJI].0)          [EMOJI][EMOJI][EMOJI]" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI][EMOJI]" -ForegroundColor Cyan
 
-# 1. Qu√© es lo primero?
-Write-Host "`n¬øEs la PRIMERA vez que entras a esta ventana?" -ForegroundColor Yellow
+# [EMOJI]. Qu√© es lo primero?
+Write-Host "`n¬[EMOJI]Es la PRIMERA vez que entras a esta ventana?" -ForegroundColor Yellow
 $firstTime = Read-Host "Responde: si/no"
 
 if ($firstTime -eq 'si') {
-    Write-Host "`n‚úÖ OK, vamos:" -ForegroundColor Green
-    Write-Host "1Ô∏è‚É£  Sincronizando main..." -ForegroundColor Cyan
+    Write-Host "`n[OK] OK, vamos:" -ForegroundColor Green
+    Write-Host "[[EMOJI]]  Sincronizando main..." -ForegroundColor Cyan
     git pull origin main
     
-    Write-Host "`n2Ô∏è‚É£  ¬øQu√© tipo de tarea?" -ForegroundColor Cyan
+    Write-Host "`n[[EMOJI]]  ¬[EMOJI]Qu√© tipo de tarea?" -ForegroundColor Cyan
     Write-Host "  feat   = Nueva funcionalidad" -ForegroundColor Gray
     Write-Host "  fix    = Arreglar bug" -ForegroundColor Gray
     Write-Host "  style  = Cambios visuales" -ForegroundColor Gray
@@ -31,83 +31,83 @@ if ($firstTime -eq 'si') {
     
     $type = Read-Host "Tipo"
     
-    Write-Host "`n3Ô∏è‚É£  ¬øNombre de la tarea? (sin espacios, con guiones)" -ForegroundColor Cyan
+    Write-Host "`n[[EMOJI]]  ¬[EMOJI]Nombre de la tarea? (sin espacios, con guiones)" -ForegroundColor Cyan
     Write-Host "Ejemplo: footer-icons, admin-prompts, settings-panel" -ForegroundColor Gray
     $name = Read-Host "Nombre"
     
     $branch = "$type/$name"
     
-    Write-Host "`n‚è≥ Creando rama: $branch" -ForegroundColor Yellow
+    Write-Host "`n[EMOJI][EMOJI]≥ Creando rama: $branch" -ForegroundColor Yellow
     git checkout -b $branch
     
-    Write-Host "`n‚úÖ LISTO. Tu rama: $branch" -ForegroundColor Green
+    Write-Host "`n[OK] LISTO. Tu rama: $branch" -ForegroundColor Green
     Write-Host "   Edita lo que necesites, sin miedo" -ForegroundColor Green
-    Write-Host "   Cuando termines algo ‚Üí git commit -m 'descripci√≥n'" -ForegroundColor Green
+    Write-Host "   Cuando termines algo [EMOJI][EMOJI][EMOJI] git commit -m 'descripci√≥n'" -ForegroundColor Green
 }
 else {
-    Write-Host "`n¬øQu√© necesitas hacer?" -ForegroundColor Yellow
-    Write-Host "  1 = Ver d√≥nde estoy" -ForegroundColor Gray
-    Write-Host "  2 = Commitear cambios" -ForegroundColor Gray
-    Write-Host "  3 = Cambiar de ventana (guardar trabajo)" -ForegroundColor Gray
-    Write-Host "  4 = Volver de otra ventana" -ForegroundColor Gray
-    Write-Host "  5 = Ver √∫ltimos cambios" -ForegroundColor Gray
+    Write-Host "`n¬[EMOJI]Qu√© necesitas hacer?" -ForegroundColor Yellow
+    Write-Host "  [EMOJI] = Ver d√≥nde estoy" -ForegroundColor Gray
+    Write-Host "  [EMOJI] = Commitear cambios" -ForegroundColor Gray
+    Write-Host "  [EMOJI] = Cambiar de ventana (guardar trabajo)" -ForegroundColor Gray
+    Write-Host "  [EMOJI] = Volver de otra ventana" -ForegroundColor Gray
+    Write-Host "  [EMOJI] = Ver √∫ltimos cambios" -ForegroundColor Gray
     
-    $opcion = Read-Host "Opci√≥n (1-5)"
+    $opcion = Read-Host "Opci√≥n ([EMOJI]-[EMOJI])"
     
     switch ($opcion) {
-        "1" {
-            Write-Host "`nüìç ESTADO ACTUAL:" -ForegroundColor Cyan
+        "[EMOJI]" {
+            Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] ESTADO ACTUAL:" -ForegroundColor Cyan
             git status
         }
-        "2" {
-            Write-Host "`nüìù OK, vamos a commitear:" -ForegroundColor Cyan
+        "[EMOJI]" {
+            Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] OK, vamos a commitear:" -ForegroundColor Cyan
             Write-Host "Cambios actuales:" -ForegroundColor Yellow
             git status --short
             
-            Write-Host "`n¬øDescripci√≥n del cambio?" -ForegroundColor Yellow
+            Write-Host "`n¬[EMOJI]Descripci√≥n del cambio?" -ForegroundColor Yellow
             $msg = Read-Host "Mensaje"
             
-            Write-Host "`n‚è≥ Commiteando..." -ForegroundColor Yellow
+            Write-Host "`n[EMOJI][EMOJI]≥ Commiteando..." -ForegroundColor Yellow
             git add .
             git commit -m $msg
             
-            Write-Host "`nüì§ ¬øPushear ahora?" -ForegroundColor Yellow
+            Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] ¬[EMOJI]Pushear ahora?" -ForegroundColor Yellow
             $push = Read-Host "si/no"
             if ($push -eq 'si') {
                 git push origin (git rev-parse --abbrev-ref HEAD)
-                Write-Host "‚úÖ Pusheado" -ForegroundColor Green
+                Write-Host "[OK] Pusheado" -ForegroundColor Green
             }
         }
-        "3" {
-            Write-Host "`nüíæ GUARDAR TRABAJO SIN COMMITEAR" -ForegroundColor Yellow
+        "[EMOJI]" {
+            Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] GUARDAR TRABAJO SIN COMMITEAR" -ForegroundColor Yellow
             Write-Host "Cambios actuales:" -ForegroundColor Cyan
             git status --short
             
-            Write-Host "`n¬øDescripci√≥n? (qu√© estabas haciendo)" -ForegroundColor Yellow
+            Write-Host "`n¬[EMOJI]Descripci√≥n? (qu√© estabas haciendo)" -ForegroundColor Yellow
             $desc = Read-Host "Descripci√≥n"
             
             git stash save "WIP: $desc"
-            Write-Host "`n‚úÖ Guardado en stash" -ForegroundColor Green
+            Write-Host "`n[OK] Guardado en stash" -ForegroundColor Green
         }
-        "4" {
-            Write-Host "`nüìÇ RECUPERANDO TRABAJO ANTERIOR" -ForegroundColor Yellow
+        "[EMOJI]" {
+            Write-Host "`n[EMOJI][EMOJI][EMOJI]Ç RECUPERANDO TRABAJO ANTERIOR" -ForegroundColor Yellow
             Write-Host "Stash guardados:" -ForegroundColor Cyan
             git stash list
             
-            Write-Host "`n¬øRecuperar el √∫ltimo?" -ForegroundColor Yellow
+            Write-Host "`n¬[EMOJI]Recuperar el √∫ltimo?" -ForegroundColor Yellow
             $recover = Read-Host "si/no"
             if ($recover -eq 'si') {
                 git stash pop
-                Write-Host "`n‚úÖ Recuperado. Contin√∫a editando" -ForegroundColor Green
+                Write-Host "`n[OK] Recuperado. Contin√∫a editando" -ForegroundColor Green
             }
         }
-        "5" {
-            Write-Host "`nüìú √öLTIMOS CAMBIOS" -ForegroundColor Cyan
-            git log --oneline -10
+        "[EMOJI]" {
+            Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] √[EMOJI]LTIMOS CAMBIOS" -ForegroundColor Cyan
+            git log --oneline -[EMOJI]0
         }
     }
 }
 
-Write-Host "`n‚ïî‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïó" -ForegroundColor Cyan
-Write-Host "‚ïë  ‚úÖ LISTO. A trabajar sin miedo üöÄ           ‚ïë" -ForegroundColor Cyan
-Write-Host "‚ïö‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïù" -ForegroundColor Cyan
+Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI][EMOJI]" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI]  [OK] LISTO. A trabajar sin miedo [EMOJI][EMOJI][EMOJI][EMOJI]           [EMOJI][EMOJI][EMOJI]" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI][EMOJI]" -ForegroundColor Cyan

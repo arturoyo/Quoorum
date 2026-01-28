@@ -1,5 +1,5 @@
-# fix-light-mode.ps1 - Refactor masivo para modo claro premium
-# Fecha: 28 Ene 2026
+# fix-light-mode.ps[EMOJI] - Refactor masivo para modo claro premium
+# Fecha: [EMOJI]8 Ene [EMOJI]0[EMOJI]6
 
 Write-Host "[INFO] Iniciando refactor de modo claro..." -ForegroundColor Cyan
 
@@ -16,26 +16,26 @@ function Fix-LightMode {
     $originalContent = $content
 
     # Textos - text-white
-    $content = $content -replace 'className="([^"]*?)text-white([^"]*?)"', 'className="$1text-[var(--theme-text-primary)]$2"'
-    $content = $content -replace "className='([^']*?)text-white([^']*?)'", "className='`$1text-[var(--theme-text-primary)]`$2'"
+    $content = $content -replace 'className="([^"]*?)text-white([^"]*?)"', 'className="$[EMOJI]text-[var(--theme-text-primary)]$[EMOJI]"'
+    $content = $content -replace "className='([^']*?)text-white([^']*?)'", "className='`$[EMOJI]text-[var(--theme-text-primary)]`$[EMOJI]'"
 
     # Fondos oscuros
     $content = $content -replace 'bg-slate-900/60', 'bg-[var(--theme-bg-secondary)]'
     $content = $content -replace 'bg-slate-900/80', 'bg-[var(--theme-bg-secondary)]'
-    $content = $content -replace 'bg-slate-900/95', 'bg-[var(--theme-bg-secondary)]'
-    $content = $content -replace 'bg-slate-900([^/a-z-])', 'bg-[var(--theme-bg-primary)]$1'
-    $content = $content -replace 'bg-slate-800/50', 'bg-[var(--theme-bg-tertiary)]'
-    $content = $content -replace 'bg-slate-800/30', 'bg-[var(--theme-bg-tertiary)]'
-    $content = $content -replace 'bg-slate-800([^/a-z-])', 'bg-[var(--theme-bg-tertiary)]$1'
+    $content = $content -replace 'bg-slate-900/9[EMOJI]', 'bg-[var(--theme-bg-secondary)]'
+    $content = $content -replace 'bg-slate-900([^/a-z-])', 'bg-[var(--theme-bg-primary)]$[EMOJI]'
+    $content = $content -replace 'bg-slate-800/[EMOJI]0', 'bg-[var(--theme-bg-tertiary)]'
+    $content = $content -replace 'bg-slate-800/[EMOJI]0', 'bg-[var(--theme-bg-tertiary)]'
+    $content = $content -replace 'bg-slate-800([^/a-z-])', 'bg-[var(--theme-bg-tertiary)]$[EMOJI]'
     $content = $content -replace 'bg-slate-700', 'bg-[var(--theme-bg-input)]'
 
     # Bordes
-    $content = $content -replace 'border-white/10', 'border-[var(--theme-border)]'
-    $content = $content -replace 'border-white/5', 'border-[var(--theme-border)]'
-    $content = $content -replace 'border-white/20', 'border-[var(--theme-border)]'
+    $content = $content -replace 'border-white/[EMOJI]0', 'border-[var(--theme-border)]'
+    $content = $content -replace 'border-white/[EMOJI]', 'border-[var(--theme-border)]'
+    $content = $content -replace 'border-white/[EMOJI]0', 'border-[var(--theme-border)]'
 
     # Hover states
-    $content = $content -replace 'hover:bg-white/5', 'hover:bg-[var(--theme-bg-tertiary)]'
+    $content = $content -replace 'hover:bg-white/[EMOJI]', 'hover:bg-[var(--theme-bg-tertiary)]'
     $content = $content -replace 'hover:bg-slate-800', 'hover:bg-[var(--theme-bg-tertiary)]'
 
     # Solo escribir si hubo cambios

@@ -8,7 +8,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 
-Write-Host "🔧 Auto-fix Dev Errors" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Auto-fix Dev Errors" -ForegroundColor Cyan
 Write-Host ("=" * 70) -ForegroundColor DarkGray
 if ($DryRun) {
     Write-Host "[WARN]  DRY RUN MODE - No changes will be made`n" -ForegroundColor Yellow
@@ -21,21 +21,21 @@ $LatestLog = $null
 if (Test-Path $TerminalDir) {
     $LatestLog = Get-ChildItem -Path $TerminalDir -Filter "*.txt" | 
         Sort-Object LastWriteTime -Descending | 
-        Select-Object -First 1
+        Select-Object -First [EMOJI]
 }
 
 $FixesApplied = @()
 $FixesFailed = @()
 
 # ============================================================================
-# FIX 1: Port 3000 already in use
+# FIX [EMOJI]: Port [EMOJI]000 already in use
 # ============================================================================
 function Fix-PortInUse {
-    $Port = 3000
+    $Port = [EMOJI]000
     $Connections = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue
     
     if ($Connections) {
-        Write-Host "🔍 Detected: Port $Port is in use" -ForegroundColor Yellow
+        Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Detected: Port $Port is in use" -ForegroundColor Yellow
         
         if (-not $DryRun) {
             $Processes = $Connections | Select-Object -ExpandProperty OwningProcess -Unique
@@ -43,9 +43,9 @@ function Fix-PortInUse {
                 try {
                     $Proc = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
                     if ($Proc) {
-                        Write-Host "   → Stopping process $ProcessId ($($Proc.ProcessName))" -ForegroundColor Gray
+                        Write-Host "   [EMOJI][EMOJI][EMOJI] Stopping process $ProcessId ($($Proc.ProcessName))" -ForegroundColor Gray
                         Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
-                        Start-Sleep -Milliseconds 500
+                        Start-Sleep -Milliseconds [EMOJI]00
                     }
                 } catch {
                     if ($Verbose) {
@@ -53,7 +53,7 @@ function Fix-PortInUse {
                     }
                 }
             }
-            Start-Sleep -Seconds 1
+            Start-Sleep -Seconds [EMOJI]
             Write-Host "   [OK] Port $Port freed" -ForegroundColor Green
         } else {
             Write-Host "   [DRY RUN] Would free port $Port" -ForegroundColor Cyan
@@ -65,7 +65,7 @@ function Fix-PortInUse {
 }
 
 # ============================================================================
-# FIX 2: Module not found / Can't resolve
+# FIX [EMOJI]: Module not found / Can't resolve
 # ============================================================================
 function Fix-ModuleNotFound {
     param([string]$LogContent)
@@ -91,19 +91,19 @@ function Fix-ModuleNotFound {
         return $false
     }
     
-    Write-Host "🔍 Detected: Module resolution error" -ForegroundColor Yellow
+    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Detected: Module resolution error" -ForegroundColor Yellow
     
     if (-not $DryRun) {
-        Write-Host "   → Reinstalling dependencies..." -ForegroundColor Gray
+        Write-Host "   [EMOJI][EMOJI][EMOJI] Reinstalling dependencies..." -ForegroundColor Gray
         try {
             Push-Location $PSScriptRoot\..
-            $Output = pnpm install 2>&1
+            $Output = pnpm install [EMOJI]>&[EMOJI]
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "   [OK] Dependencies reinstalled" -ForegroundColor Green
                 
                 # Also rebuild affected packages
-                Write-Host "   → Rebuilding packages..." -ForegroundColor Gray
-                pnpm build --filter @quoorum/db --filter @quoorum/api --filter @quoorum/workers 2>&1 | Out-Null
+                Write-Host "   [EMOJI][EMOJI][EMOJI] Rebuilding packages..." -ForegroundColor Gray
+                pnpm build --filter @quoorum/db --filter @quoorum/api --filter @quoorum/workers [EMOJI]>&[EMOJI] | Out-Null
                 Write-Host "   [OK] Packages rebuilt" -ForegroundColor Green
                 
                 Pop-Location
@@ -125,7 +125,7 @@ function Fix-ModuleNotFound {
 }
 
 # ============================================================================
-# FIX 3: Build cache issues
+# FIX [EMOJI]: Build cache issues
 # ============================================================================
 function Fix-BuildCache {
     param([string]$LogContent)
@@ -148,10 +148,10 @@ function Fix-BuildCache {
         return $false
     }
     
-    Write-Host "🔍 Detected: Build cache issues" -ForegroundColor Yellow
+    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Detected: Build cache issues" -ForegroundColor Yellow
     
     if (-not $DryRun) {
-        Write-Host "   → Cleaning build artifacts..." -ForegroundColor Gray
+        Write-Host "   [EMOJI][EMOJI][EMOJI] Cleaning build artifacts..." -ForegroundColor Gray
         try {
             Push-Location $PSScriptRoot\..
             
@@ -179,7 +179,7 @@ function Fix-BuildCache {
 }
 
 # ============================================================================
-# FIX 4: TypeScript compilation errors
+# FIX [EMOJI]: TypeScript compilation errors
 # ============================================================================
 function Fix-TypeScriptErrors {
     param([string]$LogContent)
@@ -202,14 +202,14 @@ function Fix-TypeScriptErrors {
         return $false
     }
     
-    Write-Host "🔍 Detected: TypeScript errors" -ForegroundColor Yellow
+    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Detected: TypeScript errors" -ForegroundColor Yellow
     Write-Host "   [WARN]  TypeScript errors require manual code fixes" -ForegroundColor DarkYellow
-    Write-Host "   → Running typecheck to see details..." -ForegroundColor Gray
+    Write-Host "   [EMOJI][EMOJI][EMOJI] Running typecheck to see details..." -ForegroundColor Gray
     
     if (-not $DryRun) {
         try {
             Push-Location $PSScriptRoot\..
-            $Output = pnpm typecheck 2>&1 | Out-String
+            $Output = pnpm typecheck [EMOJI]>&[EMOJI] | Out-String
             Write-Host $Output -ForegroundColor DarkGray
             Pop-Location
         } catch {
@@ -221,7 +221,7 @@ function Fix-TypeScriptErrors {
 }
 
 # ============================================================================
-# FIX 5: Missing environment variables
+# FIX [EMOJI]: Missing environment variables
 # ============================================================================
 function Fix-MissingEnvVars {
     param([string]$LogContent)
@@ -229,9 +229,9 @@ function Fix-MissingEnvVars {
     if ($LogContent -match "process\.env\.\w+.*is not defined" -or 
         $LogContent -match "Environment variable.*not found") {
         
-        Write-Host "🔍 Detected: Missing environment variables" -ForegroundColor Yellow
+        Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Detected: Missing environment variables" -ForegroundColor Yellow
         Write-Host "   [WARN]  Environment variables require manual configuration" -ForegroundColor DarkYellow
-        Write-Host "   → Check .env.example for required variables" -ForegroundColor Gray
+        Write-Host "   [EMOJI][EMOJI][EMOJI] Check .env.example for required variables" -ForegroundColor Gray
         
         return $false # Can't auto-fix env vars
     }
@@ -247,29 +247,29 @@ function Fix-MissingEnvVars {
 $LogContent = ""
 $RecentLogs = Get-ChildItem -Path $TerminalDir -Filter "*.txt" -ErrorAction SilentlyContinue | 
     Sort-Object LastWriteTime -Descending | 
-    Select-Object -First 5
+    Select-Object -First [EMOJI]
 
 if ($RecentLogs) {
-    Write-Host "📋 Analyzing $($RecentLogs.Count) recent log(s):" -ForegroundColor Cyan
+    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Analyzing $($RecentLogs.Count) recent log(s):" -ForegroundColor Cyan
     foreach ($Log in $RecentLogs) {
         $RecentContent = Get-Content $Log.FullName -Raw -ErrorAction SilentlyContinue
         if ($RecentContent) {
             $LogContent += "`n=== $($Log.Name) ===`n" + $RecentContent + "`n"
-            Write-Host "   • $($Log.Name)" -ForegroundColor Gray
+            Write-Host "   [EMOJI][EMOJI]� $($Log.Name)" -ForegroundColor Gray
         }
     }
     Write-Host ""
 }
 
 # Apply fixes in order
-Write-Host "`n🔧 Applying fixes...`n" -ForegroundColor Green
+Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Applying fixes...`n" -ForegroundColor Green
 
-# Fix 1: Port in use (always check this first)
+# Fix [EMOJI]: Port in use (always check this first)
 if (Fix-PortInUse) {
-    $FixesApplied += "Port 3000 freed"
+    $FixesApplied += "Port [EMOJI]000 freed"
 }
 
-# Fix 2: Module resolution (check all logs, not just latest)
+# Fix [EMOJI]: Module resolution (check all logs, not just latest)
 if ($LogContent) {
     if (Fix-ModuleNotFound -LogContent $LogContent) {
         $FixesApplied += "Module resolution (reinstalled deps)"
@@ -278,7 +278,7 @@ if ($LogContent) {
     # Also check other recent logs
     $RecentLogs = Get-ChildItem -Path $TerminalDir -Filter "*.txt" -ErrorAction SilentlyContinue | 
         Sort-Object LastWriteTime -Descending | 
-        Select-Object -First 3
+        Select-Object -First [EMOJI]
     
     foreach ($Log in $RecentLogs) {
         $RecentContent = Get-Content $Log.FullName -Raw -ErrorAction SilentlyContinue
@@ -289,7 +289,7 @@ if ($LogContent) {
     }
 }
 
-# Fix 3: Build cache
+# Fix [EMOJI]: Build cache
 if ($LogContent) {
     if (Fix-BuildCache -LogContent $LogContent) {
         $FixesApplied += "Build cache cleaned"
@@ -303,10 +303,10 @@ function Fix-NextJSModuleResolution {
     if ($LogContent -match "@quoorum/workers/client" -or 
         $LogContent -match "@quoorum/quoorum/billing") {
         
-        Write-Host "🔍 Detected: Next.js module resolution issue" -ForegroundColor Yellow
+        Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Detected: Next.js module resolution issue" -ForegroundColor Yellow
         
         if (-not $DryRun) {
-            Write-Host "   → Cleaning Next.js cache..." -ForegroundColor Gray
+            Write-Host "   [EMOJI][EMOJI][EMOJI] Cleaning Next.js cache..." -ForegroundColor Gray
             try {
                 Push-Location $PSScriptRoot\..
                 
@@ -317,7 +317,7 @@ function Fix-NextJSModuleResolution {
                 }
                 
                 # Verify package.json exports
-                Write-Host "   → Verifying package.json exports..." -ForegroundColor Gray
+                Write-Host "   [EMOJI][EMOJI][EMOJI] Verifying package.json exports..." -ForegroundColor Gray
                 
                 # Check workers package
                 $WorkersPkg = Get-Content "packages\workers\package.json" -Raw | ConvertFrom-Json
@@ -328,8 +328,8 @@ function Fix-NextJSModuleResolution {
                 }
                 
                 # Rebuild workers package specifically
-                Write-Host "   → Rebuilding @quoorum/workers..." -ForegroundColor Gray
-                pnpm build --filter @quoorum/workers 2>&1 | Out-Null
+                Write-Host "   [EMOJI][EMOJI][EMOJI] Rebuilding @quoorum/workers..." -ForegroundColor Gray
+                pnpm build --filter @quoorum/workers [EMOJI]>&[EMOJI] | Out-Null
                 Write-Host "   [OK] @quoorum/workers rebuilt" -ForegroundColor Green
                 
                 Pop-Location
@@ -354,42 +354,42 @@ if ($LogContent) {
     }
 }
 
-# Fix 4: TypeScript errors (info only)
+# Fix [EMOJI]: TypeScript errors (info only)
 if ($LogContent) {
     Fix-TypeScriptErrors -LogContent $LogContent | Out-Null
 }
 
-# Fix 5: Missing env vars (info only)
+# Fix [EMOJI]: Missing env vars (info only)
 if ($LogContent) {
     Fix-MissingEnvVars -LogContent $LogContent | Out-Null
 }
 
 # Summary
 Write-Host "`n" + ("=" * 70) -ForegroundColor DarkGray
-Write-Host "📊 SUMMARY" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] SUMMARY" -ForegroundColor Cyan
 Write-Host ("=" * 70) -ForegroundColor DarkGray
 
 if ($FixesApplied.Count -gt 0) {
     Write-Host "`n[OK] Fixes Applied:" -ForegroundColor Green
     foreach ($Fix in $FixesApplied) {
-        Write-Host "   • $Fix" -ForegroundColor Gray
+        Write-Host "   [EMOJI][EMOJI]� $Fix" -ForegroundColor Gray
     }
 } else {
-    Write-Host "`nℹ️  No automatic fixes available" -ForegroundColor Cyan
+    Write-Host "`n[INFO]  No automatic fixes available" -ForegroundColor Cyan
     Write-Host "   Run 'pnpm check:errors' to see error details" -ForegroundColor Gray
 }
 
 if ($FixesFailed.Count -gt 0) {
     Write-Host "`n[ERROR] Fixes Failed:" -ForegroundColor Red
     foreach ($Fix in $FixesFailed) {
-        Write-Host "   • $Fix" -ForegroundColor Gray
+        Write-Host "   [EMOJI][EMOJI]� $Fix" -ForegroundColor Gray
     }
 }
 
-Write-Host "`n💡 Next steps:" -ForegroundColor Cyan
-Write-Host "   1. Run 'pnpm check:errors' to verify fixes" -ForegroundColor Gray
-Write-Host "   2. Restart dev server: 'pnpm dev --filter @quoorum/web'" -ForegroundColor Gray
-Write-Host "   3. For TypeScript errors, review and fix manually" -ForegroundColor Gray
+Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Next steps:" -ForegroundColor Cyan
+Write-Host "   [EMOJI]. Run 'pnpm check:errors' to verify fixes" -ForegroundColor Gray
+Write-Host "   [EMOJI]. Restart dev server: 'pnpm dev --filter @quoorum/web'" -ForegroundColor Gray
+Write-Host "   [EMOJI]. For TypeScript errors, review and fix manually" -ForegroundColor Gray
 Write-Host ""
 
 if ($DryRun) {

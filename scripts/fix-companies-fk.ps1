@@ -1,31 +1,31 @@
 # Script para arreglar el foreign key de companies y crear el perfil
 # PowerShell script para Windows
 
-Write-Host "🔧 Arreglando foreign key constraint de companies..." -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Arreglando foreign key constraint de companies..." -ForegroundColor Cyan
 
 # SQL que vamos a ejecutar
 $sql = @"
--- 1. Drop existing companies table
+-- [EMOJI]. Drop existing companies table
 DROP TABLE IF EXISTS companies CASCADE;
 
--- 2. Create companies table with correct FK to profiles
+-- [EMOJI]. Create companies table with correct FK to profiles
 CREATE TABLE IF NOT EXISTS companies (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  name varchar(200) NOT NULL,
+  name varchar([EMOJI]00) NOT NULL,
   context text NOT NULL,
-  industry varchar(100),
-  size varchar(50),
+  industry varchar([EMOJI]00),
+  size varchar([EMOJI]0),
   description text,
   is_active boolean DEFAULT true NOT NULL,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
--- 3. Create index
+-- [EMOJI]. Create index
 CREATE INDEX IF NOT EXISTS companies_user_id_idx ON companies(user_id);
 
--- 4. Create profile
+-- [EMOJI]. Create profile
 INSERT INTO profiles (
   id,
   user_id,
@@ -36,8 +36,8 @@ INSERT INTO profiles (
   created_at,
   updated_at
 ) VALUES (
-  'f198d53b-9524-45b9-87cf-a810a857a616',
-  'b88193ab-1c38-49a0-a86b-cf12a96f66a9',
+  'f[EMOJI]98d[EMOJI][EMOJI]b-9[EMOJI][EMOJI][EMOJI]-[EMOJI][EMOJI]b9-87cf-a8[EMOJI]0a8[EMOJI]7a6[EMOJI]6',
+  'b88[EMOJI]9[EMOJI]ab-[EMOJI]c[EMOJI]8-[EMOJI]9a0-a86b-cf[EMOJI][EMOJI]a96f66a9',
   'usuario@quoorum.com',
   'Usuario Quoorum',
   'user',
@@ -52,15 +52,15 @@ ON CONFLICT (id) DO NOTHING;
 $sqlFile = "C:\Quoorum\scripts\temp-fix.sql"
 $sql | Out-File -FilePath $sqlFile -Encoding UTF8
 
-Write-Host "📝 SQL guardado en $sqlFile" -ForegroundColor Yellow
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] SQL guardado en $sqlFile" -ForegroundColor Yellow
 
 # Ejecutar SQL
-Write-Host "⚡ Ejecutando SQL en PostgreSQL..." -ForegroundColor Yellow
+Write-Host "[FAST] Ejecutando SQL en PostgreSQL..." -ForegroundColor Yellow
 docker exec -i quoorum-postgres psql -U postgres -d quoorum -f /host_mnt/c/Quoorum/scripts/temp-fix.sql
 
 Write-Host ""
 Write-Host "[OK] Verificando resultados..." -ForegroundColor Green
-docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT id, email, name FROM profiles WHERE id = 'f198d53b-9524-45b9-87cf-a810a857a616';"
+docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT id, email, name FROM profiles WHERE id = 'f[EMOJI]98d[EMOJI][EMOJI]b-9[EMOJI][EMOJI][EMOJI]-[EMOJI][EMOJI]b9-87cf-a8[EMOJI]0a8[EMOJI]7a6[EMOJI]6';"
 
 Write-Host ""
-Write-Host "🎉 ¡Listo! Ahora intenta guardar la empresa de nuevo." -ForegroundColor Green
+Write-Host "[EMOJI][EMOJI][EMOJI]� �[EMOJI]Listo! Ahora intenta guardar la empresa de nuevo." -ForegroundColor Green

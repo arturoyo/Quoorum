@@ -16,17 +16,17 @@ Get-ChildItem -Path $componentsRoot -Filter "*.tsx" -Recurse | ForEach-Object {
     $content = Get-Content $file.FullName -Raw
     $originalContent = $content
 
-    # Fix purple buttons: bg-purple-* ... text-[var(--theme-text-primary)] → text-white
-    $content = $content -replace '(bg-purple-[^\s"]+[^"]*?)text-\[var\(--theme-text-primary\)\]', '$1text-white'
+    # Fix purple buttons: bg-purple-* ... text-[var(--theme-text-primary)] [EMOJI][EMOJI][EMOJI] text-white
+    $content = $content -replace '(bg-purple-[^\s"]+[^"]*?)text-\[var\(--theme-text-primary\)\]', '$[EMOJI]text-white'
 
-    # Fix green buttons: bg-green-* ... text-[var(--theme-text-primary)] → text-white
-    $content = $content -replace '(bg-green-[^\s"]+[^"]*?)text-\[var\(--theme-text-primary\)\]', '$1text-white'
+    # Fix green buttons: bg-green-* ... text-[var(--theme-text-primary)] [EMOJI][EMOJI][EMOJI] text-white
+    $content = $content -replace '(bg-green-[^\s"]+[^"]*?)text-\[var\(--theme-text-primary\)\]', '$[EMOJI]text-white'
 
-    # Fix red buttons: bg-red-* ... text-[var(--theme-text-primary)] → text-white
-    $content = $content -replace '(bg-red-[^\s"]+[^"]*?)text-\[var\(--theme-text-primary\)\]', '$1text-white'
+    # Fix red buttons: bg-red-* ... text-[var(--theme-text-primary)] [EMOJI][EMOJI][EMOJI] text-white
+    $content = $content -replace '(bg-red-[^\s"]+[^"]*?)text-\[var\(--theme-text-primary\)\]', '$[EMOJI]text-white'
 
-    # Fix emerald buttons: bg-emerald-* ... text-[var(--theme-text-primary)] → text-white
-    $content = $content -replace '(bg-emerald-[^\s"]+[^"]*?)text-\[var\(--theme-text-primary\)\]', '$1text-white'
+    # Fix emerald buttons: bg-emerald-* ... text-[var(--theme-text-primary)] [EMOJI][EMOJI][EMOJI] text-white
+    $content = $content -replace '(bg-emerald-[^\s"]+[^"]*?)text-\[var\(--theme-text-primary\)\]', '$[EMOJI]text-white'
 
     if ($content -ne $originalContent) {
         Set-Content -Path $file.FullName -Value $content -NoNewline
