@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { QuoorumLogo, QuoorumLogoWithText } from '@/components/ui/quoorum-logo'
 import { createClient } from '@/lib/supabase/client'
-import { NotificationBell, NotificationsSidebar } from '@/components/quoorum/notifications-sidebar'
+import { NotificationsSidebar } from '@/components/quoorum/notifications-sidebar'
 import { SettingsModal } from '@/components/settings/settings-modal'
 import { AdminModal } from '@/components/admin/admin-modal'
 import { api } from '@/lib/trpc/client'
@@ -14,7 +14,7 @@ import { logger } from '@/lib/logger'
 import { classifyTRPCError } from '@/lib/trpc/error-handler'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
-import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles } from 'lucide-react'
+import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles, Bell } from 'lucide-react'
 import { CreditCounter } from '@/components/quoorum/credit-counter'
 import { AppFooter } from '@/components/layout/app-footer'
 import type { User } from '@supabase/supabase-js'
@@ -112,6 +112,11 @@ export function AppHeader({
       },
     }
   )
+
+  // Get unread notification count
+  const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery(undefined, {
+    enabled: variant === 'app' && isAuthenticated,
+  })
 
   // Debug: Log admin status (solo cuando no es un error esperado)
   useEffect(() => {
@@ -340,12 +345,35 @@ export function AppHeader({
                 <Plus className="h-4 w-4" />
               </Button>
 
-              {/* Notifications */}
-              <div className="hidden sm:block">
-                <NotificationBell onClick={() => setNotificationsSidebarOpen(!notificationsSidebarOpen)} enabled={isAuthenticated} />
-              </div>
-
               {/* Nav items with hover-expand effect */}
+
+              {/* Notifications with hover-expand and badge */}
+              <button
+                onClick={() => setNotificationsSidebarOpen(!notificationsSidebarOpen)}
+                className={cn(
+                  'group relative hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
+                  'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
+                  'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
+                )}
+                title={(unreadCount ?? 0) > 0 ? `${unreadCount} notificaciones sin leer` : 'Notificaciones'}
+                type="button"
+              >
+                <Bell className="h-4 w-4 flex-shrink-0" />
+                {(unreadCount ?? 0) > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-500 text-[10px] font-medium text-white">
+                    {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+                <span className={cn(
+                  'max-w-0 overflow-hidden whitespace-nowrap',
+                  'group-hover:max-w-[100px] group-hover:ml-1.5',
+                  'transition-all duration-300 ease-out',
+                  'text-xs font-medium'
+                )}>
+                  Alertas
+                </span>
+              </button>
+
               <Link
                 href="/debates"
                 className={cn(
