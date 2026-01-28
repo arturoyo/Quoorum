@@ -158,7 +158,7 @@ export function DebateSynthesis({ synthesis }: DebateSynthesisProps) {
                 {/* Pros */}
                 <div>
                   <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-green-400">
-                    ✅ Pros
+                    [OK] Pros
                   </div>
                   <ul className="space-y-1">
                     {option.pros.map((pro, i) => (
@@ -170,7 +170,7 @@ export function DebateSynthesis({ synthesis }: DebateSynthesisProps) {
                 {/* Cons */}
                 <div>
                   <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-yellow-400">
-                    ⚠️ Cons
+                    [WARN] Cons
                   </div>
                   <ul className="space-y-1">
                     {option.cons.map((con, i) => (

@@ -307,7 +307,7 @@ export default function HomePage() {
             {/* Before */}
             <div className="relative p-10 rounded-3xl bg-gradient-to-br from-red-500/5 to-orange-500/5 border border-red-500/20 backdrop-blur-xl">
               <div className="absolute top-6 right-6 px-4 py-2 bg-red-500/20 rounded-full text-red-600 dark:text-red-300 text-sm font-medium">
-                ❌ Antes (manual)
+                [ERROR] Antes (manual)
               </div>
               <div className="space-y-6 mt-12">
                 {[
@@ -335,7 +335,7 @@ export default function HomePage() {
             {/* After */}
             <div className="relative p-10 rounded-3xl bg-gradient-to-br from-green-500/5 to-emerald-500/5 border border-green-500/20 backdrop-blur-xl">
               <div className="absolute top-6 right-6 px-4 py-2 bg-green-500/20 rounded-full text-green-600 dark:text-green-300 text-sm font-medium">
-                ✅ Con Quoorum
+                [OK] Con Quoorum
               </div>
               <div className="space-y-6 mt-12">
                 {[

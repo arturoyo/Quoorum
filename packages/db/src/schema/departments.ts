@@ -3,7 +3,7 @@
  * Stores department-specific context and custom prompts
  */
 
-import { pgTable, uuid, varchar, text, timestamp, boolean, pgEnum, index } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, text, timestamp, boolean, pgEnum, index, foreignKey } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { companies } from './companies'
 
@@ -29,8 +29,7 @@ export const departments = pgTable('departments', {
   companyId: uuid('company_id')
     .notNull()
     .references(() => companies.id, { onDelete: 'cascade' }),
-  parentId: uuid('parent_id')
-    .references(() => departments.id, { onDelete: 'set null' }), // Self-reference for hierarchy
+  parentId: uuid('parent_id'), // Self-reference defined via foreignKey below
 
   // Department information
   name: varchar('name', { length: 100 }).notNull(), // "Finanzas", "Marketing", etc.
@@ -64,6 +63,12 @@ export const departments = pgTable('departments', {
   parentIdIdx: index('idx_departments_parent').on(table.parentId),
   typeIdx: index('idx_departments_type').on(table.type),
   isActiveIdx: index('idx_departments_is_active').on(table.isActive),
+  // Self-reference foreign key
+  parentFk: foreignKey({
+    columns: [table.parentId],
+    foreignColumns: [table.id],
+    name: 'departments_parent_id_fkey',
+  }).onDelete('set null'),
 }))
 
 // Relations

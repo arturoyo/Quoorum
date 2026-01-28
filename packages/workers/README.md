@@ -2,7 +2,7 @@
 
 Background job workers para el sistema Quoorum usando Inngest.
 
-## 🚀 Configuración
+## [INFO] Configuración
 
 ### Desarrollo Local
 
@@ -143,7 +143,7 @@ Con Inngest Dev Server corriendo:
 3. Sección "Functions" → Ver workers registrados
 4. Sección "Events" → Ver eventos enviados
 
-## ⚠️ Troubleshooting
+## [WARN] Troubleshooting
 
 ### Error: "401 Event key not found"
 
@@ -156,10 +156,10 @@ Con Inngest Dev Server corriendo:
 ### Error: "Worker no se ejecuta"
 
 **Checklist:**
-1. ✅ ¿El worker está registrado en `apps/web/src/app/api/inngest/route.ts`?
-2. ✅ ¿El evento se está enviando con el nombre correcto?
-3. ✅ ¿El servidor de desarrollo está corriendo?
-4. ✅ ¿Inngest Dev Server está corriendo (si aplica)?
+1. [OK] ¿El worker está registrado en `apps/web/src/app/api/inngest/route.ts`?
+2. [OK] ¿El evento se está enviando con el nombre correcto?
+3. [OK] ¿El servidor de desarrollo está corriendo?
+4. [OK] ¿Inngest Dev Server está corriendo (si aplica)?
 
 ### Los workers no aparecen en Inngest Dashboard
 

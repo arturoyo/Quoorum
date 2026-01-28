@@ -34,7 +34,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: '¡Bienvenido al Quoorum!',
     description:
       'El Quoorum es tu asistente de decisiones estratégicas. Crea debates con expertos de IA que te ayudarán a tomar mejores decisiones de negocio.',
-    image: '🎯',
+    image: '[INFO]',
   },
   {
     id: 'create-debate',

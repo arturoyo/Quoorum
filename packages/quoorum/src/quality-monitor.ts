@@ -389,6 +389,6 @@ export function detectPrematureConsensus(messages: DebateMessage[], round: numbe
  * Genera un resumen de calidad para logging
  */
 export function summarizeQuality(analysis: QualityAnalysis): string {
-  const emoji = analysis.overallQuality >= 80 ? '🟢' : analysis.overallQuality >= 60 ? '🟡' : '🔴'
+  const emoji = analysis.overallQuality >= 80 ? '[OK]' : analysis.overallQuality >= 60 ? '🟡' : '[ERROR]'
   return `${emoji} Calidad: ${analysis.overallQuality}/100 | Profundidad: ${analysis.depthScore} | Diversidad: ${analysis.diversityScore} | Originalidad: ${analysis.originalityScore} | Problemas: ${analysis.issues.length}`
 }

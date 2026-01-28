@@ -60,7 +60,7 @@ test.describe('Dashboard Autenticado - Verificación Real', () => {
         expect(visibleErrors).toBe(0)
       } else {
         // Login falló - mostrar información de debug
-        console.log(`⚠️ Login failed`)
+        console.log(`[WARN] Login failed`)
         console.log(`   Current URL: ${url}`)
         if (errorText) {
           console.log(`   Error message: ${errorText}`)

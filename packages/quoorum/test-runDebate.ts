@@ -48,7 +48,7 @@ async function testRunDebate() {
       context: testContext,
       forceMode: 'static', // Forzar modo estático para test simple
       onRoundComplete: async (round) => {
-        log(`  ✅ Round ${round.round} completado con ${round.messages.length} mensajes`, colors.green)
+        log(`  [OK] Round ${round.round} completado con ${round.messages.length} mensajes`, colors.green)
       },
       onMessageGenerated: async (message) => {
         log(`    → ${message.agentName}: ${message.content.substring(0, 50)}...`, colors.reset)
@@ -57,7 +57,7 @@ async function testRunDebate() {
 
     const duration = Date.now() - startTime
 
-    log('\n✅ runDebate() COMPLETADO!', colors.green)
+    log('\n[OK] runDebate() COMPLETADO!', colors.green)
     log(`\n📊 Resultados:`, colors.cyan)
     log(`  - Status: ${result.status}`)
     log(`  - Rounds: ${result.totalRounds}`)
@@ -72,10 +72,10 @@ async function testRunDebate() {
       }
     }
 
-    log('\n✅ TEST PASSED\n', colors.green)
+    log('\n[OK] TEST PASSED\n', colors.green)
     return true
   } catch (error) {
-    log('\n❌ runDebate() FALLÓ!', colors.red)
+    log('\n[ERROR] runDebate() FALLÓ!', colors.red)
     log(`\nError: ${error instanceof Error ? error.message : String(error)}`, colors.red)
 
     if (error instanceof Error && error.stack) {
@@ -83,7 +83,7 @@ async function testRunDebate() {
       log(error.stack, colors.reset)
     }
 
-    log('\n❌ TEST FAILED - NECESITA FIX\n', colors.red)
+    log('\n[ERROR] TEST FAILED - NECESITA FIX\n', colors.red)
     return false
   }
 }

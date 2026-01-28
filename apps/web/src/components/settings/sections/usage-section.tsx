@@ -230,29 +230,6 @@ export function UsageSection({ isInModal = false }: UsageSectionProps) {
             </div>
           </div>
 
-          <Separator className="bg-gradient-to-r from-purple-500/20 via-white/10 to-blue-500/20" />
-
-          {/* Daily Update Credits */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <History className="h-5 w-5 text-cyan-400" />
-              <h4 className="text-lg font-semibold text-[var(--theme-text-primary)]">Créditos de actualización diaria</h4>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-[var(--theme-text-tertiary)] cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs bg-[var(--theme-bg-tertiary)] border-purple-500/30 text-[var(--theme-text-primary)]">
-                    <p className="text-sm">
-                      Créditos que se restauran automáticamente cada día para mantener tus datos actualizados.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <p className="text-2xl font-bold text-[var(--theme-text-primary)]">43</p>
-            <p className="text-sm text-[var(--theme-text-tertiary)]">Actualizar a 300 a las 01:00 cada día</p>
-          </div>
         </CardContent>
       </Card>
 

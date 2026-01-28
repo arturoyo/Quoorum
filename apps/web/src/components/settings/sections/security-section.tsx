@@ -24,6 +24,7 @@ import {
   Check,
   X,
   Shield,
+  LogOut,
 } from 'lucide-react'
 
 interface SecuritySectionProps {
@@ -41,6 +42,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
     confirmPassword: '',
   })
   const [isSaving, setIsSaving] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   // Auth check (runs BEFORE query)
   useEffect(() => {
@@ -116,6 +118,19 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
     }
   }
 
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await supabase.auth.signOut()
+      toast.success('Sesión cerrada correctamente')
+      router.push('/login')
+    } catch {
+      toast.error('Error al cerrar sesión')
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
   const getPasswordStrength = (password: string): { level: number; label: string; color: string } => {
     if (password.length === 0) return { level: 0, label: '', color: '' }
     if (password.length < 6) return { level: 1, label: 'Débil', color: 'text-red-400' }
@@ -152,6 +167,36 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
           Gestiona la seguridad de tu cuenta y sesiones activas
         </p>
       </div>
+
+      {/* Logout Card */}
+      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+        <CardHeader>
+          <CardTitle className="text-[var(--theme-text-primary)]">Cerrar Sesión</CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
+            Cierra tu sesión actual en este dispositivo
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            variant="outline"
+            className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+          >
+            {isLoggingOut ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Cerrando sesión...
+              </>
+            ) : (
+              <>
+                <LogOut className="mr-2 h-4 w-4" />
+                Cerrar sesión
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
         <CardHeader>

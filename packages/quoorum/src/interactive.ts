@@ -148,11 +148,11 @@ export interface ExpertSelectionResult {
 export function displayExpertSelection(options: ExpertSelectionOptions): string {
   const maxExperts = options.maxExperts || 6
 
-  let output = '\n🎯 Expert Selection\n\n'
+  let output = '\n[INFO] Expert Selection\n\n'
   output += '━━━ Auto-selected experts (recommended) ━━━\n\n'
 
   for (const expert of options.autoSelected) {
-    output += `✅ ${expert.name}\n`
+    output += `[OK] ${expert.name}\n`
     output += `   ${expert.title}\n`
     output += `   Expertise: ${expert.expertise.join(', ')}\n\n`
   }

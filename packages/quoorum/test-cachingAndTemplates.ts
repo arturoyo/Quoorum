@@ -68,13 +68,13 @@ async function testCaching() {
     const key3 = generateCacheKey('Different question')
 
     if (key1 === key2 && key1 !== key3) {
-      log('   ✅ generateCacheKey() normalizes questions correctly', colors.green)
+      log('   [OK] generateCacheKey() normalizes questions correctly', colors.green)
       passedTests++
     } else {
-      log('   ❌ Key normalization failed', colors.red)
+      log('   [ERROR] Key normalization failed', colors.red)
     }
   } catch (error) {
-    log(`   ❌ generateCacheKey() failed: ${error}`, colors.red)
+    log(`   [ERROR] generateCacheKey() failed: ${error}`, colors.red)
   }
 
   // Test 2: cacheDebate and getCachedDebate
@@ -86,13 +86,13 @@ async function testCaching() {
     const cached = await getCachedDebate('Cache test question')
 
     if (cached && cached.consensusScore === 0.85) {
-      log('   ✅ cacheDebate/getCachedDebate() work correctly', colors.green)
+      log('   [OK] cacheDebate/getCachedDebate() work correctly', colors.green)
       passedTests++
     } else {
-      log('   ❌ Cache retrieval failed', colors.red)
+      log('   [ERROR] Cache retrieval failed', colors.red)
     }
   } catch (error) {
-    log(`   ❌ cacheDebate/getCachedDebate() failed: ${error}`, colors.red)
+    log(`   [ERROR] cacheDebate/getCachedDebate() failed: ${error}`, colors.red)
   }
 
   // Test 3: getCacheStats
@@ -102,13 +102,13 @@ async function testCaching() {
     const stats = await getCacheStats()
 
     if (stats.entriesCount >= 1) {
-      log(`   ✅ getCacheStats() returns valid stats (entries: ${stats.entriesCount})`, colors.green)
+      log(`   [OK] getCacheStats() returns valid stats (entries: ${stats.entriesCount})`, colors.green)
       passedTests++
     } else {
-      log('   ❌ Cache stats incorrect', colors.red)
+      log('   [ERROR] Cache stats incorrect', colors.red)
     }
   } catch (error) {
-    log(`   ❌ getCacheStats() failed: ${error}`, colors.red)
+    log(`   [ERROR] getCacheStats() failed: ${error}`, colors.red)
   }
 
   // Test 4: cacheExpertResponse
@@ -119,13 +119,13 @@ async function testCaching() {
     const response = await getCachedExpertResponse('patrick-campbell', 'pricing question')
 
     if (response === 'Expert response here') {
-      log('   ✅ Expert response caching works', colors.green)
+      log('   [OK] Expert response caching works', colors.green)
       passedTests++
     } else {
-      log('   ❌ Expert response caching failed', colors.red)
+      log('   [ERROR] Expert response caching failed', colors.red)
     }
   } catch (error) {
-    log(`   ❌ cacheExpertResponse failed: ${error}`, colors.red)
+    log(`   [ERROR] cacheExpertResponse failed: ${error}`, colors.red)
   }
 
   // Test 5: cacheEmbedding
@@ -137,13 +137,13 @@ async function testCaching() {
     const cached = await getCachedEmbedding('test text')
 
     if (cached && cached.length === 5 && cached[0] === 0.1) {
-      log('   ✅ Embedding caching works', colors.green)
+      log('   [OK] Embedding caching works', colors.green)
       passedTests++
     } else {
-      log('   ❌ Embedding caching failed', colors.red)
+      log('   [ERROR] Embedding caching failed', colors.red)
     }
   } catch (error) {
-    log(`   ❌ cacheEmbedding failed: ${error}`, colors.red)
+    log(`   [ERROR] cacheEmbedding failed: ${error}`, colors.red)
   }
 
   // Test 6: getCacheRecommendations
@@ -153,13 +153,13 @@ async function testCaching() {
     const recommendations = await getCacheRecommendations()
 
     if (Array.isArray(recommendations)) {
-      log(`   ✅ getCacheRecommendations() returns ${recommendations.length} recommendations`, colors.green)
+      log(`   [OK] getCacheRecommendations() returns ${recommendations.length} recommendations`, colors.green)
       passedTests++
     } else {
-      log('   ❌ Recommendations format invalid', colors.red)
+      log('   [ERROR] Recommendations format invalid', colors.red)
     }
   } catch (error) {
-    log(`   ❌ getCacheRecommendations() failed: ${error}`, colors.red)
+    log(`   [ERROR] getCacheRecommendations() failed: ${error}`, colors.red)
   }
 
   // Test 7: clearExpiredCache
@@ -169,13 +169,13 @@ async function testCaching() {
     const cleared = await clearExpiredCache()
 
     if (typeof cleared === 'number') {
-      log(`   ✅ clearExpiredCache() cleared ${cleared} entries`, colors.green)
+      log(`   [OK] clearExpiredCache() cleared ${cleared} entries`, colors.green)
       passedTests++
     } else {
-      log('   ❌ Clear expired cache failed', colors.red)
+      log('   [ERROR] Clear expired cache failed', colors.red)
     }
   } catch (error) {
-    log(`   ❌ clearExpiredCache() failed: ${error}`, colors.red)
+    log(`   [ERROR] clearExpiredCache() failed: ${error}`, colors.red)
   }
 
   return { passed: passedTests, total: totalTests }
@@ -192,13 +192,13 @@ async function testTemplates() {
   log('1. Testing ALL_TEMPLATES...', colors.yellow)
   try {
     if (ALL_TEMPLATES && ALL_TEMPLATES.length > 0) {
-      log(`   ✅ ALL_TEMPLATES has ${ALL_TEMPLATES.length} templates`, colors.green)
+      log(`   [OK] ALL_TEMPLATES has ${ALL_TEMPLATES.length} templates`, colors.green)
       passedTests++
     } else {
-      log('   ❌ ALL_TEMPLATES is empty or undefined', colors.red)
+      log('   [ERROR] ALL_TEMPLATES is empty or undefined', colors.red)
     }
   } catch (error) {
-    log(`   ❌ ALL_TEMPLATES failed: ${error}`, colors.red)
+    log(`   [ERROR] ALL_TEMPLATES failed: ${error}`, colors.red)
   }
 
   // Test 2: getTemplatesByIndustry
@@ -208,13 +208,13 @@ async function testTemplates() {
     const saasTemplates = getTemplatesByIndustry('SaaS')
 
     if (saasTemplates && saasTemplates.length > 0) {
-      log(`   ✅ Found ${saasTemplates.length} SaaS templates`, colors.green)
+      log(`   [OK] Found ${saasTemplates.length} SaaS templates`, colors.green)
       passedTests++
     } else {
-      log('   ❌ No SaaS templates found', colors.red)
+      log('   [ERROR] No SaaS templates found', colors.red)
     }
   } catch (error) {
-    log(`   ❌ getTemplatesByIndustry() failed: ${error}`, colors.red)
+    log(`   [ERROR] getTemplatesByIndustry() failed: ${error}`, colors.red)
   }
 
   // Test 3: getTemplatesByCategory
@@ -224,13 +224,13 @@ async function testTemplates() {
     const pricingTemplates = getTemplatesByCategory('Pricing')
 
     if (pricingTemplates && pricingTemplates.length > 0) {
-      log(`   ✅ Found ${pricingTemplates.length} Pricing templates`, colors.green)
+      log(`   [OK] Found ${pricingTemplates.length} Pricing templates`, colors.green)
       passedTests++
     } else {
-      log('   ❌ No Pricing templates found', colors.red)
+      log('   [ERROR] No Pricing templates found', colors.red)
     }
   } catch (error) {
-    log(`   ❌ getTemplatesByCategory() failed: ${error}`, colors.red)
+    log(`   [ERROR] getTemplatesByCategory() failed: ${error}`, colors.red)
   }
 
   // Test 4: searchTemplates
@@ -240,13 +240,13 @@ async function testTemplates() {
     const results = searchTemplates('pricing')
 
     if (results && results.length > 0) {
-      log(`   ✅ searchTemplates() found ${results.length} results for "pricing"`, colors.green)
+      log(`   [OK] searchTemplates() found ${results.length} results for "pricing"`, colors.green)
       passedTests++
     } else {
-      log('   ❌ No search results found', colors.red)
+      log('   [ERROR] No search results found', colors.red)
     }
   } catch (error) {
-    log(`   ❌ searchTemplates() failed: ${error}`, colors.red)
+    log(`   [ERROR] searchTemplates() failed: ${error}`, colors.red)
   }
 
   // Test 5: Custom Templates CRUD
@@ -271,13 +271,13 @@ async function testTemplates() {
     const deleted = deleteTemplate(template.id)
 
     if (retrieved && retrieved.name === 'Test Template' && deleted) {
-      log('   ✅ Custom template CRUD works', colors.green)
+      log('   [OK] Custom template CRUD works', colors.green)
       passedTests++
     } else {
-      log('   ❌ Custom template CRUD failed', colors.red)
+      log('   [ERROR] Custom template CRUD failed', colors.red)
     }
   } catch (error) {
-    log(`   ❌ Custom templates CRUD failed: ${error}`, colors.red)
+    log(`   [ERROR] Custom templates CRUD failed: ${error}`, colors.red)
   }
 
   // Test 6: renderTemplate
@@ -303,15 +303,15 @@ async function testTemplates() {
     const rendered = renderTemplate(template.id, { feature: 'AI Assistant', market: 'SMB' })
 
     if (rendered && rendered.question === 'Should we build AI Assistant for SMB?') {
-      log('   ✅ renderTemplate() works correctly', colors.green)
+      log('   [OK] renderTemplate() works correctly', colors.green)
       passedTests++
     } else {
-      log(`   ❌ renderTemplate() produced: ${rendered?.question}`, colors.red)
+      log(`   [ERROR] renderTemplate() produced: ${rendered?.question}`, colors.red)
     }
 
     deleteTemplate(template.id)
   } catch (error) {
-    log(`   ❌ renderTemplate() failed: ${error}`, colors.red)
+    log(`   [ERROR] renderTemplate() failed: ${error}`, colors.red)
   }
 
   // Test 7: Predefined Templates
@@ -319,13 +319,13 @@ async function testTemplates() {
   log('\n7. Testing Predefined Templates...', colors.yellow)
   try {
     if (PREDEFINED_TEMPLATES && PREDEFINED_TEMPLATES.length > 0) {
-      log(`   ✅ PREDEFINED_TEMPLATES has ${PREDEFINED_TEMPLATES.length} templates`, colors.green)
+      log(`   [OK] PREDEFINED_TEMPLATES has ${PREDEFINED_TEMPLATES.length} templates`, colors.green)
       passedTests++
     } else {
-      log('   ❌ No predefined templates', colors.red)
+      log('   [ERROR] No predefined templates', colors.red)
     }
   } catch (error) {
-    log(`   ❌ Predefined templates failed: ${error}`, colors.red)
+    log(`   [ERROR] Predefined templates failed: ${error}`, colors.red)
   }
 
   return { passed: passedTests, total: totalTests }
@@ -350,10 +350,10 @@ async function runAllTests() {
   log('='.repeat(60), colors.cyan)
 
   if (totalPassed === totalTests) {
-    log('\n✅ All Phase 7 tests passed!\n', colors.green)
+    log('\n[OK] All Phase 7 tests passed!\n', colors.green)
     process.exit(0)
   } else {
-    log('\n⚠️ Some tests failed\n', colors.yellow)
+    log('\n[WARN] Some tests failed\n', colors.yellow)
     process.exit(1)
   }
 }

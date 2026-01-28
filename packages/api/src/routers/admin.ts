@@ -727,4 +727,33 @@ export const adminRouter = router({
       },
     }
   }),
+
+  /**
+   * Get debate costs analytics by phase
+   * Returns all debates with cost breakdown by phase for admin analytics table
+   */
+  getDebatesCostAnalytics: adminProcedure.query(async () => {
+    const debates = await db
+      .select({
+        id: quoorumDebates.id,
+        userId: quoorumDebates.userId,
+        userName: profiles.fullName,
+        userEmail: profiles.email,
+        question: quoorumDebates.question,
+        status: quoorumDebates.status,
+        createdAt: quoorumDebates.createdAt,
+        completedAt: quoorumDebates.completedAt,
+        totalCostUsd: quoorumDebates.totalCostUsd,
+        totalCreditsUsed: quoorumDebates.totalCreditsUsed,
+        costsByPhase: quoorumDebates.costsByPhase,
+        totalRounds: quoorumDebates.totalRounds,
+      })
+      .from(quoorumDebates)
+      .innerJoin(profiles, eq(quoorumDebates.userId, profiles.id))
+      .where(eq(quoorumDebates.status, 'completed'))
+      .orderBy(desc(quoorumDebates.completedAt))
+      .limit(100)
+
+    return debates
+  }),
 })

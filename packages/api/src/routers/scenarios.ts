@@ -7,8 +7,8 @@
 
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
-import { eq, and, desc, isNull, or, like, inArray, sql } from 'drizzle-orm'
-import { router, protectedProcedure, adminProcedure } from '../trpc'
+import { eq, and, desc, isNull, or, ilike, inArray, sql } from 'drizzle-orm'
+import { router, publicProcedure, protectedProcedure, adminProcedure } from '../trpc'
 import { db } from '@quoorum/db'
 import { scenarios, scenarioUsage, profiles } from '@quoorum/db'
 import { logger } from '../lib/logger'
@@ -41,27 +41,27 @@ export const scenariosRouter = router({
   /**
    * List active scenarios (public)
    */
-  list: protectedProcedure
+  list: publicProcedure
     .input(listScenariosSchema)
     .query(async ({ ctx, input }) => {
       const { segment, status, minTier, search, limit, cursor } = input
 
-      const conditions = [
-        // Only show active public scenarios or user's own scenarios
-        or(
-          and(
-            eq(scenarios.isPublic, true),
-            eq(scenarios.status, 'active')
-          ),
-          eq(scenarios.createdBy, ctx.userId)
-        ),
-      ]
+      // Base visibility: escenarios públicos y activos; si hay usuario, incluir los suyos
+      const publicActive = and(
+        eq(scenarios.isPublic, true),
+        eq(scenarios.status, 'active')
+      )
+
+      const conditions = ctx.userId
+        ? [or(publicActive, eq(scenarios.createdBy, ctx.userId))]
+        : [publicActive]
 
       if (segment) {
         conditions.push(eq(scenarios.segment, segment))
       }
 
       if (status) {
+        // Si no hay usuario, solo permitimos estado sobre los públicos activos; el filtro extra aplica sobre el set visible
         conditions.push(eq(scenarios.status, status))
       }
 
@@ -70,10 +70,11 @@ export const scenariosRouter = router({
       }
 
       if (search) {
+        // Case-insensitive match on name or description
         conditions.push(
           or(
-            like(scenarios.name, `%${search}%`),
-            like(scenarios.description, `%${search}%`)
+            ilike(scenarios.name, `%${search}%`),
+            ilike(scenarios.description, `%${search}%`)
           )
         )
       }

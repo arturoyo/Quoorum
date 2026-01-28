@@ -68,7 +68,7 @@ function DebateChatHeader({ debate }: { debate: DebateView }) {
               />
             </div>
             <span className="font-medium">{summary.quality}/100</span>
-            <span>{summary.quality >= 80 ? '✨' : summary.quality >= 60 ? '👍' : '⚠️'}</span>
+            <span>{summary.quality >= 80 ? '[INFO]' : summary.quality >= 60 ? '👍' : '[WARN]'}</span>
           </div>
         </div>
 
@@ -83,7 +83,7 @@ function DebateChatHeader({ debate }: { debate: DebateView }) {
               />
             </div>
             <span className="font-medium">{summary.consensus}%</span>
-            <span>{summary.consensus >= 90 ? '🎯' : summary.consensus >= 70 ? '✅' : '🤔'}</span>
+            <span>{summary.consensus >= 90 ? '[INFO]' : summary.consensus >= 70 ? '[OK]' : '🤔'}</span>
           </div>
         </div>
 

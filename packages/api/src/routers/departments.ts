@@ -101,7 +101,7 @@ Informes: Pipeline reports, forecast accuracy, deal analysis`,
     type: 'product' as const,
     name: 'Producto',
     description: 'CPO y equipo de producto',
-    icon: '🎯',
+    icon: '[INFO]',
     agentRole: 'synthesizer',
     temperature: '0.7', // Innovador pero enfocado en usuario
     basePrompt: `Eres el CPO de la empresa. Tu rol es:

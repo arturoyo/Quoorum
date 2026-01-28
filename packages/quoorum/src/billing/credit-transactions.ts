@@ -39,7 +39,8 @@ export async function deductCredits(
   amount: number,
   debateId?: string,
   source: 'debate_creation' | 'debate_execution' | 'debate_failed' | 'debate_cancelled' | 'admin_adjustment' = 'debate_execution',
-  reason?: string
+  reason?: string,
+  debateQuestion?: string
 ): Promise<CreditDeductionResult> {
   if (amount <= 0) {
     return { success: false, error: 'Invalid credit amount' }
@@ -107,6 +108,7 @@ export async function deductCredits(
       balanceBefore,
       balanceAfter,
       reason: reason || `Credit deduction for ${source}`,
+      metadata: debateQuestion ? { debateQuestion } : null,
     })
 
     quoorumLogger.info('Credit deduction successful', {

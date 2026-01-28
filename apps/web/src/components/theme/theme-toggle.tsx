@@ -109,7 +109,7 @@ export function ThemeDropdown({ className }: { className?: string }) {
 
       <div
         className={cn(
-          "absolute right-0 top-full mt-2 py-2 w-36 rounded-lg shadow-xl opacity-0 invisible",
+          "absolute right-0 bottom-full mb-2 py-2 w-36 rounded-lg shadow-xl opacity-0 invisible",
           "group-hover:opacity-100 group-hover:visible transition-all duration-200",
           "bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)]"
         )}

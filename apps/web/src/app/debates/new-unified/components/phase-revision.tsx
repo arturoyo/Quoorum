@@ -389,7 +389,7 @@ export function PhaseRevision({
         <div className="flex flex-col items-center gap-4 pt-6">
           {!hasSufficientCredits && (
             <p className="text-sm text-amber-400 text-center">
-              ⚠️ No puedes crear el debate sin créditos suficientes
+              [WARN] No puedes crear el debate sin créditos suficientes
             </p>
           )}
           <Button

@@ -43,6 +43,17 @@ export interface CreateSessionInput {
 // MESSAGE TYPES
 // ============================================================================
 
+/**
+ * Debate phase types for cost tracking
+ * - context: Loading context, critical questions
+ * - experts: Expert selection and suggestions
+ * - strategy: Strategy analysis phase
+ * - revision: Revision phase
+ * - debate: Main debate execution
+ * - synthesis: Final synthesis
+ */
+export type DebatePhaseType = 'context' | 'experts' | 'strategy' | 'revision' | 'debate' | 'synthesis'
+
 export interface DebateMessage {
   id: string
   sessionId: string
@@ -61,6 +72,7 @@ export interface DebateMessage {
   translation?: string
   expert?: string // Expert ID for dynamic mode
   isError?: boolean // True if this message represents an error (agent failed)
+  phase?: DebatePhaseType // Phase where this message was generated (for cost tracking by phase)
 }
 
 // ============================================================================
@@ -183,6 +195,15 @@ export interface DebateResult {
       messagesCount: number
     }
   > // Cost breakdown by AI provider (denormalized for analytics)
+  costsByPhase?: Record<
+    DebatePhaseType,
+    {
+      costUsd: number
+      creditsUsed: number
+      tokensUsed: number
+      messagesCount: number
+    }
+  > // Cost breakdown by debate phase (context, experts, strategy, debate, etc.)
   totalRounds: number
   consensusScore: number
   consensus?: number // Alias for consensusScore

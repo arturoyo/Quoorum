@@ -23,6 +23,7 @@ import type {
   ConsensusResult,
   AgentConfig,
   FinalSynthesis,
+  DebatePhaseType,
 } from './types'
 
 // ============================================================================
@@ -201,6 +202,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
           agent,
           prompt,
           identity, // Pass narrative identity
+          phase: 'debate', // Main debate phase
         })
 
         // Skip agent if it failed (null means it was skipped due to quota/balance issues)
@@ -309,6 +311,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       totalCostUsd: totalCost,
       totalCreditsUsed: actualCreditsUsed,
       costsByProvider: calculateCostsByProvider(rounds), // Denormalized analytics
+      costsByPhase: calculateCostsByPhase(rounds), // Cost breakdown by phase (for admin analytics)
       totalRounds: rounds.length,
       consensusScore: consensusResult?.consensusScore ?? 0,
       themeId: themeSelection.themeId,
@@ -341,6 +344,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
       totalCostUsd: totalCost,
       totalCreditsUsed: convertUsdToCredits(totalCost),
       costsByProvider: rounds.length > 0 ? calculateCostsByProvider(rounds) : undefined,
+      costsByPhase: rounds.length > 0 ? calculateCostsByPhase(rounds) : undefined,
       totalRounds: rounds.length,
       consensusScore: 0,
       themeId: themeSelection.themeId,
@@ -405,6 +409,7 @@ interface GenerateAgentResponseInput {
   agent: AgentConfig
   prompt: string
   identity?: AssignedIdentity // Narrative identity for this agent
+  phase?: DebatePhaseType // Debate phase for cost tracking
 }
 
 export async function generateAgentResponse(
@@ -488,6 +493,7 @@ export async function generateAgentResponse(
       provider: agent.provider, // Denormalized for analytics
       modelId: agent.model, // Denormalized for analytics
       createdAt: new Date(),
+      phase: input.phase, // Debate phase for cost tracking
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -660,4 +666,59 @@ function calculateCostsByProvider(
   }
 
   return breakdown
+}
+
+/**
+ * Calculate cost breakdown by debate phase
+ * Used for admin analytics and cost tracking per phase
+ */
+function calculateCostsByPhase(
+  rounds: DebateRound[]
+): Record<
+  DebatePhaseType,
+  {
+    costUsd: number
+    creditsUsed: number
+    tokensUsed: number
+    messagesCount: number
+  }
+> {
+  const breakdown: Record<
+    string,
+    {
+      costUsd: number
+      creditsUsed: number
+      tokensUsed: number
+      messagesCount: number
+    }
+  > = {}
+
+  for (const round of rounds) {
+    for (const message of round.messages) {
+      const phase = message.phase ?? 'debate' // Default to 'debate' if not set
+
+      if (!breakdown[phase]) {
+        breakdown[phase] = {
+          costUsd: 0,
+          creditsUsed: 0,
+          tokensUsed: 0,
+          messagesCount: 0,
+        }
+      }
+
+      breakdown[phase]!.costUsd += message.costUsd
+      breakdown[phase]!.tokensUsed += message.tokensUsed
+      breakdown[phase]!.messagesCount += 1
+    }
+  }
+
+  // Calculate credits for each phase
+  for (const phase in breakdown) {
+    const data = breakdown[phase]
+    if (data) {
+      data.creditsUsed = convertUsdToCredits(data.costUsd)
+    }
+  }
+
+  return breakdown as Record<DebatePhaseType, { costUsd: number; creditsUsed: number; tokensUsed: number; messagesCount: number }>
 }

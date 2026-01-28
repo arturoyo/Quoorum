@@ -160,7 +160,7 @@ export function ConsensusProgress({ score }: { score: number }) {
 export function EmptyDebateList() {
   return (
     <div className="text-center py-12">
-      <div className="text-6xl mb-4">💬</div>
+      <div className="text-6xl mb-4">[CHAT]</div>
       <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No hay debates aún</h3>
       <p className="text-[var(--theme-text-tertiary)] mb-6">Crea tu primer debate para empezar</p>
       <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
@@ -173,7 +173,7 @@ export function EmptyDebateList() {
 export function EmptySearchResults({ query }: { query: string }) {
   return (
     <div className="text-center py-12">
-      <div className="text-6xl mb-4">🔍</div>
+      <div className="text-6xl mb-4">[SEARCH]</div>
       <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No se encontraron resultados</h3>
       <p className="text-[var(--theme-text-tertiary)]">No hay debates que coincidan con "{query}"</p>
     </div>
@@ -183,7 +183,7 @@ export function EmptySearchResults({ query }: { query: string }) {
 export function NoExperts() {
   return (
     <div className="text-center py-12">
-      <div className="text-6xl mb-4">👥</div>
+      <div className="text-6xl mb-4">[USERS]</div>
       <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No hay expertos personalizados</h3>
       <p className="text-[var(--theme-text-tertiary)] mb-6">Crea expertos personalizados para tus debates</p>
       <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
@@ -200,7 +200,7 @@ export function NoExperts() {
 export function ErrorState({ error, retry }: { error: string; retry?: () => void }) {
   return (
     <div className="text-center py-12">
-      <div className="text-6xl mb-4">⚠️</div>
+      <div className="text-6xl mb-4">[WARN]</div>
       <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">Algo salió mal</h3>
       <p className="text-[var(--theme-text-tertiary)] mb-6">{error}</p>
       {retry && (
@@ -218,7 +218,7 @@ export function ErrorState({ error, retry }: { error: string; retry?: () => void
 export function NetworkError({ retry }: { retry?: () => void }) {
   return (
     <div className="text-center py-12">
-      <div className="text-6xl mb-4">📡</div>
+      <div className="text-6xl mb-4">[OFFLINE]</div>
       <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">Sin conexión</h3>
       <p className="text-[var(--theme-text-tertiary)] mb-6">Verifica tu conexión a internet</p>
       {retry && (
@@ -241,7 +241,7 @@ export function SuccessMessage({ message, onClose }: { message: string; onClose?
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="text-2xl">✅</div>
+        <div className="text-2xl">[OK]</div>
         <p className="text-green-800 font-medium">{message}</p>
       </div>
       {onClose && (
@@ -249,7 +249,7 @@ export function SuccessMessage({ message, onClose }: { message: string; onClose?
           onClick={onClose}
           className="text-green-600 hover:text-green-800 transition-colors"
         >
-          ✕
+          X
         </button>
       )}
     </div>
@@ -260,7 +260,7 @@ export function InfoMessage({ message, onClose }: { message: string; onClose?: (
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="text-2xl">ℹ️</div>
+        <div className="text-2xl">[INFO]</div>
         <p className="text-blue-800 font-medium">{message}</p>
       </div>
       {onClose && (
@@ -268,7 +268,7 @@ export function InfoMessage({ message, onClose }: { message: string; onClose?: (
           onClick={onClose}
           className="text-blue-600 hover:text-blue-800 transition-colors"
         >
-          ✕
+          X
         </button>
       )}
     </div>
@@ -279,7 +279,7 @@ export function WarningMessage({ message, onClose }: { message: string; onClose?
   return (
     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="text-2xl">⚠️</div>
+        <div className="text-2xl">[WARN]</div>
         <p className="text-yellow-800 font-medium">{message}</p>
       </div>
       {onClose && (
@@ -287,7 +287,7 @@ export function WarningMessage({ message, onClose }: { message: string; onClose?
           onClick={onClose}
           className="text-yellow-600 hover:text-yellow-800 transition-colors"
         >
-          ✕
+          X
         </button>
       )}
     </div>

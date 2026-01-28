@@ -615,7 +615,7 @@ export function PhaseContexto({
               onSearchInternet={() => onEnableInternetSearch?.(currentQuestion.id)}
               isSearching={state.internetSearch?.isSearching && state.internetSearch?.currentQuestionId === currentQuestion.id}
               searchQuery={state.internetSearch?.currentSearchQuery}
-              questionNumber={state.currentQuestionIndex + 1}
+              questionNumber={Object.keys(state.answers).length + 1}
               totalQuestions={state.questions.length > 0 ? state.questions.length : undefined}
               isContextPhaseReady={state.phase === 'ready'}
               isAdmin={isAdmin}

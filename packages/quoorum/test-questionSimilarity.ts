@@ -40,17 +40,17 @@ async function testQuestionSimilarity() {
     const topics3 = extractTopics('What positioning should we use in the market?')
 
     if (topics1.includes('pricing') || topics1.includes('price')) {
-      log('   ✅ extractTopics() works for pricing questions', colors.green)
+      log('   [OK] extractTopics() works for pricing questions', colors.green)
       passedTests++
     } else {
-      log(`   ❌ Expected pricing topic, got: ${topics1.join(', ')}`, colors.red)
+      log(`   [ERROR] Expected pricing topic, got: ${topics1.join(', ')}`, colors.red)
     }
 
     log(`      Topics for pricing question: ${topics1.join(', ')}`)
     log(`      Topics for growth question: ${topics2.join(', ')}`)
     log(`      Topics for positioning question: ${topics3.join(', ')}`)
   } catch (error) {
-    log(`   ❌ extractTopics() failed: ${error}`, colors.red)
+    log(`   [ERROR] extractTopics() failed: ${error}`, colors.red)
   }
 
   // Test 2: cosineSimilarity
@@ -67,10 +67,10 @@ async function testQuestionSimilarity() {
     const sim4 = cosineSimilarity([1, 0.5, 0], [1, 0.6, 0])
 
     if (Math.abs(sim1 - 1) < 0.01 && Math.abs(sim2) < 0.01 && sim4 > 0.9) {
-      log('   ✅ cosineSimilarity() works correctly', colors.green)
+      log('   [OK] cosineSimilarity() works correctly', colors.green)
       passedTests++
     } else {
-      log(`   ❌ Unexpected similarity values: identical=${sim1}, orthogonal=${sim2}`, colors.red)
+      log(`   [ERROR] Unexpected similarity values: identical=${sim1}, orthogonal=${sim2}`, colors.red)
     }
 
     log(`      Identical vectors: ${sim1.toFixed(4)}`)
@@ -78,7 +78,7 @@ async function testQuestionSimilarity() {
     log(`      Opposite vectors: ${sim3.toFixed(4)}`)
     log(`      Similar vectors: ${sim4.toFixed(4)}`)
   } catch (error) {
-    log(`   ❌ cosineSimilarity() failed: ${error}`, colors.red)
+    log(`   [ERROR] cosineSimilarity() failed: ${error}`, colors.red)
   }
 
   // Test 3: generateQuestionEmbedding (may fail without API key)
@@ -89,18 +89,18 @@ async function testQuestionSimilarity() {
 
     if (Array.isArray(embedding)) {
       if (embedding.length === 0) {
-        log('   ⚠️ generateQuestionEmbedding() returned empty array (no API key)', colors.yellow)
+        log('   [WARN] generateQuestionEmbedding() returned empty array (no API key)', colors.yellow)
         log('      This is expected without OPENAI_API_KEY', colors.yellow)
         passedTests++ // Still counts as pass if graceful fallback
       } else {
-        log(`   ✅ generateQuestionEmbedding() returned ${embedding.length}-dim vector`, colors.green)
+        log(`   [OK] generateQuestionEmbedding() returned ${embedding.length}-dim vector`, colors.green)
         passedTests++
       }
     } else {
-      log(`   ❌ Expected array, got: ${typeof embedding}`, colors.red)
+      log(`   [ERROR] Expected array, got: ${typeof embedding}`, colors.red)
     }
   } catch (error) {
-    log(`   ❌ generateQuestionEmbedding() failed: ${error}`, colors.red)
+    log(`   [ERROR] generateQuestionEmbedding() failed: ${error}`, colors.red)
   }
 
   // Test 4: findSimilarDebates (may return empty without Pinecone)
@@ -110,7 +110,7 @@ async function testQuestionSimilarity() {
     const similar = await findSimilarDebates('Should we raise prices?')
 
     if (Array.isArray(similar)) {
-      log(`   ✅ findSimilarDebates() returned ${similar.length} results`, colors.green)
+      log(`   [OK] findSimilarDebates() returned ${similar.length} results`, colors.green)
       passedTests++
       if (similar.length > 0) {
         log(`      First result: "${similar[0].question}" (similarity: ${similar[0].similarity.toFixed(2)})`)
@@ -118,10 +118,10 @@ async function testQuestionSimilarity() {
         log('      No similar debates found (expected without Pinecone/data)')
       }
     } else {
-      log(`   ❌ Expected array, got: ${typeof similar}`, colors.red)
+      log(`   [ERROR] Expected array, got: ${typeof similar}`, colors.red)
     }
   } catch (error) {
-    log(`   ❌ findSimilarDebates() failed: ${error}`, colors.red)
+    log(`   [ERROR] findSimilarDebates() failed: ${error}`, colors.red)
   }
 
   // Test 5: recommendDebates
@@ -131,13 +131,13 @@ async function testQuestionSimilarity() {
     const recommendations = await recommendDebates('What pricing model should we use?')
 
     if (Array.isArray(recommendations)) {
-      log(`   ✅ recommendDebates() returned ${recommendations.length} recommendations`, colors.green)
+      log(`   [OK] recommendDebates() returned ${recommendations.length} recommendations`, colors.green)
       passedTests++
     } else {
-      log(`   ❌ Expected array, got: ${typeof recommendations}`, colors.red)
+      log(`   [ERROR] Expected array, got: ${typeof recommendations}`, colors.red)
     }
   } catch (error) {
-    log(`   ❌ recommendDebates() failed: ${error}`, colors.red)
+    log(`   [ERROR] recommendDebates() failed: ${error}`, colors.red)
   }
 
   // Summary
@@ -152,14 +152,14 @@ async function testQuestionSimilarity() {
 testQuestionSimilarity()
   .then((success) => {
     if (success) {
-      log('\n✅ All question similarity tests passed!\n', colors.green)
+      log('\n[OK] All question similarity tests passed!\n', colors.green)
       process.exit(0)
     } else {
-      log('\n⚠️ Some tests failed (may be expected without API keys)\n', colors.yellow)
+      log('\n[WARN] Some tests failed (may be expected without API keys)\n', colors.yellow)
       process.exit(0) // Exit 0 since failures are expected without APIs
     }
   })
   .catch((error) => {
-    log(`\n❌ Test error: ${error}\n`, colors.red)
+    log(`\n[ERROR] Test error: ${error}\n`, colors.red)
     process.exit(1)
   })

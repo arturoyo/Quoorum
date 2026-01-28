@@ -371,14 +371,14 @@ REGLAS PARA QUESTIONS (varía el tipo inteligentemente):
 - Cada pregunta debe atacar una dimensión diferente (no redundantes)
 
 Ejemplos BUENOS de variedad:
-✅ ASSUMPTION yes_no: {"assumption": "Tienes equipo técnico interno", "questionType": "yes_no", "alternatives": []}
-✅ ASSUMPTION multiple_choice: {"assumption": "Presupuesto <50k USD", "questionType": "multiple_choice", "alternatives": ["<50k", "50-200k", ">200k"]}
-✅ QUESTION yes_no: {"question": "¿Ya tienes producto en el mercado?", "questionType": "yes_no"}
-✅ QUESTION multiple_choice: {"question": "¿Cuántos usuarios tienes?", "questionType": "multiple_choice", "options": ["0-100", "100-1000", ">1000"]}
-✅ QUESTION free_text: {"question": "Describe tu propuesta de valor única", "questionType": "free_text"}
+[OK] ASSUMPTION yes_no: {"assumption": "Tienes equipo técnico interno", "questionType": "yes_no", "alternatives": []}
+[OK] ASSUMPTION multiple_choice: {"assumption": "Presupuesto <50k USD", "questionType": "multiple_choice", "alternatives": ["<50k", "50-200k", ">200k"]}
+[OK] QUESTION yes_no: {"question": "¿Ya tienes producto en el mercado?", "questionType": "yes_no"}
+[OK] QUESTION multiple_choice: {"question": "¿Cuántos usuarios tienes?", "questionType": "multiple_choice", "options": ["0-100", "100-1000", ">1000"]}
+[OK] QUESTION free_text: {"question": "Describe tu propuesta de valor única", "questionType": "free_text"}
 
-❌ MALO: Todas las preguntas son multiple_choice con 3 opciones (patrón rígido)
-✅ BUENO: Mezcla inteligente de yes_no, multiple_choice y free_text según lo que maximice contexto
+[ERROR] MALO: Todas las preguntas son multiple_choice con 3 opciones (patrón rígido)
+[OK] BUENO: Mezcla inteligente de yes_no, multiple_choice y free_text según lo que maximice contexto
 ${domainInfo}
 
 IMPORTANTE: Al final del summary, incluye una REFLECTION que demuestre que entendiste la situación del usuario.
@@ -1264,17 +1264,17 @@ Responde SOLO con el JSON.`;
 REGLA DE ORO: Solo menciona lo que REALMENTE se dijo. Si algo no se mencionó, NO lo incluyas.
 
 PROHIBIDO:
-❌ Inventar datos que no se proporcionaron ("recursos limitados" si no lo dijo)
-❌ Obviedades vacías ("cada contratación cuenta", "la cultura es importante")
-❌ Frases de relleno empático ("estás en un punto de inflexión...")
-❌ Asumir emociones o preocupaciones no expresadas
-❌ Generalidades que aplican a cualquier empresa
+[ERROR] Inventar datos que no se proporcionaron ("recursos limitados" si no lo dijo)
+[ERROR] Obviedades vacías ("cada contratación cuenta", "la cultura es importante")
+[ERROR] Frases de relleno empático ("estás en un punto de inflexión...")
+[ERROR] Asumir emociones o preocupaciones no expresadas
+[ERROR] Generalidades que aplican a cualquier empresa
 
 OBLIGATORIO:
-✅ Citar o parafrasear datos CONCRETOS que el usuario proporcionó
-✅ Ser específico: nombres, números, roles, características mencionadas
-✅ Ser honesto: si falta información, decirlo claramente
-✅ Ir al grano: qué sabemos, qué decisión enfrenta, qué necesitamos
+[OK] Citar o parafrasear datos CONCRETOS que el usuario proporcionó
+[OK] Ser específico: nombres, números, roles, características mencionadas
+[OK] Ser honesto: si falta información, decirlo claramente
+[OK] Ir al grano: qué sabemos, qué decisión enfrenta, qué necesitamos
 
 FORMATO DE RESPUESTA (JSON exacto):
 {
@@ -1293,7 +1293,7 @@ EJEMPLOS:
 
 Si el usuario dice: "Quiero contratar más vendedores pero manteniendo nuestra cultura de startup"
 
-✅ BIEN:
+[OK] BIEN:
 {
   "headline": "Contratar vendedores manteniendo la cultura de startup",
   "companyProfile": "Sé que eres una startup que quiere crecer en ventas y valora su cultura actual.",
@@ -1306,7 +1306,7 @@ Si el usuario dice: "Quiero contratar más vendedores pero manteniendo nuestra c
   "readyMessage": "Con esta información podemos empezar. Los expertos analizarán cómo escalar ventas preservando cultura."
 }
 
-❌ MAL (inventando):
+[ERROR] MAL (inventando):
 {
   "headline": "Escalar sin perder la esencia",
   "companyProfile": "Estás en un momento de crecimiento con recursos limitados", // ← NO DIJO ESTO

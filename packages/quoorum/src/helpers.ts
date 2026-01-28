@@ -328,8 +328,8 @@ export function formatCost(costUsd: number): string {
  * Formatea un score (0-100) con emoji
  */
 export function formatScore(score: number): string {
-  let emoji = '🔴'
-  if (score >= 80) emoji = '🟢'
+  let emoji = '[ERROR]'
+  if (score >= 80) emoji = '[OK]'
   else if (score >= 60) emoji = '🟡'
   else if (score >= 40) emoji = '🟠'
 
@@ -340,8 +340,8 @@ export function formatScore(score: number): string {
  * Formatea complejidad con emoji
  */
 export function formatComplexity(complexity: number): string {
-  let emoji = '🟢'
-  if (complexity >= 8) emoji = '🔴'
+  let emoji = '[OK]'
+  if (complexity >= 8) emoji = '[ERROR]'
   else if (complexity >= 6) emoji = '🟠'
   else if (complexity >= 4) emoji = '🟡'
 

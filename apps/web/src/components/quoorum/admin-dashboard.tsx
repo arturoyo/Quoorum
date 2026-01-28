@@ -70,7 +70,7 @@ export function AdminDashboard({ overview, growth, topUsers }: AdminDashboardPro
           title="Avg Consensus"
           value={`${(overview.avgConsensus * 100).toFixed(0)}%`}
           subtitle={`Quality: ${(overview.avgQuality * 100).toFixed(0)}%`}
-          icon="🎯"
+          icon="[INFO]"
         />
       </div>
 

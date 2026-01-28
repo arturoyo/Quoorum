@@ -366,7 +366,7 @@ async function main() {
   log('info', `Imports checked: ${importsChecked}`)
 
   if (errors.length === 0) {
-    log('success', 'No import errors found! ✨\n')
+    log('success', 'No import errors found! [INFO]\n')
     process.exit(0)
   }
 

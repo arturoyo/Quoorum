@@ -365,7 +365,7 @@
         experts: [
           { id: 'patrick', name: 'Patrick', category: 'pricing', emoji: '🔵' },
           { id: 'alex', name: 'Alex', category: 'pricing', emoji: '🔵' },
-          { id: 'april', name: 'April', category: 'gtm', emoji: '🟢' },
+          { id: 'april', name: 'April', category: 'gtm', emoji: '[OK]' },
         ],
         rounds: 5,
         cost: 0.23,
@@ -395,7 +395,7 @@
             round: 2,
             isIntervention: true,
             type: 'challenge_depth',
-            content: '⚠️ Necesito más profundidad en el análisis. ¿Qué datos cuantitativos respaldan 49€?',
+            content: '[WARN] Necesito más profundidad en el análisis. ¿Qué datos cuantitativos respaldan 49€?',
             time: '12:36 PM'
           }
         ]
@@ -403,11 +403,11 @@
       {
         id: 'session-2',
         question: '¿Cómo posicionar Wallie: "WhatsApp CRM" o "AI Sales Assistant"?',
-        shortQuestion: '🎯 Positioning Strategy',
+        shortQuestion: '[INFO] Positioning Strategy',
         topOption: 'AI Assistant',
         experts: [
-          { id: 'april', name: 'April', category: 'gtm', emoji: '🟢' },
-          { id: 'peep', name: 'Peep', category: 'gtm', emoji: '🟢' },
+          { id: 'april', name: 'April', category: 'gtm', emoji: '[OK]' },
+          { id: 'peep', name: 'Peep', category: 'gtm', emoji: '[OK]' },
         ],
         rounds: 7,
         cost: 0.31,
@@ -419,7 +419,7 @@
       {
         id: 'session-3',
         question: '¿Qué feature construir primero: Forum, Voice Analytics, o AI Coaching?',
-        shortQuestion: '🚀 Roadmap Priority',
+        shortQuestion: '[INFO] Roadmap Priority',
         topOption: 'Forum',
         experts: [
           { id: 'rahul', name: 'Rahul', category: 'product', emoji: '🟣' },
@@ -458,7 +458,7 @@
             <span>•</span>
             <span>$${debate.cost.toFixed(2)}</span>
             <span>•</span>
-            <span>${debate.consensus}% ${debate.consensus >= 90 ? '🎯' : '✅'}</span>
+            <span>${debate.consensus}% ${debate.consensus >= 90 ? '[INFO]' : '[OK]'}</span>
           </div>
           <div class="debate-timestamp">${debate.timestamp}</div>
         </div>
@@ -497,14 +497,14 @@
               <div class="progress-bar">
                 <div class="progress-fill green" style="width: ${debate.quality}%"></div>
               </div>
-              <span>${debate.quality}/100 ${debate.quality >= 80 ? '✨' : '👍'}</span>
+              <span>${debate.quality}/100 ${debate.quality >= 80 ? '[INFO]' : '👍'}</span>
             </div>
             <div class="metric">
               <span class="metric-label">Consensus:</span>
               <div class="progress-bar">
                 <div class="progress-fill blue" style="width: ${debate.consensus}%"></div>
               </div>
-              <span>${debate.consensus}% ${debate.consensus >= 90 ? '🎯' : '✅'}</span>
+              <span>${debate.consensus}% ${debate.consensus >= 90 ? '[INFO]' : '[OK]'}</span>
             </div>
             <div class="metric">
               <span>💰 $${debate.cost.toFixed(3)}</span>

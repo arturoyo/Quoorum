@@ -9,7 +9,7 @@ PROFILE_COUNT=$(docker exec quoorum-postgres psql -U postgres -d quoorum -t -c "
 echo "📊 Perfiles encontrados: $PROFILE_COUNT"
 
 if [ "$PROFILE_COUNT" -eq 0 ]; then
-  echo "⚠️ No hay perfiles en PostgreSQL local"
+  echo "[WARN] No hay perfiles en PostgreSQL local"
   echo ""
   echo "Para sincronizar perfiles desde Supabase, ejecuta:"
   echo "  cd scripts"
@@ -26,6 +26,6 @@ if [ "$PROFILE_COUNT" -eq 0 ]; then
   echo "  VALUES ('PROFILE_ID', 'AUTH_USER_ID', 'tu-email@example.com', 'Tu Nombre', 'user', true)"
   echo "  ON CONFLICT (id) DO NOTHING;"
 else
-  echo "✅ Listando perfiles existentes:"
+  echo "[OK] Listando perfiles existentes:"
   docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT id, user_id, email, name FROM profiles;"
 fi

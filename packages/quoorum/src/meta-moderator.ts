@@ -78,7 +78,7 @@ function generateSpecificIntervention(
     case 'shallow':
       return {
         type: 'challenge_depth',
-        prompt: `⚠️ META-MODERADOR: El debate carece de profundidad suficiente.
+        prompt: `[WARN] META-MODERADOR: El debate carece de profundidad suficiente.
 
 INSTRUCCIONES OBLIGATORIAS:
 1. Proporciona datos concretos, números, porcentajes o evidencia cuantitativa
@@ -95,7 +95,7 @@ NO respondas con generalidades. Profundiza con rigor analítico.`,
     case 'repetitive':
       return {
         type: 'explore_alternatives',
-        prompt: `⚠️ META-MODERADOR: El debate se está volviendo repetitivo.
+        prompt: `[WARN] META-MODERADOR: El debate se está volviendo repetitivo.
 
 INSTRUCCIONES OBLIGATORIAS:
 1. Identifica ángulos NO explorados todavía
@@ -112,7 +112,7 @@ NO repitas lo ya dicho. Aporta perspectivas NUEVAS.`,
     case 'lack_of_diversity':
       return {
         type: 'diversify_perspectives',
-        prompt: `⚠️ META-MODERADOR: El debate carece de diversidad de perspectivas.
+        prompt: `[WARN] META-MODERADOR: El debate carece de diversidad de perspectivas.
 
 INSTRUCCIONES OBLIGATORIAS:
 1. Analiza desde la perspectiva del RIESGO: ¿Qué puede salir mal?
@@ -129,7 +129,7 @@ Cubre AL MENOS 3 perspectivas diferentes en tu respuesta.`,
     case 'premature_consensus':
       return {
         type: 'prevent_premature_consensus',
-        prompt: `⚠️ META-MODERADOR: Detectado consenso prematuro sin exploración suficiente.
+        prompt: `[WARN] META-MODERADOR: Detectado consenso prematuro sin exploración suficiente.
 
 INSTRUCCIONES OBLIGATORIAS:
 1. Identifica asunciones NO cuestionadas en el consenso actual
@@ -146,7 +146,7 @@ NO aceptes el consenso sin cuestionarlo rigurosamente.`,
     case 'superficial':
       return {
         type: 'request_evidence',
-        prompt: `⚠️ META-MODERADOR: Los argumentos carecen de evidencia sólida.
+        prompt: `[WARN] META-MODERADOR: Los argumentos carecen de evidencia sólida.
 
 INSTRUCCIONES OBLIGATORIAS:
 1. Proporciona datos cuantitativos que respalden tus afirmaciones
@@ -174,7 +174,7 @@ NO hagas afirmaciones sin evidencia. Respalda todo con datos.`,
  * Genera prompt genérico de desafío
  */
 function generateGenericChallengePrompt(analysis: QualityAnalysis): string {
-  return `⚠️ META-MODERADOR: El debate necesita mayor rigor.
+  return `[WARN] META-MODERADOR: El debate necesita mayor rigor.
 
 Calidad actual: ${analysis.overallQuality}/100
 - Profundidad: ${analysis.depthScore}/100
@@ -244,7 +244,7 @@ export function getInterventionFrequency(qualityAnalysis: QualityAnalysis): numb
  * Genera resumen de intervención para logging
  */
 export function summarizeIntervention(intervention: ModeratorIntervention): string {
-  const emoji = intervention.severity >= 8 ? '🚨' : intervention.severity >= 6 ? '⚠️' : 'ℹ️'
+  const emoji = intervention.severity >= 8 ? '🚨' : intervention.severity >= 6 ? '[WARN]' : 'ℹ️'
   return `${emoji} Intervención: ${intervention.type} | Severidad: ${intervention.severity}/10 | Razón: ${intervention.reason}`
 }
 

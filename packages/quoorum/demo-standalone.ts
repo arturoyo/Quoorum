@@ -205,7 +205,7 @@ function demoQuestionAnalysis(question: string, analysis: QuestionAnalysis) {
   log(`\n📝 Pregunta: "${question}"`, colors.bright)
   log('\n🔍 Análisis de pregunta:', colors.cyan)
 
-  log('\n✅ Análisis completado:', colors.green)
+  log('\n[OK] Análisis completado:', colors.green)
   log(`\n  Complejidad: ${analysis.complexity}/10`, colors.yellow)
   log(`  Tipo de decisión: ${analysis.decisionType}`, colors.yellow)
 
@@ -235,7 +235,7 @@ function demoExpertMatching(analysis: QuestionAnalysis) {
     maxExperts: 7,
   })
 
-  log('\n✅ Expertos seleccionados:', colors.green)
+  log('\n[OK] Expertos seleccionados:', colors.green)
 
   const primaryExperts = matches.filter((m) => m.suggestedRole === 'primary')
   const secondaryExperts = matches.filter((m) => m.suggestedRole === 'secondary')
@@ -279,11 +279,11 @@ function demoQualityMonitoring() {
 
   const quality = analyzeDebateQuality(SIMULATED_DEBATE_MESSAGES)
 
-  log('\n✅ Análisis de calidad completado:', colors.green)
+  log('\n[OK] Análisis de calidad completado:', colors.green)
   log(summarizeQuality(quality), colors.dim)
 
   if (quality.issues.length > 0) {
-    log('\n⚠️  Problemas detectados:', colors.yellow)
+    log('\n[WARN]  Problemas detectados:', colors.yellow)
     for (const issue of quality.issues) {
       log(`    • ${issue.type} (severidad: ${issue.severity}/10): ${issue.description}`, colors.dim)
     }
@@ -305,7 +305,7 @@ function demoMetaModerator() {
   const quality = analyzeDebateQuality(SIMULATED_DEBATE_MESSAGES)
 
   if (shouldIntervene(quality)) {
-    log('\n⚠️  Intervención necesaria!', colors.red)
+    log('\n[WARN]  Intervención necesaria!', colors.red)
 
     const intervention = generateIntervention(quality)
 
@@ -313,12 +313,12 @@ function demoMetaModerator() {
     log('\n📢 Prompt de intervención:', colors.magenta)
     log('\n' + intervention.prompt, colors.dim)
   } else {
-    log('\n✅ Calidad del debate es aceptable. No se requiere intervención.', colors.green)
+    log('\n[OK] Calidad del debate es aceptable. No se requiere intervención.', colors.green)
   }
 }
 
 function runDemo() {
-  header('🚀 DEMO: Sistema Dinámico de Expertos de Forum')
+  header('[INFO] DEMO: Sistema Dinámico de Expertos de Forum')
 
   log('Este demo muestra cómo funciona el sistema dinámico con preguntas reales de Wallie.\n')
   log('Componentes demostrados:', colors.bright)
@@ -353,7 +353,7 @@ function runDemo() {
     log('\n')
   }
 
-  header('✅ DEMO COMPLETADO')
+  header('[OK] DEMO COMPLETADO')
 
   log('El sistema dinámico está listo para:', colors.bright)
   log('  • Analizar cualquier pregunta estratégica')

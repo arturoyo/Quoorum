@@ -1,9 +1,9 @@
 /**
  * ThemedText - Text components using theme CSS variables
  *
- * ✅ Funciona en light Y dark mode
- * ✅ Sin colores hardcodeados
- * ✅ Consistente con el design system
+ * [OK] Funciona en light Y dark mode
+ * [OK] Sin colores hardcodeados
+ * [OK] Consistente con el design system
  *
  * @example
  * <ThemedText.Primary>Texto principal</ThemedText.Primary>

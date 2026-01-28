@@ -34,6 +34,7 @@
   "dependencies": {
     "inngest": "^3.20.0",
     "@quoorum/db": "workspace:*",
+    "@quoorum/quoorum": "workspace:*",
     "drizzle-orm": "^0.38.0",
     "resend": "^6.6.0",
     "glob": "^11.0.0"

@@ -17,9 +17,6 @@ try {
 }
 
 const createContext = async (opts?: FetchCreateContextFnOptions) => {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:19',message:'createContext ENTRY',data:{hasOpts:!!opts,hasReq:!!opts?.req},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-  // #endregion
   try {
     // Get cookies from request headers
     const cookieHeader = opts?.req.headers.get("cookie") || "";
@@ -45,15 +42,38 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       });
     }
 
-    // PostgreSQL-only mode: Get user email from cookie
-    // Support both test-auth-bypass and user-email cookies
-    const userEmail = cookies['test-auth-bypass'] || cookies['user-email'] || null;
+    // SECURITY: Cookie bypass allowed for localhost (dev/test) with optional secret token
+    let userEmail: string | null = null;
+    const host = opts?.req.headers.get('host')?.toLowerCase() ?? '';
+    const isLocalHost = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+    const allowCookieBypass = isLocalHost || process.env.NODE_ENV === 'development';
+
+    if (allowCookieBypass) {
+      const bypassCookie = cookies['test-auth-bypass'] || cookies['user-email'];
+      const secretToken = process.env.DEV_AUTH_BYPASS_SECRET;
+      
+      // If secret is set, require it in the bypass cookie (format: email:secret)
+      if (bypassCookie) {
+        if (secretToken) {
+          const [email, token] = bypassCookie.split(':');
+          if (token === secretToken) {
+            userEmail = email;
+          } else {
+            systemLogger.warn("[tRPC Context] Invalid bypass token", { hasToken: !!token, isLocalHost });
+          }
+        } else {
+          // No secret configured, allow simple email bypass (backward compat for local)
+          userEmail = bypassCookie;
+        }
+      }
+    }
 
     // Debug: Log cookie parsing
     systemLogger.debug("[tRPC Context] Cookie parsing", {
       cookieHeader: cookieHeader.substring(0, 100), // First 100 chars
       cookiesKeys: Object.keys(cookies),
-      userEmail,
+      userEmail: userEmail ? '[REDACTED]' : null,
+      isProduction: process.env.NODE_ENV === 'production',
     });
 
     if (!userEmail) {
@@ -69,27 +89,8 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
 
     systemLogger.debug("[tRPC Context] PostgreSQL-only mode - looking up user", { email: userEmail });
 
-    // Find profile in PostgreSQL local by email
-    // Debug: Test database connection first
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:70',message:'Before DB connection test',data:{userEmail,dbExists:!!db},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
-    try {
-      const testQueryStart = Date.now();
-      const testQuery = await db.select({ count: sql<number>`count(*)` }).from(profiles).limit(1);
-      const testQueryTime = Date.now() - testQueryStart;
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:73',message:'DB connection test SUCCESS',data:{profilesCount:testQuery[0]?.count,queryTimeMs:testQueryTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-      // #endregion
-      systemLogger.debug("[tRPC Context] Database connection test successful", { profilesCount: testQuery[0]?.count });
-    } catch (dbError) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:76',message:'DB connection test FAILED',data:{errorMessage:(dbError as Error).message,errorName:(dbError as Error).name,errorStack:(dbError as Error).stack?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-      // #endregion
-      systemLogger.error("[tRPC Context] Database connection test failed", dbError as Error);
-      throw dbError;
-    }
-
+    // OPTIMIZED: Run all queries in parallel
+    const startTime = Date.now();
     const [profile] = await db
       .select()
       .from(profiles)
@@ -107,36 +108,20 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       };
     }
 
-    systemLogger.debug("[tRPC Context] Profile found", { profileId: profile.id, email: profile.email });
+    systemLogger.debug("[tRPC Context] Profile found", { profileId: profile.id, email: profile.email, queryTimeMs: Date.now() - startTime });
 
-    // Parallelize user and admin role queries for faster context creation
-    const queryStart = Date.now();
-    const [userResults, adminCheckResults] = await Promise.all([
-      db
-        .select()
-        .from(users)
-        .where(sql`LOWER(${users.email}) = LOWER(${userEmail})`)
-        .limit(1),
-      db
-        .select({ role: adminUsers.role })
-        .from(adminUsers)
-        .where(eq(adminUsers.userId, profile.id))
-        .limit(1)
+    // OPTIMIZED: Run user lookup and admin check in parallel
+    const [dbUserRows, adminCheckRows] = await Promise.all([
+      db.select().from(users).where(sql`LOWER(${users.email}) = LOWER(${userEmail})`).limit(1),
+      db.select({ role: adminUsers.role }).from(adminUsers).where(eq(adminUsers.userId, profile.id)).limit(1)
     ]);
-    const queryTime = Date.now() - queryStart;
-    
-    systemLogger.debug("[tRPC Context] Parallel queries completed", { 
-      queryTimeMs: queryTime,
-      hasUser: userResults.length > 0,
-      hasAdminRole: adminCheckResults.length > 0
-    });
 
-    let dbUser = userResults[0] || null;
+    let dbUser = dbUserRows[0] || null;
+    const adminCheck = adminCheckRows[0] || null;
 
     if (!dbUser) {
       systemLogger.info("[tRPC Context] User not found in users table, creating", { email: userEmail, profileId: profile.id });
       
-      const adminCheck = adminCheckResults[0];
       const defaultRole = adminCheck?.role === "super_admin" || adminCheck?.role === "admin" 
         ? "admin" 
         : (profile.role === "admin" || profile.role === "super_admin" ? profile.role : "member");
@@ -158,22 +143,8 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       systemLogger.info("[tRPC Context] User created", { userId: dbUser.id, role: dbUser.role });
     }
 
-    // Check admin status
-    const [adminCheck] = await db
-      .select({ role: adminUsers.role })
-      .from(adminUsers)
-      .where(eq(adminUsers.userId, profile.id))
-      .limit(1);
-
-    const knownAdminEmails = ['usuario@quoorum.com'];
-    const isKnownAdminEmail = knownAdminEmails.some(email => 
-      dbUser.email?.toLowerCase().trim() === email.toLowerCase().trim()
-    );
-
     let finalRole = dbUser.role;
     if (adminCheck && (adminCheck.role === "super_admin" || adminCheck.role === "admin")) {
-      finalRole = "admin";
-    } else if (isKnownAdminEmail) {
       finalRole = "admin";
     } else if (dbUser.role === "admin" || dbUser.role === "super_admin") {
       finalRole = dbUser.role;
@@ -208,9 +179,6 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       authUserId: profile.userId, // Original user ID from auth system (if any)
     };
   } catch (error) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:187',message:'createContext ERROR',data:{errorMessage:(error as Error).message,errorName:(error as Error).name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-    // #endregion
     systemLogger.error("[tRPC Context] Error creating context", error as Error);
     return {
       db,
@@ -223,9 +191,6 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
 };
 
 const handler = async (req: Request) => {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'apps/web/src/app/api/trpc/[[...trpc]]/route.ts:195',message:'tRPC handler ENTRY',data:{method:req.method,url:req.url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
   try {
     // HEAD: health check; responder 200 sin ejecutar tRPC
     if (req.method === "HEAD") {

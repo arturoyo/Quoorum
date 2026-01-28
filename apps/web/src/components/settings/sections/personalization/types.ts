@@ -14,7 +14,6 @@ export interface PersonalizationSectionProps {
 }
 
 export interface ProfileData {
-  nickname: string
   occupation: string
   about: string
   customInstructions: string
@@ -48,7 +47,6 @@ export interface ContextFile {
 // ═══════════════════════════════════════════════════════════
 
 export const INITIAL_PROFILE_DATA: ProfileData = {
-  nickname: '',
   occupation: '',
   about: '',
   customInstructions: '',

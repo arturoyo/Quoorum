@@ -240,7 +240,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 flex-shrink-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)]">
-            ¡Hola, {user?.user_metadata?.full_name || user?.email?.split("@")[0] || 'Usuario'}!
+            ¡Hola, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split("@")[0] || 'Usuario'}!
           </h1>
           <p className="text-sm sm:text-base text-[var(--theme-text-secondary)] mt-1">
             Aquí tienes un resumen de tu actividad en Quoorum.
@@ -248,7 +248,7 @@ export default function DashboardPage() {
           {hasDatabaseError && (
             <div className="mt-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
               <p className="text-yellow-300 text-sm">
-                ⚠️ La base de datos no está disponible. Algunos datos pueden no mostrarse correctamente.
+                [WARN] La base de datos no está disponible. Algunos datos pueden no mostrarse correctamente.
                 Asegúrate de que Docker Desktop esté corriendo y PostgreSQL esté iniciado.
               </p>
             </div>

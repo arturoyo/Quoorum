@@ -19,38 +19,31 @@ export const usersRouter = router({
     const hasUserRole = ctx.user.role === "admin" || ctx.user.role === "super_admin";
     systemLogger.debug('[users.getMe] hasUserRole', { hasUserRole, userId: ctx.user.id });
     
-    // Parallelize profile and admin role queries
-    const queryStart = Date.now();
-    const [profileResults, adminUserResults] = await Promise.all([
-      ctx.db
-        .select()
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1),
-      // Pre-fetch admin role data if profile exists
-      ctx.db
-        .select({
-          id: adminUsers.id,
-          userId: adminUsers.userId,
-          roleId: adminUsers.roleId,
-          roleSlug: adminRoles.slug,
-        })
-        .from(adminUsers)
-        .innerJoin(adminRoles, eq(adminUsers.roleId, adminRoles.id))
-        .where(and(eq(adminUsers.userId, ctx.user.id), eq(adminUsers.isActive, true)))
-        .limit(1)
+    // OPTIMIZED: Run both queries in parallel
+    const [[profile], adminCheckResult] = await Promise.all([
+      ctx.db.select().from(profiles).where(eq(profiles.email, ctx.user.email)).limit(1),
+      (async () => {
+        const [p] = await ctx.db.select().from(profiles).where(eq(profiles.email, ctx.user.email)).limit(1);
+        if (!p) return null;
+        const [admin] = await ctx.db
+          .select({
+            id: adminUsers.id,
+            userId: adminUsers.userId,
+            roleId: adminUsers.roleId,
+            roleSlug: adminRoles.slug,
+          })
+          .from(adminUsers)
+          .innerJoin(adminRoles, eq(adminUsers.roleId, adminRoles.id))
+          .where(and(eq(adminUsers.userId, p.id), eq(adminUsers.isActive, true)))
+          .limit(1);
+        return admin || null;
+      })()
     ]);
-    const queryTime = Date.now() - queryStart;
     
-    const profile = profileResults[0] || null;
-    const adminUser = adminUserResults[0] || null;
+    systemLogger.debug('[users.getMe] Profile found', { profileId: profile?.id || null, userId: ctx.user.id });
     
-    systemLogger.debug('[users.getMe] Queries completed (parallelized)', { 
-      queryTimeMs: queryTime,
-      profileId: profile?.id || null,
-      hasAdminRole: !!adminUser,
-      userId: ctx.user.id 
-    });
+    const adminUser = adminCheckResult;
+    systemLogger.debug('[users.getMe] Admin user found', { adminRole: adminUser ? adminUser.roleSlug : null, userId: ctx.user.id });
     
     const isAdmin = hasUserRole || !!adminUser;
     systemLogger.debug('[users.getMe] Final isAdmin', { isAdmin, userId: ctx.user.id });

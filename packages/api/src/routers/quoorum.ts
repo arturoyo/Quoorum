@@ -157,6 +157,7 @@ export const quoorumRouter = router({
     .query(async ({ input }) => {
       const { limit, offset, orderBy, status, search } = input
 
+      // Admin endpoint: No userId filter by design - admins must see ALL debates
       let query = db.select().from(quoorumDebates)
 
       // Filters
@@ -195,6 +196,7 @@ export const quoorumRouter = router({
    * Get debate by ID
    */
   get: adminProcedure.input(z.object({ id: z.string().uuid() })).query(async ({ input }) => {
+    // Admin endpoint: No userId filter by design - admins must access any debate
     const [debate] = await db.select().from(quoorumDebates).where(eq(quoorumDebates.id, input.id))
 
     if (!debate) {
@@ -212,7 +214,7 @@ export const quoorumRouter = router({
 
   /**
    * Create and run new debate
-   * ⚠️ EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
+   * [WARN] EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
    */
   create: adminWithRateLimitProcedure
     .input(
@@ -805,7 +807,7 @@ export const quoorumRouter = router({
 
   /**
    * Refine question with AI
-   * ⚠️ EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
+   * [WARN] EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
    */
   refineQuestion: adminWithRateLimitProcedure
     .input(z.object({ question: z.string() }))
@@ -816,7 +818,7 @@ export const quoorumRouter = router({
 
   /**
    * Suggest experts for question
-   * ⚠️ EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
+   * [WARN] EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
    */
   suggestExperts: adminWithRateLimitProcedure
     .input(z.object({ question: z.string() }))
@@ -827,7 +829,7 @@ export const quoorumRouter = router({
 
   /**
    * Extract insights from debate
-   * ⚠️ EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
+   * [WARN] EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
    */
   extractInsights: adminWithRateLimitProcedure
     .input(z.object({ debateId: z.string() }))
@@ -838,7 +840,7 @@ export const quoorumRouter = router({
 
   /**
    * Generate smart summary
-   * ⚠️ EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
+   * [WARN] EXPENSIVE OPERATION - Uses adminWithRateLimitProcedure
    */
   generateSummary: adminWithRateLimitProcedure
     .input(z.object({ debateId: z.string() }))
@@ -1231,6 +1233,7 @@ async function runDebateAsync(
         totalCostUsd: calculateDebateCost(result as unknown as DebateResult),
         totalCreditsUsed: actualCreditsUsed, // Actual credits consumed (calculated from USD cost)
         costsByProvider: result.costsByProvider, // Cost breakdown by provider
+        costsByPhase: result.costsByPhase, // Cost breakdown by debate phase (for admin analytics)
         themeId: result.themeId, // Narrative theme used (e.g., 'greek-mythology', 'education', 'generic')
         themeConfidence: result.themeConfidence, // Theme selection confidence score (0-1)
         finalRanking: mappedRanking,

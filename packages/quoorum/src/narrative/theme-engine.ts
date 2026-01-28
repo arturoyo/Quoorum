@@ -477,7 +477,7 @@ function createScienceTheme(): NarrativeTheme {
         name: 'Popper',
         role: 'critic',
         title: 'Falsabilidad',
-        emoji: '❌',
+        emoji: '[ERROR]',
         color: '#DC2626',
         personality: 'Crítico, enfocado en la falsación',
         systemPrompt: 'Analiza críticamente desde el falsacionismo y la refutación.',
@@ -533,7 +533,7 @@ function createGenericTheme(): NarrativeTheme {
         name: 'Perspectiva B',
         role: 'critic',
         title: 'Análisis Crítico',
-        emoji: '🔴',
+        emoji: '[ERROR]',
         color: '#EF4444', // Red
         personality: 'Neutral, objetivo, enfocado en riesgos',
         systemPrompt: 'Analiza los riesgos y desafíos potenciales de cada opción.',
@@ -555,7 +555,7 @@ function createGenericTheme(): NarrativeTheme {
         name: 'Perspectiva D',
         role: 'synthesizer',
         title: 'Síntesis Final',
-        emoji: '🟢',
+        emoji: '[OK]',
         color: '#10B981', // Green
         personality: 'Neutral, objetivo, enfocado en síntesis',
         systemPrompt: 'Sintetiza las perspectivas anteriores en una conclusión equilibrada.',
@@ -664,7 +664,7 @@ function createFallbackIdentity(
     optimizer: { name: 'Oportunista', emoji: '⚡', color: '#10B981' },
     critic: { name: 'Escéptico', emoji: '⚔️', color: '#DC2626' },
     analyst: { name: 'Analista', emoji: '📊', color: '#F59E0B' },
-    synthesizer: { name: 'Estratega', emoji: '🎯', color: '#4F46E5' },
+    synthesizer: { name: 'Estratega', emoji: '[INFO]', color: '#4F46E5' },
   }
 
   const roleConfig = roleNames[role]

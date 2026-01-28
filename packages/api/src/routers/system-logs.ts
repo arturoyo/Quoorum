@@ -42,16 +42,23 @@ const statsSchema = z.object({
 // ═══════════════════════════════════════════════════════════
 export const systemLogsRouter = router({
   // -----------------------------------------------------------
-  // CREATE: Insertar log (público - permite logs sin auth)
+  // CREATE: Insertar log (requiere autenticación)
+  // SECURITY FIX: Changed from publicProcedure to protectedProcedure
   // -----------------------------------------------------------
-  create: publicProcedure
+  create: protectedProcedure
     .input(createLogSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Sanitize metadata to prevent injection
+      const sanitizedMetadata = input.metadata
+        ? JSON.parse(JSON.stringify(input.metadata))
+        : undefined;
+
       const [log] = await db
         .insert(systemLogs)
         .values({
           ...input,
-          userId: null, // Public endpoint - no userId required
+          metadata: sanitizedMetadata,
+          userId: ctx.userId, // Now requires authenticated user
         })
         .returning();
 
@@ -59,11 +66,12 @@ export const systemLogsRouter = router({
     }),
 
   // -----------------------------------------------------------
-  // BATCH CREATE: Insertar múltiples logs (para performance)
+  // BATCH CREATE: Insertar múltiples logs (requiere autenticación)
+  // SECURITY FIX: Changed from publicProcedure to protectedProcedure
   // -----------------------------------------------------------
-  createBatch: publicProcedure
-    .input(z.array(createLogSchema).max(100)) // Máximo 100 logs por batch
-    .mutation(async ({ input }) => {
+  createBatch: protectedProcedure
+    .input(z.array(createLogSchema).max(50)) // Reduced max to 50 for rate limiting
+    .mutation(async ({ ctx, input }) => {
       if (input.length === 0) return [];
 
       const logs = await db
@@ -71,7 +79,11 @@ export const systemLogsRouter = router({
         .values(
           input.map((log) => ({
             ...log,
-            userId: null, // Public endpoint - no userId required
+            // Sanitize metadata
+            metadata: log.metadata
+              ? JSON.parse(JSON.stringify(log.metadata))
+              : undefined,
+            userId: ctx.userId, // Now requires authenticated user
           }))
         )
         .returning();

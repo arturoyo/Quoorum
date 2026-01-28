@@ -78,13 +78,13 @@ if ($LatestLog) {
 # Summary
 Write-Host "`n" + ("=" * 70) -ForegroundColor DarkGray
 if ($ErrorsFound.Count -eq 0) {
-    Write-Host "✅ No compilation errors found" -ForegroundColor Green
+    Write-Host "[OK] No compilation errors found" -ForegroundColor Green
     exit 0
 } else {
-    Write-Host "⚠️  FOUND $($ErrorsFound.Count) ERROR(S):`n" -ForegroundColor Yellow
+    Write-Host "[WARN]  FOUND $($ErrorsFound.Count) ERROR(S):`n" -ForegroundColor Yellow
     
     foreach ($Err in $ErrorsFound) {
-        Write-Host "🔴 Source: $($Err.Source)" -ForegroundColor Red
+        Write-Host "[ERROR] Source: $($Err.Source)" -ForegroundColor Red
         if ($Err.Pattern) {
             Write-Host "   Pattern: $($Err.Pattern)" -ForegroundColor Gray
         }

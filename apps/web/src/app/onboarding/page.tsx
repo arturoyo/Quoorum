@@ -40,12 +40,12 @@ const STEPS = [
 ];
 
 const ROLES = [
-  { value: "founder", label: "Fundador/a", emoji: "🚀" },
+  { value: "founder", label: "Fundador/a", emoji: "[INFO]" },
   { value: "ceo", label: "CEO", emoji: "👔" },
   { value: "cto", label: "CTO", emoji: "💻" },
   { value: "product_manager", label: "Product Manager", emoji: "📱" },
   { value: "investor", label: "Inversor/a", emoji: "💰" },
-  { value: "consultant", label: "Consultor/a", emoji: "🎯" },
+  { value: "consultant", label: "Consultor/a", emoji: "[INFO]" },
   { value: "team_lead", label: "Team Lead", emoji: "👥" },
   { value: "individual_contributor", label: "Individual Contributor", emoji: "⚡" },
   { value: "other", label: "Otro", emoji: "🔧" },
@@ -504,7 +504,7 @@ export default function OnboardingPage() {
                       <div className="text-sm text-[var(--theme-text-secondary)]">Análisis en 30s</div>
                     </div>
                     <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                      <div className="text-2xl mb-2">🎯</div>
+                      <div className="text-2xl mb-2">[INFO]</div>
                       <div className="text-sm text-[var(--theme-text-secondary)]">Personalizado</div>
                     </div>
                   </div>

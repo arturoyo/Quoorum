@@ -11,6 +11,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface DebateContextCardProps {
+  question?: string
   context: {
     background?: string
     sources?: Array<{ content?: string; type?: string }>
@@ -25,6 +26,7 @@ interface DebateContextCardProps {
 }
 
 export function DebateContextCard({
+  question,
   context,
   status,
   hasRounds,
@@ -32,6 +34,9 @@ export function DebateContextCard({
   onToggle,
 }: DebateContextCardProps) {
   const getSummaryText = () => {
+    if (question) {
+      return question.length > 120 ? `${question.substring(0, 120)}...` : question
+    }
     if (context.assessment && typeof context.assessment === 'object' && 'summary' in context.assessment) {
       return String(context.assessment.summary || '')
     }
@@ -99,6 +104,18 @@ export function DebateContextCard({
       {/* Content - Collapsible */}
       {isExpanded && (
         <div className="px-4 pb-4 space-y-3 border-t border-white/10 pt-3">
+          {/* Original Question */}
+          {question && (
+            <div>
+              <div className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--theme-text-secondary)]">
+                Pregunta completa:
+              </div>
+              <p className="text-sm text-white whitespace-pre-wrap">
+                {question}
+              </p>
+            </div>
+          )}
+
           {/* Background/Context */}
           {context.background && (
             <div>

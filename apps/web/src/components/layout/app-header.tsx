@@ -15,7 +15,6 @@ import { classifyTRPCError } from '@/lib/trpc/error-handler'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles } from 'lucide-react'
-import { ThemeDropdown } from '@/components/theme'
 import { CreditCounter } from '@/components/quoorum/credit-counter'
 import { AppFooter } from '@/components/layout/app-footer'
 import type { User } from '@supabase/supabase-js'
@@ -170,7 +169,7 @@ export function AppHeader({
             <div className="flex-1">
               <QuoorumLogoWithText
                 href="/"
-                iconSize={48}
+                iconSize={200}
                 showGradient={true}
                 showText={false}
                 className="transition-opacity group-hover:opacity-80"
@@ -195,8 +194,6 @@ export function AppHeader({
 
             {/* Botones de auth - Columna derecha */}
             <div className="flex-1 flex items-center justify-end gap-3">
-              {/* Theme toggle for landing */}
-              <ThemeDropdown className="hidden sm:block" />
               {!isAuthenticated ? (
                 <>
                   <Link href="/login" className="hidden sm:block">
@@ -293,7 +290,7 @@ export function AppHeader({
           <div className="relative flex h-16 items-center justify-between">
             <QuoorumLogoWithText
               href="/dashboard"
-              iconSize={48}
+              iconSize={200}
               showGradient={true}
               showText={false}
               className="transition-opacity group-hover:opacity-80"
@@ -363,13 +360,11 @@ export function AppHeader({
                 <Button
                   variant="ghost"
                   className="hidden sm:block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2"
-                  title="Escenarios de Oro"
+                  title="Escenarios"
                 >
                   <Sparkles className="h-4 w-4" />
                 </Button>
               </Link>
-              {/* Theme toggle */}
-              <ThemeDropdown className="hidden sm:block" />
               <Button
                 onClick={handleSettingsClick}
                 variant="ghost"

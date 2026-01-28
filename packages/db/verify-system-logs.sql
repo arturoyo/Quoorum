@@ -5,7 +5,7 @@
 -- 1. Verificar que RLS está habilitado
 SELECT
   tablename,
-  CASE WHEN rowsecurity THEN '✅ ENABLED' ELSE '❌ DISABLED' END as rls_status
+  CASE WHEN rowsecurity THEN '[OK] ENABLED' ELSE '[ERROR] DISABLED' END as rls_status
 FROM pg_tables
 WHERE schemaname = 'public' AND tablename = 'system_logs';
 
@@ -14,9 +14,9 @@ SELECT
   policyname,
   cmd,
   CASE
-    WHEN qual = 'true' THEN '✅ Public (anyone can insert)'
-    WHEN qual LIKE '%admin%' THEN '✅ Admin only'
-    ELSE '✅ Custom rule'
+    WHEN qual = 'true' THEN '[OK] Public (anyone can insert)'
+    WHEN qual LIKE '%admin%' THEN '[OK] Admin only'
+    ELSE '[OK] Custom rule'
   END as access_level,
   qual as policy_rule
 FROM pg_policies

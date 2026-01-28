@@ -11,7 +11,7 @@ $ErrorActionPreference = "Continue"
 Write-Host "🔧 Auto-fix Dev Errors" -ForegroundColor Cyan
 Write-Host ("=" * 70) -ForegroundColor DarkGray
 if ($DryRun) {
-    Write-Host "⚠️  DRY RUN MODE - No changes will be made`n" -ForegroundColor Yellow
+    Write-Host "[WARN]  DRY RUN MODE - No changes will be made`n" -ForegroundColor Yellow
 }
 
 # Get latest log file
@@ -49,12 +49,12 @@ function Fix-PortInUse {
                     }
                 } catch {
                     if ($Verbose) {
-                        Write-Host "   ⚠️  Could not stop process $ProcessId : $($_.Exception.Message)" -ForegroundColor DarkYellow
+                        Write-Host "   [WARN]  Could not stop process $ProcessId : $($_.Exception.Message)" -ForegroundColor DarkYellow
                     }
                 }
             }
             Start-Sleep -Seconds 1
-            Write-Host "   ✅ Port $Port freed" -ForegroundColor Green
+            Write-Host "   [OK] Port $Port freed" -ForegroundColor Green
         } else {
             Write-Host "   [DRY RUN] Would free port $Port" -ForegroundColor Cyan
         }
@@ -99,22 +99,22 @@ function Fix-ModuleNotFound {
             Push-Location $PSScriptRoot\..
             $Output = pnpm install 2>&1
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "   ✅ Dependencies reinstalled" -ForegroundColor Green
+                Write-Host "   [OK] Dependencies reinstalled" -ForegroundColor Green
                 
                 # Also rebuild affected packages
                 Write-Host "   → Rebuilding packages..." -ForegroundColor Gray
                 pnpm build --filter @quoorum/db --filter @quoorum/api --filter @quoorum/workers 2>&1 | Out-Null
-                Write-Host "   ✅ Packages rebuilt" -ForegroundColor Green
+                Write-Host "   [OK] Packages rebuilt" -ForegroundColor Green
                 
                 Pop-Location
                 return $true
             } else {
-                Write-Host "   ❌ Failed to reinstall dependencies" -ForegroundColor Red
+                Write-Host "   [ERROR] Failed to reinstall dependencies" -ForegroundColor Red
                 Pop-Location
                 return $false
             }
         } catch {
-            Write-Host "   ❌ Error: $_" -ForegroundColor Red
+            Write-Host "   [ERROR] Error: $_" -ForegroundColor Red
             Pop-Location
             return $false
         }
@@ -164,11 +164,11 @@ function Fix-BuildCache {
                 Remove-Item -Recurse -Force "apps\web\.next" -ErrorAction SilentlyContinue
             }
             
-            Write-Host "   ✅ Build cache cleaned" -ForegroundColor Green
+            Write-Host "   [OK] Build cache cleaned" -ForegroundColor Green
             Pop-Location
             return $true
         } catch {
-            Write-Host "   ❌ Error: $_" -ForegroundColor Red
+            Write-Host "   [ERROR] Error: $_" -ForegroundColor Red
             Pop-Location
             return $false
         }
@@ -203,7 +203,7 @@ function Fix-TypeScriptErrors {
     }
     
     Write-Host "🔍 Detected: TypeScript errors" -ForegroundColor Yellow
-    Write-Host "   ⚠️  TypeScript errors require manual code fixes" -ForegroundColor DarkYellow
+    Write-Host "   [WARN]  TypeScript errors require manual code fixes" -ForegroundColor DarkYellow
     Write-Host "   → Running typecheck to see details..." -ForegroundColor Gray
     
     if (-not $DryRun) {
@@ -230,7 +230,7 @@ function Fix-MissingEnvVars {
         $LogContent -match "Environment variable.*not found") {
         
         Write-Host "🔍 Detected: Missing environment variables" -ForegroundColor Yellow
-        Write-Host "   ⚠️  Environment variables require manual configuration" -ForegroundColor DarkYellow
+        Write-Host "   [WARN]  Environment variables require manual configuration" -ForegroundColor DarkYellow
         Write-Host "   → Check .env.example for required variables" -ForegroundColor Gray
         
         return $false # Can't auto-fix env vars
@@ -313,7 +313,7 @@ function Fix-NextJSModuleResolution {
                 # Remove .next folder
                 if (Test-Path "apps\web\.next") {
                     Remove-Item -Recurse -Force "apps\web\.next" -ErrorAction SilentlyContinue
-                    Write-Host "   ✅ Next.js cache cleaned" -ForegroundColor Green
+                    Write-Host "   [OK] Next.js cache cleaned" -ForegroundColor Green
                 }
                 
                 # Verify package.json exports
@@ -322,20 +322,20 @@ function Fix-NextJSModuleResolution {
                 # Check workers package
                 $WorkersPkg = Get-Content "packages\workers\package.json" -Raw | ConvertFrom-Json
                 if (-not $WorkersPkg.exports.'./client') {
-                    Write-Host "   ⚠️  Missing export './client' in @quoorum/workers" -ForegroundColor Yellow
+                    Write-Host "   [WARN]  Missing export './client' in @quoorum/workers" -ForegroundColor Yellow
                 } else {
-                    Write-Host "   ✅ @quoorum/workers exports verified" -ForegroundColor Green
+                    Write-Host "   [OK] @quoorum/workers exports verified" -ForegroundColor Green
                 }
                 
                 # Rebuild workers package specifically
                 Write-Host "   → Rebuilding @quoorum/workers..." -ForegroundColor Gray
                 pnpm build --filter @quoorum/workers 2>&1 | Out-Null
-                Write-Host "   ✅ @quoorum/workers rebuilt" -ForegroundColor Green
+                Write-Host "   [OK] @quoorum/workers rebuilt" -ForegroundColor Green
                 
                 Pop-Location
                 return $true
             } catch {
-                Write-Host "   ❌ Error: $_" -ForegroundColor Red
+                Write-Host "   [ERROR] Error: $_" -ForegroundColor Red
                 Pop-Location
                 return $false
             }
@@ -370,7 +370,7 @@ Write-Host "📊 SUMMARY" -ForegroundColor Cyan
 Write-Host ("=" * 70) -ForegroundColor DarkGray
 
 if ($FixesApplied.Count -gt 0) {
-    Write-Host "`n✅ Fixes Applied:" -ForegroundColor Green
+    Write-Host "`n[OK] Fixes Applied:" -ForegroundColor Green
     foreach ($Fix in $FixesApplied) {
         Write-Host "   • $Fix" -ForegroundColor Gray
     }
@@ -380,7 +380,7 @@ if ($FixesApplied.Count -gt 0) {
 }
 
 if ($FixesFailed.Count -gt 0) {
-    Write-Host "`n❌ Fixes Failed:" -ForegroundColor Red
+    Write-Host "`n[ERROR] Fixes Failed:" -ForegroundColor Red
     foreach ($Fix in $FixesFailed) {
         Write-Host "   • $Fix" -ForegroundColor Gray
     }
@@ -393,5 +393,5 @@ Write-Host "   3. For TypeScript errors, review and fix manually" -ForegroundCol
 Write-Host ""
 
 if ($DryRun) {
-    Write-Host "⚠️  This was a DRY RUN. Run without -DryRun to apply fixes.`n" -ForegroundColor Yellow
+    Write-Host "[WARN]  This was a DRY RUN. Run without -DryRun to apply fixes.`n" -ForegroundColor Yellow
 }

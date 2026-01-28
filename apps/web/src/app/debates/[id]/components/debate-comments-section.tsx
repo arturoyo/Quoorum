@@ -45,16 +45,16 @@ export function DebateCommentsSection({
             }}
           >
             {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
               <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronUp className="h-4 w-4" />
             )}
           </Button>
         </div>
 
         {/* Content - Collapsible */}
         {isExpanded && (
-          <div className="border-t border-white/10 px-4 pb-4 pt-4">
+          <div className="border-t border-white/10 px-4 py-3">
             <DebateComments debateId={debateId} showHeader={false} />
           </div>
         )}

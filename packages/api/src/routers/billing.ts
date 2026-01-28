@@ -861,7 +861,7 @@ export const billingRouter = router({
       const total = countResult[0]?.count ?? 0
 
       // Get transactions with debate info (if available)
-      const transactions = await db
+      const rawTransactions = await db
         .select({
           id: creditTransactions.id,
           type: creditTransactions.type,
@@ -871,8 +871,9 @@ export const billingRouter = router({
           balanceAfter: creditTransactions.balanceAfter,
           reason: creditTransactions.reason,
           debateId: creditTransactions.debateId,
-          debateQuestion: quoorumDebates.question,
+          debateQuestionFromJoin: quoorumDebates.question,
           debateStatus: quoorumDebates.status,
+          metadata: creditTransactions.metadata,
           createdAt: creditTransactions.createdAt,
         })
         .from(creditTransactions)
@@ -884,6 +885,21 @@ export const billingRouter = router({
         .orderBy(desc(creditTransactions.createdAt))
         .limit(input.limit)
         .offset(input.offset)
+
+      // Transform: use debateQuestion from join first, fallback to metadata
+      const transactions = rawTransactions.map((t) => ({
+        id: t.id,
+        type: t.type,
+        source: t.source,
+        amount: t.amount,
+        balanceBefore: t.balanceBefore,
+        balanceAfter: t.balanceAfter,
+        reason: t.reason,
+        debateId: t.debateId,
+        debateQuestion: t.debateQuestionFromJoin || (t.metadata as { debateQuestion?: string } | null)?.debateQuestion || null,
+        debateStatus: t.debateStatus,
+        createdAt: t.createdAt,
+      }))
 
       return {
         transactions,
@@ -1013,6 +1029,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
       .where(eq(subscriptions.id, existingSub.id))
   } else {
     // Get plan ID from DB (we need the actual UUID)
+    // No userId filter: plans are system-level data, not user-specific
     const [dbPlan] = await db.select().from(plans).where(eq(plans.tier, planId)).limit(1)
 
     if (!dbPlan) {

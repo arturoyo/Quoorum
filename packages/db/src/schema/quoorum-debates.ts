@@ -79,6 +79,19 @@ export const quoorumDebates = pgTable('quoorum_debates', {
     >
   >(),
 
+  // Cost breakdown by debate phase (denormalized for analytics)
+  costsByPhase: jsonb('costs_by_phase').$type<
+    Record<
+      string, // phase: 'context' | 'experts' | 'strategy' | 'revision' | 'debate' | 'synthesis'
+      {
+        costUsd: number
+        creditsUsed: number
+        tokensUsed: number
+        messagesCount: number
+      }
+    >
+  >(),
+
   // Final ranking
   finalRanking: jsonb('final_ranking').$type<
     Array<{

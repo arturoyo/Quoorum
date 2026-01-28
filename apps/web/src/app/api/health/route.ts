@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 
 /**
  * Health check endpoint
- * Returns server status, database connectivity, and basic system info
+ * SECURITY: Only returns basic status without exposing sensitive info
+ * For detailed health checks, use admin endpoints
  */
 export async function GET() {
   const startTime = Date.now();
@@ -10,57 +11,36 @@ export async function GET() {
   try {
     // Check database connectivity (lazy import to avoid module load errors)
     let dbStatus = "unknown";
-    let dbLatency = 0;
-    let dbError: string | null = null;
 
     try {
       const { db } = await import("@quoorum/db");
       const { sql } = await import("drizzle-orm");
-      
-      const dbStartTime = Date.now();
-      await db.execute(sql`SELECT 1 as test`);
-      dbLatency = Date.now() - dbStartTime;
-      dbStatus = "connected";
-    } catch (error) {
-      dbStatus = "disconnected";
-      dbError = error instanceof Error ? error.message : String(error);
-      dbLatency = Date.now() - startTime;
-    }
 
-    // Check environment variables
-    const envStatus = {
-      hasDatabaseUrl: !!process.env.DATABASE_URL,
-      hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      nodeEnv: process.env.NODE_ENV || "development",
-    };
+      await db.execute(sql`SELECT 1 as test`);
+      dbStatus = "connected";
+    } catch {
+      dbStatus = "disconnected";
+    }
 
     const totalLatency = Date.now() - startTime;
 
-    const uptime = process.uptime();
+    // SECURITY: Only return minimal public information
+    // No configuration details, no environment variables, no error messages
     const health = {
-      status: dbStatus === "connected" ? "healthy" : "degraded",
+      status: dbStatus === "connected" ? "ok" : "degraded",
       timestamp: new Date().toISOString(),
-      uptime: isFinite(uptime) ? Math.round(uptime) : 0,
-      database: {
-        status: dbStatus,
-        latency: dbLatency,
-        ...(dbError && { error: dbError }),
-      },
-      environment: envStatus,
       responseTime: totalLatency,
     };
 
-    const statusCode = health.status === "healthy" ? 200 : 503;
+    const statusCode = health.status === "ok" ? 200 : 503;
 
     return NextResponse.json(health, { status: statusCode });
-  } catch (error) {
+  } catch {
+    // SECURITY: Don't expose error details publicly
     return NextResponse.json(
       {
         status: "error",
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : "Unknown error",
-        stack: process.env.NODE_ENV === "development" && error instanceof Error ? error.stack : undefined,
       },
       { status: 500 }
     );

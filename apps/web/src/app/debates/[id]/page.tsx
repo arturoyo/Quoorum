@@ -30,7 +30,6 @@ import {
   DebateCommentsSection,
 } from './components'
 import { ConsensusTimeline } from '@/components/quoorum/consensus-timeline'
-import { ArgumentTreeViewer } from '@/components/quoorum/argument-tree'
 import { ArgumentGraph } from '@/components/quoorum/argument-graph'
 import { DebateExport } from '@/components/quoorum/debate-export'
 import type { DebatePageProps, RankingOption } from './types'
@@ -94,6 +93,7 @@ export default function DebatePage({ params }: DebatePageProps) {
           {/* Context Card - Always Visible at Start */}
           {debate.context && (
             <DebateContextCard
+              question={debate.metadata?.title || undefined}
               context={debate.context}
               status={debate.status}
               hasRounds={!!debate.rounds && debate.rounds.length > 0}
@@ -167,8 +167,8 @@ export default function DebatePage({ params }: DebatePageProps) {
         <DebateRanking ranking={debate.finalRanking as RankingOption[]} />
       )}
 
-      {/* Visualizations Section - Only for completed debates */}
-      {debate.status === 'completed' && (
+      {/* Visualizations Section - Only for completed debates with actual results */}
+      {debate.status === 'completed' && (debate.finalSynthesis || debate.finalRanking) && (
         <div className="border-t border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/60 px-4 py-6">
           <div className="mx-auto max-w-4xl space-y-6">
             {/* Export Button */}
@@ -181,9 +181,6 @@ export default function DebatePage({ params }: DebatePageProps) {
 
             {/* Argument Graph (Interactive) */}
             <ArgumentGraph debateId={id} />
-
-            {/* Argument Tree (List View - Fallback) */}
-            <ArgumentTreeViewer debateId={id} />
           </div>
         </div>
       )}

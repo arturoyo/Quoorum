@@ -360,6 +360,7 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
       .groupBy(debateFrameworks.frameworkId);
 
     // Join with frameworks to get names
+    // No userId filter: frameworks are public catalog data, shared across all users
     const frameworksList = await db.select().from(frameworks);
 
     return frameworksList.map((framework) => {

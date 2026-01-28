@@ -80,7 +80,7 @@ export async function notifyDebateStarted(
   debate: { id: string; question: string },
   channel?: string
 ): Promise<boolean> {
-  const message = `🎯 *Nuevo debate iniciado*\n\n*Pregunta:* ${debate.question}\n*ID:* ${debate.id}`
+  const message = `[INFO] *Nuevo debate iniciado*\n\n*Pregunta:* ${debate.question}\n*ID:* ${debate.id}`
 
   return sendSlackNotification(message, {
     channel,
@@ -105,7 +105,7 @@ export async function notifyDebateCompleted(
 ): Promise<boolean> {
   const topOption = debate.ranking?.[0]
   const consensusEmoji =
-    debate.consensusScore >= 0.9 ? '🎯' : debate.consensusScore >= 0.7 ? '✅' : '⚠️'
+    debate.consensusScore >= 0.9 ? '[INFO]' : debate.consensusScore >= 0.7 ? '[OK]' : '[WARN]'
 
   const message = `${consensusEmoji} *Debate completado*\n\n*Pregunta:* ${debate.question}\n*Consenso:* ${(debate.consensusScore * 100).toFixed(0)}%\n*Top Recomendación:* ${topOption?.option || 'N/A'}`
 
@@ -195,7 +195,7 @@ export async function notifyDiscordDebateStarted(debate: {
   id: string
   question: string
 }): Promise<boolean> {
-  const content = '🎯 **Nuevo debate iniciado**'
+  const content = '[INFO] **Nuevo debate iniciado**'
 
   const embeds = [
     {
@@ -223,7 +223,7 @@ export async function notifyDiscordDebateStarted(debate: {
 export async function notifyDiscordDebateCompleted(debate: DebateResult): Promise<boolean> {
   const topOption = debate.ranking?.[0]
   const consensusEmoji =
-    debate.consensusScore >= 0.9 ? '🎯' : debate.consensusScore >= 0.7 ? '✅' : '⚠️'
+    debate.consensusScore >= 0.9 ? '[INFO]' : debate.consensusScore >= 0.7 ? '[OK]' : '[WARN]'
 
   const content = `${consensusEmoji} **Debate completado**`
 

@@ -274,7 +274,7 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
             Gestión de Escenarios
           </h2>
           <p className="text-sm text-[var(--theme-text-secondary)] mt-1">
-            Administra los Decision Playbooks (Escenarios de Oro)
+            Administra los Decision Playbooks (Escenarios)
           </p>
         </div>
         <Button

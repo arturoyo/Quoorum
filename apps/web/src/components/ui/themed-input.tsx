@@ -1,10 +1,10 @@
 /**
  * ThemedInput - Input component using theme CSS variables
  *
- * ✅ Funciona en light Y dark mode
- * ✅ Sin colores hardcodeados
- * ✅ Consistente con el design system
- * ✅ Siempre visible (text-white NO hardcodeado)
+ * [OK] Funciona en light Y dark mode
+ * [OK] Sin colores hardcodeados
+ * [OK] Consistente con el design system
+ * [OK] Siempre visible (text-white NO hardcodeado)
  *
  * @example
  * <ThemedInput placeholder="Escribe aquí..." />

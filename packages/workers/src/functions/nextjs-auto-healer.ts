@@ -17,10 +17,11 @@ import { appendFile, readFile } from 'fs/promises'
 import { glob } from 'glob'
 import { inngest } from '../client'
 import { logger } from '../lib/logger'
+import type { Inngest } from 'inngest'
 import {
   parseTypeScriptErrors,
   parseESLintErrors,
-  parseBuildErrors,
+  // parseBuildErrors,
   parseEmojiErrors,
   type DetectedError,
 } from '../lib/error-parsers'
@@ -53,14 +54,14 @@ const AUTO_HEAL_CONFIG = {
 // MAIN WORKER
 // ============================================================================
 
-export const nextjsAutoHealer = inngest.createFunction(
+export const nextjsAutoHealer = (inngest as unknown as Inngest).createFunction(
   {
     id: 'nextjs-auto-healer',
     name: 'Next.js Auto-Healer',
     retries: 2,
   },
   { cron: AUTO_HEAL_CONFIG.cronSchedule },
-  async ({ step }) => {
+  async ({ step }: { step: any }) => {
     logger.info('[Auto-Healer] Starting health check...')
 
     // Step 1: Run typecheck
@@ -129,7 +130,7 @@ export const nextjsAutoHealer = inngest.createFunction(
       return await applyAutoFixes(fixableErrors.slice(0, AUTO_HEAL_CONFIG.maxFixesPerRun))
     })
 
-    const successfulFixes = fixResults.filter((r) => r.success)
+    const successfulFixes = fixResults.filter((r: FixResult) => r.success)
 
     // Step 7: Re-verificar después de fixes
     const remainingErrors = await step.run('re-verify', async () => {
@@ -157,7 +158,7 @@ export const nextjsAutoHealer = inngest.createFunction(
       errorsFound: allErrors.length,
       errorsFixed: successfulFixes.length,
       errorsRemaining: remainingErrors.length,
-      fixes: successfulFixes.map((f) => ({
+      fixes: successfulFixes.map((f: FixResult) => ({
         file: f.file,
         changes: f.changes,
       })),
@@ -390,14 +391,14 @@ async function notifyManualFixesNeeded(errors: DetectedError[]): Promise<void> {
 /**
  * Trigger manual del auto-healer
  */
-export const nextjsAutoHealerManual = inngest.createFunction(
+export const nextjsAutoHealerManual = (inngest as unknown as Inngest).createFunction(
   {
     id: 'nextjs-auto-healer-manual',
     name: 'Next.js Auto-Healer (Manual)',
     retries: 1,
   },
   { event: 'nextjs/auto-healer.trigger' },
-  async ({ step }) => {
+  async ({ step }: { step: any }) => {
     logger.info('[Auto-Healer] Manual trigger received')
 
     // Step 1: Run typecheck
@@ -445,7 +446,7 @@ export const nextjsAutoHealerManual = inngest.createFunction(
       return await applyAutoFixes(fixableErrors.slice(0, AUTO_HEAL_CONFIG.maxFixesPerRun))
     })
 
-    const successfulFixes = fixResults.filter((r) => r.success)
+    const successfulFixes = fixResults.filter((r: FixResult) => r.success)
     const remainingErrors = await step.run('re-verify', async () => {
       return await reVerify()
     })
@@ -463,7 +464,7 @@ export const nextjsAutoHealerManual = inngest.createFunction(
       errorsFound: allErrors.length,
       errorsFixed: successfulFixes.length,
       errorsRemaining: remainingErrors.length,
-      fixes: successfulFixes.map((f) => ({ file: f.file, changes: f.changes })),
+      fixes: successfulFixes.map((f: FixResult) => ({ file: f.file, changes: f.changes })),
     }
   }
 )

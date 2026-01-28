@@ -107,7 +107,7 @@ export function ExampleDebateViewer() {
     {
       sessionId: 'session-2',
       question: '¿Cómo posicionar Wallie: "WhatsApp CRM" o "AI Sales Assistant"?',
-      shortQuestion: '🎯 Positioning Strategy',
+      shortQuestion: '[INFO] Positioning Strategy',
       topOption: 'AI Sales Assistant',
       expertIds: ['april_dunford', 'peep_laja', 'steli_efti'],
       rounds: 7,
@@ -120,7 +120,7 @@ export function ExampleDebateViewer() {
     {
       sessionId: 'session-3',
       question: '¿Qué feature construir primero: Forum, Voice Analytics, o AI Coaching?',
-      shortQuestion: '🚀 Roadmap Priority',
+      shortQuestion: '[INFO] Roadmap Priority',
       topOption: 'Forum',
       expertIds: ['rahul_vohra', 'lenny_rachitsky', 'the_critic'],
       rounds: 4,
@@ -162,7 +162,7 @@ export function ExampleDebateViewer() {
           id: '3',
           expertId: 'meta_moderator',
           expertName: 'Meta-Moderator',
-          content: '⚠️ Necesito más profundidad en el análisis. ¿Qué datos cuantitativos respaldan 49€?',
+          content: '[WARN] Necesito más profundidad en el análisis. ¿Qué datos cuantitativos respaldan 49€?',
           timestamp: new Date(),
           round: 2,
           depth: 0,

@@ -75,14 +75,14 @@ function DebateListItem({ debate, isSelected, onClick }: DebateListItemProps) {
   }
 
   const getQualityEmoji = (quality: number) => {
-    if (quality >= 80) return '✨'
+    if (quality >= 80) return '[INFO]'
     if (quality >= 60) return '👍'
-    return '⚠️'
+    return '[WARN]'
   }
 
   const getConsensusEmoji = (consensus: number) => {
-    if (consensus >= 90) return '🎯'
-    if (consensus >= 70) return '✅'
+    if (consensus >= 90) return '[INFO]'
+    if (consensus >= 70) return '[OK]'
     return '🤔'
   }
 

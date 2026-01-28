@@ -24,6 +24,7 @@ import {
 } from '@quoorum/db/schema'
 import { and, avg, count, desc, eq, gte, lt, sql } from 'drizzle-orm'
 import { inngest } from '../client'
+import type { Inngest } from 'inngest'
 import { logger } from '../lib/logger'
 
 // ============================================================================
@@ -36,14 +37,14 @@ import { logger } from '../lib/logger'
  * - Update debate analytics
  * - Trigger expert performance update if feedback exists
  */
-export const quoorumDebateCompleted = inngest.createFunction(
+export const quoorumDebateCompleted = (inngest as unknown as Inngest).createFunction(
   {
     id: 'quoorum-debate-completed',
     name: 'Quoorum: Debate Completed',
     retries: 3,
   },
   { event: 'quoorum/debate.completed' },
-  async ({ event, step }) => {
+  async ({ event, step }: { event: any; step: any }) => {
     const { debateId, userId } = event.data
 
     // Step 1: Get debate details and resolve profile.id
@@ -150,14 +151,14 @@ export const quoorumDebateCompleted = inngest.createFunction(
  * - Send error notification to user
  * - Log failure for analytics
  */
-export const quoorumDebateFailed = inngest.createFunction(
+export const quoorumDebateFailed = (inngest as unknown as Inngest).createFunction(
   {
     id: 'quoorum-debate-failed',
     name: 'Quoorum: Debate Failed',
     retries: 2,
   },
   { event: 'quoorum/debate.failed' },
-  async ({ event, step }) => {
+  async ({ event, step }: { event: any; step: any }) => {
     const { debateId, userId, errorMessage } = event.data
 
     // Get debate to resolve profile.id
@@ -212,14 +213,14 @@ export const quoorumDebateFailed = inngest.createFunction(
  * - Email (if enabled)
  * - Push (if enabled)
  */
-export const quoorumSendNotification = inngest.createFunction(
+export const quoorumSendNotification = (inngest as unknown as Inngest).createFunction(
   {
     id: 'quoorum-send-notification',
     name: 'Quoorum: Send Notification',
     retries: 3,
   },
   { event: 'quoorum/send-notification' },
-  async ({ event, step }) => {
+  async ({ event, step }: { event: any; step: any }) => {
     const { userId, type, debateId, title, message, priority, actionUrl, actionLabel, metadata } =
       event.data
 
@@ -238,7 +239,7 @@ export const quoorumSendNotification = inngest.createFunction(
       if (!prefs?.quietHoursStart || !prefs?.quietHoursEnd) return false
 
       const now = new Date()
-      const timezone = prefs.timezone || 'Europe/Madrid'
+      // const _timezone = prefs.timezone || 'Europe/Madrid' // TODO: Use for proper timezone handling
 
       // Simple quiet hours check (would need proper timezone handling in production)
       const currentHour = now.getHours()
@@ -308,14 +309,14 @@ export const quoorumSendNotification = inngest.createFunction(
  * Generate and send weekly Forum summaries
  * Runs every Monday at 9 AM
  */
-export const quoorumWeeklyDigest = inngest.createFunction(
+export const quoorumWeeklyDigest = (inngest as unknown as Inngest).createFunction(
   {
     id: 'forum-weekly-digest',
     name: 'Quoorum: Weekly Digest',
     retries: 2,
   },
   { cron: '0 9 * * 1' }, // Every Monday at 9 AM
-  async ({ step }) => {
+  async ({ step }: { step: any }) => {
     const oneWeekAgo = new Date()
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
@@ -395,14 +396,14 @@ export const quoorumWeeklyDigest = inngest.createFunction(
  * Process scheduled report generation
  * Runs every hour to check for due reports
  */
-export const quoorumScheduledReportsWorker = inngest.createFunction(
+export const quoorumScheduledReportsWorker = (inngest as unknown as Inngest).createFunction(
   {
     id: 'forum-scheduled-reports',
     name: 'Quoorum: Scheduled Reports',
     retries: 2,
   },
   { cron: '0 * * * *' }, // Every hour
-  async ({ step }) => {
+  async ({ step }: { step: any }) => {
     const now = new Date()
 
     // Step 1: Find due scheduled reports
@@ -423,7 +424,7 @@ export const quoorumScheduledReportsWorker = inngest.createFunction(
       await step.run(`process-schedule-${schedule.id}`, async () => {
         try {
           // Create report record
-          const [report] = await db
+          const reportResult = await db
             .insert(quoorumReports)
             .values({
               userId: schedule.userId,
@@ -435,11 +436,17 @@ export const quoorumScheduledReportsWorker = inngest.createFunction(
             })
             .returning()
 
+          if (!reportResult || reportResult.length === 0) {
+            throw new Error('Failed to create report')
+          }
+
+          const createdReport = reportResult[0]!
+
           // Trigger report generation
-          await inngest.send({
+          await (inngest as unknown as any).send({
             name: 'forum/generate-report',
             data: {
-              reportId: report.id,
+              reportId: createdReport!.id,
               userId: schedule.userId,
             },
           })
@@ -452,7 +459,7 @@ export const quoorumScheduledReportsWorker = inngest.createFunction(
             .update(quoorumScheduledReports)
             .set({
               lastRunAt: now,
-              lastReportId: report.id,
+              lastReportId: createdReport!.id,
               nextRunAt,
               runCount: (schedule.runCount ?? 0) + 1,
             })
@@ -483,14 +490,14 @@ export const quoorumScheduledReportsWorker = inngest.createFunction(
  * Generate a specific Forum report
  * Called by scheduled reports or manual generation
  */
-export const quoorumGenerateReport = inngest.createFunction(
+export const quoorumGenerateReport = (inngest as unknown as Inngest).createFunction(
   {
     id: 'forum-generate-report',
     name: 'Quoorum: Generate Report',
     retries: 3,
   },
   { event: 'quoorum/generate-report' },
-  async ({ event, step }) => {
+  async ({ event, step }: { event: any; step: any }) => {
     const { reportId, userId } = event.data
 
     // Step 1: Get report details
@@ -516,7 +523,6 @@ export const quoorumGenerateReport = inngest.createFunction(
     try {
       // Step 3: Gather report data based on type
       const reportData = await step.run('gather-data', async () => {
-        const params = report.parameters as Record<string, unknown> | null
         const data: Record<string, unknown> = {}
 
         if (report.type === 'weekly_summary' || report.type === 'monthly_summary') {
@@ -626,7 +632,7 @@ export const quoorumGenerateReport = inngest.createFunction(
  * Recalculate expert performance ratings
  * Called after feedback is submitted or periodically
  */
-export const quoorumExpertPerformanceUpdate = inngest.createFunction(
+export const quoorumExpertPerformanceUpdate = (inngest as unknown as Inngest).createFunction(
   {
     id: 'forum-expert-performance-update',
     name: 'Quoorum: Expert Performance Update',
@@ -637,7 +643,7 @@ export const quoorumExpertPerformanceUpdate = inngest.createFunction(
     },
   },
   { event: 'quoorum/expert-performance-update' },
-  async ({ event, step }) => {
+  async ({ event, step }: { event: any; step: any }) => {
     const { expertId } = event.data
 
     await step.run('recalculate-ratings', async () => {
@@ -687,16 +693,10 @@ export const quoorumExpertPerformanceUpdate = inngest.createFunction(
           avgRelevance: Math.round(avgRelevance * 100),
           avgClarity: Math.round(avgClarity * 100),
           avgActionability: Math.round(avgAction * 100),
-          positiveRatio: Math.round((stats.positiveCount / stats.totalRatings) * 100),
-          followedRatio:
-            stats.followedCount > 0
-              ? Math.round((stats.followedCount / stats.totalRatings) * 100)
-              : null,
-          successRatio:
-            stats.successfulCount > 0
-              ? Math.round((stats.successfulCount / stats.totalRatings) * 100)
-              : null,
-          lastFeedbackAt: new Date(),
+          helpfulCount: stats.positiveCount,
+          followedCount: stats.followedCount,
+          successCount: stats.successfulCount,
+          updatedAt: new Date(),
         })
         .onConflictDoUpdate({
           target: quoorumExpertRatings.expertId,
@@ -707,16 +707,10 @@ export const quoorumExpertPerformanceUpdate = inngest.createFunction(
             avgRelevance: Math.round(avgRelevance * 100),
             avgClarity: Math.round(avgClarity * 100),
             avgActionability: Math.round(avgAction * 100),
-            positiveRatio: Math.round((stats.positiveCount / stats.totalRatings) * 100),
-            followedRatio:
-              stats.followedCount > 0
-                ? Math.round((stats.followedCount / stats.totalRatings) * 100)
-                : null,
-            successRatio:
-              stats.successfulCount > 0
-                ? Math.round((stats.successfulCount / stats.totalRatings) * 100)
-                : null,
-            lastFeedbackAt: new Date(),
+            helpfulCount: stats.positiveCount,
+            followedCount: stats.followedCount,
+            successCount: stats.successfulCount,
+            updatedAt: new Date(),
           },
         })
     })
