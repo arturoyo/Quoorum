@@ -455,7 +455,7 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
 
       {/* Dialog de creación/edición */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)]">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-6">
           <DialogHeader>
             <DialogTitle>{editingDepartment ? 'Editar Departamento' : 'Nuevo Departamento'}</DialogTitle>
             <DialogDescription className="text-[var(--theme-text-tertiary)]">
@@ -651,7 +651,7 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
 
       {/* Dialog de plantillas */}
       <Dialog open={isTemplatesDialogOpen} onOpenChange={setIsTemplatesDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)]">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-6">
           <DialogHeader>
             <DialogTitle>Plantillas de Departamentos</DialogTitle>
             <DialogDescription className="text-[var(--theme-text-tertiary)]">
@@ -752,7 +752,7 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
 
       {/* Dialog de confirmación para usar plantilla */}
       <Dialog open={!!selectedTemplate} onOpenChange={() => selectedTemplate && setSelectedTemplate(null)}>
-        <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)]">
+        <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-6">
           <DialogHeader>
             <DialogTitle>¿Usar plantilla "{selectedTemplate?.name}"?</DialogTitle>
             <DialogDescription className="text-[var(--theme-text-tertiary)]">
@@ -791,7 +791,7 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
 
       {/* Dialog de confirmación de eliminación */}
       <Dialog open={!!departmentToDelete} onOpenChange={() => setDepartmentToDelete(null)}>
-        <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)]">
+        <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-6">
           <DialogHeader>
             <DialogTitle>¿Eliminar departamento?</DialogTitle>
             <DialogDescription className="text-[var(--theme-text-tertiary)]">
