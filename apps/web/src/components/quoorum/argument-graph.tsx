@@ -9,8 +9,8 @@
 
 import { useMemo, useState, useCallback } from 'react'
 import ReactFlow, {
-  Node,
-  Edge,
+  type Node,
+  type Edge,
   Background,
   Controls,
   MiniMap,

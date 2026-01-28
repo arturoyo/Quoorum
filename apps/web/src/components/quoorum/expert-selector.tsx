@@ -199,7 +199,7 @@ export function ExpertSelector({
     if (!customExperts) return {}
 
     // Filter by search query
-    let filtered = customExperts.filter((expert) => {
+    const filtered = customExperts.filter((expert) => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase()
         const nameMatch = expert.name.toLowerCase().includes(query)
@@ -231,7 +231,7 @@ export function ExpertSelector({
       if (!grouped[category]) {
         grouped[category] = []
       }
-      grouped[category]!.push(expert)
+      grouped[category].push(expert)
     })
 
     return grouped

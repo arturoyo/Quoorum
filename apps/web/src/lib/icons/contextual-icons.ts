@@ -1,5 +1,5 @@
 import { MessageSquare } from 'lucide-react'
-import { IconType } from 'react-icons'
+import { type IconType } from 'react-icons'
 import {
   MdRocket,
   MdTrendingUp,

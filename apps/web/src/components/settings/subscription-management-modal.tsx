@@ -223,8 +223,8 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
   const currentTier = currentPlan?.tier || 'free'
   const currentPlanCredits = currentTier !== 'free' 
     ? (isYearly 
-        ? PLAN_FEATURES[currentTier as keyof typeof PLAN_FEATURES]?.yearly.credits
-        : PLAN_FEATURES[currentTier as keyof typeof PLAN_FEATURES]?.monthly.credits)
+        ? PLAN_FEATURES[currentTier]?.yearly.credits
+        : PLAN_FEATURES[currentTier]?.monthly.credits)
     : null
 
   // Initialize selected credits with current plan credits or default
@@ -355,8 +355,8 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                             {(() => {
                               // Precio fijo del plan según tier y periodicidad
                               const planPrice = isYearly 
-                                ? (PLAN_FEATURES[currentTier as keyof typeof PLAN_FEATURES]?.yearly.price || 0) / 12
-                                : (PLAN_FEATURES[currentTier as keyof typeof PLAN_FEATURES]?.monthly.price || 0)
+                                ? (PLAN_FEATURES[currentTier]?.yearly.price || 0) / 12
+                                : (PLAN_FEATURES[currentTier]?.monthly.price || 0)
                               return Math.round(planPrice)
                             })()}€
                           </motion.span>
@@ -366,8 +366,8 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                     </div>
                     <CardDescription className="text-[var(--theme-text-secondary)]">
                       {isYearly 
-                        ? PLAN_FEATURES[currentTier as keyof typeof PLAN_FEATURES]?.yearly.description
-                        : PLAN_FEATURES[currentTier as keyof typeof PLAN_FEATURES]?.monthly.description}
+                        ? PLAN_FEATURES[currentTier]?.yearly.description
+                        : PLAN_FEATURES[currentTier]?.monthly.description}
                     </CardDescription>
                   </div>
                 </CardHeader>
@@ -395,8 +395,8 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                       </li>
                     )}
                     {(isYearly
-                      ? PLAN_FEATURES[currentTier as keyof typeof PLAN_FEATURES]?.yearly.features
-                      : PLAN_FEATURES[currentTier as keyof typeof PLAN_FEATURES]?.monthly.features)?.map((feature, index) => {
+                      ? PLAN_FEATURES[currentTier]?.yearly.features
+                      : PLAN_FEATURES[currentTier]?.monthly.features)?.map((feature, index) => {
                       const Icon = feature.icon
                       return (
                         <li key={index} className="flex items-start gap-3">
@@ -468,8 +468,8 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                               {(() => {
                                 // Precio fijo del plan según tier y periodicidad
                                 const planPrice = isYearly 
-                                  ? (PLAN_FEATURES[planId as keyof typeof PLAN_FEATURES]?.yearly.price || 0) / 12
-                                  : (PLAN_FEATURES[planId as keyof typeof PLAN_FEATURES]?.monthly.price || 0)
+                                  ? (PLAN_FEATURES[planId]?.yearly.price || 0) / 12
+                                  : (PLAN_FEATURES[planId]?.monthly.price || 0)
                                 return Math.round(planPrice)
                               })()}€
                             </motion.span>

@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { LucideIcon } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 
 export interface EmptyStateCardProps {
   /** Icon to display */

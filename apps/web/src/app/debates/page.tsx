@@ -334,9 +334,9 @@ export default function DebatesPage() {
                 const ContextualIcon = getContextualIcon(
                   debate.question,
                   debate.id,
-                  debate.metadata?.tags as string[] | undefined,
-                  debate.metadata?.topics as string[] | undefined,
-                  debate.metadata?.areas as string[] | undefined
+                  debate.metadata?.tags,
+                  debate.metadata?.topics,
+                  debate.metadata?.areas
                 )
 
                 return (
