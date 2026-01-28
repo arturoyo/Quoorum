@@ -17,7 +17,57 @@ ask_question() {
   echo "   ✅ OK"
 }
 
+# Verificar archivos importantes sin trackear
+echo "→ Verificando archivos sin trackear..."
+IMPORTANT_PATTERNS=(
+  "*.svg"
+  "*.png"
+  "*.jpg"
+  "*.jpeg"
+  "*.gif"
+  "*.ico"
+  "apps/web/public/*"
+  "packages/*/src/**/*.ts"
+  "packages/*/src/**/*.tsx"
+)
+
+UNTRACKED_IMPORTANT=()
+for pattern in "${IMPORTANT_PATTERNS[@]}"; do
+  while IFS= read -r file; do
+    # Excluir node_modules, .next, .turbo, etc.
+    if [[ ! "$file" =~ (node_modules|\.next|\.turbo|dist|build|coverage|\.git) ]]; then
+      UNTRACKED_IMPORTANT+=("$file")
+    fi
+  done < <(git ls-files --others --exclude-standard "$pattern" 2>/dev/null)
+done
+
+if [ ${#UNTRACKED_IMPORTANT[@]} -gt 0 ]; then
+  echo ""
+  echo "⚠️  ARCHIVOS IMPORTANTES SIN TRACKEAR DETECTADOS:"
+  echo "   Estos archivos podrían perderse si no se añaden a git:"
+  echo ""
+  for file in "${UNTRACKED_IMPORTANT[@]}"; do
+    echo "   • $file"
+  done
+  echo ""
+  read -p "   ¿Añadir estos archivos al commit? (y/n): " add_files
+  if [ "$add_files" = "y" ]; then
+    for file in "${UNTRACKED_IMPORTANT[@]}"; do
+      git add "$file"
+      echo "   ✅ Añadido: $file"
+    done
+  else
+    echo "   ⚠️  Archivos NO añadidos (podrían perderse)"
+    read -p "   ¿Continuar de todas formas? (y/n): " continue_anyway
+    if [ "$continue_anyway" != "y" ]; then
+      echo "   ❌ Commit cancelado"
+      exit 1
+    fi
+  fi
+fi
+
 # Pre-flight checks primero
+echo ""
 echo "→ Ejecutando pre-flight checks..."
 bash scripts/pre-flight.sh || exit 1
 
