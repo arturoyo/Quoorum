@@ -5,7 +5,7 @@
  * After verification, calls tRPC endpoint to process the event.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { appRouter } from '@quoorum/api'
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch'

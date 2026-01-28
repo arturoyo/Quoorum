@@ -125,7 +125,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
       if (!acc[category]) {
         acc[category] = []
       }
-      acc[category]!.push(expert)
+      acc[category].push(expert)
       return acc
     },
     {} as Record<string, typeof experts>,

@@ -49,6 +49,8 @@ import {
   scenariosRouter,
   // Integrations
   slackRouter,
+  // Admin Pricing
+  adminPricingRouter,
 } from "./routers/index";
 
 export const appRouter = router({
@@ -101,6 +103,8 @@ export const appRouter = router({
   scenarios: scenariosRouter,
   // Integrations
   slack: slackRouter,
+  // Admin Pricing Configuration
+  adminPricing: adminPricingRouter,
 });
 
 export type AppRouter = typeof appRouter;
