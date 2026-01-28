@@ -223,7 +223,7 @@ class ClientLogger {
       
       // Verificar si el errorOrMetadata es un objeto con propiedades que indican UNAUTHORIZED
       if (!shouldSilence && errorOrMetadata && typeof errorOrMetadata === 'object' && !(errorOrMetadata instanceof Error)) {
-        const errorObj = errorOrMetadata as Record<string, unknown>;
+        const errorObj = errorOrMetadata;
         if (errorObj.status === 401 || errorObj.status === 402 ||
             (errorObj.errorInfo && typeof errorObj.errorInfo === 'object')) {
           const errorInfo = errorObj.errorInfo as Record<string, unknown>;

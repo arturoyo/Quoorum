@@ -128,7 +128,7 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
         name: role.name,
         slug: role.slug,
         description: role.description || '',
-        permissions: (role.permissions as string[]) || [],
+        permissions: (role.permissions) || [],
         isActive: role.isActive,
       })
       setEditingRole(roleId)
@@ -226,8 +226,8 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                     </TableCell>
                     <TableCell className="text-[#aebac1]">
                       <div className="flex flex-wrap gap-1">
-                        {(role.permissions as string[]).length > 0 ? (
-                          (role.permissions as string[]).slice(0, 3).map((perm) => (
+                        {(role.permissions).length > 0 ? (
+                          (role.permissions).slice(0, 3).map((perm) => (
                             <Badge
                               key={perm}
                               variant="secondary"
@@ -239,9 +239,9 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                         ) : (
                           <span className="text-[#8696a0] text-sm">Sin permisos</span>
                         )}
-                        {(role.permissions as string[]).length > 3 && (
+                        {(role.permissions).length > 3 && (
                           <Badge variant="secondary" className="bg-[#2a3942] text-[#aebac1]">
-                            +{(role.permissions as string[]).length - 3}
+                            +{(role.permissions).length - 3}
                           </Badge>
                         )}
                       </div>

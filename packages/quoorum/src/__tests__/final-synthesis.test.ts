@@ -27,6 +27,11 @@ vi.mock('../logger', () => ({
   },
 }))
 
+// Mock cost calculation
+vi.mock('../analytics/cost', () => ({
+  calculateTokenCost: () => 0.015, // Mock cost
+}))
+
 import { getAIClient } from '@quoorum/ai'
 
 // ============================================================================
@@ -133,7 +138,7 @@ describe('generateFinalSynthesis', () => {
   it('should generate synthesis successfully', async () => {
     const mockGenerate = vi.fn().mockResolvedValue({
       text: JSON.stringify(mockSynthesis),
-      usage: { totalTokens: 1500 },
+      usage: { promptTokens: 1000, completionTokens: 500, totalTokens: 1500 },
     })
 
     vi.mocked(getAIClient).mockReturnValue({
@@ -150,14 +155,17 @@ describe('generateFinalSynthesis', () => {
     const result = await generateFinalSynthesis('test-session', '¿Cuál es la mejor estrategia?', rounds)
 
     expect(result).not.toBeNull()
-    expect(result).toMatchObject(mockSynthesis)
+    expect(result?.synthesis).toMatchObject(mockSynthesis)
+    expect(result?.costUsd).toBeGreaterThan(0)
+    expect(result?.tokensUsed).toBe(1500)
+    expect(result?.provider).toBe('openai')
+    expect(result?.model).toBe('gpt-4o')
     expect(mockGenerate).toHaveBeenCalledWith(
       expect.stringContaining('SECRETARIO DEL TRIBUNAL'),
       expect.objectContaining({
         modelId: 'gpt-4o',
         temperature: 0.2,
         maxTokens: 2000,
-        responseFormat: 'json',
       })
     )
   })
@@ -222,7 +230,7 @@ describe('generateFinalSynthesis', () => {
     const result = await generateFinalSynthesis('test-session', 'Pregunta', rounds)
 
     expect(result).not.toBeNull()
-    expect(result).toMatchObject(mockSynthesis)
+    expect(result?.synthesis).toMatchObject(mockSynthesis)
   })
 
   it('should return null on AI client error', async () => {
@@ -471,11 +479,12 @@ describe('Final Synthesis Integration', () => {
     ]
 
     // Generate synthesis
-    const synthesis = await generateFinalSynthesis(
+    const result = await generateFinalSynthesis(
       'test-session',
       '¿Cuál es la mejor opción?',
       rounds
     )
+    const synthesis = result?.synthesis
 
     expect(synthesis).not.toBeNull()
 

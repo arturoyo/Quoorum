@@ -56,3 +56,6 @@ export { referralsRouter } from "./referrals";
 
 // Scenarios (Decision Playbooks)
 export { scenariosRouter } from "./scenarios";
+
+// Admin Pricing Configuration
+export { adminPricingRouter } from "./admin-pricing";

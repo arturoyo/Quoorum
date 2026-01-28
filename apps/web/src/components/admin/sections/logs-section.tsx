@@ -171,7 +171,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
           </Card>
 
           {stats.byLevel.map((stat) => {
-            const config = LEVEL_CONFIG[stat.level as keyof typeof LEVEL_CONFIG];
+            const config = LEVEL_CONFIG[stat.level];
             const Icon = config.icon;
 
             return (
@@ -268,7 +268,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
           ) : (
             <div className="divide-y divide-[#2a3942] max-h-[600px] overflow-y-auto">
               {data?.logs.map((log) => {
-                const config = LEVEL_CONFIG[log.level as keyof typeof LEVEL_CONFIG];
+                const config = LEVEL_CONFIG[log.level];
                 const Icon = config.icon;
                 const isExpanded = expandedLog === log.id;
 
