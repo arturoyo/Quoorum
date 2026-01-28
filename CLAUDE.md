@@ -84,6 +84,7 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | **Monorepo structure** | [01-startup-protocol.md#monorepo-structure](./docs/claude/01-startup-protocol.md) |
 | **CI/CD (Vercel)** | [11-faq.md#cicd](./docs/claude/11-faq.md) |
 | **pnpm commands** | [11-faq.md#comandos-utiles](./docs/claude/11-faq.md) |
+| **Pre-commit untracked files** | Scripts automáticos detectan archivos sin trackear |
 
 **💡 TIP:** Usa la herramienta `Grep` para buscar cualquier keyword en este archivo o en módulos específicos.
 
@@ -318,6 +319,32 @@ pnpm test             # Tests unitarios
 pnpm test:e2e         # Tests E2E
 pnpm db:studio        # Drizzle Studio
 ```
+
+### Pre-commit Protection:
+
+**🔒 Detección automática de archivos importantes sin trackear:**
+
+El hook de pre-commit detecta automáticamente:
+- ✅ Imágenes (SVG, PNG, JPG, etc.) sin añadir a git
+- ✅ Archivos en `apps/web/public/` sin trackear
+- ✅ Archivos de código fuente (.ts, .tsx) en paquetes
+
+**Te preguntará antes del commit:**
+```
+⚠️  ARCHIVOS IMPORTANTES SIN TRACKEAR DETECTADOS:
+   • apps/web/public/quoorum-logo-ok.svg
+   • apps/web/public/quoorum-imagotipo.svg
+   
+   ¿Añadir estos archivos al commit? (y/n):
+```
+
+**Archivo:** `scripts/pre-commit-interactive.sh`
+
+**Evita pérdidas de:**
+- Logos y assets gráficos
+- Archivos públicos (favicons, manifests, etc.)
+- Código fuente nuevo en paquetes
+- Cualquier archivo importante que olvidaste trackear
 
 ### Git restore desde producción:
 
