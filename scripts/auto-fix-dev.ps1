@@ -85,27 +85,27 @@ try {
 
 Write-Host ""
 
-# [EMOJI]. Verificar y liberar puerto [EMOJI]000 si est√[EMOJI] en uso
-Write-Host "[[EMOJI]/[EMOJI]] Verificando puerto [EMOJI]000..." -ForegroundColor Yellow
+# 5. Verificar y liberar puerto 3000 si esta en uso
+Write-Host "[5/5] Verificando puerto 3000..." -ForegroundColor Yellow
 try {
-    $port[EMOJI]000 = Get-NetTCPConnection -LocalPort [EMOJI]000 -ErrorAction SilentlyContinue
-    if ($port[EMOJI]000) {
-        $processId = $port[EMOJI]000.OwningProcess
+    $port3000 = Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue
+    if ($port3000) {
+        $processId = $port3000.OwningProcess
         $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
         if ($process) {
-            Write-Host "   [WARN] Puerto [EMOJI]000 en uso por proceso: $($process.ProcessName) (PID: $processId)" -ForegroundColor Yellow
-            Write-Host "   [INFO] Liberando puerto [EMOJI]000..." -ForegroundColor Gray
+            Write-Host "   [WARN] Puerto 3000 en uso por proceso: $($process.ProcessName) (PID: $processId)" -ForegroundColor Yellow
+            Write-Host "   [INFO] Liberando puerto 3000..." -ForegroundColor Gray
             try {
                 Stop-Process -Id $processId -Force -ErrorAction Stop
-                Start-Sleep -Milliseconds [EMOJI]00
-                Write-Host "   [OK] Puerto [EMOJI]000 liberado" -ForegroundColor Green
+                Start-Sleep -Milliseconds 500
+                Write-Host "   [OK] Puerto 3000 liberado" -ForegroundColor Green
             } catch {
                 Write-Host "   [WARN] No se pudo liberar el puerto automaticamente" -ForegroundColor Yellow
                 Write-Host "   [INFO] Ejecuta manualmente: Stop-Process -Id $processId -Force" -ForegroundColor Gray
             }
         }
     } else {
-        Write-Host "   [OK] Puerto [EMOJI]000 disponible" -ForegroundColor Green
+        Write-Host "   [OK] Puerto 3000 disponible" -ForegroundColor Green
     }
 } catch {
     Write-Host "   [INFO] No se pudo verificar el puerto (continuando de todas formas)" -ForegroundColor Gray
