@@ -112,7 +112,7 @@ export function PhaseContexto({
       contextText: contextHub?.fullContextText, // Pass cached context to avoid redundant queries
     },
     {
-      enabled: isMounted && state.phase === 'initial' && !state.mainQuestion && typeof window !== 'undefined',
+      enabled: isMounted && state.phase === 'initial' && typeof window !== 'undefined',
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
       retry: 1,
     }
@@ -120,13 +120,13 @@ export function PhaseContexto({
 
   // Update prompt when personalized data arrives
   useEffect(() => {
-    if (personalizedPromptData && state.phase === 'initial' && !state.mainQuestion) {
+    if (personalizedPromptData && state.phase === 'initial') {
       setRandomPrompt({
         title: personalizedPromptData.title,
         subtitle: personalizedPromptData.subtitle,
       })
     }
-  }, [personalizedPromptData, state.phase, state.mainQuestion])
+  }, [personalizedPromptData, state.phase])
   
   // Generar preguntas sugeridas contextualizadas usando IA
   // Los hooks DEBEN llamarse incondicionalmente (React Rules of Hooks)
