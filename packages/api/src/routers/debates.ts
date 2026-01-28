@@ -18,6 +18,7 @@ import { logger } from "../lib/logger";
 import { systemLogger } from "../lib/system-logger";
 import { inngest } from "../lib/inngest-client";
 import { debateSequenceToResult } from "../lib/debate-orchestration-adapter";
+import { trackAICall } from "@quoorum/quoorum/ai-cost-tracking";
 
 // Import types from debates module
 import type { DebateContext, ContextQuestion, ContextEvaluation, CorporateContext, DebateRecord, DebateMetadata, AdditionalContextItem } from "./debates/types";
@@ -2070,10 +2071,12 @@ export const debatesRouter = router({
         contextInfo: z.string().min(10, "Context must be at least 10 characters"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       logger.info("[Meta-Prompt] Generating optimized prompt", {
         contextLength: input.contextInfo.length,
       });
+
+      const startTime = Date.now();
 
       try {
         // Import AI client
@@ -2092,6 +2095,20 @@ export const debatesRouter = router({
 
         const optimizedPrompt = response.text.trim();
 
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'debate_phase_estrategia',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: input.contextInfo.substring(0, 500),
+          outputSummary: optimizedPrompt.substring(0, 500),
+        });
+
         logger.info("[Meta-Prompt] Generated successfully", {
           originalLength: input.contextInfo.length,
           optimizedLength: optimizedPrompt.length,
@@ -2099,6 +2116,20 @@ export const debatesRouter = router({
 
         return optimizedPrompt;
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'debate_phase_estrategia',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: input.contextInfo.substring(0, 500),
+        });
+
         logger.error("[Meta-Prompt] Generation failed", {
           error: error instanceof Error ? error.message : String(error),
         });
@@ -2200,6 +2231,8 @@ export const debatesRouter = router({
       });
 
       logger.info("[Context Phase 1] Generating critical questions with existing context");
+
+      const startTime = Date.now();
 
       try {
         const { getAIClient } = await import("@quoorum/ai");
@@ -2321,7 +2354,22 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
         );
 
         const questions = parseQuestions(response.text, "critical");
-        logger.info("[Context Phase 1] Success", { 
+
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: input.question.substring(0, 500),
+          outputSummary: response.text.substring(0, 500),
+        });
+
+        logger.info("[Context Phase 1] Success", {
           count: questions.length,
           hasContext: !!fullContext,
           contextLength: fullContext.length,
@@ -2336,6 +2384,20 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
           remainingCredits: deductionResult.remainingCredits ?? 0,
         };
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: input.question.substring(0, 500),
+        });
+
         logger.error("[Context Phase 1] Failed", { error });
         // En caso de error, retornar preguntas fallback sin deducir créditos adicionales
         // (ya se dedujeron antes del error, así que no deducir de nuevo)
@@ -2428,6 +2490,8 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
         remainingCredits: deductionResult.remainingCredits,
       });
 
+      const startTime = Date.now();
+
       try {
         const { getAIClient } = await import("@quoorum/ai");
         const aiClient = getAIClient();
@@ -2516,6 +2580,20 @@ RESPONDE JSON:
           qualityIssues = qualityIssues.filter((q) => q !== "vague" && q !== "generic");
         }
 
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: `Q: ${input.question.substring(0, 200)} | A: ${input.answer.substring(0, 200)}`,
+          outputSummary: response.text.substring(0, 500),
+        });
+
         logger.info("[Answer Validation] Success", {
           isRelevant: validation.isRelevant,
           score: relevanceScore,
@@ -2535,6 +2613,20 @@ RESPONDE JSON:
           remainingCredits: deductionResult.remainingCredits ?? 0,
         };
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: `Q: ${input.question.substring(0, 200)} | A: ${input.answer.substring(0, 200)}`,
+        });
+
         logger.error("[Answer Validation] Failed", { error });
         // Fallback: asumir relevante en caso de error
         return {
@@ -2640,6 +2732,8 @@ RESPONDE JSON:
         noMoreFollowUps,
       });
 
+      const startTime = Date.now();
+
       try {
         const { getAIClient } = await import("@quoorum/ai");
         const aiClient = getAIClient();
@@ -2708,7 +2802,22 @@ RESPONDE JSON:
           };
           logger.info("[Context Evaluation] Capped follow-ups", { totalAnswers, phase: input.currentPhase });
         }
-        logger.info("[Context Evaluation] Success", { 
+
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: input.question.substring(0, 500),
+          outputSummary: response.text.substring(0, 500),
+        });
+
+        logger.info("[Context Evaluation] Success", {
           score: evaluation.score,
           creditsDeducted: EVALUATION_CREDITS,
           remainingCredits: deductionResult.remainingCredits,
@@ -2719,6 +2828,20 @@ RESPONDE JSON:
           remainingCredits: deductionResult.remainingCredits ?? 0,
         };
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: input.question.substring(0, 500),
+        });
+
         logger.error("[Context Evaluation] Failed", { error });
         return getFallbackEvaluation();
       }
@@ -2742,6 +2865,8 @@ RESPONDE JSON:
         questionLength: input.question.length,
         mode: input.mode,
       });
+
+      const startTime = Date.now();
 
       try {
         const { getAIClient } = await import("@quoorum/ai");
@@ -2863,6 +2988,20 @@ ${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes l
           ];
         }
 
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: input.question.substring(0, 500),
+          outputSummary: response.text.substring(0, 500),
+        });
+
         logger.info("[Contextual Questions] Generated successfully", {
           count: questions.length,
           types: questions.map((q: ContextQuestion) => `${q.type}:${q.questionType}`),
@@ -2870,6 +3009,20 @@ ${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes l
 
         return questions;
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: input.question.substring(0, 500),
+        });
+
         logger.error("[Contextual Questions] Generation failed", {
           error: error instanceof Error ? error.message : String(error),
         });
@@ -2906,6 +3059,8 @@ ${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes l
       })
     )
     .query(async ({ ctx, input }) => {
+      const startTime = Date.now();
+
       try {
         const { getAIClient, parseAIJson } = await import("@quoorum/ai");
         const aiClient = getAIClient();
@@ -2999,6 +3154,20 @@ IMPORTANTE:
           });
         }
 
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: input.question.substring(0, 500),
+          outputSummary: response.text.substring(0, 500),
+        });
+
         logger.info("[suggestAnswersForQuestion] Generated suggestions", {
           count: uniqueSuggestions.length,
           questionPreview: input.question.substring(0, 50),
@@ -3006,6 +3175,20 @@ IMPORTANTE:
 
         return uniqueSuggestions.length > 0 ? uniqueSuggestions : getFallbackSuggestedAnswers(input.count);
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: input.question.substring(0, 500),
+        });
+
         logger.error("[suggestAnswersForQuestion] Failed to generate suggestions", {
           error: error instanceof Error ? error.message : String(error),
         });
@@ -3160,6 +3343,8 @@ IMPORTANTE:
       })
     )
     .query(async ({ ctx, input }) => {
+      const startTime = Date.now();
+
       try {
         const { getAIClient, parseAIJson } = await import("@quoorum/ai");
         const aiClient = getAIClient();
@@ -3215,6 +3400,20 @@ RESPONDE JSON (sin markdown):
           throw new Error("Invalid AI response format");
         }
 
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: `Context: ${(fullContext || '').substring(0, 300)}`,
+          outputSummary: response.text.substring(0, 500),
+        });
+
         logger.info("[Personalized Prompt] Generated", {
           userId: ctx.userId,
           hasContext: !!fullContext,
@@ -3226,6 +3425,20 @@ RESPONDE JSON (sin markdown):
           subtitle: parsed.subtitle.trim(),
         };
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: `Context: ${(input.contextText || '').substring(0, 300)}`,
+        });
+
         logger.error("[Personalized Prompt] Failed", {
           error: error instanceof Error ? error.message : String(error),
         });
@@ -3246,6 +3459,8 @@ RESPONDE JSON (sin markdown):
       })
     )
     .query(async ({ ctx, input }) => {
+      const startTime = Date.now();
+
       try {
         // Import AI client
         const { getAIClient, parseAIJson } = await import("@quoorum/ai");
@@ -3339,6 +3554,20 @@ NOTA: No hay contexto específico disponible. El usuario debe configurar su Perf
           });
         }
 
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: `Context: ${(fullContext || '').substring(0, 300)}`,
+          outputSummary: response.text.substring(0, 500),
+        });
+
         logger.info("[debates.suggestInitialQuestions] Generated questions", {
           count: questions.length,
           questions: questions.map((q) => q.substring(0, 50)),
@@ -3346,6 +3575,20 @@ NOTA: No hay contexto específico disponible. El usuario debe configurar su Perf
 
         return questions;
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'context_assessment',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: `Context: ${(input.contextText || '').substring(0, 300)}`,
+        });
+
         logger.error("[debates.suggestInitialQuestions] Failed to generate questions", {
           error: error instanceof Error ? error.message : String(error),
           userId: ctx.userId,
