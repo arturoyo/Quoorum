@@ -32,17 +32,19 @@ export function ThemeToggle({
       <button
         onClick={cycleTheme}
         className={cn(
-          "p-2 rounded-lg transition-colors",
+          "p-2 rounded-lg transition-all duration-200",
           "bg-[var(--theme-bg-tertiary)] hover:bg-[var(--theme-bg-input)]",
-          "border border-[var(--theme-border)]",
+          "border border-[var(--theme-border)] hover:border-[var(--theme-accent-primary)]",
+          "text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]",
+          "hover:shadow-md hover:scale-105",
           className
         )}
         title={`Tema actual: ${theme === "system" ? "Sistema" : theme === "dark" ? "Oscuro" : "Claro"}`}
       >
         {resolvedTheme === "dark" ? (
-          <Moon className="h-5 w-5 text-[var(--theme-text-secondary)]" />
+          <Moon className="h-5 w-5 transition-transform" />
         ) : (
-          <Sun className="h-5 w-5 text-amber-500" />
+          <Sun className="h-5 w-5 text-amber-500 transition-transform" />
         )}
       </button>
     );
