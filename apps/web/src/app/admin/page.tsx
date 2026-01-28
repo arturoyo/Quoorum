@@ -20,6 +20,11 @@ import {
   Database,
   Settings,
   Gauge,
+  TrendingUp,
+  DollarSign,
+  Users,
+  Activity,
+  AlertTriangle,
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -177,6 +182,9 @@ export default function AdminPage() {
         {/* Debate Costs Analytics by Phase */}
         <DebatesCostAnalyticsTable />
 
+        {/* AI Cost Analytics */}
+        <AICostAnalytics />
+
         {/* Info Note */}
         <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
           <p className="text-sm text-yellow-300">
@@ -184,6 +192,267 @@ export default function AdminPage() {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * AI Cost Analytics Section
+ * Shows comprehensive AI usage and cost tracking
+ */
+function AICostAnalytics() {
+  const [dateRange, setDateRange] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
+  // Fetch AI cost summary
+  const { data: summary, isLoading: summaryLoading } = api.admin.getAICostSummary.useQuery(dateRange);
+
+  // Fetch top users by AI cost
+  const { data: topUsers, isLoading: usersLoading } = api.admin.getTopUsersByAICost.useQuery({
+    limit: 10,
+    ...dateRange,
+  });
+
+  if (summaryLoading) {
+    return (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Activity className="h-5 w-5 text-purple-400" />
+            Análisis de Costos de IA
+          </CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
+            Cargando datos...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Loader2 className="w-6 h-6 text-purple-500 animate-spin mx-auto" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!summary) {
+    return (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Activity className="h-5 w-5 text-purple-400" />
+            Análisis de Costos de IA
+          </CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
+            No hay datos disponibles
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  const freeTierWarning = summary.freeTierRatio < 0.7; // Warn if less than 70% free tier
+
+  return (
+    <div className="space-y-6">
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Activity className="h-5 w-5 text-purple-400" />
+            Análisis de Costos de IA
+          </CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
+            Seguimiento de todas las operaciones de IA incluyendo free tier
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Summary Stats */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            <div className="p-4 rounded-lg border border-white/10 bg-slate-800/50">
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign className="h-4 w-4 text-green-400" />
+                <p className="text-xs text-[var(--theme-text-secondary)]">Costo Total</p>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                ${summary.totalCostUsd.toFixed(4)}
+              </p>
+              <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                {summary.totalRequests.toLocaleString()} requests
+              </p>
+            </div>
+
+            <div className="p-4 rounded-lg border border-white/10 bg-slate-800/50">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-4 w-4 text-blue-400" />
+                <p className="text-xs text-[var(--theme-text-secondary)]">Total Tokens</p>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                {summary.totalTokens.toLocaleString()}
+              </p>
+              <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                Prompt + Completion
+              </p>
+            </div>
+
+            <div className="p-4 rounded-lg border border-white/10 bg-slate-800/50">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="h-4 w-4 text-purple-400" />
+                <p className="text-xs text-[var(--theme-text-secondary)]">Free Tier</p>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                {(summary.freeTierRatio * 100).toFixed(1)}%
+              </p>
+              <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                {summary.freeRequests.toLocaleString()} / {summary.totalRequests.toLocaleString()} requests
+              </p>
+            </div>
+
+            <div className="p-4 rounded-lg border border-white/10 bg-slate-800/50">
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign className="h-4 w-4 text-amber-400" />
+                <p className="text-xs text-[var(--theme-text-secondary)]">Paid Tier</p>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                ${summary.totalCostUsd.toFixed(4)}
+              </p>
+              <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                {summary.paidRequests.toLocaleString()} requests
+              </p>
+            </div>
+          </div>
+
+          {/* Free Tier Warning */}
+          {freeTierWarning && (
+            <div className="mb-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="h-5 w-5 text-amber-400" />
+                <p className="text-sm font-semibold text-amber-300">
+                  [WARN] Uso de Free Tier Bajo
+                </p>
+              </div>
+              <p className="text-sm text-amber-200">
+                Solo el {(summary.freeTierRatio * 100).toFixed(1)}% de las operaciones usan free tier.
+                Considera optimizar el uso de modelos para reducir costos.
+              </p>
+            </div>
+          )}
+
+          {/* Breakdown by Operation */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-white mb-3">Desglose por Operación</h3>
+            <div className="space-y-2">
+              {Object.entries(summary.byOperation)
+                .sort(([, a], [, b]) => b - a)
+                .map(([operation, cost]) => {
+                  const percentage = summary.totalCostUsd > 0 ? (cost / summary.totalCostUsd) * 100 : 0;
+                  return (
+                    <div key={operation} className="flex items-center justify-between p-2 rounded bg-slate-800/30">
+                      <span className="text-sm text-[var(--theme-text-secondary)] capitalize">
+                        {operation.replace(/_/g, ' ')}
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-32 bg-slate-700 rounded-full h-2 overflow-hidden">
+                          <div
+                            className="bg-purple-500 h-full rounded-full"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-mono text-white w-20 text-right">
+                          ${cost.toFixed(4)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* Breakdown by Provider */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-white mb-3">Desglose por Provider</h3>
+            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(summary.byProvider)
+                .sort(([, a], [, b]) => b - a)
+                .map(([provider, cost]) => (
+                  <div key={provider} className="p-3 rounded-lg border border-white/10 bg-slate-800/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-white capitalize">
+                        {provider}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className={
+                          cost === 0
+                            ? "border-green-500/40 text-green-300 bg-green-500/10"
+                            : "border-amber-500/40 text-amber-300 bg-amber-500/10"
+                        }
+                      >
+                        {cost === 0 ? "FREE" : `$${cost.toFixed(4)}`}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Top Users */}
+          {!usersLoading && topUsers && topUsers.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <Users className="h-4 w-4 text-purple-400" />
+                Top 10 Usuarios por Costo de IA
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="text-left py-2 px-2 text-[var(--theme-text-secondary)] font-medium">
+                        Usuario
+                      </th>
+                      <th className="text-right py-2 px-2 text-[var(--theme-text-secondary)] font-medium">
+                        Requests
+                      </th>
+                      <th className="text-right py-2 px-2 text-[var(--theme-text-secondary)] font-medium">
+                        Tokens
+                      </th>
+                      <th className="text-right py-2 px-2 text-[var(--theme-text-secondary)] font-medium">
+                        Costo
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topUsers.map((user, index) => (
+                      <tr key={user.userId} className="border-b border-white/5 hover:bg-white/5">
+                        <td className="py-2 px-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-[var(--theme-text-tertiary)] w-6">
+                              #{index + 1}
+                            </span>
+                            <div>
+                              <div className="text-white text-sm">{user.name || 'Unknown'}</div>
+                              <div className="text-[var(--theme-text-tertiary)] text-xs">
+                                {user.email}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-2 px-2 text-right text-white">
+                          {user.requestCount.toLocaleString()}
+                        </td>
+                        <td className="py-2 px-2 text-right text-white">
+                          {user.totalTokens.toLocaleString()}
+                        </td>
+                        <td className="py-2 px-2 text-right text-white font-mono">
+                          ${user.totalCostUsd.toFixed(4)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
