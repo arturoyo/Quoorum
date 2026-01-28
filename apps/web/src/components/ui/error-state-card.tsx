@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
@@ -81,7 +81,7 @@ export function ErrorStateCard({
         <Icon className="h-12 w-12" />
       </div>
 
-      <h3 className="text-lg font-semibold text-white mb-2">
+      <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-2">
         {displayTitle}
       </h3>
 

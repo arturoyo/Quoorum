@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tooltips System
  * 
  * Contextual tooltips for better UX
@@ -100,7 +100,7 @@ export function Tooltip({
 
       {isVisible && (
         <div
-          className="fixed z-50 bg-gray-900 text-white text-sm rounded-lg px-3 py-2 pointer-events-none"
+          className="fixed z-50 bg-gray-900 text-[var(--theme-text-primary)] text-sm rounded-lg px-3 py-2 pointer-events-none"
           style={{
             ...getPositionStyles(),
             maxWidth: `${maxWidth}px`,

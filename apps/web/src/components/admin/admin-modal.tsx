@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin Modal Component
  * 
  * Modal similar a SettingsModal pero para funcionalidades de administración
@@ -73,7 +73,7 @@ export function AdminModal({ open, onOpenChange, initialSection }: AdminModalPro
   if (isChecking || isLoadingUser) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden bg-slate-900 border-purple-500/20">
+        <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden bg-[var(--theme-bg-primary)] border-purple-500/20">
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
           </div>
@@ -88,7 +88,7 @@ export function AdminModal({ open, onOpenChange, initialSection }: AdminModalPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden bg-slate-900 border-purple-500/20 p-0">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden bg-[var(--theme-bg-primary)] border-purple-500/20 p-0">
         <DialogHeader className="sr-only">
           <DialogTitle>Panel de Administración</DialogTitle>
           <DialogDescription>

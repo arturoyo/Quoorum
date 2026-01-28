@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Loading States for Quoorum
  * 
  * Quick bonus: Beautiful loading states and skeletons
@@ -163,7 +163,7 @@ export function EmptyDebateList() {
       <div className="text-6xl mb-4">[CHAT]</div>
       <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No hay debates aún</h3>
       <p className="text-[var(--theme-text-tertiary)] mb-6">Crea tu primer debate para empezar</p>
-      <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+      <button className="bg-blue-600 text-[var(--theme-text-primary)] px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
         Crear Debate
       </button>
     </div>
@@ -186,7 +186,7 @@ export function NoExperts() {
       <div className="text-6xl mb-4">[USERS]</div>
       <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No hay expertos personalizados</h3>
       <p className="text-[var(--theme-text-tertiary)] mb-6">Crea expertos personalizados para tus debates</p>
-      <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+      <button className="bg-blue-600 text-[var(--theme-text-primary)] px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
         Crear Experto
       </button>
     </div>
@@ -206,7 +206,7 @@ export function ErrorState({ error, retry }: { error: string; retry?: () => void
       {retry && (
         <button 
           onClick={retry}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="bg-blue-600 text-[var(--theme-text-primary)] px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Reintentar
         </button>
@@ -224,7 +224,7 @@ export function NetworkError({ retry }: { retry?: () => void }) {
       {retry && (
         <button 
           onClick={retry}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="bg-blue-600 text-[var(--theme-text-primary)] px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Reintentar
         </button>

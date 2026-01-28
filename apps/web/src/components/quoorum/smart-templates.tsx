@@ -53,8 +53,8 @@ export function SmartTemplates({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">
-                💡 Debates Similares Exitosos
+              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+                ?? Debates Similares Exitosos
               </h3>
             </div>
             <p className="mt-1 text-sm text-[#aebac1]">
@@ -67,7 +67,7 @@ export function SmartTemplates({
             onClick={onSkip}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-white"
+            className="text-[#8696a0] hover:text-[var(--theme-text-primary)]"
           >
             Omitir
           </Button>
@@ -97,7 +97,7 @@ export function SmartTemplates({
 
               {/* Question */}
               <div className="mb-3 pr-20">
-                <p className="text-sm font-medium text-white line-clamp-2">
+                <p className="text-sm font-medium text-[var(--theme-text-primary)] line-clamp-2">
                   {debate.question}
                 </p>
               </div>
@@ -165,8 +165,8 @@ export function SmartTemplates({
         className="rounded-lg border border-[#2a3942] bg-[#0b141a] p-3"
       >
         <p className="text-xs text-[#8696a0]">
-          💡 <span className="text-[#aebac1]">Tip:</span> Los debates con 85%+ calidad de
-          contexto tienen 3x más probabilidad de generar insights accionables.
+          ?? <span className="text-[#aebac1]">Tip:</span> Los debates con 85%+ calidad de
+          contexto tienen 3x m�s probabilidad de generar insights accionables.
         </p>
       </motion.div>
     </motion.div>

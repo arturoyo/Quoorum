@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Quoorum Onboarding
  *
  * Interactive onboarding for new users
@@ -147,7 +147,7 @@ export function OnboardingModal() {
             )}
             <button
               onClick={handleNext}
-              className="rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
+              className="rounded-lg bg-blue-600 px-6 py-2 text-[var(--theme-text-primary)] transition-colors hover:bg-blue-700"
             >
               {isLastStep ? '¡Empezar!' : 'Siguiente'}
             </button>
@@ -257,7 +257,7 @@ export function QuickStartGuide() {
             <div className="mt-8 border-t border-gray-200 pt-6">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full rounded-lg bg-blue-600 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+                className="w-full rounded-lg bg-blue-600 py-3 font-medium text-[var(--theme-text-primary)] transition-colors hover:bg-blue-700"
               >
                 ¡Entendido!
               </button>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -44,7 +44,7 @@ export function IconCard({
             gradient
           )}
         >
-          <Icon className="w-6 h-6 text-white" />
+          <Icon className="w-6 h-6 text-[var(--theme-text-primary)]" />
         </div>
         <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-1 group-hover:text-[var(--theme-text-primary)] transition-colors">
           {title}

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CreditCounter Component
  * 
  * Muestra el balance de créditos del usuario y el coste acumulado de la sesión actual.
@@ -192,7 +192,7 @@ export function CreditCounter({
   return (
     <div className={cn('space-y-4 p-4 rounded-lg border border-purple-500/30 bg-purple-500/10', className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] flex items-center gap-2">
           <Coins className="h-5 w-5 text-purple-400" />
           Coste del Debate
         </h3>
@@ -218,7 +218,7 @@ export function CreditCounter({
           {accumulatedCosts.map((phase, idx) => (
             <div key={idx} className="flex justify-between text-sm">
               <span className="text-[var(--theme-text-secondary)] capitalize">{phase.phase}:</span>
-              <span className="text-white font-medium">{phase.costCredits} créditos</span>
+              <span className="text-[var(--theme-text-primary)] font-medium">{phase.costCredits} créditos</span>
             </div>
           ))}
           <div className="flex justify-between text-sm pt-2 border-t border-purple-500/20">
@@ -235,11 +235,11 @@ export function CreditCounter({
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[var(--theme-text-secondary)]">Mínimo:</span>
-            <span className="text-white">{estimatedDebateCost.min} créditos</span>
+            <span className="text-[var(--theme-text-primary)]">{estimatedDebateCost.min} créditos</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[var(--theme-text-secondary)]">Máximo:</span>
-            <span className="text-white">{estimatedDebateCost.max} créditos</span>
+            <span className="text-[var(--theme-text-primary)]">{estimatedDebateCost.max} créditos</span>
           </div>
         </div>
       )}

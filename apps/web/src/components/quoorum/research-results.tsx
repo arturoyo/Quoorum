@@ -79,7 +79,7 @@ export function ResearchResults({
     datos_mercado: 'Datos de Mercado',
     consideraciones: 'Consideraciones',
     opciones_identificadas: 'Opciones Identificadas',
-    criterios_evaluacion: 'Criterios de Evaluaci√≥n',
+    criterios_evaluacion: 'Criterios de EvaluaciÛn',
   }
 
   const handleToggleField = (field: string) => {
@@ -123,12 +123,12 @@ export function ResearchResults({
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <Search className="h-5 w-5 text-purple-400" />
-            <h3 className="text-lg font-semibold text-white">
-              üîç Auto-Research Completado
+            <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+              ?? Auto-Research Completado
             </h3>
           </div>
           <p className="mt-1 text-sm text-[#aebac1]">
-            He investigado autom√°ticamente y encontr√© {results.length} fuentes relevantes
+            He investigado autom·ticamente y encontrÈ {results.length} fuentes relevantes
             en {(executionTimeMs / 1000).toFixed(1)}s
           </p>
         </div>
@@ -179,7 +179,7 @@ export function ResearchResults({
               </div>
 
               {/* Summary */}
-              <h4 className="mb-2 text-sm font-medium text-white">{result.title}</h4>
+              <h4 className="mb-2 text-sm font-medium text-[var(--theme-text-primary)]">{result.title}</h4>
               <p className="mb-3 text-sm text-[#aebac1] leading-relaxed">
                 {result.summary}
               </p>
@@ -197,7 +197,7 @@ export function ResearchResults({
                   >
                     <ExternalLink className="mt-0.5 h-3 w-3 flex-shrink-0 text-[#8696a0] group-hover:text-purple-400" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-[#aebac1] group-hover:text-white line-clamp-1">
+                      <p className="text-xs font-medium text-[#aebac1] group-hover:text-[var(--theme-text-primary)] line-clamp-1">
                         {source.title}
                       </p>
                       <p className="mt-0.5 text-xs text-[#8696a0] line-clamp-2">
@@ -220,7 +220,7 @@ export function ResearchResults({
           transition={{ delay: 0.3 }}
           className="rounded-lg border border-[#2a3942] bg-[#111b21] p-4"
         >
-          <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+          <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--theme-text-primary)]">
             <Lightbulb className="h-4 w-4 text-purple-400" />
             Contexto Pre-llenado
           </h4>
@@ -245,7 +245,7 @@ export function ResearchResults({
               size="sm"
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
-              ‚úì Usar este contexto
+              ? Usar este contexto
             </Button>
             <Button
               onClick={() => setIsCustomizeDialogOpen(true)}
@@ -262,11 +262,11 @@ export function ResearchResults({
 
       {/* Customize Context Dialog */}
       <Dialog open={isCustomizeDialogOpen} onOpenChange={setIsCustomizeDialogOpen}>
-        <DialogContent className="max-w-2xl bg-[#111b21] border-[#2a3942] text-white">
+        <DialogContent className="max-w-2xl bg-[#111b21] border-[#2a3942] text-[var(--theme-text-primary)]">
           <DialogHeader>
-            <DialogTitle className="text-white">Personalizar Contexto</DialogTitle>
+            <DialogTitle className="text-[var(--theme-text-primary)]">Personalizar Contexto</DialogTitle>
             <DialogDescription className="text-[#aebac1]">
-              Selecciona qu√© campos del contexto quieres incluir en tu debate
+              Selecciona quÈ campos del contexto quieres incluir en tu debate
             </DialogDescription>
           </DialogHeader>
 
@@ -309,7 +309,7 @@ export function ResearchResults({
                   />
                   <Label
                     htmlFor={key}
-                    className="flex-1 cursor-pointer text-sm text-white"
+                    className="flex-1 cursor-pointer text-sm text-[var(--theme-text-primary)]"
                   >
                     <div className="font-medium mb-1">{label}</div>
                     <div className="text-xs text-[#aebac1] mt-1">

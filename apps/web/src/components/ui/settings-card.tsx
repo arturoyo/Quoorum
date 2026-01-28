@@ -63,7 +63,7 @@ export function SettingsCard({
           <div className="flex items-center gap-3">
             {icon && <div className="text-purple-400">{icon}</div>}
             <div>
-              <CardTitle className="text-white">{title}</CardTitle>
+              <CardTitle className="text-[var(--theme-text-primary)]">{title}</CardTitle>
               {description && (
                 <CardDescription className="text-[#aebac1]">
                   {description}

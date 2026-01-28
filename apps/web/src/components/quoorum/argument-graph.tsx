@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 /**
  * Argument Graph Visualization
@@ -87,7 +87,7 @@ function convertToReactFlow(tree: ArgumentTree): { nodes: Node[]; edges: Edge[] 
               </Badge>
               <span className="text-xs text-[#8696a0]">Ronda {node.round}</span>
             </div>
-            <p className="text-sm text-white mb-1 line-clamp-3">{node.content}</p>
+            <p className="text-sm text-[var(--theme-text-primary)] mb-1 line-clamp-3">{node.content}</p>
             <div className="flex items-center justify-between mt-1">
               <span className="text-xs text-[#aebac1]">{node.expert}</span>
               <span className="text-xs text-purple-400">
@@ -209,7 +209,7 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
     return (
       <Card className="border-[#2a3942] bg-[#111b21]">
         <CardHeader>
-          <CardTitle className="text-white">Árbol de Argumentos</CardTitle>
+          <CardTitle className="text-[var(--theme-text-primary)]">Árbol de Argumentos</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[500px] w-full bg-[#202c33]" />
@@ -226,7 +226,7 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
   return (
     <Card className="border-[#2a3942] bg-[#111b21]">
       <CardHeader>
-        <CardTitle className="text-white">Grafo de Argumentos</CardTitle>
+        <CardTitle className="text-[var(--theme-text-primary)]">Grafo de Argumentos</CardTitle>
         <CardDescription className="text-[#aebac1]">
           Visualización interactiva de argumentos y sus relaciones ({tree.nodes.length} argumentos,{' '}
           {tree.edges.length} relaciones)
@@ -236,15 +236,15 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
         {/* Filters */}
         <div className="flex gap-2 mb-4 flex-wrap">
           <Select value={filterExpert} onValueChange={setFilterExpert}>
-            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-white">
+            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)]">
               <SelectValue placeholder="Experto" />
             </SelectTrigger>
             <SelectContent className="bg-[#111b21] border-[#2a3942]">
-              <SelectItem value="all" className="text-white">
+              <SelectItem value="all" className="text-[var(--theme-text-primary)]">
                 Todos los expertos
               </SelectItem>
               {experts.map((expert) => (
-                <SelectItem key={expert} value={expert} className="text-white">
+                <SelectItem key={expert} value={expert} className="text-[var(--theme-text-primary)]">
                   {expert}
                 </SelectItem>
               ))}
@@ -252,23 +252,23 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
           </Select>
 
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-white">
+            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)]">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent className="bg-[#111b21] border-[#2a3942]">
-              <SelectItem value="all" className="text-white">
+              <SelectItem value="all" className="text-[var(--theme-text-primary)]">
                 Todos los tipos
               </SelectItem>
-              <SelectItem value="premise" className="text-white">
+              <SelectItem value="premise" className="text-[var(--theme-text-primary)]">
                 Premisas
               </SelectItem>
-              <SelectItem value="conclusion" className="text-white">
+              <SelectItem value="conclusion" className="text-[var(--theme-text-primary)]">
                 Conclusiones
               </SelectItem>
-              <SelectItem value="objection" className="text-white">
+              <SelectItem value="objection" className="text-[var(--theme-text-primary)]">
                 Objeciones
               </SelectItem>
-              <SelectItem value="support" className="text-white">
+              <SelectItem value="support" className="text-[var(--theme-text-primary)]">
                 Apoyos
               </SelectItem>
             </SelectContent>
@@ -278,20 +278,20 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
             value={minStrength.toString()}
             onValueChange={(v) => setMinStrength(parseFloat(v))}
           >
-            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-white">
+            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)]">
               <SelectValue placeholder="Fuerza mínima" />
             </SelectTrigger>
             <SelectContent className="bg-[#111b21] border-[#2a3942]">
-              <SelectItem value="0" className="text-white">
+              <SelectItem value="0" className="text-[var(--theme-text-primary)]">
                 Todas
               </SelectItem>
-              <SelectItem value="0.3" className="text-white">
+              <SelectItem value="0.3" className="text-[var(--theme-text-primary)]">
                 ≥ 30%
               </SelectItem>
-              <SelectItem value="0.5" className="text-white">
+              <SelectItem value="0.5" className="text-[var(--theme-text-primary)]">
                 ≥ 50%
               </SelectItem>
-              <SelectItem value="0.7" className="text-white">
+              <SelectItem value="0.7" className="text-[var(--theme-text-primary)]">
                 ≥ 70%
               </SelectItem>
             </SelectContent>
@@ -359,7 +359,7 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
 
         {/* Legend */}
         <div className="mt-4 p-3 rounded-lg border border-[#2a3942] bg-[#202c33]">
-          <p className="text-sm font-semibold text-white mb-2">Leyenda:</p>
+          <p className="text-sm font-semibold text-[var(--theme-text-primary)] mb-2">Leyenda:</p>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-blue-500/20 border border-blue-500/30"></div>

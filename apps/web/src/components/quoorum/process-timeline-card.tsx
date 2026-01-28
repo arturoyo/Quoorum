@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -51,7 +51,7 @@ export function ProcessTimelineCard({ process }: ProcessTimelineCardProps) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {getStatusIcon(process.status)}
-            <h3 className="text-white font-medium text-sm">{process.processName}</h3>
+            <h3 className="text-[var(--theme-text-primary)] font-medium text-sm">{process.processName}</h3>
           </div>
           <Badge variant={getStatusBadgeVariant(process.status)} className="text-xs">
             {process.status === 'in_progress' ? 'En progreso' : 

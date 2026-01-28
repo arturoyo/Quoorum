@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/trpc/client'
@@ -168,9 +168,9 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent nested className="bg-slate-900 border-purple-500/20 max-w-2xl">
+      <DialogContent nested className="bg-[var(--theme-bg-primary)] border-purple-500/20 max-w-2xl">
         <DialogHeader className="border-b-0 pb-0">
-          <DialogTitle className="text-2xl font-semibold text-white">
+          <DialogTitle className="text-2xl font-semibold text-[var(--theme-text-primary)]">
             Obtener Equipo
           </DialogTitle>
           <DialogDescription className="text-[var(--theme-text-secondary)]">
@@ -206,7 +206,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                   )}
                 </div>
               </div>
-              <div className="text-2xl font-bold text-white mb-0.5">
+              <div className="text-2xl font-bold text-[var(--theme-text-primary)] mb-0.5">
                 {pricePerSeat}€
               </div>
               <div className="text-xs text-[var(--theme-text-secondary)]">Por asiento / mes</div>
@@ -236,11 +236,11 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                     <div className="w-1.5 h-1.5 rounded-full bg-white" />
                   )}
                 </div>
-                <div className="bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded">
+                <div className="bg-blue-500 text-[var(--theme-text-primary)] text-xs px-1.5 py-0.5 rounded">
                   Ahorra 17%
                 </div>
               </div>
-              <div className="text-2xl font-bold text-white mb-0.5">
+              <div className="text-2xl font-bold text-[var(--theme-text-primary)] mb-0.5">
                 {Math.round(pricePerSeat * 12 * 0.83)}€
               </div>
               <div className="text-xs text-[var(--theme-text-secondary)]">Por asiento / año</div>
@@ -249,7 +249,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
 
           {/* Team Seats Selector */}
           <div className="space-y-1.5">
-            <Label htmlFor="teamSeats" className="text-white text-sm">
+            <Label htmlFor="teamSeats" className="text-[var(--theme-text-primary)] text-sm">
               Asientos del equipo
             </Label>
             <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                 variant="outline"
                 size="icon"
                 onClick={() => setTeamSeats(Math.max(1, teamSeats - 1))}
-                className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+                className="border-[#2a3942] bg-[#2a3942] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600"
               >
                 -
               </Button>
@@ -271,14 +271,14 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                   const value = parseInt(e.target.value) || 1
                   setTeamSeats(Math.max(1, value))
                 }}
-                className="flex-1 bg-[#2a3942] border-[#2a3942] text-white text-center"
+                className="flex-1 bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)] text-center"
               />
               <Button
                 type="button"
                 variant="outline"
                 size="icon"
                 onClick={() => setTeamSeats(teamSeats + 1)}
-                className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+                className="border-[#2a3942] bg-[#2a3942] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600"
               >
                 +
               </Button>
@@ -287,7 +287,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
 
           {/* Credits per Seat Dropdown */}
           <div className="space-y-1.5">
-            <Label htmlFor="creditsPerSeat" className="text-white text-sm">
+            <Label htmlFor="creditsPerSeat" className="text-[var(--theme-text-primary)] text-sm">
               Créditos por asiento
             </Label>
             <Select
@@ -296,7 +296,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
             >
               <SelectTrigger
                 id="creditsPerSeat"
-                className="bg-[#2a3942] border-[#2a3942] text-white"
+                className="bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)]"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -305,7 +305,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                   <SelectItem
                     key={option.credits}
                     value={option.credits.toString()}
-                    className="text-white hover:bg-purple-600/20 focus:bg-purple-600/20"
+                    className="text-[var(--theme-text-primary)] hover:bg-purple-600/20 focus:bg-purple-600/20"
                   >
                     <div className="flex items-center justify-between w-full">
                       <span>
@@ -329,11 +329,11 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
             <Card className="bg-[#111b21] border-[#2a3942]">
               <CardContent className="p-4">
                 <div className="space-y-1">
-                  <Label className="text-white font-semibold text-sm">Créditos totales</Label>
+                  <Label className="text-[var(--theme-text-primary)] font-semibold text-sm">Créditos totales</Label>
                   <p className="text-xs text-[var(--theme-text-secondary)]">
                     Compartido por todos
                   </p>
-                  <p className="text-xl font-bold text-white">
+                  <p className="text-xl font-bold text-[var(--theme-text-primary)]">
                     {totalCredits.toLocaleString()} / mes
                   </p>
                 </div>
@@ -343,7 +343,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
             <Card className="bg-[#111b21] border-[#2a3942]">
               <CardContent className="p-4">
                 <div className="space-y-1">
-                  <Label className="text-white font-semibold text-sm">Precio total</Label>
+                  <Label className="text-[var(--theme-text-primary)] font-semibold text-sm">Precio total</Label>
                   <div className="flex items-baseline gap-1">
                     <AnimatePresence mode="wait">
                       <motion.span
@@ -352,7 +352,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -20, opacity: 0 }}
                         transition={{ duration: 0.3, ease: 'easeOut' }}
-                        className="text-xl font-bold text-white"
+                        className="text-xl font-bold text-[var(--theme-text-primary)]"
                       >
                         {Math.round(displayPrice)}€
                       </motion.span>
@@ -372,7 +372,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
           {/* Features List */}
           <Card className="bg-[#111b21] border-[#2a3942]">
             <CardHeader className="pb-3">
-              <CardTitle className="text-white text-base">Características incluidas</CardTitle>
+              <CardTitle className="text-[var(--theme-text-primary)] text-base">Características incluidas</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <ul className="space-y-2">
@@ -380,7 +380,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                   <li key={index} className="flex items-start gap-2">
                     <span className="text-lg">{feature.icon}</span>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-white">{feature.text}</p>
+                      <p className="text-sm font-semibold text-[var(--theme-text-primary)]">{feature.text}</p>
                       <p className="text-xs text-[var(--theme-text-secondary)]">{feature.description}</p>
                     </div>
                   </li>
@@ -395,7 +395,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
             type="button"
             variant="outline"
             onClick={handleContactSales}
-            className="flex-1 border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+            className="flex-1 border-[#2a3942] bg-[#2a3942] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600"
           >
             Contacta con ventas
           </Button>

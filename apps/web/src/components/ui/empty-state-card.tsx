@@ -49,7 +49,7 @@ const variantStyles = {
     description: 'text-amber-200/70',
   },
   muted: {
-    container: 'bg-white/5 border-white/10',
+    container: 'bg-white/5 border-[var(--theme-border)]',
     icon: 'text-[var(--theme-text-tertiary)]',
     title: 'text-[var(--theme-text-secondary)]',
     description: 'text-[var(--theme-text-tertiary)]',
@@ -130,7 +130,7 @@ export function EmptyDebatesList({
 }) {
   return (
     <EmptyStateCard
-      title="No hay debates aÃºn"
+      title="No hay debates aún"
       description="Crea tu primer debate para comenzar a explorar ideas con expertos IA"
       actionLabel={onCreateDebate ? "Crear Debate" : undefined}
       onAction={onCreateDebate}
@@ -153,7 +153,7 @@ export function EmptySearchResults({
       description={
         searchTerm
           ? `No se encontraron resultados para "${searchTerm}"`
-          : "No se encontraron resultados para tu bÃºsqueda"
+          : "No se encontraron resultados para tu búsqueda"
       }
       variant="muted"
       className={className}

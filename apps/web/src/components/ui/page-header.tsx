@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
@@ -78,7 +78,7 @@ export function SectionHeader({
   return (
     <div className={cn('flex items-center justify-between mb-4', className)}>
       <div>
-        <h2 className="text-lg font-semibold text-white">{title}</h2>
+        <h2 className="text-lg font-semibold text-[var(--theme-text-primary)]">{title}</h2>
         {description && (
           <p className="text-sm text-[var(--theme-text-secondary)]">{description}</p>
         )}

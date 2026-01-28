@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { CheckCircle2, AlertTriangle, XCircle, TrendingUp, Award, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -72,7 +72,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
                   Consenso Científico
                 </Badge>
               </TooltipTrigger>
-              <TooltipContent className="max-w-xs bg-[#202c33] border-[#2a3942] text-white">
+              <TooltipContent className="max-w-xs bg-[#202c33] border-[#2a3942] text-[var(--theme-text-primary)]">
                 <p className="text-xs">
                   <strong>Algoritmo validado:</strong> 4 expertos IA independientes analizan tu contexto.
                   El consenso final garantiza decisiones equilibradas, no sesgadas por un solo modelo.
@@ -90,7 +90,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
             </p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-white">{overallScore}%</div>
+            <div className="text-3xl font-bold text-[var(--theme-text-primary)]">{overallScore}%</div>
             <div className={cn(
               "text-xs font-medium mt-1",
               overallScore >= 85 ? "text-green-400" :
@@ -161,7 +161,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
                   </Badge>
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="max-w-xs bg-[#202c33] border-[#2a3942] text-white">
+              <TooltipContent className="max-w-xs bg-[#202c33] border-[#2a3942] text-[var(--theme-text-primary)]">
                 <p className="text-xs">
                   <strong>Probabilidad de éxito:</strong> Basado en la calidad del contexto,
                   estimamos un {estimatedSuccessRate}% de probabilidad de que los expertos
@@ -205,7 +205,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
                   <span className="text-lg">{icon}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-medium text-white truncate">
+                      <h4 className="text-sm font-medium text-[var(--theme-text-primary)] truncate">
                         {dimension.name}
                       </h4>
                       {dimension.weight > 0.15 && (

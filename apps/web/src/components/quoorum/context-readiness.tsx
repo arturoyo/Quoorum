@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -166,9 +166,9 @@ export function ContextReadiness({
               />
               {/* Threshold markers */}
               <div className="absolute inset-0 flex">
-                <div className="w-[30%] border-r border-white/20" />
-                <div className="w-[20%] border-r border-white/20" />
-                <div className="w-[25%] border-r border-white/20" />
+                <div className="w-[30%] border-r border-[var(--theme-border)]" />
+                <div className="w-[20%] border-r border-[var(--theme-border)]" />
+                <div className="w-[25%] border-r border-[var(--theme-border)]" />
               </div>
             </div>
             <div className="flex justify-between text-xs text-[var(--theme-text-tertiary)]">
@@ -184,7 +184,7 @@ export function ContextReadiness({
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-between text-[var(--theme-text-secondary)] hover:text-white"
+                className="w-full justify-between text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
               >
                 <span className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />

@@ -75,12 +75,12 @@ export function ContextSnapshots({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <History className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">
-                ðŸ’¾ Context Snapshots
+              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+                ?? Context Snapshots
               </h3>
             </div>
             <p className="mt-1 text-sm text-[#aebac1]">
-              Guarda y restaura versiones de tu contexto para iterar rÃ¡pidamente
+              Guarda y restaura versiones de tu contexto para iterar rápidamente
             </p>
           </div>
 
@@ -88,7 +88,7 @@ export function ContextSnapshots({
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-white"
+            className="text-[#8696a0] hover:text-[var(--theme-text-primary)]"
           >
             Cerrar
           </Button>
@@ -99,8 +99,8 @@ export function ContextSnapshots({
           <Input
             value={snapshotName}
             onChange={(e) => setSnapshotName(e.target.value)}
-            placeholder="Nombre del snapshot (ej: 'Primera versiÃ³n')"
-            className="flex-1 border-[#2a3942] bg-[#111b21] text-white placeholder:text-[#8696a0]"
+            placeholder="Nombre del snapshot (ej: 'Primera versión')"
+            className="flex-1 border-[#2a3942] bg-[#111b21] text-[var(--theme-text-primary)] placeholder:text-[#8696a0]"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSave()
@@ -125,7 +125,7 @@ export function ContextSnapshots({
         <div className="mt-3 rounded border border-[#2a3942] bg-[#0b141a] p-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-[#8696a0]">Score actual:</span>
-            <span className="font-semibold text-white">{currentScore}%</span>
+            <span className="font-semibold text-[var(--theme-text-primary)]">{currentScore}%</span>
           </div>
         </div>
       </div>
@@ -135,16 +135,16 @@ export function ContextSnapshots({
         <Card className="border-[#2a3942] bg-[#111b21] p-8 text-center">
           <History className="mx-auto h-12 w-12 text-[#8696a0] mb-4" />
           <p className="text-sm text-[#aebac1]">
-            No hay snapshots guardados aÃºn
+            No hay snapshots guardados aún
           </p>
           <p className="text-xs text-[#8696a0] mt-2">
-            Guarda una versiÃ³n para poder volver a ella mÃ¡s tarde
+            Guarda una versión para poder volver a ella más tarde
           </p>
         </Card>
       ) : (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-white">
-            ðŸ“‹ Snapshots Guardados ({sortedSnapshots.length})
+          <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
+            ?? Snapshots Guardados ({sortedSnapshots.length})
           </h4>
           {sortedSnapshots.map((snapshot, index) => {
             const isAuto = snapshot.tags.includes('auto')
@@ -161,7 +161,7 @@ export function ContextSnapshots({
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h5 className="text-sm font-semibold text-white">
+                        <h5 className="text-sm font-semibold text-[var(--theme-text-primary)]">
                           {snapshot.name}
                         </h5>
                         {isAuto && (
@@ -203,7 +203,7 @@ export function ContextSnapshots({
                   <div className="grid grid-cols-3 gap-3">
                     <div className="rounded border border-[#2a3942] bg-[#0b141a] p-2">
                       <p className="text-xs text-[#8696a0] mb-1">Score</p>
-                      <p className="text-lg font-bold text-white">{snapshot.score}%</p>
+                      <p className="text-lg font-bold text-[var(--theme-text-primary)]">{snapshot.score}%</p>
                     </div>
 
                     <div className="rounded border border-[#2a3942] bg-[#0b141a] p-2">
@@ -224,7 +224,7 @@ export function ContextSnapshots({
 
                     <div className="rounded border border-[#2a3942] bg-[#0b141a] p-2">
                       <p className="text-xs text-[#8696a0] mb-1">Dimensiones</p>
-                      <p className="text-lg font-bold text-white">
+                      <p className="text-lg font-bold text-[var(--theme-text-primary)]">
                         {snapshot.dimensions.filter((d) => d.score >= 70).length}/
                         {snapshot.dimensions.length}
                       </p>
@@ -272,8 +272,8 @@ export function ContextSnapshots({
         className="rounded-lg border border-[#2a3942] bg-[#0b141a] p-3"
       >
         <p className="text-xs text-[#8696a0]">
-          ðŸ’¡ <span className="text-[#aebac1]">Tip:</span> Guarda snapshots antes de hacer
-          cambios grandes. Puedes comparar versiones y volver atrÃ¡s si es necesario.
+          ?? <span className="text-[#aebac1]">Tip:</span> Guarda snapshots antes de hacer
+          cambios grandes. Puedes comparar versiones y volver atrás si es necesario.
         </p>
       </motion.div>
     </motion.div>

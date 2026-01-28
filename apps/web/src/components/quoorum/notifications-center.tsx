@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -219,7 +219,7 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
               <Bell className="h-5 w-5" />
               Notificaciones
               {(unreadCount ?? 0) > 0 && (
-                <Badge className="bg-[#00a884] text-white">{unreadCount}</Badge>
+                <Badge className="bg-[#00a884] text-[var(--theme-text-primary)]">{unreadCount}</Badge>
               )}
             </CardTitle>
             <CardDescription className="text-[#8696a0]">
@@ -273,7 +273,7 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
           >
             Sin leer
             {(unreadCount ?? 0) > 0 && (
-              <span className="ml-2 rounded-full bg-[#00a884] px-2 py-0.5 text-xs text-white">
+              <span className="ml-2 rounded-full bg-[#00a884] px-2 py-0.5 text-xs text-[var(--theme-text-primary)]">
                 {unreadCount}
               </span>
             )}
@@ -354,7 +354,7 @@ export function NotificationBell({ onClick }: { onClick?: () => void }) {
     >
       <Bell className="h-5 w-5 text-[#8696a0]" />
       {(unreadCount ?? 0) > 0 && (
-        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#00a884] text-xs font-medium text-white">
+        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#00a884] text-xs font-medium text-[var(--theme-text-primary)]">
           {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
         </span>
       )}

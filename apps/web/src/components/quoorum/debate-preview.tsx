@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { motion } from 'framer-motion'
 import {
@@ -109,7 +109,7 @@ export function DebatePreview({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Eye className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
                 🎭 Preview del Debate
               </h3>
             </div>
@@ -122,7 +122,7 @@ export function DebatePreview({
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-white"
+            className="text-[#8696a0] hover:text-[var(--theme-text-primary)]"
           >
             Cerrar
           </Button>
@@ -135,7 +135,7 @@ export function DebatePreview({
               <MessageSquare className="h-4 w-4" />
               Rondas estimadas
             </div>
-            <p className="mt-1 text-2xl font-bold text-white">{estimatedRounds}</p>
+            <p className="mt-1 text-2xl font-bold text-[var(--theme-text-primary)]">{estimatedRounds}</p>
           </div>
 
           <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
@@ -143,7 +143,7 @@ export function DebatePreview({
               <Target className="h-4 w-4" />
               Prob. consenso
             </div>
-            <p className="mt-1 text-2xl font-bold text-white">{consensusLikelihood}%</p>
+            <p className="mt-1 text-2xl font-bold text-[var(--theme-text-primary)]">{consensusLikelihood}%</p>
           </div>
 
           <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
@@ -151,7 +151,7 @@ export function DebatePreview({
               <Users className="h-4 w-4" />
               Puntos de debate
             </div>
-            <p className="mt-1 text-2xl font-bold text-white">{hotPoints.length}</p>
+            <p className="mt-1 text-2xl font-bold text-[var(--theme-text-primary)]">{hotPoints.length}</p>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@ export function DebatePreview({
       {/* Hot Points */}
       {hotPoints.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-white">
+          <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
             [WARN] Puntos Calientes (Alta Controversia)
           </h4>
           {hotPoints.map((point, index) => {
@@ -192,7 +192,7 @@ export function DebatePreview({
                         >
                           {point.controversy}% controversia
                         </Badge>
-                        <h5 className="text-sm font-semibold text-white">{point.topic}</h5>
+                        <h5 className="text-sm font-semibold text-[var(--theme-text-primary)]">{point.topic}</h5>
                       </div>
                     </div>
 
@@ -238,7 +238,7 @@ export function DebatePreview({
                             {point.expertA.name}
                           </p>
                         </div>
-                        <p className="text-sm font-medium text-white mb-1">
+                        <p className="text-sm font-medium text-[var(--theme-text-primary)] mb-1">
                           {point.expertA.position}
                         </p>
                         <p className="text-xs text-[#aebac1]">{point.expertA.reasoning}</p>
@@ -255,7 +255,7 @@ export function DebatePreview({
                             {point.expertB.name}
                           </p>
                         </div>
-                        <p className="text-sm font-medium text-white mb-1">
+                        <p className="text-sm font-medium text-[var(--theme-text-primary)] mb-1">
                           {point.expertB.position}
                         </p>
                         <p className="text-xs text-[#aebac1]">{point.expertB.reasoning}</p>
@@ -272,7 +272,7 @@ export function DebatePreview({
       {/* Weak Points */}
       {weakPoints.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-white">
+          <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
             [WARN] Puntos Débiles (Contexto Insuficiente)
           </h4>
           {weakPoints.map((weak, index) => (
@@ -287,7 +287,7 @@ export function DebatePreview({
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertTriangle className="h-4 w-4 text-yellow-400" />
-                      <h5 className="text-sm font-semibold text-white">{weak.dimension}</h5>
+                      <h5 className="text-sm font-semibold text-[var(--theme-text-primary)]">{weak.dimension}</h5>
                     </div>
                     <p className="text-sm text-[#aebac1] mb-2">{weak.issue}</p>
                     <p className="text-xs text-yellow-300 mb-3">
@@ -295,7 +295,7 @@ export function DebatePreview({
                     </p>
                     <div className="rounded border border-[#2a3942] bg-[#0b141a] p-2">
                       <p className="text-xs text-[#8696a0] mb-1">Sugerencia:</p>
-                      <p className="text-xs text-white">{weak.suggestion}</p>
+                      <p className="text-xs text-[var(--theme-text-primary)]">{weak.suggestion}</p>
                     </div>
                   </div>
                 </div>
@@ -303,7 +303,7 @@ export function DebatePreview({
                 <Button
                   onClick={() => onAddContext(weak.suggestion)}
                   size="sm"
-                  className="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 text-white"
+                  className="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 text-[var(--theme-text-primary)]"
                 >
                   Añadir contexto sugerido
                 </Button>

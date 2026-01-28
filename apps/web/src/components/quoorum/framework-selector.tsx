@@ -159,7 +159,7 @@ export function FrameworkSelector({
           <Button
             variant="default"
             onClick={() => setIsOpen(true)}
-            className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold shadow-lg shadow-purple-500/30 border-2 border-purple-400/50 transition-all duration-200 hover:scale-[1.02]"
+            className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-[var(--theme-text-primary)] font-semibold shadow-lg shadow-purple-500/30 border-2 border-purple-400/50 transition-all duration-200 hover:scale-[1.02]"
           >
             <Target className="mr-2 h-4 w-4" />
             {selectedFrameworkId
@@ -178,36 +178,36 @@ export function FrameworkSelector({
   const isLoading = isLoadingSuggestions || isLoadingAll
 
   return (
-    <Card className="border-purple-500/20 bg-slate-900/60 backdrop-blur-sm">
+    <Card className="border-purple-500/20 bg-[var(--theme-bg-secondary)] backdrop-blur-sm">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-purple-400" />
-            <CardTitle className="text-white">Framework de DecisiÃ³n</CardTitle>
+            <CardTitle className="text-[var(--theme-text-primary)]">Framework de Decisión</CardTitle>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="text-[var(--theme-text-secondary)] hover:text-white"
+            className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
           >
             Cerrar
           </Button>
         </div>
         <CardDescription className="text-[var(--theme-text-secondary)]">
           {question && question.length >= 10
-            ? 'Framework propuesto automÃ¡ticamente segÃºn tu pregunta. Puedes seleccionar manualmente o usar el sugerido.'
+            ? 'Framework propuesto automáticamente según tu pregunta. Puedes seleccionar manualmente o usar el sugerido.'
             : 'Selecciona un framework para estructurar la respuesta final del debate.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
         {/* Selected Framework - Fixed Top Section */}
         {selectedFrameworkData && (
-          <div className="space-y-3 pb-4 border-b border-white/10">
+          <div className="space-y-3 pb-4 border-b border-[var(--theme-border)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold text-[var(--theme-text-primary)]">
                   Framework Seleccionado
                 </span>
               </div>
@@ -215,13 +215,13 @@ export function FrameworkSelector({
                 variant="ghost"
                 size="sm"
                 onClick={() => onSelectionChange(null)}
-                className="text-xs text-[var(--theme-text-secondary)] hover:text-white"
+                className="text-xs text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
               >
                 Limpiar
               </Button>
             </div>
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-500/50 bg-purple-500/20 backdrop-blur-sm">
-              <span className="text-sm font-medium text-white">{selectedFrameworkData.name}</span>
+              <span className="text-sm font-medium text-[var(--theme-text-primary)]">{selectedFrameworkData.name}</span>
               {selectedFrameworkData.matchScore && (
                 <Badge
                   variant="outline"
@@ -248,19 +248,19 @@ export function FrameworkSelector({
 
         {/* Mode Selection (Auto/Manual) */}
         <div className="space-y-2">
-          <Label className="text-white flex items-center gap-2">
+          <Label className="text-[var(--theme-text-primary)] flex items-center gap-2">
             <Settings className="h-4 w-4 text-purple-400" />
-            Modo de SelecciÃ³n
+            Modo de Selección
           </Label>
           <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
-            <SelectTrigger className="border-white/10 bg-slate-800/50 text-white">
+            <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="auto">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span>AutomÃ¡tico (Recomendado)</span>
+                  <span>Automático (Recomendado)</span>
                 </div>
               </SelectItem>
               <SelectItem value="manual">
@@ -293,8 +293,8 @@ export function FrameworkSelector({
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-yellow-400" />
-                    <span className="text-sm font-semibold text-white">
-                      Frameworks Sugeridos AutomÃ¡ticamente
+                    <span className="text-sm font-semibold text-[var(--theme-text-primary)]">
+                      Frameworks Sugeridos Automáticamente
                     </span>
                     <Badge variant="outline" className="text-xs border-yellow-500/30 text-yellow-400 bg-yellow-500/10">
                       {suggestedFrameworks.length}
@@ -314,7 +314,7 @@ export function FrameworkSelector({
                               'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                               isSelected
                                 ? 'border-yellow-500/50 bg-yellow-500/10'
-                                : 'border-white/10 bg-slate-800/30 hover:border-yellow-500/30 hover:bg-slate-800/50'
+                                : 'border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] hover:border-yellow-500/30 hover:bg-[var(--theme-bg-tertiary)]'
                             )}
                           >
                             <Checkbox
@@ -324,7 +324,7 @@ export function FrameworkSelector({
                             />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-medium text-white truncate">
+                                <p className="text-sm font-medium text-[var(--theme-text-primary)] truncate">
                                   {framework.name}
                                 </p>
                                 <Badge
@@ -354,12 +354,12 @@ export function FrameworkSelector({
 
                 <div className="rounded-lg border-2 border-yellow-500/30 bg-yellow-900/10 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-yellow-600 text-white">
+                    <Badge className="bg-yellow-600 text-[var(--theme-text-primary)]">
                       {suggestedFrameworks.length} Framework{suggestedFrameworks.length !== 1 ? 's' : ''} Recomendado{suggestedFrameworks.length !== 1 ? 's' : ''}
                     </Badge>
                   </div>
                   <p className="text-xs text-[var(--theme-text-secondary)] mb-3">
-                    El sistema ha analizado tu pregunta y seleccionado el framework mÃ¡s relevante. Puedes cambiar a modo manual para ver todos los frameworks disponibles.
+                    El sistema ha analizado tu pregunta y seleccionado el framework más relevante. Puedes cambiar a modo manual para ver todos los frameworks disponibles.
                   </p>
                 </div>
               </>
@@ -374,9 +374,9 @@ export function FrameworkSelector({
             ) : (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <Info className="h-8 w-8 text-[var(--theme-text-tertiary)] mb-3" />
-                <p className="text-[var(--theme-text-secondary)] mb-2">AÃ±ade una pregunta para ver frameworks sugeridos</p>
+                <p className="text-[var(--theme-text-secondary)] mb-2">Añade una pregunta para ver frameworks sugeridos</p>
                 <p className="text-sm text-[var(--theme-text-tertiary)]">
-                  El modo automÃ¡tico requiere una pregunta de al menos 10 caracteres
+                  El modo automático requiere una pregunta de al menos 10 caracteres
                 </p>
               </div>
             )}
@@ -393,7 +393,7 @@ export function FrameworkSelector({
                   placeholder="Buscar frameworks..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-white/10 bg-slate-800/50 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 />
               </div>
             </div>
@@ -428,7 +428,7 @@ export function FrameworkSelector({
                             'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                             isSelected
                               ? 'border-purple-500/50 bg-purple-500/10'
-                              : 'border-white/10 bg-slate-800/30 hover:border-purple-500/30 hover:bg-slate-800/50'
+                              : 'border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] hover:border-purple-500/30 hover:bg-[var(--theme-bg-tertiary)]'
                           )}
                         >
                           <Checkbox
@@ -438,7 +438,7 @@ export function FrameworkSelector({
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="text-sm font-medium text-white truncate">
+                              <p className="text-sm font-medium text-[var(--theme-text-primary)] truncate">
                                 {framework.name}
                               </p>
                             </div>
@@ -455,7 +455,7 @@ export function FrameworkSelector({
                     <Search className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
                     <p className="text-sm text-[var(--theme-text-secondary)]">
                       {searchQuery
-                        ? 'No se encontraron frameworks que coincidan con tu bÃºsqueda.'
+                        ? 'No se encontraron frameworks que coincidan con tu búsqueda.'
                         : 'No hay frameworks disponibles.'}
                     </p>
                   </div>
@@ -470,10 +470,10 @@ export function FrameworkSelector({
           <div className="flex gap-2">
             <Info className="h-5 w-5 text-blue-400 flex-shrink-0" />
             <div className="space-y-1 text-sm">
-              <p className="font-medium text-blue-400">Â¿QuÃ© es un Framework de DecisiÃ³n?</p>
+              <p className="font-medium text-blue-400">¿Qué es un Framework de Decisión?</p>
               <p className="text-blue-300/80">
-                Un framework estructura la respuesta final del debate segÃºn una metodologÃ­a probada (FODA, ROI, Delphi, etc.).
-                Esto ayuda a presentar la decisiÃ³n de forma clara y accionable.
+                Un framework estructura la respuesta final del debate según una metodología probada (FODA, ROI, Delphi, etc.).
+                Esto ayuda a presentar la decisión de forma clara y accionable.
               </p>
             </div>
           </div>

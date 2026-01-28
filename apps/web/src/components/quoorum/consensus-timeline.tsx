@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -39,7 +39,7 @@ export function ConsensusTimeline({ debateId }: ConsensusTimelineProps) {
     return (
       <Card className="border-[#2a3942] bg-[#111b21]">
         <CardHeader>
-          <CardTitle className="text-white">Evolución del Consenso</CardTitle>
+          <CardTitle className="text-[var(--theme-text-primary)]">Evolución del Consenso</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[300px] w-full bg-[#202c33]" />
@@ -55,7 +55,7 @@ export function ConsensusTimeline({ debateId }: ConsensusTimelineProps) {
   return (
     <Card className="border-[#2a3942] bg-[#111b21]">
       <CardHeader>
-        <CardTitle className="text-white">Evolución del Consenso</CardTitle>
+        <CardTitle className="text-[var(--theme-text-primary)]">Evolución del Consenso</CardTitle>
         <CardDescription className="text-[#aebac1]">
           Cómo evoluciona el consenso a lo largo de las rondas
         </CardDescription>
@@ -107,7 +107,7 @@ export function ConsensusTimeline({ debateId }: ConsensusTimelineProps) {
               className="flex items-center gap-4 p-2 rounded border border-[#2a3942] bg-[#202c33]"
             >
               <span className="text-sm text-[#8696a0] w-16">Ronda {point.round}</span>
-              <span className="text-white font-medium flex-1">{point.topOption}</span>
+              <span className="text-[var(--theme-text-primary)] font-medium flex-1">{point.topOption}</span>
               <span className="text-purple-400 font-semibold">
                 {Math.round(point.consensusScore * 100)}%
               </span>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -323,7 +323,7 @@ export function ExpertFeedbackPanel({ debateId, experts, onComplete }: ExpertFee
       <CardContent className="space-y-6">
         {/* Expert header */}
         <div className="flex items-center gap-4 rounded-lg bg-[#111b21] p-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-lg font-bold text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-lg font-bold text-[var(--theme-text-primary)]">
             {currentExpert.name.charAt(0)}
           </div>
           <div>

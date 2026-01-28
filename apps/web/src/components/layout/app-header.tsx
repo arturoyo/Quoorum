@@ -57,7 +57,7 @@ export function AppHeader({
     setIsMounted(true)
   }, [])
 
-  // Verificar autenticaci√≥n de forma inmediata y reactiva
+  // Verificar autenticaciÛn de forma inmediata y reactiva
   useEffect(() => {
     let mounted = true
     const supabase = createClient()
@@ -82,7 +82,7 @@ export function AppHeader({
     // Verificar inmediatamente
     checkAuth()
 
-    // Escuchar cambios de autenticaci√≥n
+    // Escuchar cambios de autenticaciÛn
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (mounted) {
         setIsAuthenticated(!!session?.user)
@@ -105,7 +105,7 @@ export function AppHeader({
       enabled: variant === 'app' && !isCheckingAuth && isAuthenticated, // Only fetch when auth check is complete and user is authenticated
       retry: false,
       onError: (error) => {
-        // Silenciar errores de autenticaci√≥n esperados (ya manejados por enabled)
+        // Silenciar errores de autenticaciÛn esperados (ya manejados por enabled)
         if (error.data?.code === 'UNAUTHORIZED' && (!isAuthenticated || isCheckingAuth)) {
           return // No loggear errores esperados
         }
@@ -120,7 +120,7 @@ export function AppHeader({
 
   // Debug: Log admin status (solo cuando no es un error esperado)
   useEffect(() => {
-    // No loggear durante la verificaci√≥n inicial o si es un error de autenticaci√≥n esperado
+    // No loggear durante la verificaciÛn inicial o si es un error de autenticaciÛn esperado
     if (isCheckingAuth) return
     if (userError?.data?.code === 'UNAUTHORIZED' && !isAuthenticated) return
 
@@ -144,7 +144,7 @@ export function AppHeader({
       // Clasificar el error para determinar si debe ser silenciado
       const errorInfo = classifyTRPCError(userError)
       
-      // Solo loggear errores inesperados (no errores de autenticaci√≥n, payment-required ni network)
+      // Solo loggear errores inesperados (no errores de autenticaciÛn, payment-required ni network)
       if (errorInfo.type !== 'unauthorized' && 
           errorInfo.type !== 'payment-required' && 
           errorInfo.type !== 'network') {
@@ -184,7 +184,7 @@ export function AppHeader({
             {/* Nav - Columna central (centrada) */}
             <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
               <Link href="#features" className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors relative group">
-                Caracter√≠sticas
+                CaracterÌsticas
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
               </Link>
               <Link href="#use-cases" className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors relative group">
@@ -203,11 +203,11 @@ export function AppHeader({
                 <>
                   <Link href="/login" className="hidden sm:block">
                     <Button variant="ghost" className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)]">
-                      Iniciar Sesi√≥n
+                      Iniciar SesiÛn
                     </Button>
                   </Link>
                   <Link href="/signup" className="hidden sm:block">
-                    <Button className="relative group overflow-hidden bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white border-0">
+                    <Button className="relative group overflow-hidden bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-[var(--theme-text-primary)] border-0">
                       <span className="relative z-10">Empezar Gratis</span>
                       <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
                     </Button>
@@ -241,7 +241,7 @@ export function AppHeader({
                 className="block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] py-2 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Caracter√≠sticas
+                CaracterÌsticas
               </Link>
               <Link
                 href="#use-cases"
@@ -262,11 +262,11 @@ export function AppHeader({
                   <>
                     <Link href="/login" className="block">
                       <Button variant="ghost" className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)]">
-                        Iniciar Sesi√≥n
+                        Iniciar SesiÛn
                       </Button>
                     </Link>
                     <Link href="/signup" className="block">
-                      <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white border-0">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-[var(--theme-text-primary)] border-0">
                         Empezar Gratis
                       </Button>
                     </Link>
@@ -306,7 +306,7 @@ export function AppHeader({
             </nav>
 
             <div className="flex items-center gap-1">
-              {/* Credit Counter - Solo mostrar en p√°ginas de debate */}
+              {/* Credit Counter - Solo mostrar en p·ginas de debate */}
               {pathname?.includes('/debates/new-unified') && (
                 <div className="hidden sm:block mr-2">
                   <CreditCounter variant="compact" />
@@ -421,7 +421,7 @@ export function AppHeader({
                   'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
                   'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
                 )}
-                title="Configuraci√≥n"
+                title="ConfiguraciÛn"
                 type="button"
               >
                 <Settings className="h-4 w-4 flex-shrink-0" />
@@ -449,7 +449,7 @@ export function AppHeader({
                     'text-purple-400 hover:text-purple-300',
                     'hover:bg-purple-500/10 transition-all duration-300 ease-out'
                   )}
-                  title="Panel de Administraci√≥n"
+                  title="Panel de AdministraciÛn"
                   type="button"
                 >
                   <Shield className="h-4 w-4 flex-shrink-0" />
@@ -463,7 +463,7 @@ export function AppHeader({
                   </span>
                 </button>
               )}
-              {/* Mobile menu button - Solo visible en pantallas peque√±as */}
+              {/* Mobile menu button - Solo visible en pantallas pequeÒas */}
               <Button
                 variant="ghost"
                 className="md:hidden text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2 z-50 relative"
@@ -472,7 +472,7 @@ export function AppHeader({
                   e.stopPropagation()
                   setMobileMenuOpen(!mobileMenuOpen)
                 }}
-                title={mobileMenuOpen ? "Cerrar men√∫" : "Abrir men√∫"}
+                title={mobileMenuOpen ? "Cerrar men˙" : "Abrir men˙"}
                 type="button"
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -501,7 +501,7 @@ export function AppHeader({
                     className="block w-full text-left py-3 px-4 rounded-lg transition-colors text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
                   >
                     <Shield className="inline-block mr-2 h-4 w-4" />
-                    Panel de Administraci√≥n
+                    Panel de AdministraciÛn
                   </button>
                 )}
                 <div className={cn("space-y-3", currentUser?.isAdmin && "pt-4 border-t border-[var(--theme-border)]")}>
@@ -570,7 +570,7 @@ export function AppHeader({
                     className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] justify-start"
                   >
                     <Settings className="mr-2 h-4 w-4" />
-                    Configuraci√≥n
+                    ConfiguraciÛn
                   </Button>
                 </div>
               </div>
@@ -600,10 +600,10 @@ export function AppHeader({
       {/* Debug: Show modal state in development */}
       {process.env.NODE_ENV === 'development' && (
         <>
-          {/* Bot√≥n para mostrar/ocultar panel de debug */}
+          {/* BotÛn para mostrar/ocultar panel de debug */}
           <button
             onClick={() => setShowDebugPanel(!showDebugPanel)}
-            className="fixed bottom-4 right-4 bg-black/80 hover:bg-black/90 text-white p-2 rounded-full z-[9999] transition-all shadow-lg border border-white/10"
+            className="fixed bottom-4 right-4 bg-black/80 hover:bg-black/90 text-[var(--theme-text-primary)] p-2 rounded-full z-[9999] transition-all shadow-lg border border-[var(--theme-border)]"
             title={showDebugPanel ? 'Ocultar panel de debug' : 'Mostrar panel de debug'}
           >
             {showDebugPanel ? (
@@ -615,7 +615,7 @@ export function AppHeader({
           
           {/* Panel de debug (solo visible si showDebugPanel es true) */}
           {showDebugPanel && (
-            <div className="fixed bottom-16 right-4 bg-black/80 text-white p-3 text-xs rounded z-[9999] max-w-xs shadow-lg border border-white/10">
+            <div className="fixed bottom-16 right-4 bg-black/80 text-[var(--theme-text-primary)] p-3 text-xs rounded z-[9999] max-w-xs shadow-lg border border-[var(--theme-border)]">
               <div className="space-y-1">
                 <div>Admin Modal: {adminModalOpen ? 'OPEN' : 'CLOSED'}</div>
                 <div>isAdmin: {currentUser?.isAdmin ? 'YES' : 'NO'}</div>
@@ -629,7 +629,7 @@ export function AppHeader({
         </>
       )}
       
-      {/* Footer - Solo en p√°ginas autenticadas (variant="app") */}
+      {/* Footer - Solo en p·ginas autenticadas (variant="app") */}
       {variant === 'app' && <AppFooter />}
     </>
   )

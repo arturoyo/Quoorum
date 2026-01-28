@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin Content Component
  * 
  * Similar a SettingsContent pero para funcionalidades de administración
@@ -87,7 +87,7 @@ export function AdminContent({ isInModal = false, onClose, initialSection }: Adm
     <div className={cn('relative flex flex-col', isInModal ? 'max-h-[90vh]' : 'min-h-screen')}>
       {/* Modal Header - Only show if in modal */}
       {isInModal && (
-        <div className="sticky top-0 z-10 border-b border-white/10 bg-slate-900/95 backdrop-blur-xl px-6 py-4">
+        <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl px-6 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
               Panel de Administración

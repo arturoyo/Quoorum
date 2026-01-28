@@ -33,7 +33,7 @@ interface AICoachingProps {
 const importanceConfig = {
   critical: {
     icon: <AlertTriangle className="h-4 w-4" />,
-    label: 'Crítico',
+    label: 'Cr�tico',
     color: 'text-red-400',
     bgColor: 'bg-red-900/20',
     borderColor: 'border-red-500/30',
@@ -87,15 +87,15 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">
-                🤖 AI Coaching Proactivo
+              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+                ?? AI Coaching Proactivo
               </h3>
             </div>
             <p className="mt-1 text-sm text-[#aebac1]">
-              He detectado {suggestions.length} áreas de mejora basadas en debates exitosos.
+              He detectado {suggestions.length} �reas de mejora basadas en debates exitosos.
               {criticalCount > 0 && (
                 <span className="ml-1 font-medium text-red-400">
-                  {criticalCount} son críticas.
+                  {criticalCount} son cr�ticas.
                 </span>
               )}
             </p>
@@ -105,7 +105,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
             onClick={onDismiss}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-white"
+            className="text-[#8696a0] hover:text-[var(--theme-text-primary)]"
           >
             Cerrar
           </Button>
@@ -118,7 +118,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
               variant="outline"
               className="border-red-500/30 bg-red-900/20 text-red-300"
             >
-              {criticalCount} Críticas
+              {criticalCount} Cr�ticas
             </Badge>
           )}
           {importantCount > 0 && (
@@ -166,7 +166,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                       >
                         {config.label}
                       </Badge>
-                      <h4 className="text-sm font-semibold text-white">
+                      <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
                         {suggestion.dimensionName}
                       </h4>
                     </div>
@@ -193,11 +193,11 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                     {/* Stats */}
                     <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
                       <p className="text-xs text-[#8696a0]">
-                        📊{' '}
+                        ??{' '}
                         <span className="font-medium text-purple-300">
                           {suggestion.percentageOfSuccessfulDebates}%
                         </span>{' '}
-                        de debates exitosos incluyen esta dimensión
+                        de debates exitosos incluyen esta dimensi�n
                       </p>
                     </div>
 
@@ -206,7 +206,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                       <p className="mb-1 text-xs font-medium text-[#aebac1]">
                         Ejemplo sugerido:
                       </p>
-                      <p className="text-sm text-white">{suggestion.example}</p>
+                      <p className="text-sm text-[var(--theme-text-primary)]">{suggestion.example}</p>
                     </div>
 
                     {/* Actions */}
@@ -219,7 +219,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                         className="bg-purple-600 hover:bg-purple-700 text-white"
                       >
                         <Plus className="mr-2 h-4 w-4" />
-                        Añadir al contexto
+                        A�adir al contexto
                       </Button>
                       <Button
                         onClick={() => setExpandedId(null)}
@@ -239,7 +239,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                     <span>
                       {suggestion.percentageOfSuccessfulDebates}% de debates exitosos
                     </span>
-                    <span className="text-purple-400">Click para ver más</span>
+                    <span className="text-purple-400">Click para ver m�s</span>
                   </div>
                 )}
               </Card>
@@ -264,7 +264,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
             className="w-full bg-red-600 hover:bg-red-700 text-white"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Añadir todas las críticas ({criticalCount})
+            A�adir todas las cr�ticas ({criticalCount})
           </Button>
         </motion.div>
       )}

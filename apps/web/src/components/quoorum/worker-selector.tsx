@@ -206,7 +206,7 @@ export function WorkerSelector({
     return (
       <Card className="bg-[#111b21] border-[#2a3942]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
+          <CardTitle className="flex items-center gap-2 text-[var(--theme-text-primary)]">
             <UserCircle className="h-5 w-5" />
             Profesionales
           </CardTitle>
@@ -231,29 +231,29 @@ export function WorkerSelector({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="flex items-center gap-2 text-[var(--theme-text-primary)]">
               <UserCircle className="h-5 w-5" />
               Profesionales
             </CardTitle>
             <CardDescription className="text-[#aebac1]">
               {selectionMode === 'auto'
-                ? 'El sistema sugiere profesionales basÃ¡ndose en la pregunta y departamentos seleccionados'
-                : 'Selecciona manualmente los profesionales que intervendrÃ¡n en el debate'}
+                ? 'El sistema sugiere profesionales basándose en la pregunta y departamentos seleccionados'
+                : 'Selecciona manualmente los profesionales que intervendrán en el debate'}
             </CardDescription>
           </div>
           <div className="flex gap-2">
             <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
-              <SelectTrigger className="w-[140px] border-[#2a3942] bg-[#2a3942] text-white">
+              <SelectTrigger className="w-[140px] border-[#2a3942] bg-[#2a3942] text-[var(--theme-text-primary)]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#111b21] border-[#2a3942]">
-                <SelectItem value="auto" className="text-white focus:bg-purple-600">
+                <SelectItem value="auto" className="text-[var(--theme-text-primary)] focus:bg-purple-600">
                   <span className="flex items-center gap-2">
                     <Zap className="h-4 w-4" />
-                    AutomÃ¡tico
+                    Automático
                   </span>
                 </SelectItem>
-                <SelectItem value="manual" className="text-white focus:bg-purple-600">
+                <SelectItem value="manual" className="text-[var(--theme-text-primary)] focus:bg-purple-600">
                   <span className="flex items-center gap-2">
                     <Search className="h-4 w-4" />
                     Manual
@@ -267,11 +267,11 @@ export function WorkerSelector({
       <CardContent className="space-y-4">
         {/* Selected Workers */}
         {selectedWorkersData.length > 0 && (
-          <div className="space-y-3 pb-4 border-b border-white/10">
+          <div className="space-y-3 pb-4 border-b border-[var(--theme-border)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold text-[var(--theme-text-primary)]">
                   Profesionales Seleccionados
                 </span>
                 <Badge
@@ -285,7 +285,7 @@ export function WorkerSelector({
                 variant="ghost"
                 size="sm"
                 onClick={handleClearAll}
-                className="text-[#aebac1] hover:text-white hover:bg-purple-600/20"
+                className="text-[#aebac1] hover:text-[var(--theme-text-primary)] hover:bg-purple-600/20"
               >
                 Limpiar
               </Button>
@@ -298,9 +298,9 @@ export function WorkerSelector({
                 >
                   <UserCircle className="h-4 w-4 text-purple-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{worker.name}</p>
+                    <p className="text-sm font-medium text-[var(--theme-text-primary)] truncate">{worker.name}</p>
                     <p className="text-xs text-[#aebac1] truncate">
-                      {[worker.role, worker.expertise].filter(Boolean).join(' Â· ')}
+                      {[worker.role, worker.expertise].filter(Boolean).join(' · ')}
                     </p>
                   </div>
                   {worker.matchScore !== undefined && (
@@ -315,9 +315,9 @@ export function WorkerSelector({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleToggleWorker(worker.id)}
-                    className="h-6 w-6 p-0 text-[#8696a0] hover:text-white hover:bg-purple-600/20"
+                    className="h-6 w-6 p-0 text-[#8696a0] hover:text-[var(--theme-text-primary)] hover:bg-purple-600/20"
                   >
-                    Ã—
+                    ×
                   </Button>
                 </div>
               ))}
@@ -364,7 +364,7 @@ export function WorkerSelector({
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2">
-                                <p className="text-sm font-medium text-white group-hover:text-purple-300 transition-colors">
+                                <p className="text-sm font-medium text-[var(--theme-text-primary)] group-hover:text-purple-300 transition-colors">
                                   {worker.name}
                                 </p>
                                 <Badge
@@ -375,13 +375,13 @@ export function WorkerSelector({
                                 </Badge>
                               </div>
                               <p className="text-xs text-[#aebac1] mt-1">
-                                {[worker.role, worker.expertise].filter(Boolean).join(' Â· ')}
+                                {[worker.role, worker.expertise].filter(Boolean).join(' · ')}
                               </p>
                               {worker.reasons && worker.reasons.length > 0 && (
                                 <div className="mt-2 space-y-1">
                                   {worker.reasons.slice(0, 2).map((reason, idx) => (
                                     <p key={idx} className="text-xs text-[#8696a0]">
-                                      â€¢ {reason}
+                                      • {reason}
                                     </p>
                                   ))}
                                 </div>
@@ -406,7 +406,7 @@ export function WorkerSelector({
                       placeholder="Buscar por nombre, rol o expertise..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                      className="bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)] placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
                     />
                   </div>
 
@@ -421,7 +421,7 @@ export function WorkerSelector({
                         size="sm"
                         onClick={handleSelectAll}
                         disabled={filteredWorkers.length === 0}
-                        className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+                        className="border-[#2a3942] bg-[#2a3942] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600"
                       >
                         Seleccionar Todos
                       </Button>
@@ -430,7 +430,7 @@ export function WorkerSelector({
                         size="sm"
                         onClick={handleClearAll}
                         disabled={selectedWorkerIds.length === 0}
-                        className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+                        className="border-[#2a3942] bg-[#2a3942] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600"
                       >
                         Limpiar
                       </Button>
@@ -462,9 +462,9 @@ export function WorkerSelector({
                               className="mt-1 border-[#2a3942] data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                             />
                             <div className="flex-1 min-w-0 space-y-1">
-                              <p className="font-medium text-white truncate">{worker.name}</p>
+                              <p className="font-medium text-[var(--theme-text-primary)] truncate">{worker.name}</p>
                               <p className="text-xs text-[#8696a0] line-clamp-2">
-                                {[worker.role, worker.expertise].filter(Boolean).join(' Â· ') || 'Sin rol'}
+                                {[worker.role, worker.expertise].filter(Boolean).join(' · ') || 'Sin rol'}
                               </p>
                               {worker.description && (
                                 <p className="text-xs text-[#aebac1] line-clamp-2">{worker.description}</p>
@@ -484,7 +484,7 @@ export function WorkerSelector({
                           onClick={() => setSearchQuery('')}
                           className="mt-2 text-purple-400 hover:text-purple-300"
                         >
-                          Limpiar bÃºsqueda
+                          Limpiar búsqueda
                         </Button>
                       )}
                     </div>
@@ -500,10 +500,10 @@ export function WorkerSelector({
           <div className="flex gap-2">
             <Info className="h-5 w-5 text-purple-400 flex-shrink-0" />
             <div className="space-y-1 text-sm">
-              <p className="font-medium text-purple-400">Â¿QuÃ© son los Profesionales?</p>
+              <p className="font-medium text-purple-400">¿Qué son los Profesionales?</p>
               <p className="text-[#aebac1]">
                 Son representaciones virtuales de tu equipo que debaten con el contexto
-                de {company?.name || 'tu empresa'} y departamentos. En modo automÃ¡tico, el sistema
+                de {company?.name || 'tu empresa'} y departamentos. En modo automático, el sistema
                 prioriza profesionales de los departamentos ya seleccionados.
               </p>
             </div>

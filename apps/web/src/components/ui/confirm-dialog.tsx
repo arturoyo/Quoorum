@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import {
   AlertDialog,
@@ -36,9 +36,9 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl">
+      <AlertDialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-white">{title}</AlertDialogTitle>
+          <AlertDialogTitle className="text-[var(--theme-text-primary)]">{title}</AlertDialogTitle>
           <AlertDialogDescription className="text-[var(--theme-text-secondary)]">
             {description}
           </AlertDialogDescription>
@@ -46,7 +46,7 @@ export function ConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel
             disabled={isLoading}
-            className="border-white/10 bg-slate-800/50 text-white hover:bg-slate-800"
+            className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
           >
             {cancelText}
           </AlertDialogCancel>

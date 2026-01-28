@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -440,7 +440,7 @@ export function NotificationsSidebar({
                   markAsRead.mutate({ id: notification.id })
                 }}
                 disabled={markAsRead.isPending}
-                className="h-7 text-xs text-[#8696a0] hover:text-white"
+                className="h-7 text-xs text-[#8696a0] hover:text-[var(--theme-text-primary)]"
               >
                 <CheckCheck className="mr-1 h-3 w-3" />
                 Marcar como leída
@@ -454,7 +454,7 @@ export function NotificationsSidebar({
                 deleteNotification.mutate({ id: notification.id })
               }}
               disabled={deleteNotification.isPending}
-              className="h-7 text-xs text-[#8696a0] hover:text-white"
+              className="h-7 text-xs text-[#8696a0] hover:text-[var(--theme-text-primary)]"
             >
               <Trash2 className="mr-1 h-3 w-3" />
               Eliminar
@@ -507,7 +507,7 @@ export function NotificationsSidebar({
                 </div>
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-medium text-white line-clamp-2">
+                <h4 className="text-sm font-medium text-[var(--theme-text-primary)] line-clamp-2">
                   {debate.metadata?.title || debate.question}
                 </h4>
                 <div className="mt-2 flex items-center gap-2">
@@ -564,7 +564,7 @@ export function NotificationsSidebar({
             {/* Header */}
             <div className="flex items-center gap-2 mb-3">
               {getStatusIcon(process.status)}
-              <h3 className="text-white font-medium text-sm">{process.processName}</h3>
+              <h3 className="text-[var(--theme-text-primary)] font-medium text-sm">{process.processName}</h3>
             </div>
 
             {/* Progress Bar */}
@@ -610,16 +610,16 @@ export function NotificationsSidebar({
             <div className="flex items-center justify-between p-4 border-b border-[#2a3942] bg-[#202c33]">
               <div className="flex items-center gap-2">
                 <History className="h-5 w-5 text-[#e9edef]" />
-                <h2 className="text-lg font-semibold text-white">Centro de Actividad</h2>
+                <h2 className="text-lg font-semibold text-[var(--theme-text-primary)]">Centro de Actividad</h2>
                 {(unreadCount ?? 0) > 0 && (
-                  <Badge className="bg-[#00a884] text-white">{unreadCount}</Badge>
+                  <Badge className="bg-[#00a884] text-[var(--theme-text-primary)]">{unreadCount}</Badge>
                 )}
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="text-[#8696a0] hover:text-white hover:bg-[#2a3942]"
+                className="text-[#8696a0] hover:text-[var(--theme-text-primary)] hover:bg-[#2a3942]"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -687,7 +687,7 @@ export function NotificationBell({ onClick, enabled = true }: { onClick?: () => 
     >
       <History className="h-5 w-5 text-[#8696a0]" />
       {(unreadCount ?? 0) > 0 && (
-        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#00a884] text-xs font-medium text-white">
+        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#00a884] text-xs font-medium text-[var(--theme-text-primary)]">
           {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
         </span>
       )}

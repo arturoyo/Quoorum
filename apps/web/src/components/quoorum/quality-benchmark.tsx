@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { motion } from 'framer-motion'
 import { TrendingUp, Award, Target, BarChart3, ArrowUp, ArrowDown } from 'lucide-react'
@@ -100,7 +100,7 @@ export function QualityBenchmark({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
                 📊 Quality Benchmarking
               </h3>
             </div>
@@ -113,7 +113,7 @@ export function QualityBenchmark({
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-white"
+            className="text-[#8696a0] hover:text-[var(--theme-text-primary)]"
           >
             Cerrar
           </Button>
@@ -128,7 +128,7 @@ export function QualityBenchmark({
               </div>
               <div>
                 <p className="text-xs text-[#8696a0]">Tu Score</p>
-                <p className="text-3xl font-bold text-white">{overall.score}%</p>
+                <p className="text-3xl font-bold text-[var(--theme-text-primary)]">{overall.score}%</p>
                 <Badge
                   variant="outline"
                   className={`mt-1 ${config.borderColor} ${config.bgColor} ${config.color}`}
@@ -143,7 +143,7 @@ export function QualityBenchmark({
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-[#8696a0]">Percentil</span>
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-[var(--theme-text-primary)]">
                   {Math.round(overall.percentile)}
                 </span>
               </div>
@@ -168,7 +168,7 @@ export function QualityBenchmark({
 
       {/* Dimensions Comparison */}
       <div className="space-y-3">
-        <h4 className="text-sm font-semibold text-white">
+        <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
           📈 Comparación por Dimensión
         </h4>
         {dimensions.map((dim, index) => {
@@ -184,7 +184,7 @@ export function QualityBenchmark({
             >
               <Card className="border-[#2a3942] bg-[#111b21] p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <h5 className="text-sm font-semibold text-white">{dim.dimensionName}</h5>
+                  <h5 className="text-sm font-semibold text-[var(--theme-text-primary)]">{dim.dimensionName}</h5>
                   {isTopTier ? (
                     <Badge variant="outline" className="border-green-500/30 bg-green-900/20 text-green-300">
                       <Award className="mr-1 h-3 w-3" />
@@ -235,7 +235,7 @@ export function QualityBenchmark({
       {/* Recommendations */}
       {recommendations.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-white">
+          <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
             💡 Recomendaciones
           </h4>
           <Card className="border-purple-500/30 bg-purple-900/10 p-4">
@@ -254,7 +254,7 @@ export function QualityBenchmark({
       {/* AI Insights */}
       {comparisonInsights.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-white">
+          <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
             🤖 Insights de IA
           </h4>
           <Card className="border-[#2a3942] bg-[#111b21] p-4">

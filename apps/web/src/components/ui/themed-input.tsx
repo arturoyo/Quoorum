@@ -138,9 +138,9 @@ export const ThemedButton = forwardRef<HTMLButtonElement, ThemedButtonProps>(
     const variantClasses = {
       primary: 'bg-purple-600 hover:bg-purple-700 text-white',
       secondary:
-        'border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600',
+        'border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-white hover:bg-purple-600 hover:border-purple-600',
       ghost:
-        'hover:bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] hover:text-purple-400',
+        'hover:bg-[var(--theme-bg-tertiary)] text-white hover:text-purple-400',
       destructive: 'bg-red-600 hover:bg-red-700 text-white',
     }
 

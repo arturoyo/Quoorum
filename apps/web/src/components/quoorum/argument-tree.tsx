@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -51,7 +51,7 @@ export function ArgumentTreeViewer({ debateId }: ArgumentTreeProps) {
     return (
       <Card className="border-[#2a3942] bg-[#111b21]">
         <CardHeader>
-          <CardTitle className="text-white">Árbol de Argumentos</CardTitle>
+          <CardTitle className="text-[var(--theme-text-primary)]">Árbol de Argumentos</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[500px] w-full bg-[#202c33]" />
@@ -64,7 +64,7 @@ export function ArgumentTreeViewer({ debateId }: ArgumentTreeProps) {
     return (
       <Card className="border-[#2a3942] bg-[#111b21]">
         <CardHeader>
-          <CardTitle className="text-white">Árbol de Argumentos</CardTitle>
+          <CardTitle className="text-[var(--theme-text-primary)]">Árbol de Argumentos</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-[#aebac1]">No se pudieron extraer argumentos de este debate.</p>
@@ -76,7 +76,7 @@ export function ArgumentTreeViewer({ debateId }: ArgumentTreeProps) {
   return (
     <Card className="border-[#2a3942] bg-[#111b21]">
       <CardHeader>
-        <CardTitle className="text-white">Árbol de Argumentos</CardTitle>
+        <CardTitle className="text-[var(--theme-text-primary)]">Árbol de Argumentos</CardTitle>
         <CardDescription className="text-[#aebac1]">
           Estructura de argumentos y sus relaciones ({tree.nodes.length} argumentos,{' '}
           {tree.edges.length} relaciones)
@@ -86,15 +86,15 @@ export function ArgumentTreeViewer({ debateId }: ArgumentTreeProps) {
         {/* Filters */}
         <div className="flex gap-2 mb-4">
           <Select value={filterExpert} onValueChange={setFilterExpert}>
-            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-white">
+            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)]">
               <SelectValue placeholder="Experto" />
             </SelectTrigger>
             <SelectContent className="bg-[#111b21] border-[#2a3942]">
-              <SelectItem value="all" className="text-white">
+              <SelectItem value="all" className="text-[var(--theme-text-primary)]">
                 Todos los expertos
               </SelectItem>
               {experts.map((expert) => (
-                <SelectItem key={expert} value={expert} className="text-white">
+                <SelectItem key={expert} value={expert} className="text-[var(--theme-text-primary)]">
                   {expert}
                 </SelectItem>
               ))}
@@ -102,23 +102,23 @@ export function ArgumentTreeViewer({ debateId }: ArgumentTreeProps) {
           </Select>
 
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-white">
+            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)]">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent className="bg-[#111b21] border-[#2a3942]">
-              <SelectItem value="all" className="text-white">
+              <SelectItem value="all" className="text-[var(--theme-text-primary)]">
                 Todos los tipos
               </SelectItem>
-              <SelectItem value="premise" className="text-white">
+              <SelectItem value="premise" className="text-[var(--theme-text-primary)]">
                 Premisas
               </SelectItem>
-              <SelectItem value="conclusion" className="text-white">
+              <SelectItem value="conclusion" className="text-[var(--theme-text-primary)]">
                 Conclusiones
               </SelectItem>
-              <SelectItem value="objection" className="text-white">
+              <SelectItem value="objection" className="text-[var(--theme-text-primary)]">
                 Objeciones
               </SelectItem>
-              <SelectItem value="support" className="text-white">
+              <SelectItem value="support" className="text-[var(--theme-text-primary)]">
                 Apoyos
               </SelectItem>
             </SelectContent>
@@ -162,7 +162,7 @@ export function ArgumentTreeViewer({ debateId }: ArgumentTreeProps) {
                   </span>
                 </div>
               </div>
-              <p className="text-sm text-white">{node.content}</p>
+              <p className="text-sm text-[var(--theme-text-primary)]">{node.content}</p>
               {node.children.length > 0 && (
                 <div className="mt-2 text-xs text-[#8696a0]">
                   {node.children.length} relación{node.children.length !== 1 ? 'es' : ''}

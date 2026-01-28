@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -165,7 +165,7 @@ export function AnalyticsDashboard() {
                     className="flex items-center justify-between rounded-lg bg-[#111b21] p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00a884] font-bold text-white">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00a884] font-bold text-[var(--theme-text-primary)]">
                         {idx + 1}
                       </div>
                       <div>

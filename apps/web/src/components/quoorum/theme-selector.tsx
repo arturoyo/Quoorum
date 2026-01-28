@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { api } from '@/lib/trpc/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,7 +37,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
 
   if (!question || question.length < 10) {
     return (
-      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+      <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
         <CardContent className="py-6 text-center text-sm text-[var(--theme-text-secondary)]">
           Escribe una pregunta para ver el tema narrativo sugerido
         </CardContent>
@@ -46,12 +46,12 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
   }
 
   return (
-    <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+    <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-indigo-400" />
-            <CardTitle className="text-white">Tema Narrativo</CardTitle>
+            <CardTitle className="text-[var(--theme-text-primary)]">Tema Narrativo</CardTitle>
           </div>
           <Switch
             checked={themeEnabled}
@@ -80,7 +80,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
                 <div className="text-4xl">{themePreview.themeEmoji}</div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-white">{themePreview.themeName}</h3>
+                    <h3 className="font-semibold text-[var(--theme-text-primary)]">{themePreview.themeName}</h3>
                     <Badge className={`${
                       themePreview.shouldUseTheme
                         ? 'bg-indigo-600 text-white'
@@ -116,7 +116,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
             )}
 
             {/* What are narrative themes? */}
-            <div className="rounded-lg border border-white/5 bg-slate-800/30 p-3">
+            <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Info className="h-4 w-4 text-blue-400" />
                 <Label className="text-xs text-[var(--theme-text-secondary)]">¿Qué son los temas narrativos?</Label>
@@ -129,7 +129,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
             </div>
           </>
         ) : (
-          <div className="rounded-lg border border-white/5 bg-slate-800/30 p-4 text-center">
+          <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-4 text-center">
             <p className="text-sm text-[var(--theme-text-secondary)]">
               Los expertos usarán nombres genéricos (Experto 1, Experto 2...)
             </p>

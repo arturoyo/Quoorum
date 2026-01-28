@@ -175,7 +175,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
                 </Link>
                 <Link href="/settings" className="text-sm font-medium text-purple-500 relative group">
-                  Configuraci√≥n
+                  ConfiguraciÛn
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500" />
                 </Link>
               </nav>
@@ -198,9 +198,9 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
         <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl px-6 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-[var(--theme-text-primary)]">
-              Configuraci√≥n
+              ConfiguraciÛn
             </h2>
-            {/* El bot√≥n de cierre est√° en DialogContent, no duplicar aqu√≠ */}
+            {/* El botÛn de cierre est· en DialogContent, no duplicar aquÌ */}
           </div>
         </div>
       )}

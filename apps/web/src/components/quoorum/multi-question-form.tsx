@@ -57,11 +57,11 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
   })
 
   const handleSubmit = async () => {
-    // Validar que las preguntas crÃ­ticas tengan respuesta
+    // Validar que las preguntas críticas tengan respuesta
     const newErrors: Record<string, string> = {}
     sortedQuestions.forEach((q) => {
       if (q.priority === 'critical' && !answers[q.id]) {
-        newErrors[q.id] = 'Esta pregunta crÃ­tica requiere respuesta'
+        newErrors[q.id] = 'Esta pregunta crítica requiere respuesta'
       }
     })
 
@@ -122,8 +122,8 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-white">
-            Completa la informaciÃ³n faltante
+          <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+            Completa la información faltante
           </h3>
           <p className="text-xs text-[#aebac1] mt-1">
             {answeredCount} de {sortedQuestions.length} respondidas
@@ -131,7 +131,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
         </div>
         <div className="text-xs text-[#8696a0]">
           <AlertCircle className="inline h-3 w-3 mr-1" />
-          Las marcadas como "CrÃ­tico" son obligatorias
+          Las marcadas como "Crítico" son obligatorias
         </div>
       </div>
 
@@ -161,11 +161,11 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                     </span>
                     {question.priority === 'critical' && (
                       <span className={cn("text-xs px-2 py-0.5 rounded border", colors.badge)}>
-                        CrÃ­tico
+                        Crítico
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-medium text-white leading-relaxed">
+                  <p className="text-sm font-medium text-[var(--theme-text-primary)] leading-relaxed">
                     {question.question}
                   </p>
                 </div>
@@ -183,11 +183,11 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                         "flex-1",
                         answer === true
                           ? "bg-green-600 hover:bg-green-500 text-white border-0"
-                          : "bg-slate-800 hover:bg-slate-700 text-[#aebac1] border-[#2a3942]"
+                          : "bg-[var(--theme-bg-tertiary)] hover:bg-[var(--theme-bg-input)] text-[#aebac1] border-[#2a3942]"
                       )}
                       disabled={isLoading}
                     >
-                      SÃ­
+                      Sí
                     </Button>
                     <Button
                       type="button"
@@ -196,7 +196,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                         "flex-1",
                         answer === false
                           ? "bg-red-600 hover:bg-red-500 text-white border-0"
-                          : "bg-slate-800 hover:bg-slate-700 text-[#aebac1] border-[#2a3942]"
+                          : "bg-[var(--theme-bg-tertiary)] hover:bg-[var(--theme-bg-input)] text-[#aebac1] border-[#2a3942]"
                       )}
                       disabled={isLoading}
                     >
@@ -222,7 +222,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                             "w-full text-left px-4 py-3 rounded-lg border-2 transition-all",
                             isSelected
                               ? "bg-purple-600/20 border-purple-500 text-white"
-                              : "bg-slate-800/50 border-[#2a3942] text-[#aebac1] hover:border-purple-500/50 hover:bg-slate-800"
+                              : "bg-[var(--theme-bg-tertiary)] border-[#2a3942] text-[#aebac1] hover:border-purple-500/50 hover:bg-[var(--theme-bg-tertiary)]"
                           )}
                           disabled={isLoading}
                         >
@@ -232,7 +232,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                               isSelected ? "bg-purple-600 border-purple-500" : "border-[#aebac1]"
                             )}>
                               {isSelected && (
-                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-3 h-3 text-[var(--theme-text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                 </svg>
                               )}
@@ -252,7 +252,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                     value={(answer as string) || ''}
                     onChange={(e) => handleFreeText(question.id, e.target.value)}
                     placeholder="Escribe tu respuesta..."
-                    className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus:border-purple-500"
+                    className="bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)] placeholder:text-[#8696a0] focus:border-purple-500"
                     disabled={isLoading}
                   />
                 )}
@@ -293,7 +293,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
             onClick={handleSubmit}
             variant="outline"
             disabled={isLoading}
-            className="border-[#2a3942] text-[#aebac1] hover:bg-slate-800"
+            className="border-[#2a3942] text-[#aebac1] hover:bg-[var(--theme-bg-tertiary)]"
           >
             Omitir opcionales
           </Button>

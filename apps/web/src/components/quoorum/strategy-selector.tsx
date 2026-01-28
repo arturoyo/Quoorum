@@ -25,17 +25,17 @@ interface StrategySelectorProps {
 const PATTERN_LABELS: Record<string, { label: string; description: string; icon: typeof Sparkles }> = {
   simple: {
     label: 'Simple',
-    description: 'Un debate Ãºnico sin subdivisiÃ³n',
+    description: 'Un debate único sin subdivisión',
     icon: Sparkles,
   },
   sequential: {
     label: 'Secuencial',
-    description: 'A â†’ B â†’ C â†’ ConclusiÃ³n (debates en orden)',
+    description: 'A ? B ? C ? Conclusión (debates en orden)',
     icon: TrendingUp,
   },
   parallel: {
     label: 'Paralelo',
-    description: 'A, B, C simultÃ¡neamente â†’ SÃ­ntesis',
+    description: 'A, B, C simultáneamente ? Síntesis',
     icon: Sparkles,
   },
   conditional: {
@@ -50,7 +50,7 @@ const PATTERN_LABELS: Record<string, { label: string; description: string; icon:
   },
   tournament: {
     label: 'Torneo',
-    description: 'EliminaciÃ³n por brackets (A vs B, C vs D)',
+    description: 'Eliminación por brackets (A vs B, C vs D)',
     icon: Sparkles,
   },
   adversarial: {
@@ -60,12 +60,12 @@ const PATTERN_LABELS: Record<string, { label: string; description: string; icon:
   },
   ensemble: {
     label: 'Ensemble',
-    description: 'MÃºltiples debates independientes â†’ AgregaciÃ³n',
+    description: 'Múltiples debates independientes ? Agregación',
     icon: Sparkles,
   },
   hierarchical: {
-    label: 'JerÃ¡rquico',
-    description: 'Estructura de Ã¡rbol, drill down',
+    label: 'Jerárquico',
+    description: 'Estructura de árbol, drill down',
     icon: Sparkles,
   },
 }
@@ -97,7 +97,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
 
   if (!question || question.length < 10) {
     return (
-      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+      <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
         <CardContent className="py-6 text-center text-sm text-[var(--theme-text-secondary)]">
           Escribe una pregunta para ver las estrategias recomendadas
         </CardContent>
@@ -106,26 +106,26 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
   }
 
   return (
-    <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+    <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
+        <CardTitle className="flex items-center gap-2 text-[var(--theme-text-primary)]">
           <Sparkles className="h-5 w-5 text-purple-400" />
-          Estrategia de DeliberaciÃ³n
+          Estrategia de Deliberación
         </CardTitle>
         <CardDescription className="text-[var(--theme-text-secondary)]">
-          Selecciona cÃ³mo quieres que se ejecute el debate
+          Selecciona cómo quieres que se ejecute el debate
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Mode Selection */}
         <div className="space-y-2">
-          <Label className="text-white">Modo de SelecciÃ³n</Label>
+          <Label className="text-[var(--theme-text-primary)]">Modo de Selección</Label>
           <Select value={patternMode} onValueChange={(v) => setPatternMode(v as typeof patternMode)}>
-            <SelectTrigger className="border-white/10 bg-slate-800/50 text-white">
+            <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="auto">AutomÃ¡tico (Recomendado)</SelectItem>
+              <SelectItem value="auto">Automático (Recomendado)</SelectItem>
               <SelectItem value="manual">Manual</SelectItem>
             </SelectContent>
           </Select>
@@ -149,7 +149,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
                         Recomendado ({Math.round(strategyAnalysis.confidence * 100)}%)
                       </Badge>
                     </div>
-                    <h3 className="font-semibold text-white mb-1">
+                    <h3 className="font-semibold text-[var(--theme-text-primary)] mb-1">
                       {PATTERN_LABELS[strategyAnalysis.recommendedPattern]?.label || strategyAnalysis.recommendedPattern}
                     </h3>
                     <p className="text-sm text-[var(--theme-text-secondary)] mb-3">
@@ -184,7 +184,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
                         setManualPattern(pattern)
                       }}
                       className={cn(
-                        'justify-start border-white/10 bg-slate-800/30 text-[var(--theme-text-secondary)] hover:bg-purple-600/20 hover:border-purple-500/50 hover:text-white',
+                        'justify-start border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-secondary)] hover:bg-purple-600/20 hover:border-purple-500/50 hover:text-white',
                         selectedPattern === pattern && 'border-purple-500 bg-purple-600/20 text-white'
                       )}
                     >
@@ -197,10 +197,10 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
 
             {/* Detected Signals */}
             {strategyAnalysis.signals && strategyAnalysis.signals.length > 0 && (
-              <div className="rounded-lg border border-white/5 bg-slate-800/30 p-3">
+              <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Info className="h-4 w-4 text-blue-400" />
-                  <Label className="text-xs text-[var(--theme-text-secondary)]">SeÃ±ales Detectadas</Label>
+                  <Label className="text-xs text-[var(--theme-text-secondary)]">Señales Detectadas</Label>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {strategyAnalysis.signals
@@ -224,9 +224,9 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
           )
         ) : (
           <div className="space-y-2">
-            <Label className="text-white">Seleccionar Estrategia Manualmente</Label>
+            <Label className="text-[var(--theme-text-primary)]">Seleccionar Estrategia Manualmente</Label>
             <Select value={manualPattern} onValueChange={setManualPattern}>
-              <SelectTrigger className="border-white/10 bg-slate-800/50 text-white">
+              <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]">
                 <SelectValue placeholder="Elige una estrategia..." />
               </SelectTrigger>
               <SelectContent>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
@@ -63,7 +63,7 @@ export function FloatingActionBar({
         className
       )}
     >
-      <div className="border border-white/20 bg-slate-800/95 backdrop-blur-xl shadow-2xl rounded-lg p-4">
+      <div className="border border-[var(--theme-border)] bg-slate-800/95 backdrop-blur-xl shadow-2xl rounded-lg p-4">
         <div className="flex items-center gap-4">
           {showSelection && (
             <>
@@ -75,7 +75,7 @@ export function FloatingActionBar({
                     className="border-white/30 data-[state=checked]:bg-purple-600"
                   />
                 )}
-                <span className="text-sm text-white font-medium">
+                <span className="text-sm text-[var(--theme-text-primary)] font-medium">
                   {selectionCount} seleccionado{selectionCount !== 1 ? 's' : ''}
                   {totalCount !== undefined && ` de ${totalCount}`}
                 </span>
@@ -98,7 +98,7 @@ export function FloatingActionBar({
                   className={cn(
                     action.variant === 'destructive'
                       ? 'bg-red-600 hover:bg-red-700 text-white border-red-600'
-                      : 'border-white/20 text-white hover:bg-white/10'
+                      : 'border-[var(--theme-border)] text-white hover:bg-white/10'
                   )}
                 >
                   {Icon && (

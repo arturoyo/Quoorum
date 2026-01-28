@@ -67,127 +67,127 @@ interface SubscriptionManagementModalProps {
 const PLAN_FEATURES = {
   starter: {
     monthly: {
-      price: 29, // 29â‚¬/mes por 3,500 crÃ©ditos
+      price: 29, // 29€/mes por 3,500 créditos
       credits: 3500,
-      description: 'SÃ­ntesis estratÃ©gica de alta calidad para el crecimiento recurrente',
+      description: 'Síntesis estratégica de alta calidad para el crecimiento recurrente',
       features: [
-        { icon: Sparkles, text: '3,500 crÃ©ditos por mes', info: 'CrÃ©ditos mensuales incluidos en tu plan. Cada crÃ©dito equivale a $0.01 USD. Se usan para generar debates, anÃ¡lisis y sÃ­ntesis de IA.' },
-        { icon: Clock, text: '300 crÃ©ditos de actualizaciÃ³n diarios', info: 'CrÃ©ditos que se restauran automÃ¡ticamente cada dÃ­a a las 01:00. Te permiten mantener tus datos actualizados sin consumir tu cuota mensual.' },
-        { icon: Search, text: 'Modelos de IA estÃ¡ndar', info: 'Acceso a modelos de IA eficientes y econÃ³micos para anÃ¡lisis y generaciÃ³n de contenido. Optimizados para balance entre calidad y coste.' },
-        { icon: Target, text: 'Sistema de inyecciÃ³n de contexto de 4 capas', info: 'Sistema avanzado que enriquece tus debates con contexto en 4 niveles: pregunta optimizada, bÃºsqueda web, documentos subidos y contexto histÃ³rico.' },
-        { icon: Presentation, text: 'Modelo de IA sintetizador', info: 'Informes finales de alta calidad generados con un modelo de IA sintetizador de Ãºltima generaciÃ³n. Perfectos para presentar a clientes o usar en decisiones estratÃ©gicas.' },
-        { icon: Triangle, text: 'Acceso anticipado a funciones beta', info: 'Prueba nuevas funciones antes que nadie. Acceso prioritario a caracterÃ­sticas experimentales y la oportunidad de influir en el desarrollo.' },
+        { icon: Sparkles, text: '3,500 créditos por mes', info: 'Créditos mensuales incluidos en tu plan. Cada crédito equivale a $0.01 USD. Se usan para generar debates, análisis y síntesis de IA.' },
+        { icon: Clock, text: '300 créditos de actualización diarios', info: 'Créditos que se restauran automáticamente cada día a las 01:00. Te permiten mantener tus datos actualizados sin consumir tu cuota mensual.' },
+        { icon: Search, text: 'Modelos de IA estándar', info: 'Acceso a modelos de IA eficientes y económicos para análisis y generación de contenido. Optimizados para balance entre calidad y coste.' },
+        { icon: Target, text: 'Sistema de inyección de contexto de 4 capas', info: 'Sistema avanzado que enriquece tus debates con contexto en 4 niveles: pregunta optimizada, búsqueda web, documentos subidos y contexto histórico.' },
+        { icon: Presentation, text: 'Modelo de IA sintetizador', info: 'Informes finales de alta calidad generados con un modelo de IA sintetizador de última generación. Perfectos para presentar a clientes o usar en decisiones estratégicas.' },
+        { icon: Triangle, text: 'Acceso anticipado a funciones beta', info: 'Prueba nuevas funciones antes que nadie. Acceso prioritario a características experimentales y la oportunidad de influir en el desarrollo.' },
       ],
     },
     yearly: {
-      price: 290, // 290â‚¬/aÃ±o por 3,500 crÃ©ditos/mes (29â‚¬/mes Ã— 10 meses con descuento)
+      price: 290, // 290€/año por 3,500 créditos/mes (29€/mes × 10 meses con descuento)
       credits: 3500,
-      description: 'SÃ­ntesis estratÃ©gica de alta calidad para el crecimiento recurrente',
+      description: 'Síntesis estratégica de alta calidad para el crecimiento recurrente',
       features: [
-        { icon: Sparkles, text: '3,500 crÃ©ditos por mes', info: 'CrÃ©ditos mensuales incluidos en tu plan. Cada crÃ©dito equivale a $0.01 USD. Se usan para generar debates, anÃ¡lisis y sÃ­ntesis de IA.' },
-        { icon: Clock, text: '300 crÃ©ditos de actualizaciÃ³n diarios', info: 'CrÃ©ditos que se restauran automÃ¡ticamente cada dÃ­a a las 01:00. Te permiten mantener tus datos actualizados sin consumir tu cuota mensual.' },
-        { icon: Search, text: 'Modelos de IA estÃ¡ndar', info: 'Acceso a modelos de IA eficientes y econÃ³micos para anÃ¡lisis y generaciÃ³n de contenido. Optimizados para balance entre calidad y coste.' },
-        { icon: Target, text: 'Sistema de inyecciÃ³n de contexto de 4 capas', info: 'Sistema avanzado que enriquece tus debates con contexto en 4 niveles: pregunta optimizada, bÃºsqueda web, documentos subidos y contexto histÃ³rico.' },
-        { icon: Presentation, text: 'Modelo de IA sintetizador', info: 'Informes finales de alta calidad generados con un modelo de IA sintetizador de Ãºltima generaciÃ³n. Perfectos para presentar a clientes o usar en decisiones estratÃ©gicas.' },
-        { icon: Triangle, text: 'Acceso anticipado a funciones beta', info: 'Prueba nuevas funciones antes que nadie. Acceso prioritario a caracterÃ­sticas experimentales y la oportunidad de influir en el desarrollo.' },
+        { icon: Sparkles, text: '3,500 créditos por mes', info: 'Créditos mensuales incluidos en tu plan. Cada crédito equivale a $0.01 USD. Se usan para generar debates, análisis y síntesis de IA.' },
+        { icon: Clock, text: '300 créditos de actualización diarios', info: 'Créditos que se restauran automáticamente cada día a las 01:00. Te permiten mantener tus datos actualizados sin consumir tu cuota mensual.' },
+        { icon: Search, text: 'Modelos de IA estándar', info: 'Acceso a modelos de IA eficientes y económicos para análisis y generación de contenido. Optimizados para balance entre calidad y coste.' },
+        { icon: Target, text: 'Sistema de inyección de contexto de 4 capas', info: 'Sistema avanzado que enriquece tus debates con contexto en 4 niveles: pregunta optimizada, búsqueda web, documentos subidos y contexto histórico.' },
+        { icon: Presentation, text: 'Modelo de IA sintetizador', info: 'Informes finales de alta calidad generados con un modelo de IA sintetizador de última generación. Perfectos para presentar a clientes o usar en decisiones estratégicas.' },
+        { icon: Triangle, text: 'Acceso anticipado a funciones beta', info: 'Prueba nuevas funciones antes que nadie. Acceso prioritario a características experimentales y la oportunidad de influir en el desarrollo.' },
       ],
     },
   },
   pro: {
     monthly: {
-      price: 79, // 79â‚¬/mes por 10,000 crÃ©ditos
+      price: 79, // 79€/mes por 10,000 créditos
       credits: 10000,
       description: 'Inteligencia Corporativa de espectro completo para decisiones de alto impacto',
       features: [
-        { icon: Sparkles, text: '+6,500 crÃ©ditos adicionales al mes', info: 'Total: 10,000 crÃ©ditos/mes (incluye todo lo de Starter). MÃ¡s capacidad para debates complejos y anÃ¡lisis extensos.' },
-        { icon: Search, text: 'Modelos de IA especializados', info: 'Acceso a modelos de IA especializados de alto rendimiento. Optimizados para anÃ¡lisis corporativos complejos y decisiones estratÃ©gicas.' },
-        { icon: Building2, text: 'Capa de Inteligencia Corporativa (7 departamentos)', info: 'Debates especializados por departamento: Marketing, Finanzas, RR.HH., Operaciones, Legal, IT y Ventas. Cada agente tiene expertise especÃ­fico del Ã¡rea.' },
-        { icon: Target, text: 'PersonalizaciÃ³n de BasePrompts de departamento', info: 'Adapta los agentes a la cultura, valores y contexto especÃ­fico de tu empresa. Crea prompts base que reflejen tu forma de trabajar.' },
-        { icon: Presentation, text: 'ExportaciÃ³n a PDF', info: 'Exporta tus debates y anÃ¡lisis en formato PDF profesional. Incluye todos los mensajes, consenso final y recomendaciones. Listo para compartir con stakeholders.' },
-        { icon: CheckCircle, text: 'Soporte prioritario', info: 'AtenciÃ³n prioritaria en soporte tÃ©cnico. Respuestas mÃ¡s rÃ¡pidas y acceso directo al equipo de soporte para resolver tus dudas urgentes.' },
+        { icon: Sparkles, text: '+6,500 créditos adicionales al mes', info: 'Total: 10,000 créditos/mes (incluye todo lo de Starter). Más capacidad para debates complejos y análisis extensos.' },
+        { icon: Search, text: 'Modelos de IA especializados', info: 'Acceso a modelos de IA especializados de alto rendimiento. Optimizados para análisis corporativos complejos y decisiones estratégicas.' },
+        { icon: Building2, text: 'Capa de Inteligencia Corporativa (7 departamentos)', info: 'Debates especializados por departamento: Marketing, Finanzas, RR.HH., Operaciones, Legal, IT y Ventas. Cada agente tiene expertise específico del área.' },
+        { icon: Target, text: 'Personalización de BasePrompts de departamento', info: 'Adapta los agentes a la cultura, valores y contexto específico de tu empresa. Crea prompts base que reflejen tu forma de trabajar.' },
+        { icon: Presentation, text: 'Exportación a PDF', info: 'Exporta tus debates y análisis en formato PDF profesional. Incluye todos los mensajes, consenso final y recomendaciones. Listo para compartir con stakeholders.' },
+        { icon: CheckCircle, text: 'Soporte prioritario', info: 'Atención prioritaria en soporte técnico. Respuestas más rápidas y acceso directo al equipo de soporte para resolver tus dudas urgentes.' },
       ],
     },
     yearly: {
-      price: 790, // 790â‚¬/aÃ±o por 10,000 crÃ©ditos/mes (79â‚¬/mes Ã— 10 meses con descuento)
+      price: 790, // 790€/año por 10,000 créditos/mes (79€/mes × 10 meses con descuento)
       credits: 10000,
       description: 'Inteligencia Corporativa de espectro completo para decisiones de alto impacto',
       features: [
-        { icon: Sparkles, text: '+6,500 crÃ©ditos adicionales al mes', info: 'Total: 10,000 crÃ©ditos/mes (incluye todo lo de Starter). MÃ¡s capacidad para debates complejos y anÃ¡lisis extensos.' },
-        { icon: Search, text: 'Modelos de IA especializados', info: 'Acceso a modelos de IA especializados de alto rendimiento. Optimizados para anÃ¡lisis corporativos complejos y decisiones estratÃ©gicas.' },
-        { icon: Building2, text: 'Capa de Inteligencia Corporativa (7 departamentos)', info: 'Debates especializados por departamento: Marketing, Finanzas, RR.HH., Operaciones, Legal, IT y Ventas. Cada agente tiene expertise especÃ­fico del Ã¡rea.' },
-        { icon: Target, text: 'PersonalizaciÃ³n de BasePrompts de departamento', info: 'Adapta los agentes a la cultura, valores y contexto especÃ­fico de tu empresa. Crea prompts base que reflejen tu forma de trabajar.' },
-        { icon: Presentation, text: 'ExportaciÃ³n a PDF', info: 'Exporta tus debates y anÃ¡lisis en formato PDF profesional. Incluye todos los mensajes, consenso final y recomendaciones. Listo para compartir con stakeholders.' },
-        { icon: CheckCircle, text: 'Soporte prioritario', info: 'AtenciÃ³n prioritaria en soporte tÃ©cnico. Respuestas mÃ¡s rÃ¡pidas y acceso directo al equipo de soporte para resolver tus dudas urgentes.' },
+        { icon: Sparkles, text: '+6,500 créditos adicionales al mes', info: 'Total: 10,000 créditos/mes (incluye todo lo de Starter). Más capacidad para debates complejos y análisis extensos.' },
+        { icon: Search, text: 'Modelos de IA especializados', info: 'Acceso a modelos de IA especializados de alto rendimiento. Optimizados para análisis corporativos complejos y decisiones estratégicas.' },
+        { icon: Building2, text: 'Capa de Inteligencia Corporativa (7 departamentos)', info: 'Debates especializados por departamento: Marketing, Finanzas, RR.HH., Operaciones, Legal, IT y Ventas. Cada agente tiene expertise específico del área.' },
+        { icon: Target, text: 'Personalización de BasePrompts de departamento', info: 'Adapta los agentes a la cultura, valores y contexto específico de tu empresa. Crea prompts base que reflejen tu forma de trabajar.' },
+        { icon: Presentation, text: 'Exportación a PDF', info: 'Exporta tus debates y análisis en formato PDF profesional. Incluye todos los mensajes, consenso final y recomendaciones. Listo para compartir con stakeholders.' },
+        { icon: CheckCircle, text: 'Soporte prioritario', info: 'Atención prioritaria en soporte técnico. Respuestas más rápidas y acceso directo al equipo de soporte para resolver tus dudas urgentes.' },
       ],
     },
   },
   business: {
     monthly: {
-      price: 199, // 199â‚¬/mes por 30,000 crÃ©ditos
+      price: 199, // 199€/mes por 30,000 créditos
       credits: 30000,
-      description: 'Control estratÃ©gico empresarial y deliberaciÃ³n ilimitada y segura',
+      description: 'Control estratégico empresarial y deliberación ilimitada y segura',
       features: [
-        { icon: Sparkles, text: '+20,000 crÃ©ditos adicionales al mes', info: 'Total: 30,000 crÃ©ditos/mes (incluye todo lo de Pro). Capacidad mÃ¡xima para uso intensivo en mÃºltiples proyectos simultÃ¡neos.' },
-        { icon: Search, text: 'Los mejores modelos de IA', info: 'Acceso a los modelos de IA mÃ¡s avanzados y potentes del mercado. MÃ¡xima calidad y precisiÃ³n para decisiones empresariales crÃ­ticas.' },
-        { icon: Building2, text: 'Panel de AdministraciÃ³n completo', info: 'Gestiona usuarios, monitorea crÃ©ditos y ajusta multiplicadores. Dashboard completo con mÃ©tricas de uso, facturaciÃ³n y configuraciÃ³n avanzada.' },
-        { icon: Target, text: 'GestiÃ³n de usuarios y equipos', info: 'Control total sobre acceso y permisos. Invita miembros del equipo, asigna roles y gestiona quiÃ©n puede crear debates o acceder a informaciÃ³n sensible.' },
-        { icon: Monitor, text: 'Multiplicador de crÃ©dito ajustable', info: 'Optimiza el coste interno segÃºn tus necesidades. Ajusta el multiplicador de crÃ©ditos para controlar el gasto por departamento o proyecto.' },
-        { icon: Shield, text: 'SLA y seguridad de nivel empresarial', info: 'GarantÃ­as de servicio y seguridad avanzada. Uptime garantizado, encriptaciÃ³n de extremo a extremo, cumplimiento GDPR y auditorÃ­as de seguridad regulares.' },
-        { icon: CheckCircle, text: 'Soporte dedicado 24/7', info: 'AtenciÃ³n exclusiva y soporte prioritario 24/7. Canal directo con el equipo tÃ©cnico, respuesta garantizada en menos de 2 horas y soporte telefÃ³nico para emergencias crÃ­ticas.' },
+        { icon: Sparkles, text: '+20,000 créditos adicionales al mes', info: 'Total: 30,000 créditos/mes (incluye todo lo de Pro). Capacidad máxima para uso intensivo en múltiples proyectos simultáneos.' },
+        { icon: Search, text: 'Los mejores modelos de IA', info: 'Acceso a los modelos de IA más avanzados y potentes del mercado. Máxima calidad y precisión para decisiones empresariales críticas.' },
+        { icon: Building2, text: 'Panel de Administración completo', info: 'Gestiona usuarios, monitorea créditos y ajusta multiplicadores. Dashboard completo con métricas de uso, facturación y configuración avanzada.' },
+        { icon: Target, text: 'Gestión de usuarios y equipos', info: 'Control total sobre acceso y permisos. Invita miembros del equipo, asigna roles y gestiona quién puede crear debates o acceder a información sensible.' },
+        { icon: Monitor, text: 'Multiplicador de crédito ajustable', info: 'Optimiza el coste interno según tus necesidades. Ajusta el multiplicador de créditos para controlar el gasto por departamento o proyecto.' },
+        { icon: Shield, text: 'SLA y seguridad de nivel empresarial', info: 'Garantías de servicio y seguridad avanzada. Uptime garantizado, encriptación de extremo a extremo, cumplimiento GDPR y auditorías de seguridad regulares.' },
+        { icon: CheckCircle, text: 'Soporte dedicado 24/7', info: 'Atención exclusiva y soporte prioritario 24/7. Canal directo con el equipo técnico, respuesta garantizada en menos de 2 horas y soporte telefónico para emergencias críticas.' },
       ],
     },
     yearly: {
-      price: 1990, // 1,990â‚¬/aÃ±o por 30,000 crÃ©ditos/mes (199â‚¬/mes Ã— 10 meses con descuento)
+      price: 1990, // 1,990€/año por 30,000 créditos/mes (199€/mes × 10 meses con descuento)
       credits: 30000,
-      description: 'Control estratÃ©gico empresarial y deliberaciÃ³n ilimitada y segura',
+      description: 'Control estratégico empresarial y deliberación ilimitada y segura',
       features: [
-        { icon: Sparkles, text: '+20,000 crÃ©ditos adicionales al mes', info: 'Total: 30,000 crÃ©ditos/mes (incluye todo lo de Pro). Capacidad mÃ¡xima para uso intensivo en mÃºltiples proyectos simultÃ¡neos.' },
-        { icon: Search, text: 'Los mejores modelos de IA', info: 'Acceso a los modelos de IA mÃ¡s avanzados y potentes del mercado. MÃ¡xima calidad y precisiÃ³n para decisiones empresariales crÃ­ticas.' },
-        { icon: Building2, text: 'Panel de AdministraciÃ³n completo', info: 'Gestiona usuarios, monitorea crÃ©ditos y ajusta multiplicadores. Dashboard completo con mÃ©tricas de uso, facturaciÃ³n y configuraciÃ³n avanzada.' },
-        { icon: Target, text: 'GestiÃ³n de usuarios y equipos', info: 'Control total sobre acceso y permisos. Invita miembros del equipo, asigna roles y gestiona quiÃ©n puede crear debates o acceder a informaciÃ³n sensible.' },
-        { icon: Monitor, text: 'Multiplicador de crÃ©dito ajustable', info: 'Optimiza el coste interno segÃºn tus necesidades. Ajusta el multiplicador de crÃ©ditos para controlar el gasto por departamento o proyecto.' },
-        { icon: Shield, text: 'SLA y seguridad de nivel empresarial', info: 'GarantÃ­as de servicio y seguridad avanzada. Uptime garantizado, encriptaciÃ³n de extremo a extremo, cumplimiento GDPR y auditorÃ­as de seguridad regulares.' },
-        { icon: CheckCircle, text: 'Soporte dedicado 24/7', info: 'AtenciÃ³n exclusiva y soporte prioritario 24/7. Canal directo con el equipo tÃ©cnico, respuesta garantizada en menos de 2 horas y soporte telefÃ³nico para emergencias crÃ­ticas.' },
+        { icon: Sparkles, text: '+20,000 créditos adicionales al mes', info: 'Total: 30,000 créditos/mes (incluye todo lo de Pro). Capacidad máxima para uso intensivo en múltiples proyectos simultáneos.' },
+        { icon: Search, text: 'Los mejores modelos de IA', info: 'Acceso a los modelos de IA más avanzados y potentes del mercado. Máxima calidad y precisión para decisiones empresariales críticas.' },
+        { icon: Building2, text: 'Panel de Administración completo', info: 'Gestiona usuarios, monitorea créditos y ajusta multiplicadores. Dashboard completo con métricas de uso, facturación y configuración avanzada.' },
+        { icon: Target, text: 'Gestión de usuarios y equipos', info: 'Control total sobre acceso y permisos. Invita miembros del equipo, asigna roles y gestiona quién puede crear debates o acceder a información sensible.' },
+        { icon: Monitor, text: 'Multiplicador de crédito ajustable', info: 'Optimiza el coste interno según tus necesidades. Ajusta el multiplicador de créditos para controlar el gasto por departamento o proyecto.' },
+        { icon: Shield, text: 'SLA y seguridad de nivel empresarial', info: 'Garantías de servicio y seguridad avanzada. Uptime garantizado, encriptación de extremo a extremo, cumplimiento GDPR y auditorías de seguridad regulares.' },
+        { icon: CheckCircle, text: 'Soporte dedicado 24/7', info: 'Atención exclusiva y soporte prioritario 24/7. Canal directo con el equipo técnico, respuesta garantizada en menos de 2 horas y soporte telefónico para emergencias críticas.' },
       ],
     },
   },
 }
 
 // ============================================================================
-// ESTÃNDAR QUOORUM: SISTEMA DE CRÃ‰DITOS
+// ESTÁNDAR QUOORUM: SISTEMA DE CRÉDITOS
 // ============================================================================
-// Valor del CrÃ©dito: 0.01â‚¬ (100 CrÃ©ditos = 1â‚¬)
-// Multiplicador de Servicio: 1.75x (aplicado internamente al calcular crÃ©ditos desde coste API)
-// FÃ³rmula: CrÃ©ditos = âŒˆ(Coste API USD Ã— 1.75) / 0.01âŒ‰
-// Precio del Plan: Precio base del tier + (crÃ©ditos seleccionados Ã— 0.01â‚¬)
+// Valor del Crédito: 0.01€ (100 Créditos = 1€)
+// Multiplicador de Servicio: 1.75x (aplicado internamente al calcular créditos desde coste API)
+// Fórmula: Créditos = ?(Coste API USD × 1.75) / 0.01?
+// Precio del Plan: Precio base del tier + (créditos seleccionados × 0.01€)
 // ============================================================================
 
-const CREDIT_PRICE_PER_UNIT = 0.01 // 0.01â‚¬ por crÃ©dito
-const CREDITS_PER_EURO = 100 // 100 crÃ©ditos por 1â‚¬
+const CREDIT_PRICE_PER_UNIT = 0.01 // 0.01€ por crédito
+const CREDITS_PER_EURO = 100 // 100 créditos por 1€
 const SERVICE_MULTIPLIER = 1.75 // Multiplicador de servicio (1.75x) - usado internamente
 
-// FunciÃ³n para calcular precio basado en crÃ©ditos (en centavos de â‚¬)
+// Función para calcular precio basado en créditos (en centavos de €)
 function calculatePriceFromCredits(credits: number): number {
-  // Precio en centavos de â‚¬ = crÃ©ditos * 0.01 * 100
+  // Precio en centavos de € = créditos * 0.01 * 100
   return Math.round(credits * CREDIT_PRICE_PER_UNIT * 100)
 }
 
-// FunciÃ³n para calcular crÃ©ditos basado en precio (en centavos de â‚¬)
+// Función para calcular créditos basado en precio (en centavos de €)
 function calculateCreditsFromPrice(priceInCents: number): number {
-  // CrÃ©ditos = precio en centavos / (0.01 * 100)
+  // Créditos = precio en centavos / (0.01 * 100)
   return Math.round(priceInCents / (CREDIT_PRICE_PER_UNIT * 100))
 }
 
-// FunciÃ³n para calcular crÃ©ditos desde coste API USD (con multiplicador de servicio)
-// Nota: Esta funciÃ³n se usa internamente para calcular crÃ©ditos consumidos desde costes API
+// Función para calcular créditos desde coste API USD (con multiplicador de servicio)
+// Nota: Esta función se usa internamente para calcular créditos consumidos desde costes API
 function calculateCreditsFromApiCost(apiCostUsd: number): number {
-  // CrÃ©ditos = âŒˆ(Coste API USD Ã— 1.75) / 0.01âŒ‰
-  // Convertir USD a â‚¬ primero (1 USD â‰ˆ 0.92 â‚¬)
+  // Créditos = ?(Coste API USD × 1.75) / 0.01?
+  // Convertir USD a € primero (1 USD ˜ 0.92 €)
   const apiCostEur = apiCostUsd * 0.92
   return Math.ceil((apiCostEur * SERVICE_MULTIPLIER) / CREDIT_PRICE_PER_UNIT)
 }
 
-// Opciones de crÃ©ditos disponibles (generadas con la fÃ³rmula)
+// Opciones de créditos disponibles (generadas con la fórmula)
 const CREDIT_AMOUNTS = [
   8000,
   12000,
@@ -212,7 +212,7 @@ const CREDIT_OPTIONS = CREDIT_AMOUNTS.map((credits) => ({
 
 export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsClick }: SubscriptionManagementModalProps) {
   const router = useRouter()
-  const [isYearly, setIsYearly] = useState(true) // Por defecto anual (mÃ¡s econÃ³mico)
+  const [isYearly, setIsYearly] = useState(true) // Por defecto anual (más económico)
   const [selectedPlan, setSelectedPlan] = useState<'starter' | 'pro' | 'business'>('pro')
 
   // Fetch current plan
@@ -277,10 +277,10 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900 border-purple-500/20 max-w-6xl [&>button]:z-[201]">
+      <DialogContent className="bg-[var(--theme-bg-primary)] border-purple-500/20 max-w-6xl [&>button]:z-[201]">
         <DialogHeader className="border-b-0 pb-0">
-          <DialogTitle className="text-2xl font-semibold text-white">
-            Gestionar tu suscripciÃ³n
+          <DialogTitle className="text-2xl font-semibold text-[var(--theme-text-primary)]">
+            Gestionar tu suscripción
           </DialogTitle>
           <DialogDescription className="text-[var(--theme-text-secondary)]">
             Elige el plan que mejor se adapte a tus necesidades
@@ -290,14 +290,14 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
         <DialogBody className="space-y-6">
           {/* Toggle Mensual/Anual */}
           <div className="flex items-center justify-center mb-8">
-            <div className="inline-flex rounded-lg bg-slate-800/50 p-1 border border-slate-700/50">
+            <div className="inline-flex rounded-lg bg-[var(--theme-bg-tertiary)] p-1 border border-slate-700/50">
               <button
                 type="button"
                 onClick={() => setIsYearly(false)}
                 className={cn(
                   'relative px-6 py-2.5 rounded-md text-sm font-medium transition-all duration-200',
                   !isYearly
-                    ? 'bg-slate-700/50 text-white'
+                    ? 'bg-[var(--theme-bg-input)]/50 text-white'
                     : 'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-secondary)]'
                 )}
               >
@@ -309,13 +309,13 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                 className={cn(
                   'relative px-6 py-2.5 rounded-md text-sm font-medium transition-all duration-200',
                   isYearly
-                    ? 'bg-slate-700/50 text-white'
+                    ? 'bg-[var(--theme-bg-input)]/50 text-white'
                     : 'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-secondary)]'
                 )}
               >
                 <span>Anualmente</span>
                 <span className={cn('ml-1.5 text-xs', isYearly ? 'opacity-80' : 'opacity-60')}>
-                  Â· Ahorra 17%
+                  · Ahorra 17%
                 </span>
               </button>
             </div>
@@ -327,15 +327,15 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
             {currentTier !== 'free' && (
               <Card
                 className={cn(
-                  'relative overflow-hidden bg-slate-800/50 backdrop-blur-xl border-blue-500'
+                  'relative overflow-hidden bg-[var(--theme-bg-tertiary)] backdrop-blur-xl border-blue-500'
                 )}
               >
                 <div className="absolute top-4 right-4">
-                  <Badge className="bg-blue-500 text-white">Plan Actual</Badge>
+                  <Badge className="bg-blue-500 text-[var(--theme-text-primary)]">Plan Actual</Badge>
                 </div>
 
                 <CardHeader>
-                  <CardTitle className="text-2xl font-semibold text-white mb-2">
+                  <CardTitle className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-2">
                     {currentTier === 'starter' ? 'Starter' :
                      currentTier === 'pro' ? 'Pro' :
                      currentTier === 'business' ? 'Business' : 'Free'}
@@ -350,15 +350,15 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: -20, opacity: 0 }}
                             transition={{ duration: 0.3, ease: 'easeOut' }}
-                            className="text-4xl font-bold text-white block"
+                            className="text-4xl font-bold text-[var(--theme-text-primary)] block"
                           >
                             {(() => {
-                              // Precio fijo del plan segÃºn tier y periodicidad
+                              // Precio fijo del plan según tier y periodicidad
                               const planPrice = isYearly 
                                 ? (PLAN_FEATURES[currentTier]?.yearly.price || 0) / 12
                                 : (PLAN_FEATURES[currentTier]?.monthly.price || 0)
                               return Math.round(planPrice)
-                            })()}â‚¬
+                            })()}€
                           </motion.span>
                         </AnimatePresence>
                       </div>
@@ -409,7 +409,7 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                                   <TooltipTrigger asChild>
                                     <Info className="h-4 w-4 text-purple-400 cursor-help shrink-0 hover:text-purple-300 transition-colors" />
                                   </TooltipTrigger>
-                                  <TooltipContent className="max-w-xs bg-slate-800 border-purple-500/30 text-white p-3">
+                                  <TooltipContent className="max-w-xs bg-[var(--theme-bg-tertiary)] border-purple-500/30 text-[var(--theme-text-primary)] p-3">
                                     <p className="text-sm leading-relaxed">{feature.info}</p>
                                   </TooltipContent>
                                 </Tooltip>
@@ -424,7 +424,7 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                   {/* Update Button */}
                   <Button
                     disabled
-                    className="w-full bg-blue-600 text-white hover:bg-blue-700 cursor-not-allowed"
+                    className="w-full bg-blue-600 text-[var(--theme-text-primary)] hover:bg-blue-700 cursor-not-allowed"
                   >
                     Plan Actual
                   </Button>
@@ -444,11 +444,11 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                 return (
                   <Card
                     key={planId}
-                    className="relative overflow-hidden bg-slate-800/50 backdrop-blur-xl border-purple-500/20 hover:border-purple-500/40"
+                    className="relative overflow-hidden bg-[var(--theme-bg-tertiary)] backdrop-blur-xl border-purple-500/20 hover:border-purple-500/40"
                   >
 
                   <CardHeader>
-                    <CardTitle className="text-2xl font-semibold text-white mb-2">
+                    <CardTitle className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-2">
                       {planId === 'starter' ? 'Starter' :
                        planId === 'pro' ? 'Pro' :
                        planId === 'business' ? 'Business' : 'Free'}
@@ -463,15 +463,15 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                               animate={{ y: 0, opacity: 1 }}
                               exit={{ y: -20, opacity: 0 }}
                               transition={{ duration: 0.3, ease: 'easeOut' }}
-                              className="text-4xl font-bold text-white block"
+                              className="text-4xl font-bold text-[var(--theme-text-primary)] block"
                             >
                               {(() => {
-                                // Precio fijo del plan segÃºn tier y periodicidad
+                                // Precio fijo del plan según tier y periodicidad
                                 const planPrice = isYearly 
                                   ? (PLAN_FEATURES[planId]?.yearly.price || 0) / 12
                                   : (PLAN_FEATURES[planId]?.monthly.price || 0)
                                 return Math.round(planPrice)
-                              })()}â‚¬
+                              })()}€
                             </motion.span>
                           </AnimatePresence>
                         </div>
@@ -518,7 +518,7 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                                     <TooltipTrigger asChild>
                                       <Info className="h-4 w-4 text-purple-400 cursor-help shrink-0 hover:text-purple-300 transition-colors" />
                                     </TooltipTrigger>
-                                    <TooltipContent className="max-w-xs bg-slate-800 border-purple-500/30 text-white p-3">
+                                    <TooltipContent className="max-w-xs bg-[var(--theme-bg-tertiary)] border-purple-500/30 text-[var(--theme-text-primary)] p-3">
                                       <p className="text-sm leading-relaxed">{feature.info}</p>
                                     </TooltipContent>
                                   </Tooltip>
@@ -554,12 +554,12 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
           {/* Additional Sections */}
           <div className="grid md:grid-cols-2 gap-4">
             {/* Team Section */}
-            <Card className="bg-slate-800/50 border-purple-500/20">
+            <Card className="bg-[var(--theme-bg-tertiary)] border-purple-500/20">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   <Building2 className="h-6 w-6 text-purple-400 shrink-0 mt-1" />
                   <div className="flex-1">
-                    <h4 className="text-lg font-semibold text-white mb-1">
+                    <h4 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-1">
                       Team
                     </h4>
                     <p className="text-sm text-[var(--theme-text-secondary)] mb-4">
@@ -569,11 +569,11 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                       variant="outline"
                       className="w-full bg-white text-slate-900 hover:bg-gray-100"
                       onClick={() => {
-                        // Cerrar el modal de suscripciÃ³n primero
+                        // Cerrar el modal de suscripción primero
                         if (onOpenChange) {
                           onOpenChange(false)
                         }
-                        // Abrir el modal de Team Upgrade despuÃ©s de un breve delay
+                        // Abrir el modal de Team Upgrade después de un breve delay
                         setTimeout(() => {
                           // Disparar evento para abrir TeamUpgradeModal
                           window.dispatchEvent(new CustomEvent('openTeamUpgradeModal'))
@@ -588,16 +588,16 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
             </Card>
 
             {/* Expand Credit Limit */}
-            <Card className="bg-slate-800/50 border-purple-500/20">
+            <Card className="bg-[var(--theme-bg-tertiary)] border-purple-500/20">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   <Sparkles className="h-6 w-6 text-purple-400 shrink-0 mt-1" />
                   <div className="flex-1">
-                    <h4 className="text-lg font-semibold text-white mb-1">
-                      Ampliar lÃ­mite de crÃ©ditos
+                    <h4 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-1">
+                      Ampliar límite de créditos
                     </h4>
                     <p className="text-sm text-[var(--theme-text-secondary)] mb-4">
-                      Actualiza tus crÃ©ditos mensuales
+                      Actualiza tus créditos mensuales
                     </p>
                     <Button
                       variant="outline"
@@ -606,7 +606,7 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
                         onAddCreditsClick?.()
                       }}
                     >
-                      AÃ±adir crÃ©ditos
+                      Añadir créditos
                     </Button>
                   </div>
                 </div>
@@ -615,26 +615,26 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
           </div>
 
           {/* Security and Compliance */}
-          <Card className="bg-slate-800/50 border-purple-500/20">
+          <Card className="bg-[var(--theme-bg-tertiary)] border-purple-500/20">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <Shield className="h-6 w-6 text-purple-400 shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-white mb-1">
+                  <h4 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-1">
                     Seguridad y Cumplimiento
                   </h4>
                   <p className="text-sm text-[var(--theme-text-secondary)] mb-4">
-                    Seguridad de nivel empresarial y certificaciones estÃ¡ndar de la industria.
+                    Seguridad de nivel empresarial y certificaciones estándar de la industria.
                   </p>
                   <div className="flex items-center gap-4 mb-4">
-                    <Badge className="bg-slate-700 text-[var(--theme-text-secondary)]">AICPA SOC 2</Badge>
-                    <Badge className="bg-slate-700 text-[var(--theme-text-secondary)]">ISO 27701</Badge>
+                    <Badge className="bg-[var(--theme-bg-input)] text-[var(--theme-text-secondary)]">AICPA SOC 2</Badge>
+                    <Badge className="bg-[var(--theme-bg-input)] text-[var(--theme-text-secondary)]">ISO 27701</Badge>
                   </div>
                   <Button
                     variant="outline"
                     className="bg-white text-slate-900 hover:bg-gray-100"
                   >
-                    Aprende mÃ¡s
+                    Aprende más
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -644,9 +644,9 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
         </DialogBody>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 pb-6 pt-4 border-t border-white/10 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 pb-6 pt-4 border-t border-[var(--theme-border)] flex-shrink-0">
           <div className="text-sm text-[var(--theme-text-secondary)]">
-            Â¿Tienes un problema? Ve al{' '}
+            ¿Tienes un problema? Ve al{' '}
             <Link href="/help" className="text-purple-400 hover:text-purple-300 underline">
               Centro de Ayuda
             </Link>
@@ -655,15 +655,15 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
           <div className="flex items-center gap-4">
             <Link
               href="/settings/billing"
-              className="text-sm text-[var(--theme-text-secondary)] hover:text-white transition-colors"
+              className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors"
             >
-              DegrÃ¡dese a Gratis
+              Degrádese a Gratis
             </Link>
             <Link
               href="/settings/billing"
-              className="text-sm text-[var(--theme-text-secondary)] hover:text-white transition-colors"
+              className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors"
             >
-              Editar facturaciÃ³n &gt;
+              Editar facturación &gt;
             </Link>
           </div>
         </div>
