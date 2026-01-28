@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { HelpCircle, FileText, Shield, BookOpen, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ThemeDropdown } from '@/components/theme/theme-toggle'
 
 interface AppFooterProps {
   className?: string
@@ -26,42 +27,48 @@ export function AppFooter({ className }: AppFooterProps) {
         className
       )}
     >
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Left: Links */}
-          <div className="flex flex-wrap items-center gap-6 text-sm">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+          {/* Left: Links - Only icons on small screens, icons + text on larger */}
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-6 text-xs sm:text-sm">
+            {/* Theme Toggle */}
+            <ThemeDropdown />
             <Link
               href="/soporte"
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1.5"
+              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1"
+              title="Soporte"
             >
-              <HelpCircle className="h-3.5 w-3.5" />
-              Soporte
+              <HelpCircle className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+              <span className="hidden sm:inline">Soporte</span>
             </Link>
             <Link
               href="/docs"
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1.5"
+              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1"
+              title="Documentacion"
             >
-              <BookOpen className="h-3.5 w-3.5" />
-              Documentación
+              <BookOpen className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+              <span className="hidden sm:inline">Documentacion</span>
             </Link>
             <Link
               href="/privacy"
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1.5"
+              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1"
+              title="Privacidad"
             >
-              <Shield className="h-3.5 w-3.5" />
-              Privacidad
+              <Shield className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+              <span className="hidden sm:inline">Privacidad</span>
             </Link>
             <Link
               href="/terms"
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1.5"
+              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1"
+              title="Terminos"
             >
-              <FileText className="h-3.5 w-3.5" />
-              Términos
+              <FileText className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+              <span className="hidden sm:inline">Terminos</span>
             </Link>
           </div>
 
           {/* Right: Copyright */}
-          <div className="text-xs text-[var(--theme-text-tertiary)]">
+          <div className="text-xs text-[var(--theme-text-tertiary)] hidden sm:block">
             <p>
               &copy; {currentYear} Quoorum. Todos los derechos reservados.
             </p>
