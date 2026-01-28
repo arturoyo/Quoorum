@@ -77,6 +77,8 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
   const openSettings = useOpenSettings()
   const { setCurrentSection } = useSettingsContext()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isTemplatesDialogOpen, setIsTemplatesDialogOpen] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState<{ id: string; name: string; type: string } | null>(null)
   const [editingDepartment, setEditingDepartment] = useState<string | null>(null)
   const [departmentToDelete, setDepartmentToDelete] = useState<{ id: string; name: string } | null>(null)
   const [formData, setFormData] = useState<FormData>(initialFormData)
@@ -120,6 +122,28 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
       toast.success('Departamento eliminado')
       void refetchDepartments()
       setDepartmentToDelete(null)
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const createFromTemplate = api.departments.createFromTemplate.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Departamento "${data.name}" creado exitosamente`)
+      void refetchDepartments()
+      setIsTemplatesDialogOpen(false)
+      setSelectedTemplate(null)
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const seedPredefined = api.departments.seedPredefined.useMutation({
+    onSuccess: (data) => {
+      toast.success(`${data.length} departamentos creados exitosamente`)
+      void refetchDepartments()
     },
     onError: (error) => {
       toast.error(error.message)
@@ -315,7 +339,7 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
             </Button>
             <Button
               variant="outline"
-              onClick={() => router.push('/settings/departments/library')}
+              onClick={() => setIsTemplatesDialogOpen(true)}
               className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
             >
               <BookOpen className="mr-2 h-4 w-4" />
@@ -407,7 +431,10 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
             </p>
             <div className="flex gap-2">
               <Button
-                onClick={() => router.push('/settings/company/departments/new')}
+                onClick={() => {
+                  resetForm()
+                  setIsCreateDialogOpen(true)
+                }}
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 <Plus className="mr-2 h-4 w-4" />
@@ -415,7 +442,7 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
               </Button>
               <Button
                 variant="outline"
-                onClick={() => router.push('/settings/departments/library')}
+                onClick={() => setIsTemplatesDialogOpen(true)}
                 className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
               >
                 <BookOpen className="mr-2 h-4 w-4" />
@@ -617,6 +644,146 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
               )}
               <Save className="mr-2 h-4 w-4" />
               {editingDepartment ? 'Guardar Cambios' : 'Crear Departamento'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de plantillas */}
+      <Dialog open={isTemplatesDialogOpen} onOpenChange={setIsTemplatesDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)]">
+          <DialogHeader>
+            <DialogTitle>Plantillas de Departamentos</DialogTitle>
+            <DialogDescription className="text-[var(--theme-text-tertiary)]">
+              Usa plantillas predefinidas para configurar rápidamente departamentos
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Botón para usar todas las plantillas */}
+            {predefinedDepartments && predefinedDepartments.length > 0 && (
+              <div className="mb-6 pb-6 border-b border-[var(--theme-border)]">
+                <p className="text-sm text-[var(--theme-text-secondary)] mb-3">
+                  O crea todos los departamentos predefinidos de una vez:
+                </p>
+                <Button
+                  onClick={() => seedPredefined.mutate({ companyId: company?.id || '' })}
+                  disabled={seedPredefined.isPending || !company}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
+                  {seedPredefined.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  <Copy className="mr-2 h-4 w-4" />
+                  Usar Todas las Plantillas ({predefinedDepartments.length})
+                </Button>
+              </div>
+            )}
+
+            {/* Grid de plantillas */}
+            {predefinedDepartments && predefinedDepartments.length > 0 ? (
+              <div className="grid gap-3 md:grid-cols-2">
+                {predefinedDepartments.map((template) => (
+                  <Card
+                    key={template.type}
+                    className="bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)] hover:border-purple-500/30 cursor-pointer transition-colors"
+                    onClick={() => {
+                      setSelectedTemplate({ id: template.id, name: template.name, type: template.type })
+                    }}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 space-y-1">
+                          <CardTitle className="flex items-center gap-2 text-lg text-[var(--theme-text-primary)]">
+                            {template.icon && <span className="text-2xl">{template.icon}</span>}
+                            {template.name}
+                          </CardTitle>
+                          <CardDescription className="line-clamp-2 text-[var(--theme-text-tertiary)]">
+                            {template.description || template.departmentContext?.substring(0, 80)}
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10">
+                          {template.type}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-secondary)]">
+                          {template.agentRole}
+                        </Badge>
+                      </div>
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedTemplate({ id: template.id, name: template.name, type: template.type })
+                        }}
+                        size="sm"
+                        className="w-full bg-purple-600 hover:bg-purple-700"
+                      >
+                        <Plus className="mr-2 h-3 w-3" />
+                        Usar Plantilla
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-[var(--theme-text-tertiary)]">No hay plantillas disponibles</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="border-t border-[var(--theme-border)] pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsTemplatesDialogOpen(false)
+                setSelectedTemplate(null)
+              }}
+              className="border-[var(--theme-border)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+            >
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de confirmación para usar plantilla */}
+      <Dialog open={!!selectedTemplate} onOpenChange={() => selectedTemplate && setSelectedTemplate(null)}>
+        <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)]">
+          <DialogHeader>
+            <DialogTitle>¿Usar plantilla "{selectedTemplate?.name}"?</DialogTitle>
+            <DialogDescription className="text-[var(--theme-text-tertiary)]">
+              Se creará un nuevo departamento basado en esta plantilla predefinida que podrás personalizar después.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setSelectedTemplate(null)}
+              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedTemplate && company) {
+                  createFromTemplate.mutate({
+                    companyId: company.id,
+                    templateType: selectedTemplate.type as any,
+                  })
+                }
+              }}
+              disabled={createFromTemplate.isPending || !company}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              {createFromTemplate.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              <Plus className="mr-2 h-4 w-4" />
+              Crear Departamento
             </Button>
           </DialogFooter>
         </DialogContent>
