@@ -251,9 +251,69 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <p className="text-2xl font-bold text-[var(--theme-text-primary)]">43</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">Actualizar a 300 a las 01:00 cada día</p>
+              <p className="text-2xl font-bold text-[var(--theme-text-primary)]">{currentPlan?.dailyCredits || 0}</p>
+              <p className="text-sm text-[var(--theme-text-tertiary)]">Se actualizan automáticamente cada día a las 01:00 UTC</p>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Plan Recommendation - Smart */}
+      {currentPlan && (
+        <Card className="relative overflow-hidden bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-xl border-purple-500/30">
+          <CardHeader className="relative">
+            <CardTitle className="text-xl font-semibold text-[var(--theme-text-primary)]">Recomendación de plan</CardTitle>
+            <CardDescription className="text-[var(--theme-text-tertiary)]">
+              Basado en tu uso actual
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative space-y-4">
+            {currentPlan.tier === 'free' && (
+              <div className="space-y-3">
+                <p className="text-sm text-[var(--theme-text-secondary)]">
+                  Actualmente usas créditos rápidamente. Considera upgradearte al plan <span className="font-semibold text-purple-300">Starter</span> para obtener 300 créditos mensuales.
+                </p>
+                <Button
+                  onClick={() => setIsSubscriptionModalOpen(true)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  Ver planes
+                </Button>
+              </div>
+            )}
+            {currentPlan.tier === 'starter' && monthlyCredits > (currentPlan.credits || 0) * 0.8 && (
+              <div className="space-y-3">
+                <p className="text-sm text-[var(--theme-text-secondary)]">
+                  Estás usando el {Math.round((monthlyCredits / (currentPlan.credits || 1)) * 100)}% de tus créditos mensuales. Considera upgradearte al plan <span className="font-semibold text-purple-300">Pro</span> para más flexibilidad.
+                </p>
+                <Button
+                  onClick={() => setIsSubscriptionModalOpen(true)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  Cambiar plan
+                </Button>
+              </div>
+            )}
+            {currentPlan.tier === 'pro' && monthlyCredits > (currentPlan.credits || 0) * 0.8 && (
+              <div className="space-y-3">
+                <p className="text-sm text-[var(--theme-text-secondary)]">
+                  Tu consumo es alto. El plan <span className="font-semibold text-purple-300">Business</span> te ofrece ilimitados créditos mensuales.
+                </p>
+                <Button
+                  onClick={() => setIsSubscriptionModalOpen(true)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  Explorar Business
+                </Button>
+              </div>
+            )}
+            {(currentPlan.tier === 'free' ? false : monthlyCredits <= (currentPlan.credits || 1) * 0.8) && currentPlan.tier !== 'business' && (
+              <div className="space-y-3">
+                <p className="text-sm text-[var(--theme-text-secondary)]">
+                  Tu plan <span className="font-semibold text-green-300">{currentPlan.tier}</span> es perfecto para tu uso actual. ¡Sigue así!
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
