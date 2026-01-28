@@ -91,19 +91,50 @@ export function PhaseContexto({
   useEffect(() => {
     setIsMounted(true)
   }, [])
-  
-  // Generar prompt aleatorio solo en el cliente (después de la hidratación)
-  useEffect(() => {
-    // Solo generar nuevo prompt cuando estamos en fase inicial y no hay pregunta principal
-    if (isMounted && state.phase === 'initial' && !state.mainQuestion) {
-      setRandomPrompt(getRandomDebatePrompt())
+
+  // ========================================================================
+  // CONTEXT HUB: Fetch complete user context once (centralized)
+  // ========================================================================
+  const { data: contextHub, isLoading: isLoadingContext } = api.debates.getUserContextHub.useQuery(
+    undefined,
+    {
+      enabled: isMounted && state.phase === 'initial' && typeof window !== 'undefined',
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      retry: 1,
     }
-  }, [isMounted, state.phase, state.mainQuestion])
+  )
+
+  // ========================================================================
+  // PERSONALIZED PROMPT: Use context hub
+  // ========================================================================
+  const { data: personalizedPromptData } = api.debates.generatePersonalizedPrompt.useQuery(
+    {
+      contextText: contextHub?.fullContextText, // Pass cached context to avoid redundant queries
+    },
+    {
+      enabled: isMounted && state.phase === 'initial' && !state.mainQuestion && typeof window !== 'undefined',
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      retry: 1,
+    }
+  )
+
+  // Update prompt when personalized data arrives
+  useEffect(() => {
+    if (personalizedPromptData && state.phase === 'initial' && !state.mainQuestion) {
+      setRandomPrompt({
+        title: personalizedPromptData.title,
+        subtitle: personalizedPromptData.subtitle,
+      })
+    }
+  }, [personalizedPromptData, state.phase, state.mainQuestion])
   
   // Generar preguntas sugeridas contextualizadas usando IA
   // Los hooks DEBEN llamarse incondicionalmente (React Rules of Hooks)
   const { data: suggestedQuestionsData, isLoading: isLoadingSuggestions, error: suggestionsError } = api.debates.suggestInitialQuestions.useQuery(
-    { count: 3 },
+    { 
+      count: 3,
+      contextText: contextHub?.fullContextText, // Pass cached context to avoid redundant queries
+    },
     {
       enabled: isMounted && state.phase === 'initial' && typeof window !== 'undefined',
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes

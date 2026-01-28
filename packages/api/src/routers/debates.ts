@@ -23,6 +23,244 @@ import { debateSequenceToResult } from "../lib/debate-orchestration-adapter";
 import type { DebateContext, ContextQuestion, ContextEvaluation, CorporateContext, DebateRecord, DebateMetadata, AdditionalContextItem } from "./debates/types";
 
 // ============================================
+// HELPER: BUILD FULL USER CONTEXT FOR AI
+// ============================================
+
+/**
+ * Validates if a question is legitimate (not gibberish)
+ * Returns { valid: boolean, reason?: string }
+ */
+function validateQuestionQuality(question: string): { valid: boolean; reason?: string } {
+  const trimmed = question.trim();
+  
+  // 1. Length checks
+  if (trimmed.length < 10) {
+    return { valid: false, reason: "La pregunta es demasiado corta. Por favor, proporciona más detalles (mínimo 10 caracteres)." };
+  }
+  
+  if (trimmed.length > 5000) {
+    return { valid: false, reason: "La pregunta es demasiado larga. Por favor, resume tu pregunta (máximo 5000 caracteres)." };
+  }
+
+  // 2. Check for repeated characters (aaaaaaaaa, 111111)
+  const repeatedChars = /(.)\1{8,}/.test(trimmed);
+  if (repeatedChars) {
+    return { valid: false, reason: "La pregunta contiene caracteres repetidos sin sentido. Por favor, escribe una pregunta válida." };
+  }
+
+  // 3. Check vowel ratio (gibberish usually has very few vowels)
+  const vowels = (trimmed.match(/[aeiouáéíóúAEIOUÁÉÍÓÚ]/g) || []).length;
+  const consonants = (trimmed.match(/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]/g) || []).length;
+  const totalLetters = vowels + consonants;
+  
+  if (totalLetters > 20 && vowels / totalLetters < 0.15) {
+    // Less than 15% vowels in text with 20+ letters = likely gibberish
+    return { valid: false, reason: "La pregunta no parece tener sentido. Por favor, escribe una pregunta clara y coherente." };
+  }
+
+  // 4. Check for words (split by spaces/punctuation)
+  const words = trimmed.split(/[\s,.!?;:]+/).filter(w => w.length > 0);
+  
+  if (words.length === 0) {
+    return { valid: false, reason: "La pregunta está vacía. Por favor, escribe una pregunta válida." };
+  }
+
+  // 5. Check for very long "words" without spaces (likely keyboard mashing)
+  const hasVeryLongWord = words.some(word => word.length > 30);
+  if (hasVeryLongWord) {
+    return { valid: false, reason: "La pregunta contiene texto sin sentido. Por favor, escribe una pregunta válida con palabras separadas." };
+  }
+
+  // 6. Check for excessive special characters or numbers
+  const specialChars = (trimmed.match(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s0-9.,!?¿¡\-]/g) || []).length;
+  if (specialChars / trimmed.length > 0.3) {
+    // More than 30% special characters
+    return { valid: false, reason: "La pregunta contiene demasiados caracteres especiales. Por favor, escribe una pregunta clara." };
+  }
+
+  // 7. Check if it's only numbers or only special chars
+  const onlyNumbers = /^[\d\s.,]+$/.test(trimmed);
+  const onlySpecial = /^[^a-zA-ZáéíóúÁÉÍÓÚñÑ]+$/.test(trimmed);
+  
+  if (onlyNumbers) {
+    return { valid: false, reason: "La pregunta solo contiene números. Por favor, escribe una pregunta con palabras." };
+  }
+  
+  if (onlySpecial) {
+    return { valid: false, reason: "La pregunta solo contiene caracteres especiales. Por favor, escribe una pregunta válida." };
+  }
+
+  // All checks passed
+  return { valid: true };
+}
+
+/**
+ * Builds comprehensive user context for AI calls
+ * Includes: Profile, Company, Knowledge Files, Departments, Workers, Experts
+ */
+async function buildFullUserContext(userId: string): Promise<string> {
+  const contextParts: string[] = [];
+
+  try {
+    // 1. Get user profile
+    const [profile] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, userId))
+      .limit(1);
+
+    if (profile) {
+      contextParts.push("=== PERFIL DEL USUARIO ===");
+      if (profile.name) contextParts.push(`Nombre: ${profile.name}`);
+      if (profile.email) contextParts.push(`Email: ${profile.email}`);
+      
+      // Check if profile has additional fields stored in settings jsonb
+      if (profile.settings && typeof profile.settings === 'object') {
+        const settings = profile.settings as Record<string, unknown>;
+        if (settings.position) contextParts.push(`Cargo: ${settings.position}`);
+        if (settings.phone) contextParts.push(`Teléfono: ${settings.phone}`);
+        if (settings.bio) contextParts.push(`Bio: ${String(settings.bio).substring(0, 500)}`);
+        if (settings.customInstructions) {
+          contextParts.push(`Instrucciones personalizadas: ${String(settings.customInstructions).substring(0, 1000)}`);
+        }
+      }
+      contextParts.push(""); // blank line
+    }
+
+    // 2. Get company context
+    const [company] = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.userId, userId))
+      .limit(1);
+
+    if (company) {
+      contextParts.push("=== EMPRESA ===");
+      contextParts.push(`Nombre: ${company.name}`);
+      if (company.industry) contextParts.push(`Industria: ${company.industry}`);
+      if (company.size) contextParts.push(`Tamaño: ${company.size}`);
+      if (company.description) contextParts.push(`Descripción: ${company.description.substring(0, 500)}`);
+      if (company.context) contextParts.push(`Contexto Maestro:\n${company.context.substring(0, 2000)}`);
+      contextParts.push(""); // blank line
+    }
+
+    // 3. Get knowledge files (user_context_files)
+    const knowledgeFiles = await db
+      .select({
+        name: userContextFilesTable.name,
+        description: userContextFilesTable.description,
+        content: userContextFilesTable.content,
+        tags: userContextFilesTable.tags,
+      })
+      .from(userContextFilesTable)
+      .where(
+        and(
+          eq(userContextFilesTable.userId, userId),
+          eq(userContextFilesTable.isActive, true)
+        )
+      )
+      .orderBy(userContextFilesTable.order)
+      .limit(10);
+
+    if (knowledgeFiles.length > 0) {
+      contextParts.push("=== ARCHIVOS DE CONOCIMIENTO ===");
+      knowledgeFiles.forEach((file) => {
+        contextParts.push(`\n--- ${file.name} ---`);
+        if (file.description) contextParts.push(`Descripción: ${file.description}`);
+        if (file.tags) contextParts.push(`Tags: ${file.tags}`);
+        // Limit content to avoid token overflow (take first 3000 chars per file)
+        contextParts.push(`Contenido:\n${file.content.substring(0, 3000)}`);
+        if (file.content.length > 3000) contextParts.push("[...contenido truncado...]");
+      });
+      contextParts.push(""); // blank line
+    }
+
+    // 4. Get departments
+    const userDepartments = await db
+      .select({
+        id: departments.id,
+        name: departments.name,
+        type: departments.type,
+        description: departments.description,
+      })
+      .from(departments)
+      .where(eq(departments.userId, userId))
+      .limit(20);
+
+    if (userDepartments.length > 0) {
+      contextParts.push("=== DEPARTAMENTOS ===");
+      contextParts.push(`Total: ${userDepartments.length}`);
+      userDepartments.forEach((dept) => {
+        contextParts.push(`\n- ${dept.name}${dept.type ? ` (${dept.type})` : ""}`);
+        if (dept.description) contextParts.push(`  ${dept.description.substring(0, 300)}`);
+      });
+      contextParts.push(""); // blank line
+    }
+
+    // 5. Get workers/professionals
+    const userWorkers = await db
+      .select({
+        id: workers.id,
+        name: workers.name,
+        role: workers.role,
+        expertise: workers.expertise,
+        responsibilities: workers.responsibilities,
+      })
+      .from(workers)
+      .where(eq(workers.userId, userId))
+      .limit(20);
+
+    if (userWorkers.length > 0) {
+      contextParts.push("=== PROFESIONALES ===");
+      contextParts.push(`Total: ${userWorkers.length}`);
+      userWorkers.forEach((worker) => {
+        const info: string[] = [];
+        if (worker.role) info.push(`Rol: ${worker.role}`);
+        if (worker.expertise) info.push(`Expertise: ${worker.expertise}`);
+        if (worker.responsibilities) info.push(`Responsabilidades: ${worker.responsibilities.substring(0, 200)}`);
+        contextParts.push(`\n- ${worker.name}`);
+        if (info.length > 0) contextParts.push(`  ${info.join(" | ")}`);
+      });
+      contextParts.push(""); // blank line
+    }
+
+    // 6. Get available expert categories
+    const { getAllExperts } = await import("@quoorum/quoorum");
+    const allExperts = getAllExperts(true); // companyOnly = true
+    const expertCategories = Array.from(
+      new Set(allExperts.map((e) => e.category).filter(Boolean))
+    ).slice(0, 15);
+
+    if (expertCategories.length > 0) {
+      contextParts.push("=== ÁREAS DE EXPERTISE DISPONIBLES ===");
+      contextParts.push(expertCategories.join(", "));
+      contextParts.push(""); // blank line
+    }
+
+    const fullContext = contextParts.join("\n");
+
+    logger.info("[buildFullUserContext] Context built successfully", {
+      userId,
+      hasProfile: !!profile,
+      hasCompany: !!company,
+      knowledgeFilesCount: knowledgeFiles.length,
+      departmentsCount: userDepartments.length,
+      workersCount: userWorkers.length,
+      expertCategoriesCount: expertCategories.length,
+      totalLength: fullContext.length,
+    });
+
+    return fullContext;
+  } catch (error) {
+    logger.error("[buildFullUserContext] Error building context", {
+      userId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return ""; // Return empty context on error
+  }
+}
+
+// ============================================
 // RATE LIMITED PROCEDURE FOR DEBATE CREATION
 // ============================================
 
@@ -44,6 +282,21 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // ============================================================================
+      // VALIDATE QUESTION QUALITY (before creating debate)
+      // ============================================================================
+      const validation = validateQuestionQuality(input.question);
+      if (!validation.valid) {
+        logger.warn("[Create Draft] Invalid question detected", {
+          question: input.question.substring(0, 100),
+          reason: validation.reason,
+        });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: validation.reason || "La pregunta no es válida",
+        });
+      }
+
       // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
       // Find or create profile for this user
       let [profile] = await db
@@ -1864,9 +2117,25 @@ export const debatesRouter = router({
     .input(
       z.object({
         question: z.string().min(10, "Question must be at least 10 characters"),
+        contextText: z.string().optional(), // Optional: pass pre-fetched context to avoid redundant queries
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // ============================================================================
+      // VALIDATE QUESTION QUALITY (before spending credits)
+      // ============================================================================
+      const validation = validateQuestionQuality(input.question);
+      if (!validation.valid) {
+        logger.warn("[Critical Questions] Invalid question detected", {
+          question: input.question.substring(0, 100),
+          reason: validation.reason,
+        });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: validation.reason || "La pregunta no es válida",
+        });
+      }
+
       // ============================================================================
       // CREDIT DEDUCTION (before AI question generation)
       // ============================================================================
@@ -1936,87 +2205,16 @@ export const debatesRouter = router({
         const { getAIClient } = await import("@quoorum/ai");
         const aiClient = getAIClient();
 
-        // ═══════════════════════════════════════════════════════════
-        // CARGAR CONTEXTO EXISTENTE DEL USUARIO
-        // ═══════════════════════════════════════════════════════════
-        let existingContext = "";
-
-        // 1. User Backstory (contexto personalizado)
-        let backstory = null;
-        try {
-          const { userBackstory } = await import("@quoorum/db/schema");
-          const [result] = await db
-            .select()
-            .from(userBackstory)
-            .where(eq(userBackstory.userId, ctx.userId))
-            .limit(1);
-          backstory = result || null;
-        } catch (error) {
-          // Si la tabla no existe o hay un error, continuar sin backstory
-          logger.warn('[debates.generateCriticalQuestions] Error fetching user backstory', { 
-            error: error instanceof Error ? error.message : String(error) 
-          });
-        }
-
-        if (backstory) {
-          const parts: string[] = [];
-          if (backstory.role) parts.push(`Rol: ${backstory.role.replace(/_/g, ' ')}`);
-          if (backstory.companyName) parts.push(`Empresa: ${backstory.companyName}`);
-          if (backstory.industry) parts.push(`Industria: ${backstory.industry}`);
-          if (backstory.companySize) {
-            const sizeLabels: Record<string, string> = {
-              'solo': 'Solo (1 persona)',
-              'small_2_10': 'Pequeña (2-10)',
-              'medium_11_50': 'Mediana (11-50)',
-              'large_50_plus': 'Grande (50+)',
-            };
-            parts.push(`Tamaño: ${sizeLabels[backstory.companySize] || backstory.companySize}`);
-          }
-          if (backstory.companyStage) parts.push(`Etapa: ${backstory.companyStage.replace(/_/g, ' ')}`);
-          if (backstory.decisionStyle) parts.push(`Estilo de decisión: ${backstory.decisionStyle.replace(/_/g, ' ')}`);
-          if (backstory.additionalContext) parts.push(`Contexto adicional: ${backstory.additionalContext}`);
-
-          if (parts.length > 0) {
-            existingContext += `\n\n📋 PERFIL DEL USUARIO:\n${parts.join(' | ')}\n`;
-          }
-        }
-
-        // 2. Company Context (descripción de la empresa)
-        const { companies } = await import("@quoorum/db/schema");
-        const [company] = await db
-          .select()
-          .from(companies)
-          .where(and(eq(companies.userId, ctx.userId), eq(companies.isActive, true)))
-          .limit(1);
-
-        if (company) {
-          existingContext += `\n\n🏢 EMPRESA:\n`;
-          existingContext += `Nombre: ${company.name}\n`;
-          if (company.industry) existingContext += `Industria: ${company.industry}\n`;
-          if (company.size) existingContext += `Tamaño: ${company.size}\n`;
-          if (company.description) existingContext += `Descripción: ${company.description}\n`;
-          if (company.context) existingContext += `Contexto: ${company.context}\n`;
-        }
-
-        // 3. Departments Context (contextos de departamentos)
-        const { departments } = await import("@quoorum/db/schema");
-        const userDepartments = company
-          ? await db
-              .select()
-              .from(departments)
-              .where(and(eq(departments.companyId, company.id), eq(departments.isActive, true)))
-          : [];
-
-        if (userDepartments.length > 0) {
-          existingContext += `\n\n🏛️ DEPARTAMENTOS (${userDepartments.length}):\n`;
-          userDepartments.forEach((dept) => {
-            existingContext += `- ${dept.name}: ${dept.departmentContext.substring(0, 150)}${dept.departmentContext.length > 150 ? '...' : ''}\n`;
-          });
-        }
+        // Use provided context or build it fresh
+        const fullContext = input.contextText || (await buildFullUserContext(ctx.userId));
 
         // Construir mensaje de contexto para la IA
-        const contextMessage = existingContext
-          ? `\n\n[WARN] CONTEXTO EXISTENTE DEL USUARIO (NO PREGUNTES ESTO):${existingContext}\n\nIMPORTANTE: NO generes preguntas sobre información que YA está en el contexto existente. En su lugar, PROFUNDIZA en aspectos específicos relacionados con la pregunta del usuario que NO estén cubiertos.`
+        const contextMessage = fullContext
+          ? `\n\n[WARN] CONTEXTO EXISTENTE DEL USUARIO (NO PREGUNTES ESTO):
+
+${fullContext}
+
+IMPORTANTE: NO generes preguntas sobre información que YA está en el contexto existente. En su lugar, PROFUNDIZA en aspectos específicos relacionados con la pregunta del usuario que NO estén cubiertos en el contexto.`
           : "";
 
         const systemPrompt = `Eres un experto en recopilar contexto para decisiones estratégicas.
@@ -2125,9 +2323,8 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
         const questions = parseQuestions(response.text, "critical");
         logger.info("[Context Phase 1] Success", { 
           count: questions.length,
-          hasBackstory: !!backstory,
-          hasCompany: !!company,
-          departmentCount: userDepartments.length,
+          hasContext: !!fullContext,
+          contextLength: fullContext.length,
           creditsDeducted: QUESTION_GENERATION_CREDITS,
           remainingCredits: deductionResult.remainingCredits,
         });
@@ -2550,59 +2747,9 @@ RESPONDE JSON:
         const { getAIClient } = await import("@quoorum/ai");
         const aiClient = getAIClient();
 
-        // Get user backstory for personalization
-        let backstory = null;
-        try {
-          const { userBackstory } = await import("@quoorum/db/schema");
-          const [result] = await db
-            .select()
-            .from(userBackstory)
-            .where(eq(userBackstory.userId, ctx.userId))
-            .limit(1);
-          backstory = result || null;
-        } catch (error) {
-          // Si la tabla no existe o hay un error, continuar sin backstory
-          logger.warn('[debates.generateCriticalQuestions] Error fetching user backstory', { 
-            error: error instanceof Error ? error.message : String(error) 
-          });
-        }
-
-        // Build backstory context string
-        let backstoryContext = "";
-        if (backstory) {
-          const parts: string[] = [];
-          if (backstory.role) {
-            parts.push(`Rol: ${backstory.role.replace(/_/g, ' ')}`);
-          }
-          if (backstory.companyName) {
-            parts.push(`Empresa: ${backstory.companyName}`);
-          }
-          if (backstory.industry) {
-            parts.push(`Industria: ${backstory.industry}`);
-          }
-          if (backstory.companySize) {
-            const sizeLabels: Record<string, string> = {
-              'solo': 'Solo (1 persona)',
-              'small_2_10': 'Pequeña (2-10)',
-              'medium_11_50': 'Mediana (11-50)',
-              'large_50_plus': 'Grande (50+)',
-            };
-            parts.push(`Tamaño: ${sizeLabels[backstory.companySize] || backstory.companySize}`);
-          }
-          if (backstory.companyStage) {
-            parts.push(`Etapa: ${backstory.companyStage.replace(/_/g, ' ')}`);
-          }
-          if (backstory.decisionStyle) {
-            parts.push(`Estilo de decisión: ${backstory.decisionStyle.replace(/_/g, ' ')}`);
-          }
-
-          if (parts.length > 0) {
-            backstoryContext = `\n\nPERFIL DEL USUARIO:\n${parts.join(' | ')}`;
-            if (backstory.additionalContext) {
-              backstoryContext += `\nContexto adicional: ${backstory.additionalContext}`;
-            }
-          }
-        }
+        // Build comprehensive user context (Profile + Company + Knowledge + Departments + Workers + Experts)
+        const fullContext = await buildFullUserContext(ctx.userId);
+        const backstoryContext = fullContext ? `\n\nCONTEXTO COMPLETO DEL USUARIO:\n${fullContext}` : "";
 
         const questionCount = input.mode === 'quick' ? '1 pregunta' : '3-5 preguntas';
         const modeInstructions = input.mode === 'quick'
@@ -2868,10 +3015,234 @@ IMPORTANTE:
       }
     }),
 
+  /**
+   * Get complete user context hub (centralized context for all AI operations)
+   * Returns everything: Profile, Company, Knowledge Files, Departments, Workers, Experts
+   * Frontend caches this and passes it to other endpoints
+   */
+  getUserContextHub: protectedProcedure
+    .query(async ({ ctx }) => {
+      try {
+        // Build comprehensive user context (this is our single source of truth)
+        const fullContext = await buildFullUserContext(ctx.userId);
+
+        // Also get structured data for UI components
+        const [profile] = await db
+          .select()
+          .from(profiles)
+          .where(eq(profiles.id, ctx.userId))
+          .limit(1);
+
+        const [company] = await db
+          .select()
+          .from(companies)
+          .where(eq(companies.userId, ctx.userId))
+          .limit(1);
+
+        const userDepartments = await db
+          .select()
+          .from(departments)
+          .where(eq(departments.userId, ctx.userId))
+          .limit(20);
+
+        const userWorkers = await db
+          .select()
+          .from(workers)
+          .where(eq(workers.userId, ctx.userId))
+          .limit(20);
+
+        const knowledgeFiles = await db
+          .select({
+            id: userContextFilesTable.id,
+            name: userContextFilesTable.name,
+            description: userContextFilesTable.description,
+            tags: userContextFilesTable.tags,
+          })
+          .from(userContextFilesTable)
+          .where(
+            and(
+              eq(userContextFilesTable.userId, ctx.userId),
+              eq(userContextFilesTable.isActive, true)
+            )
+          )
+          .orderBy(userContextFilesTable.order)
+          .limit(10);
+
+        const { getAllExperts } = await import("@quoorum/quoorum");
+        const allExperts = getAllExperts(true);
+        const expertCategories = Array.from(
+          new Set(allExperts.map((e) => e.category).filter(Boolean))
+        ).slice(0, 15);
+
+        logger.info("[getUserContextHub] Context retrieved", {
+          userId: ctx.userId,
+          hasProfile: !!profile,
+          hasCompany: !!company,
+          departmentsCount: userDepartments.length,
+          workersCount: userWorkers.length,
+          knowledgeFilesCount: knowledgeFiles.length,
+          expertCategoriesCount: expertCategories.length,
+          fullContextLength: fullContext.length,
+        });
+
+        return {
+          // Text version (for AI prompts)
+          fullContextText: fullContext,
+
+          // Structured data (for UI)
+          profile: profile ? {
+            name: profile.name,
+            email: profile.email,
+            role: profile.settings ? (profile.settings as Record<string, unknown>).position : undefined,
+          } : null,
+
+          company: company ? {
+            name: company.name,
+            industry: company.industry,
+            size: company.size,
+            description: company.description,
+            context: company.context,
+          } : null,
+
+          departments: userDepartments.map(d => ({
+            id: d.id,
+            name: d.name,
+            type: d.type,
+            description: d.description,
+          })),
+
+          workers: userWorkers.map(w => ({
+            id: w.id,
+            name: w.name,
+            role: w.role,
+            expertise: w.expertise,
+          })),
+
+          knowledgeFiles: knowledgeFiles.map(f => ({
+            id: f.id,
+            name: f.name,
+            description: f.description,
+            tags: f.tags,
+          })),
+
+          expertCategories,
+
+          // Metadata
+          isComplete: !!company && userDepartments.length > 0 && userWorkers.length > 0 && knowledgeFiles.length > 0,
+        };
+      } catch (error) {
+        logger.error("[getUserContextHub] Failed to retrieve context", {
+          userId: ctx.userId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        // Return empty context hub on error
+        return {
+          fullContextText: "",
+          profile: null,
+          company: null,
+          departments: [],
+          workers: [],
+          knowledgeFiles: [],
+          expertCategories: [],
+          isComplete: false,
+        };
+      }
+    }),
+
+  /**
+   * Generate personalized debate prompt (title + subtitle) based on user context
+   */
+  generatePersonalizedPrompt: protectedProcedure
+    .input(
+      z.object({
+        contextText: z.string().optional(), // Optional: pass pre-fetched context to avoid redundant queries
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const { getAIClient, parseAIJson } = await import("@quoorum/ai");
+        const aiClient = getAIClient();
+
+        // Use provided context or build it fresh
+        const fullContext = input.contextText || (await buildFullUserContext(ctx.userId));
+
+        const systemPrompt = `Eres un experto en crear mensajes de bienvenida personalizados y motivadores.
+
+Tu tarea es generar UN título (pregunta) y UN subtítulo (explicación breve) para la pantalla inicial de creación de debates.
+
+CONTEXTO DEL USUARIO:
+${fullContext || "Sin contexto específico disponible"}
+
+REGLAS:
+1. El título debe ser una PREGUNTA personalizada basada en el contexto del usuario
+2. El subtítulo debe complementar y motivar al usuario a compartir su situación
+3. Si hay información de empresa/industria/cargo, úsala para personalizar
+4. Si hay archivos de conocimiento o metodologías, haz referencia sutil a ellos
+5. Mantén un tono profesional pero cercano
+6. El título debe tener entre 30-70 caracteres
+7. El subtítulo debe tener entre 40-100 caracteres
+
+EJEMPLOS (si el contexto es sobre SaaS B2B):
+- Título: "¿Qué decisión estratégica quieres validar para tu SaaS?"
+- Subtítulo: "Analiza tu situación con expertos en tecnología y negocio"
+
+EJEMPLOS (si el contexto menciona pricing):
+- Título: "¿Qué aspecto de tu modelo de negocio quieres optimizar?"
+- Subtítulo: "Evalúa estrategias de pricing, escalado y retención"
+
+Si NO hay contexto suficiente, usa un prompt genérico pero motivador.
+
+RESPONDE JSON (sin markdown):
+{
+  "title": "Pregunta personalizada aquí",
+  "subtitle": "Subtítulo motivador aquí"
+}`;
+
+        const response = await aiClient.generateWithSystem(
+          systemPrompt,
+          "Genera un prompt personalizado basado en el contexto del usuario.",
+          {
+            modelId: "gemini-2.0-flash-exp",
+            temperature: 0.8,
+            maxTokens: 200,
+          }
+        );
+
+        const parsed = parseAIJson<{ title: string; subtitle: string }>(response.text);
+
+        if (!parsed || !parsed.title || !parsed.subtitle) {
+          throw new Error("Invalid AI response format");
+        }
+
+        logger.info("[Personalized Prompt] Generated", {
+          userId: ctx.userId,
+          hasContext: !!fullContext,
+          titleLength: parsed.title.length,
+        });
+
+        return {
+          title: parsed.title.trim(),
+          subtitle: parsed.subtitle.trim(),
+        };
+      } catch (error) {
+        logger.error("[Personalized Prompt] Failed", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        // Fallback to generic prompt
+        return {
+          title: "¿Qué decisión quieres tomar?",
+          subtitle: "Describe tu situación y te guiaremos paso a paso",
+        };
+      }
+    }),
+
   suggestInitialQuestions: protectedProcedure
     .input(
       z.object({
         count: z.number().min(1).max(5).default(3), // Number of questions to generate
+        contextText: z.string().optional(), // Optional: pass pre-fetched context to avoid redundant queries
       })
     )
     .query(async ({ ctx, input }) => {
@@ -2880,105 +3251,36 @@ IMPORTANTE:
         const { getAIClient, parseAIJson } = await import("@quoorum/ai");
         const aiClient = getAIClient();
 
-        // Get company context
-        const [company] = await db
-          .select()
-          .from(companies)
-          .where(eq(companies.userId, ctx.userId))
-          .limit(1);
+        // Use provided context or build it fresh
+        const fullContext = input.contextText || (await buildFullUserContext(ctx.userId));
 
-        // Get user's departments
-        const userDepartments = await db
-          .select({
-            id: departments.id,
-            name: departments.name,
-            type: departments.type,
-            description: departments.description,
-          })
-          .from(departments)
-          .where(eq(departments.userId, ctx.userId))
-          .limit(20);
+        // Generate questions using AI with comprehensive context
+        const systemPrompt = `Eres un experto consultor de estrategia empresarial. Tu trabajo es generar preguntas de debate estratégico ALTAMENTE RELEVANTES Y CONTEXTUALIZADAS basadas en TODA la información disponible del usuario.
 
-        // Get user's workers
-        const userWorkers = await db
-          .select({
-            id: workers.id,
-            name: workers.name,
-            role: workers.role,
-            expertise: workers.expertise,
-            responsibilities: workers.responsibilities,
-          })
-          .from(workers)
-          .where(eq(workers.userId, ctx.userId)) // Use ctx.userId (profile.id) - FK references profiles.id
-          .limit(20);
+CONTEXTO DISPONIBLE:
+- Perfil del usuario (nombre, cargo, bio, instrucciones personalizadas)
+- Información de la empresa (nombre, industria, tamaño, contexto maestro, descripción)
+- Archivos de conocimiento (documentos estratégicos, metodologías, visión, etc.)
+- Departamentos y sus descripciones
+- Profesionales con roles, expertise y responsabilidades
+- Áreas de expertise disponibles para consultas
 
-        // Get available experts (for context, not to include in questions)
-        const { getAllExperts } = await import("@quoorum/quoorum");
-        const allExperts = getAllExperts(true); // companyOnly = true
-        const expertCategories = Array.from(
-          new Set(allExperts.map((e) => e.category).filter(Boolean))
-        ).slice(0, 10);
-
-        // Build context string for AI
-        const contextParts: string[] = [];
-
-        if (company) {
-          contextParts.push(`EMPRESA: ${company.name}`);
-          if (company.industry) contextParts.push(`Industria: ${company.industry}`);
-          if (company.size) contextParts.push(`Tamaño: ${company.size}`);
-          if (company.context) contextParts.push(`Contexto: ${company.context.substring(0, 500)}`);
-          if (company.description) contextParts.push(`Descripción: ${company.description.substring(0, 300)}`);
-        }
-
-        if (userDepartments.length > 0) {
-          contextParts.push(
-            `DEPARTAMENTOS (${userDepartments.length}): ${userDepartments.map((d) => d.name).join(", ")}`
-          );
-          userDepartments.slice(0, 5).forEach((dept) => {
-            if (dept.description) {
-              contextParts.push(`  - ${dept.name}: ${dept.description.substring(0, 200)}`);
-            }
-          });
-        }
-
-        if (userWorkers.length > 0) {
-          contextParts.push(
-            `PROFESIONALES (${userWorkers.length}): ${userWorkers.map((w) => w.name).join(", ")}`
-          );
-          userWorkers.slice(0, 5).forEach((worker) => {
-            const info: string[] = [];
-            if (worker.role) info.push(`Rol: ${worker.role}`);
-            if (worker.expertise) info.push(`Expertise: ${worker.expertise}`);
-            if (worker.responsibilities) info.push(`Responsabilidades: ${worker.responsibilities.substring(0, 150)}`);
-            if (info.length > 0) {
-              contextParts.push(`  - ${worker.name}: ${info.join(" | ")}`);
-            }
-          });
-        }
-
-        if (expertCategories.length > 0) {
-          contextParts.push(
-            `ÁREAS DE EXPERTISE DISPONIBLES: ${expertCategories.join(", ")}`
-          );
-        }
-
-        const fullContext = contextParts.join("\n");
-
-        // Generate questions using AI
-        const systemPrompt = `Eres un experto consultor de estrategia empresarial. Tu trabajo es generar preguntas de debate estratégico altamente relevantes y contextualizadas para una empresa específica.
-
-REGLAS:
-1. Genera exactamente ${input.count} preguntas únicas y específicas
-2. Las preguntas DEBEN estar basadas en el contexto de la empresa, departamentos, profesionales y áreas de expertise disponibles
-3. Las preguntas deben ser:
-   - Relevantes para la industria y etapa de la empresa
-   - Específicas a los departamentos y roles existentes
+REGLAS CRÍTICAS:
+1. Genera exactamente ${input.count} preguntas únicas y MUY específicas al contexto del usuario
+2. Las preguntas DEBEN demostrar que has leído y entendido TODO el contexto (perfil + empresa + conocimiento + departamentos + profesionales)
+3. Prioriza referencias a:
+   - Documentos específicos mencionados en archivos de conocimiento
+   - Departamentos o profesionales concretos
+   - Industria y etapa de la empresa
+   - Metodologías o frameworks mencionados en el contexto maestro
+4. Las preguntas deben ser:
    - Accionables (que lleven a decisiones concretas)
    - Estratégicas (no operativas del día a día)
-4. Evita preguntas genéricas o que no tengan relación con el contexto
-5. Prioriza preguntas que involucren múltiples departamentos o áreas de expertise
-6. Si hay profesionales específicos, considera sus roles y responsabilidades
-7. Las preguntas deben ser en español y tener entre 20-100 caracteres
+   - Que involucren múltiples departamentos o áreas cuando sea relevante
+   - Que reflejen los desafíos reales de esta empresa específica
+5. Evita preguntas genéricas que podrían aplicar a cualquier empresa
+6. Si hay instrucciones personalizadas del usuario, respétalas
+7. Las preguntas deben ser en español y tener entre 30-120 caracteres
 
 FORMATO DE RESPUESTA (JSON estricto):
 {
@@ -2989,22 +3291,20 @@ FORMATO DE RESPUESTA (JSON estricto):
   ]
 }`;
 
-        const userPrompt = `Genera ${input.count} preguntas de debate estratégico basadas en este contexto:
+        const userPrompt = fullContext 
+          ? `Genera ${input.count} preguntas de debate estratégico ALTAMENTE PERSONALIZADAS basadas en TODO este contexto:
 
-${fullContext || "No hay contexto específico disponible. Genera preguntas generales pero relevantes para empresas en crecimiento."}
+${fullContext}
 
-Genera preguntas que sean:
-- Altamente relevantes para esta empresa específica
-- Que consideren los departamentos y profesionales existentes
-- Que aborden desafíos estratégicos reales
-- Que sean accionables y lleven a decisiones concretas`;
+Las preguntas DEBEN reflejar que has leído y entendido el contexto completo. Menciona elementos específicos como documentos, departamentos, profesionales o metodologías cuando sea relevante.`
+          : `Genera ${input.count} preguntas generales de estrategia empresarial relevantes para startups en crecimiento.
+
+NOTA: No hay contexto específico disponible. El usuario debe configurar su Perfil, Empresa, Departamentos, Profesionales y subir Archivos de Conocimiento en Settings para obtener preguntas personalizadas.`;
 
         logger.info("[debates.suggestInitialQuestions] Generating contextual questions", {
           userId: ctx.userId,
-          hasCompany: !!company,
-          departmentsCount: userDepartments.length,
-          workersCount: userWorkers.length,
-          expertCategoriesCount: expertCategories.length,
+          hasContext: !!fullContext,
+          contextLength: fullContext.length,
           requestedCount: input.count,
         });
 

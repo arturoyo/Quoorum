@@ -256,7 +256,7 @@ function clearSavedState(sessionId?: string) {
   }
 }
 
-export function useUnifiedDebateState(urlSessionId?: string) {
+export function useUnifiedDebateState(urlSessionId?: string, contextHubText?: string) {
   const _router = useRouter()
   
   // Mutations
@@ -498,7 +498,10 @@ export function useUnifiedDebateState(urlSessionId?: string) {
     updatePhaseProgress(1, 10)
 
     try {
-      const response = await generateCriticalQuestions.mutateAsync({ question })
+      const response = await generateCriticalQuestions.mutateAsync({ 
+        question,
+        contextText: contextHubText, // Pass pre-fetched context to avoid redundant queries
+      })
       // El endpoint retorna { questions, creditsDeducted, remainingCredits }
       const rawQuestions = response.questions
 

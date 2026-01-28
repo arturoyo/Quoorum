@@ -42,8 +42,18 @@ export default function NewUnifiedDebatePageWithSession() {
   // Los hooks DEBEN llamarse incondicionalmente al inicio
   // ═══════════════════════════════════════════════════════════
 
+  // Get context hub (centralized user context)
+  const { data: contextHub } = api.debates.getUserContextHub.useQuery(
+    undefined,
+    {
+      enabled: !!sessionId,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    }
+  )
+
   // Hook de estado del debate (usa sessionId || '' para evitar undefined)
-  const state = useUnifiedDebateState(sessionId || '')
+  // Pass contextHub text to mutations to avoid redundant queries
+  const state = useUnifiedDebateState(sessionId || '', contextHub?.fullContextText)
 
   // Monitorear salud del servidor tRPC
   const { isHealthy: _isServerHealthy } = useTRPCHealth({
