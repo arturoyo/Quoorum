@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
 import { toast } from 'sonner'
 import {
   Loader2,
@@ -328,31 +329,31 @@ export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
                   <Label className="text-[var(--theme-text-secondary)]">Temperature (0-2)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                    value={formData.temperature}
-                    onChange={(e) => setFormData({ ...formData, temperature: parseFloat(e.target.value) || 0.7 })}
-                    className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
-                  />
+                  <span className="text-sm font-semibold text-purple-400">{(parseFloat(formData.temperature as any) || 0.7).toFixed(1)}</span>
                 </div>
+                <Slider
+                  value={[parseFloat(formData.temperature as any) || 0.7]}
+                  onValueChange={(value) => setFormData({ ...formData, temperature: value[0] })}
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  className="w-full"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label className="text-[var(--theme-text-secondary)]">Max Tokens (opcional)</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={formData.maxTokens || ''}
-                    onChange={(e) => setFormData({ ...formData, maxTokens: e.target.value ? parseInt(e.target.value) : undefined })}
-                    placeholder="Opcional"
-                    className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-[var(--theme-text-secondary)]">Max Tokens (opcional)</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={formData.maxTokens || ''}
+                  onChange={(e) => setFormData({ ...formData, maxTokens: e.target.value ? parseInt(e.target.value) : undefined })}
+                  placeholder="Opcional"
+                  className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                />
               </div>
             </DialogBody>
 

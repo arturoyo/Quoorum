@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Slider } from '@/components/ui/slider'
 import {
   Select,
   SelectContent,
@@ -604,16 +605,18 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-[var(--theme-text-secondary)]">Temperature</Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="2"
-                    value={formData.temperature}
-                    onChange={(e) => setFormData({ ...formData, temperature: e.target.value })}
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[var(--theme-text-secondary)]">Temperature</Label>
+                    <span className="text-sm font-semibold text-purple-400">{(parseFloat(formData.temperature) || 0.7).toFixed(1)}</span>
+                  </div>
+                  <Slider
+                    value={[parseFloat(formData.temperature) || 0.7]}
+                    onValueChange={(value) => setFormData({ ...formData, temperature: value[0].toString() })}
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    className="w-full"
                   />
                   <p className="text-xs text-[var(--theme-text-tertiary)]">
                     0.0 = Preciso, 1.0 = Balanceado, 2.0 = Creativo

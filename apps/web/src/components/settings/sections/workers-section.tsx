@@ -41,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
 import { toast } from 'sonner'
 import {
   Loader2,
@@ -486,19 +487,20 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                     className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="temperature" className="text-[var(--theme-text-secondary)]">
-                    Temperature
-                  </Label>
-                  <Input
-                    id="temperature"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="2"
-                    value={formData.temperature}
-                    onChange={(e) => setFormData({ ...formData, temperature: parseFloat(e.target.value) || 0.7 })}
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="temperature" className="text-[var(--theme-text-secondary)]">
+                      Temperature
+                    </Label>
+                    <span className="text-sm font-semibold text-purple-400">{(parseFloat(formData.temperature as any) || 0.7).toFixed(1)}</span>
+                  </div>
+                  <Slider
+                    value={[parseFloat(formData.temperature as any) || 0.7]}
+                    onValueChange={(value) => setFormData({ ...formData, temperature: value[0] })}
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    className="w-full"
                   />
                 </div>
               </div>
