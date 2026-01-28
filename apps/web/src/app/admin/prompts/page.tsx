@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Trash2, Edit, Plus, Search, Copy, CheckCircle2 } from 'lucide-react'
+import { Loader2, Trash2, Edit, Plus, Search, Copy, CheckCircle2, X } from 'lucide-react'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
 import { logger } from '@/lib/logger'
@@ -275,7 +275,7 @@ export default function AdminPromptsPage() {
                   size="sm"
                   onClick={() => setSelectedPrompt(null)}
                 >
-                  ✕
+                  <X className="h-5 w-5" />
                 </Button>
               </CardHeader>
 

@@ -3,7 +3,9 @@ import { z } from 'zod'
 import { db } from '@quoorum/db'
 import { sql, eq, and } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
-import { logger } from '../lib/logger'import { clearPromptFromCache } from '@/lib/get-system-prompt'import { trackAICall } from '@quoorum/quoorum/ai-cost-tracking'
+import { logger } from '../lib/logger'
+import { clearPromptFromCache } from '../lib/get-system-prompt'
+import { trackAICall } from '@quoorum/quoorum/ai-cost-tracking'
 
 // Validation schemas
 const systemPromptSchema = z.object({
@@ -228,7 +230,8 @@ export const adminPromptsRouter = router({
         }
 
         // Clear cache for this prompt so it's reloaded immediately
-        const promptKey = (result.rows[0] as any).key as string
+        const promptRow = result.rows[0] as Record<string, unknown>
+        const promptKey = typeof promptRow.key === 'string' ? promptRow.key : String(promptRow.key || '')
         if (promptKey) {
           clearPromptFromCache(promptKey)
         }
