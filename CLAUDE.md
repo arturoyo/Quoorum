@@ -84,6 +84,8 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | **Monorepo structure** | [01-startup-protocol.md#monorepo-structure](./docs/claude/01-startup-protocol.md) |
 | **CI/CD (Vercel)** | [11-faq.md#cicd](./docs/claude/11-faq.md) |
 | **pnpm commands** | [11-faq.md#comandos-utiles](./docs/claude/11-faq.md) |
+| **Next.js cache issues** | [11-faq.md#nextjs-cache-issues](./docs/claude/11-faq.md) - ⚠️ LEER |
+| **WSL2 setup (Windows)** | [11-faq.md#wsl2-setup](./docs/claude/11-faq.md) - 🐧 Recomendado |
 | **Pre-commit untracked files** | Scripts automáticos detectan archivos sin trackear |
 
 **💡 TIP:** Usa la herramienta `Grep` para buscar cualquier keyword en este archivo o en módulos específicos.
