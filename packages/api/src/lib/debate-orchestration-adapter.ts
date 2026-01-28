@@ -5,7 +5,7 @@
  * for seamless integration between orchestration patterns and the existing UI
  */
 
-import type { DebateSequence, PatternType, DebateResult, DebateRound, RankedOption } from '@quoorum/quoorum'
+import type { DebateSequence, DebateResult, DebateRound, RankedOption } from '@quoorum/quoorum'
 
 /**
  * Convert DebateSequence (orchestration format) to DebateResult (core format)

@@ -53,7 +53,7 @@ export async function getUserMonthlyCreditLimit(userId: string): Promise<number>
     // Use monthlyCredits from subscription if set, otherwise use tier default
     const tier = subscription.tier || 'free'
     const tierLimit = PLAN_MONTHLY_CREDIT_LIMITS[tier] ?? PLAN_MONTHLY_CREDIT_LIMITS.free
-    const monthlyCredits = subscription.monthlyCredits ?? 0
+    const monthlyCredits = Number(subscription.monthlyCredits) || 0
     return monthlyCredits > 0
       ? monthlyCredits
       : tierLimit

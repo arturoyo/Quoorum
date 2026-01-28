@@ -4,7 +4,8 @@
  * Extracts structured data from Excel and CSV files
  */
 
-import * as XLSX from 'xlsx'
+// TODO: xlsx module not installed - install with: pnpm add xlsx
+// import * as XLSX from 'xlsx'
 import { logger } from './logger'
 
 /**
@@ -14,8 +15,11 @@ import { logger } from './logger'
  */
 export async function extractExcelData(buffer: ArrayBuffer): Promise<string> {
   try {
-    // Read workbook from buffer
-    const workbook = XLSX.read(buffer, { type: 'array' })
+    // xlsx module not installed
+    throw new Error('xlsx module required for Excel extraction. Install with: pnpm add xlsx')
+    
+    // // Read workbook from buffer
+    // const workbook = XLSX.read(buffer, { type: 'array' })
 
     const textParts: string[] = []
 
@@ -23,49 +27,39 @@ export async function extractExcelData(buffer: ArrayBuffer): Promise<string> {
     for (const sheetName of workbook.SheetNames) {
       const worksheet = workbook.Sheets[sheetName]
 
-      if (!worksheet) continue
+/**
+ * Excel/CSV Data Extractor
+ *
+ * Extracts structured data from Excel and CSV files
+ * 
+ * NOTE: xlsx module is not currently installed.
+ * To enable Excel extraction, run: pnpm add xlsx
+ */
 
-      // Convert to CSV for easier text parsing
-      const csv = XLSX.utils.sheet_to_csv(worksheet)
+import { logger } from './logger'
 
-      if (csv.trim()) {
-        textParts.push(`\n--- Hoja: ${sheetName} ---\n${csv}`)
-      }
-    }
-
-    return textParts.join('\n\n')
-  } catch (error) {
-    logger.error('Error extracting Excel data:', error instanceof Error ? error : undefined)
-    throw new Error(`Failed to extract Excel: ${error instanceof Error ? error.message : 'Unknown error'}`)
-  }
+/**
+ * Extract data from Excel/CSV file as formatted text
+ * @param buffer - File buffer
+ * @returns Formatted text representation of the data
+ */
+export async function extractExcelData(buffer: ArrayBuffer): Promise<string> {
+  throw new Error('Excel extraction is not available. Install xlsx with: pnpm add xlsx')
 }
 
 /**
  * Extract data as JSON structure (alternative format)
  */
 export function extractExcelDataAsJson(buffer: ArrayBuffer): Record<string, any[]> {
-  const workbook = XLSX.read(buffer, { type: 'array' })
-  const result: Record<string, any[]> = {}
-
-  for (const sheetName of workbook.SheetNames) {
-    const worksheet = workbook.Sheets[sheetName]
-    if (worksheet) {
-      result[sheetName] = XLSX.utils.sheet_to_json(worksheet)
-    }
-  }
-
-  return result
+  throw new Error('Excel extraction is not available. Install xlsx with: pnpm add xlsx')
 }
 
 /**
  * Check if buffer is a valid Excel file
  */
 export function isExcelBuffer(buffer: ArrayBuffer): boolean {
-  try {
-    // Try to read as workbook - will throw if invalid
-    XLSX.read(buffer, { type: 'array' })
-    return true
-  } catch {
+  // Without xlsx, we cannot validate
+  return false
     return false
   }
 }

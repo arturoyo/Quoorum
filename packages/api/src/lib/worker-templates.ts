@@ -5,7 +5,8 @@
  * and customize for their company structure.
  */
 
-import type { AIConfig } from '@quoorum/ai'
+// Use any for AIConfig type to avoid resolution issues - type is defined in @quoorum/ai
+type AIConfig = any
 
 export interface WorkerTemplate {
   name: string

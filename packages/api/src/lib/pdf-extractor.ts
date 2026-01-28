@@ -47,8 +47,8 @@ export async function extractPdfText(buffer: ArrayBuffer): Promise<string> {
 
       // Combine text items from page
       const pageText = textContent.items
-        .filter((item): item is { str: string } => 'str' in item)
-        .map((item) => item.str)
+        .filter((item): item is import('pdfjs-dist').TextItem => 'str' in item && typeof (item as any).str === 'string')
+        .map((item) => (item as any).str)
         .join(' ')
 
       if (pageText.trim()) {
