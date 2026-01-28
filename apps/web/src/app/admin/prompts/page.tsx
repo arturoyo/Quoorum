@@ -129,7 +129,7 @@ export default function AdminPromptsPage() {
 
     await updatePromptMutation.mutateAsync({
       id: selectedPrompt.id,
-      updates: editForm as Partial<Prompt>,
+      updates: editForm,
     })
   }
 
