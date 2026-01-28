@@ -274,7 +274,7 @@ export function ContextSummary({
 
               {contexto.evaluation.contradictions && contexto.evaluation.contradictions.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-yellow-400 mb-2">⚠️ Contradicciones detectadas</h4>
+                  <h4 className="text-sm font-medium text-yellow-400 mb-2">[WARN] Contradicciones detectadas</h4>
                   <ul className="list-disc list-inside space-y-1 text-[var(--theme-text-secondary)]">
                     {contexto.evaluation.contradictions.map((contradiction, index) => (
                       <li key={index}>{contradiction}</li>

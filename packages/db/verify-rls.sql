@@ -8,8 +8,8 @@ SELECT
   schemaname,
   tablename,
   CASE
-    WHEN rowsecurity THEN '✅ ENABLED'
-    ELSE '❌ DISABLED'
+    WHEN rowsecurity THEN '[OK] ENABLED'
+    ELSE '[ERROR] DISABLED'
   END AS rls_status
 FROM pg_tables
 WHERE schemaname = 'public'
@@ -17,7 +17,7 @@ ORDER BY
   CASE WHEN rowsecurity THEN 0 ELSE 1 END,
   tablename;
 
--- Expected: All tables should show "✅ ENABLED"
+-- Expected: All tables should show "[OK] ENABLED"
 
 -- ============================================
 -- 2. Count Policies by Table
@@ -38,7 +38,7 @@ ORDER BY policy_count DESC, tablename;
 -- ============================================
 SELECT
   t.tablename,
-  '⚠️ NO POLICIES' AS status
+  '[WARN] NO POLICIES' AS status
 FROM pg_tables t
 LEFT JOIN pg_policies p ON p.tablename = t.tablename AND p.schemaname = 'public'
 WHERE t.schemaname = 'public'
@@ -61,8 +61,8 @@ SELECT
       WHERE tablename = 'quoorum_context_sources'
         AND schemaname = 'public'
         AND cmd = 'SELECT'
-    ) THEN '✅ Protected'
-    ELSE '❌ Not Protected'
+    ) THEN '[OK] Protected'
+    ELSE '[ERROR] Not Protected'
   END AS session_id_protection
 UNION ALL
 SELECT
@@ -73,11 +73,11 @@ SELECT
       WHERE tablename = 'quoorum_messages'
         AND schemaname = 'public'
         AND cmd = 'SELECT'
-    ) THEN '✅ Protected'
-    ELSE '❌ Not Protected'
+    ) THEN '[OK] Protected'
+    ELSE '[ERROR] Not Protected'
   END AS session_id_protection;
 
--- Expected: Both should show "✅ Protected"
+-- Expected: Both should show "[OK] Protected"
 
 -- ============================================
 -- 5. Test Policy Effectiveness (requires auth session)
@@ -89,11 +89,11 @@ SELECT
   'Current User' AS test,
   auth.uid() AS user_id,
   CASE
-    WHEN auth.uid() IS NULL THEN '❌ Not Authenticated'
-    ELSE '✅ Authenticated'
+    WHEN auth.uid() IS NULL THEN '[ERROR] Not Authenticated'
+    ELSE '[OK] Authenticated'
   END AS auth_status;
 
--- Expected: Should show your user UUID and "✅ Authenticated"
+-- Expected: Should show your user UUID and "[OK] Authenticated"
 
 -- ============================================
 -- 6. Policy Details by Table Type
@@ -105,8 +105,8 @@ SELECT
   policyname,
   cmd,
   CASE
-    WHEN qual LIKE '%auth.uid()%' THEN '✅ User-scoped'
-    ELSE '⚠️ Check policy'
+    WHEN qual LIKE '%auth.uid()%' THEN '[OK] User-scoped'
+    ELSE '[WARN] Check policy'
   END AS scope_check
 FROM pg_policies
 WHERE schemaname = 'public'
@@ -120,8 +120,8 @@ SELECT
   policyname,
   cmd,
   CASE
-    WHEN qual LIKE '%admin%' THEN '✅ Admin-scoped'
-    ELSE '⚠️ Check policy'
+    WHEN qual LIKE '%admin%' THEN '[OK] Admin-scoped'
+    ELSE '[WARN] Check policy'
   END AS scope_check
 FROM pg_policies
 WHERE schemaname = 'public'
@@ -135,8 +135,8 @@ SELECT
   policyname,
   cmd,
   CASE
-    WHEN qual = 'true' AND cmd = 'SELECT' THEN '✅ Public read'
-    ELSE '⚠️ Check policy'
+    WHEN qual = 'true' AND cmd = 'SELECT' THEN '[OK] Public read'
+    ELSE '[WARN] Check policy'
   END AS scope_check
 FROM pg_policies
 WHERE schemaname = 'public'
@@ -175,9 +175,9 @@ SELECT
   'Tables with RLS enabled:',
   tables_with_rls::text || ' / ' || total_tables::text,
   CASE
-    WHEN tables_with_rls = total_tables THEN '✅ PERFECT'
-    WHEN tables_with_rls > 0 THEN '⚠️ PARTIAL'
-    ELSE '❌ CRITICAL'
+    WHEN tables_with_rls = total_tables THEN '[OK] PERFECT'
+    WHEN tables_with_rls > 0 THEN '[WARN] PARTIAL'
+    ELSE '[ERROR] CRITICAL'
   END
 FROM rls_stats
 UNION ALL
@@ -185,8 +185,8 @@ SELECT
   'Tables with policies:',
   tables_with_policies::text,
   CASE
-    WHEN tables_with_policies >= (SELECT total_tables FROM rls_stats) THEN '✅ GOOD'
-    ELSE '⚠️ INCOMPLETE'
+    WHEN tables_with_policies >= (SELECT total_tables FROM rls_stats) THEN '[OK] GOOD'
+    ELSE '[WARN] INCOMPLETE'
   END
 FROM policy_stats
 UNION ALL
@@ -194,9 +194,9 @@ SELECT
   'Total policies created:',
   total_policies::text,
   CASE
-    WHEN total_policies >= 80 THEN '✅ COMPREHENSIVE'
-    WHEN total_policies >= 40 THEN '⚠️ BASIC'
-    ELSE '❌ INSUFFICIENT'
+    WHEN total_policies >= 80 THEN '[OK] COMPREHENSIVE'
+    WHEN total_policies >= 40 THEN '[WARN] BASIC'
+    ELSE '[ERROR] INSUFFICIENT'
   END
 FROM policy_stats
 UNION ALL
@@ -211,12 +211,12 @@ SELECT
 -- EXPECTED RESULTS SUMMARY
 -- ============================================
 /*
-✅ All tables should have RLS enabled
-✅ ~80-100 policies should exist
-✅ No tables without policies
-✅ Sensitive columns protected
-✅ User authenticated (when running as logged-in user)
-✅ Policies properly scoped by user_id
+[OK] All tables should have RLS enabled
+[OK] ~80-100 policies should exist
+[OK] No tables without policies
+[OK] Sensitive columns protected
+[OK] User authenticated (when running as logged-in user)
+[OK] Policies properly scoped by user_id
 
 If any checks fail:
 1. Re-run the migration script

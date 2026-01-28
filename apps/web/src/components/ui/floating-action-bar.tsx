@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { LucideIcon } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 
 export interface FloatingActionItem {
   /** Action label */

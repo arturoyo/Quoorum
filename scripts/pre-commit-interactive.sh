@@ -11,10 +11,10 @@ ask_question() {
   echo "   → $2"
   read -p "   ¿Completado? (y/n): " answer
   if [ "$answer" != "y" ]; then
-    echo "   ❌ Debes completar este paso antes de hacer commit"
+    echo "   [ERROR] Debes completar este paso antes de hacer commit"
     exit 1
   fi
-  echo "   ✅ OK"
+  echo "   [OK] OK"
 }
 
 # Pre-flight checks primero
@@ -70,7 +70,7 @@ esac
 # Auto-fix errors primero
 echo ""
 echo "→ Ejecutando auto-fix de errores comunes..."
-pnpm fix:auto || echo "⚠️  Auto-fix falló, continuando..."
+pnpm fix:auto || echo "[WARN]  Auto-fix falló, continuando..."
 
 # Automated violation detection
 echo ""
@@ -86,5 +86,5 @@ echo "→ Ejecutando Lint..."
 pnpm lint || exit 1
 
 echo ""
-echo "✅ PRE-COMMIT CHECKLIST COMPLETADO"
+echo "[OK] PRE-COMMIT CHECKLIST COMPLETADO"
 echo "   Puedes hacer commit con confianza"

@@ -1,6 +1,6 @@
 # Aplicar Migración de RLS (Row Level Security)
 
-## 🎯 Objetivo
+## [INFO] Objetivo
 Esta migración habilita RLS en todas las tablas públicas y crea políticas de seguridad apropiadas para proteger los datos según el usuario propietario.
 
 ## 📋 Tablas Afectadas (40+ tablas)
@@ -25,7 +25,7 @@ Esta migración habilita RLS en todas las tablas públicas y crea políticas de 
 - quoorum_scheduled_reports, quoorum_translations
 - quoorum_webhooks, quoorum_webhook_logs, quoorum_api_keys
 
-## 🚀 Método 1: Supabase Dashboard (MÁS FÁCIL)
+## [INFO] Método 1: Supabase Dashboard (MÁS FÁCIL)
 
 1. Abre [Supabase Dashboard](https://supabase.com/dashboard)
 2. Selecciona tu proyecto "Quoorum"
@@ -59,7 +59,7 @@ cd packages/db
 node apply-rls-migration.mjs
 ```
 
-## ✅ Verificación Post-Migración
+## [OK] Verificación Post-Migración
 
 Después de aplicar la migración, verifica que todo funcione:
 
@@ -115,7 +115,7 @@ SHOW row_security;
    - Acceso basado en ownership del debate parent
    - Algunos campos públicos para interacción social
 
-## ⚠️ Notas Importantes
+## [WARN] Notas Importantes
 
 ### Columnas Sensibles Protegidas
 La migración protege específicamente:
@@ -127,15 +127,15 @@ Estas columnas solo son accesibles por el propietario de la sesión.
 ### Comportamiento Esperado
 
 **ANTES de la migración:**
-- ❌ Cualquier usuario puede leer datos de otros usuarios
-- ❌ Posible exposición de información sensible
-- ❌ No hay control de acceso a nivel de fila
+- [ERROR] Cualquier usuario puede leer datos de otros usuarios
+- [ERROR] Posible exposición de información sensible
+- [ERROR] No hay control de acceso a nivel de fila
 
 **DESPUÉS de la migración:**
-- ✅ Usuarios solo ven sus propios datos
-- ✅ Información sensible protegida
-- ✅ Control granular por tabla y operación
-- ✅ Supabase linter sin errores de seguridad
+- [OK] Usuarios solo ven sus propios datos
+- [OK] Información sensible protegida
+- [OK] Control granular por tabla y operación
+- [OK] Supabase linter sin errores de seguridad
 
 ## 🐛 Troubleshooting
 
@@ -194,7 +194,7 @@ BEGIN
 END $$;
 ```
 
-**⚠️ ADVERTENCIA**: Esto dejará tus datos expuestos de nuevo. Solo usa en emergencias.
+**[WARN] ADVERTENCIA**: Esto dejará tus datos expuestos de nuevo. Solo usa en emergencias.
 
 ## 📞 Soporte
 
@@ -203,14 +203,14 @@ Si encuentras problemas:
 2. Verifica que todas las tablas tengan columna `user_id` o el campo apropiado
 3. Testea con una tabla específica primero antes de aplicar todo
 
-## ✨ Resultado Final
+## [INFO] Resultado Final
 
 Después de aplicar esta migración:
-- ✅ **0 errores** en Supabase Database Linter
-- ✅ **100% conformidad** con security best practices
-- ✅ **Protección completa** de datos por usuario
-- ✅ **Aislamiento de datos** entre usuarios
-- ✅ **Auditoría**: Todas las operaciones filtradas por RLS
+- [OK] **0 errores** en Supabase Database Linter
+- [OK] **100% conformidad** con security best practices
+- [OK] **Protección completa** de datos por usuario
+- [OK] **Aislamiento de datos** entre usuarios
+- [OK] **Auditoría**: Todas las operaciones filtradas por RLS
 
 ---
 

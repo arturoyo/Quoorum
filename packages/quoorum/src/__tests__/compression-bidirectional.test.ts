@@ -60,7 +60,7 @@ R1 Sintetizador: Dos opciones principales: 49€ (77% margen, validado WTP) y 29
 
       // Mock successful compression
       mockGenerate.mockResolvedValueOnce({
-        text: 'P:💰? C:2020📈 V:innov/transp/compromiso M:CAC45€ LTV180€ 4:1 V:3llam 14d 12%conv P:Dash/API/mobile R1:O49€✓77%📈WTP✓👑⚠️🐌 R1:C49€✗PMF?🔥anchor R1:A29-59€ CAC45€ 60%min R1:#1💰49€77% #2💰29€58%',
+        text: 'P:💰? C:2020📈 V:innov/transp/compromiso M:CAC45€ LTV180€ 4:1 V:3llam 14d 12%conv P:Dash/API/mobile R1:O49€✓77%📈WTP✓👑[WARN]🐌 R1:C49€✗PMF?[WARN]anchor R1:A29-59€ CAC45€ 60%min R1:#1💰49€77% #2💰29€58%',
         usage: { totalTokens: 150 },
       })
 
@@ -108,7 +108,7 @@ R1 Sintetizador: Dos opciones principales: 49€ (77% margen, validado WTP) y 29
     })
 
     it('should decompress message with emojis and symbols', async () => {
-      const compressedMessage = '💡49€ ✓77%📈 WTP✓ 👑pos ⚠️🐌adopt 75% 👍2'
+      const compressedMessage = '💡49€ ✓77%📈 WTP✓ 👑pos [WARN]🐌adopt 75% 👍2'
       
       // Mock successful decompression
       mockGenerate.mockResolvedValueOnce({
@@ -179,7 +179,7 @@ DEBATE PREVIO: R1 Optimista: 49€ tiene 77% margen positivo. R1 Crítico: 49€
   describe('Token savings estimation', () => {
     it('should demonstrate token savings', () => {
       const original = 'La opción de 49 euros tiene un margen del 77% que es positivo, el willingness to pay está validado, hay posicionamiento premium pero riesgo de adopción lenta, probabilidad de éxito del 75% con 2 apoyos.'
-      const compressed = '💡49€ ✓77%📈 WTP✓ 👑pos ⚠️🐌adopt 75% 👍2'
+      const compressed = '💡49€ ✓77%📈 WTP✓ 👑pos [WARN]🐌adopt 75% 👍2'
 
       const originalTokens = estimateTokens(original)
       const compressedTokens = estimateTokens(compressed)

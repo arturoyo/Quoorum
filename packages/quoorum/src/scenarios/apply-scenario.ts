@@ -71,7 +71,8 @@ export function appliedScenarioToRunOptions(
 ): Partial<RunDebateOptions> {
   return {
     sessionId,
-    question: applied.masterPrompt, // Use the scenario's master prompt as the question
+    // Use a clean, user-friendly title for the debate; the detailed masterPrompt lives in context/prompt
+    question: applied.scenarioName,
     context,
     corporateContext,
     selectedExpertIds: applied.selectedExpertIds,

@@ -4,7 +4,7 @@
 $TerminalDir = "$env:USERPROFILE\.cursor\projects\c-Quoorum\terminals"
 
 if (-not (Test-Path $TerminalDir)) {
-    Write-Host "❌ Terminal logs directory not found" -ForegroundColor Red
+    Write-Host "[ERROR] Terminal logs directory not found" -ForegroundColor Red
     exit 1
 }
 
@@ -14,7 +14,7 @@ $RecentLogs = Get-ChildItem -Path $TerminalDir -Filter "*.txt" |
     Select-Object -First 5
 
 if (-not $RecentLogs -or $RecentLogs.Count -eq 0) {
-    Write-Host "❌ No log files found" -ForegroundColor Red
+    Write-Host "[ERROR] No log files found" -ForegroundColor Red
     exit 1
 }
 
@@ -34,7 +34,7 @@ foreach ($Log in $RecentLogs) {
 }
 
 if (-not $Content) {
-    Write-Host "✅ No errors found (or log is empty)" -ForegroundColor Green
+    Write-Host "[OK] No errors found (or log is empty)" -ForegroundColor Green
     exit 0
 }
 
@@ -80,15 +80,15 @@ foreach ($ErrorType in $ErrorPatterns) {
 }
 
 if ($FoundErrors.Count -eq 0) {
-    Write-Host "✅ No errors detected in logs" -ForegroundColor Green
+    Write-Host "[OK] No errors detected in logs" -ForegroundColor Green
     exit 0
 }
 
-Write-Host "⚠️  FOUND $($FoundErrors.Count) ERROR(S):`n" -ForegroundColor Yellow
+Write-Host "[WARN]  FOUND $($FoundErrors.Count) ERROR(S):`n" -ForegroundColor Yellow
 Write-Host ("=" * 70) -ForegroundColor DarkGray
 
 foreach ($Err in $FoundErrors) {
-    Write-Host "`n🔴 $($Err.Type)" -ForegroundColor Red
+    Write-Host "`n[ERROR] $($Err.Type)" -ForegroundColor Red
     Write-Host ("─" * 70) -ForegroundColor DarkGray
     
     # Extract the most relevant error message

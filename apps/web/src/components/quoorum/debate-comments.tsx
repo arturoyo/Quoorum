@@ -20,22 +20,33 @@ export function DebateComments({ debateId, showHeader = true }: DebateCommentsPr
   const [commentText, setCommentText] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
 
+  const utils = api.useUtils()
   const { data: comments, isLoading, refetch } = api.quoorum.getComments.useQuery({ debateId })
   const addComment = api.quoorum.addComment.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('[DebateComments] Comment added successfully:', data)
       toast.success('Comentario añadido')
       setCommentText('')
       setReplyingTo(null)
       void refetch()
+      // Invalidate debate query to update comment count
+      void utils.debates.get.invalidate({ id: debateId })
     },
     onError: (error) => {
-      toast.error(error.message)
+      console.error('[DebateComments] Error adding comment:', error)
+      toast.error(`Error: ${error.message}`)
     },
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!commentText.trim()) return
+
+    console.log('[DebateComments] Submitting comment:', {
+      debateId,
+      content: commentText.trim(),
+      parentId: replyingTo || undefined,
+    })
 
     addComment.mutate({
       debateId,
@@ -63,70 +74,79 @@ export function DebateComments({ debateId, showHeader = true }: DebateCommentsPr
     }
   })
 
+  console.log('[DebateComments] Render state:', {
+    debateId,
+    commentsCount: comments?.length || 0,
+    rootCommentsCount: rootComments.length,
+    isLoading,
+  })
+
   const content = (
-    <div className="space-y-4">
+    <div className="space-y-3">
         {/* Comment Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-2">
           <Textarea
             placeholder="Añade un comentario..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             className="border-white/10 bg-slate-800/50 text-white placeholder:text-[var(--theme-text-tertiary)]"
-            rows={3}
+            rows={2}
           />
-          <div className="flex justify-end gap-2">
-            {replyingTo && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setReplyingTo(null)
-                  setCommentText('')
-                }}
-              >
-                Cancelar
-              </Button>
+          <div className="flex items-center justify-between gap-2">
+            {rootComments.length === 0 && (
+              <span className="text-xs text-[var(--theme-text-tertiary)]">
+                No hay comentarios aún. Sé el primero en comentar!
+              </span>
             )}
-            <Button
-              type="submit"
-              disabled={!commentText.trim() || addComment.isPending}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              {addComment.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Enviando...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Enviar
-                </>
+            <div className="flex gap-2 ml-auto">
+              {replyingTo && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setReplyingTo(null)
+                    setCommentText('')
+                  }}
+                >
+                  Cancelar
+                </Button>
               )}
-            </Button>
+              <Button
+                type="submit"
+                disabled={!commentText.trim() || addComment.isPending}
+                className="bg-purple-600 hover:bg-purple-700"
+                size="sm"
+              >
+                {addComment.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Enviar
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </form>
 
         {/* Comments List */}
-        <div className="space-y-4">
-          {rootComments.length === 0 ? (
-            <div className="text-center py-8 text-[var(--theme-text-secondary)] text-sm">
-              No hay comentarios aún. Sé el primero en comentar!
-            </div>
-          ) : (
-            rootComments.map((comment) => (
-              <CommentItem
-                key={comment.id}
-                comment={comment}
-                replies={repliesByParent.get(comment.id) || []}
-                onReply={(parentId) => {
-                  setReplyingTo(parentId)
-                  setCommentText(`@${comment.userId.substring(0, 8)} `)
-                }}
-              />
-            ))
-          )}
+        <div className="space-y-3">
+          {rootComments.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              replies={repliesByParent.get(comment.id) || []}
+              onReply={(parentId) => {
+                setReplyingTo(parentId)
+                setCommentText(`@${comment.userId.substring(0, 8)} `)
+              }}
+            />
+          ))}
         </div>
     </div>
   )

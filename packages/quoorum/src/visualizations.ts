@@ -50,8 +50,8 @@ export function renderDashboard(data: DashboardData): string {
 ║  Experts: ${data.expertCount} 👥${' '.repeat(44)}║
 ║                                                          ║
 ║  Progress: ${progressBar} ${data.currentRound}/${data.totalRounds}${' '.repeat(30)}║
-║  Quality: ${qualityBar} ${data.quality}/100 ${data.quality >= 80 ? '✨' : data.quality >= 60 ? '👍' : '⚠️'}${' '.repeat(25)}║
-║  Consensus: ${consensusBar} ${data.consensus}/100 ${data.consensus >= 80 ? '🎯' : ''}${' '.repeat(23)}║
+║  Quality: ${qualityBar} ${data.quality}/100 ${data.quality >= 80 ? '[INFO]' : data.quality >= 60 ? '👍' : '[WARN]'}${' '.repeat(25)}║
+║  Consensus: ${consensusBar} ${data.consensus}/100 ${data.consensus >= 80 ? '[INFO]' : ''}${' '.repeat(23)}║
 ║                                                          ║
 ║  Cost: $${data.cost.toFixed(2)} 💰${' '.repeat(42)}║
 ╚══════════════════════════════════════════════════════════╝
@@ -93,7 +93,7 @@ export function renderProgressBar(data: ProgressData): string {
   const empty = 20 - filled
   const bar = BAR_FILLED.repeat(filled) + BAR_EMPTY.repeat(empty)
 
-  const qualityIcon = data.quality >= 80 ? '✨' : data.quality >= 60 ? '👍' : '⚠️'
+  const qualityIcon = data.quality >= 80 ? '[INFO]' : data.quality >= 60 ? '👍' : '[WARN]'
 
   return `Round ${data.currentRound}/${data.totalRounds} [${bar}] ${percentage.toFixed(0)}% | Quality: ${data.quality}/100 ${qualityIcon} | Experts: ${data.expertCount} 👥 | Cost: $${data.cost.toFixed(2)} 💰`
 }
@@ -234,10 +234,10 @@ export function generateDebateHeatmap(
   for (const data of heatmaps) {
     const fires = Math.round(data.intensity / 20)
     const emptyFires = 5 - fires
-    const fireBar = '🔥'.repeat(fires) + (isWin ? BAR_EMPTY.repeat(emptyFires * 2) : '░░'.repeat(emptyFires))
+    const fireBar = '[WARN]'.repeat(fires) + (isWin ? BAR_EMPTY.repeat(emptyFires * 2) : '░░'.repeat(emptyFires))
 
     const intervention = data.hasIntervention ? ' ⚡ Meta-moderator!' : ''
-    const qualityIcon = data.quality >= 80 ? ' ✨' : data.quality >= 60 ? ' 👍' : ' ⚠️'
+    const qualityIcon = data.quality >= 80 ? ' [INFO]' : data.quality >= 60 ? ' 👍' : ' [WARN]'
 
     output += `Round ${data.round}: ${fireBar} (${data.intensity}/100)${intervention}${qualityIcon}\n`
   }

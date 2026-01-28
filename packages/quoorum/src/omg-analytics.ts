@@ -192,7 +192,7 @@ export function renderExpertChemistry(chemistry: ChemistryScore): string {
     .join(' ')
 
   const fires = Math.round(chemistry.score / 20)
-  const fireBar = '🔥'.repeat(fires) + '░░'.repeat(5 - fires)
+  const fireBar = '[WARN]'.repeat(fires) + '░░'.repeat(5 - fires)
 
   let output = `\n🤝 Expert Chemistry Score\n\n`
   output += `${expert1Name} + ${expert2Name}\n\n`
@@ -357,7 +357,7 @@ export function roastWeakArguments(result: DebateResult): string[] {
  * Renderiza roasts
  */
 export function renderRoasts(roasts: string[]): string {
-  let output = '\n🔥 Expert Roast Mode (Humor)\n\n'
+  let output = '\n[WARN] Expert Roast Mode (Humor)\n\n'
 
   if (roasts.length === 0) {
     output += 'No weak arguments found! Everyone brought their A-game. 💪\n'
@@ -448,7 +448,7 @@ export function markBingoSquares(card: BingoCard, result: DebateResult): BingoCa
  * Renderiza bingo card
  */
 export function renderBingoCard(card: BingoCard): string {
-  let output = '\n🎯 Debate Bingo\n\n'
+  let output = '\n[INFO] Debate Bingo\n\n'
 
   for (let i = 0; i < card.squares.length; i++) {
     const square = card.squares[i]!
@@ -499,7 +499,7 @@ export interface DifficultyLevel {
 export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
   {
     name: 'Easy',
-    icon: '🟢',
+    icon: '[OK]',
     expertCount: 3,
     roundCount: 3,
     estimatedCost: 0.1,
@@ -515,7 +515,7 @@ export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
   },
   {
     name: 'Hard',
-    icon: '🔴',
+    icon: '[ERROR]',
     expertCount: 7,
     roundCount: 8,
     estimatedCost: 0.5,

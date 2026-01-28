@@ -297,10 +297,10 @@ Metodología: ${evidence.methodology}
 Participantes: ${evidence.participants.join(', ')}
 
 Cumplimiento:
-- ISO 27001: ${evidence.compliance.iso27001 ? '✅' : '❌'}
-- NIST CSF: ${evidence.compliance.nistCsf ? '✅' : '❌'}
-- GDPR: ${evidence.compliance.gdpr ? '✅' : '❌'}
-${evidence.compliance.soc2 ? `- SOC 2: ${evidence.compliance.soc2 ? '✅' : '❌'}` : ''}
+- ISO 27001: ${evidence.compliance.iso27001 ? '[OK]' : '[ERROR]'}
+- NIST CSF: ${evidence.compliance.nistCsf ? '[OK]' : '[ERROR]'}
+- GDPR: ${evidence.compliance.gdpr ? '[OK]' : '[ERROR]'}
+${evidence.compliance.soc2 ? `- SOC 2: ${evidence.compliance.soc2 ? '[OK]' : '[ERROR]'}` : ''}
 
 Métricas:
 - Rondas: ${evidence.metadata.totalRounds}

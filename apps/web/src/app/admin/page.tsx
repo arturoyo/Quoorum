@@ -174,13 +174,157 @@ export default function AdminPage() {
           </CardContent>
         </Card>
 
+        {/* Debate Costs Analytics by Phase */}
+        <DebatesCostAnalyticsTable />
+
         {/* Info Note */}
         <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
           <p className="text-sm text-yellow-300">
-            ⚠️ <strong>Nota:</strong> Para modificar la configuración del sistema, actualiza las variables de entorno en <code className="font-mono text-xs">.env</code> (desarrollo) o en el panel de Vercel (producción) y reinicia el servidor.
+            [WARN] <strong>Nota:</strong> Para modificar la configuración del sistema, actualiza las variables de entorno en <code className="font-mono text-xs">.env</code> (desarrollo) o en el panel de Vercel (producción) y reinicia el servidor.
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Debate Costs Analytics Table
+ * Shows cost breakdown by phase for all debates
+ */
+function DebatesCostAnalyticsTable() {
+  const { data: debates, isLoading } = api.admin.getDebatesCostAnalytics.useQuery();
+
+  if (isLoading) {
+    return (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white">Análisis de Costos por Fase</CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
+            Cargando datos...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Loader2 className="w-6 h-6 text-purple-500 animate-spin mx-auto" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!debates || debates.length === 0) {
+    return (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white">Análisis de Costos por Fase</CardTitle>
+          <CardDescription className="text-[var(--theme-text-secondary)]">
+            No hay debates completados aún
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  const phases: Array<'context' | 'experts' | 'strategy' | 'revision' | 'debate' | 'synthesis'> = [
+    'context',
+    'experts',
+    'strategy',
+    'revision',
+    'debate',
+    'synthesis',
+  ];
+
+  const phaseLabels: Record<typeof phases[number], string> = {
+    context: 'Contexto',
+    experts: 'Expertos',
+    strategy: 'Estrategia',
+    revision: 'Revisión',
+    debate: 'Debate',
+    synthesis: 'Síntesis',
+  };
+
+  return (
+    <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2">
+          <Gauge className="h-5 w-5 text-purple-400" />
+          Análisis de Costos por Fase
+        </CardTitle>
+        <CardDescription className="text-[var(--theme-text-secondary)]">
+          Desglose de créditos consumidos por fase de cada debate
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-2 text-[var(--theme-text-secondary)] font-medium">
+                  Usuario
+                </th>
+                <th className="text-left py-3 px-2 text-[var(--theme-text-secondary)] font-medium">
+                  Debate
+                </th>
+                <th className="text-left py-3 px-2 text-[var(--theme-text-secondary)] font-medium">
+                  Fecha
+                </th>
+                {phases.map((phase) => (
+                  <th
+                    key={phase}
+                    className="text-right py-3 px-2 text-[var(--theme-text-secondary)] font-medium"
+                  >
+                    {phaseLabels[phase]}
+                  </th>
+                ))}
+                <th className="text-right py-3 px-2 text-white font-semibold">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {debates.map((debate) => {
+                const costsByPhase = (debate.costsByPhase as Record<string, { creditsUsed: number }>) || {};
+                const totalCredits = debate.totalCreditsUsed || 0;
+
+                return (
+                  <tr key={debate.id} className="border-b border-white/5 hover:bg-white/5">
+                    <td className="py-3 px-2">
+                      <div className="text-white text-xs">{debate.userName}</div>
+                      <div className="text-[var(--theme-text-tertiary)] text-xs">
+                        {debate.userEmail}
+                      </div>
+                    </td>
+                    <td className="py-3 px-2">
+                      <div className="text-white text-xs max-w-[200px] truncate">
+                        {debate.question}
+                      </div>
+                      <Badge variant="secondary" className="mt-1 text-xs">
+                        {debate.totalRounds} rondas
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-2 text-[var(--theme-text-secondary)] text-xs">
+                      {debate.completedAt
+                        ? new Date(debate.completedAt).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: 'short',
+                          })
+                        : '-'}
+                    </td>
+                    {phases.map((phase) => {
+                      const credits = costsByPhase[phase]?.creditsUsed || 0;
+                      return (
+                        <td key={phase} className="py-3 px-2 text-right text-white text-xs">
+                          {credits > 0 ? credits.toLocaleString() : '-'}
+                        </td>
+                      );
+                    })}
+                    <td className="py-3 px-2 text-right text-white font-semibold">
+                      {totalCredits.toLocaleString()}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -197,7 +197,7 @@ export const expertsRouter = router({
 
   /**
    * List all experts (library only) - for ExpertSelector
-   * ⚠️ MODIFICADO: Solo retorna expertos de biblioteca (userId = null)
+   * [WARN] MODIFICADO: Solo retorna expertos de biblioteca (userId = null)
    * Los expertos personalizados han sido eliminados
    */
   list: publicProcedure
@@ -236,7 +236,7 @@ export const expertsRouter = router({
 
   /**
    * Fork an expert from library to user's custom experts
-   * ⚠️ DESHABILITADO: Los expertos personalizados han sido eliminados
+   * [WARN] DESHABILITADO: Los expertos personalizados han sido eliminados
    */
   forkFromLibrary: protectedProcedure
     .input(
@@ -252,7 +252,7 @@ export const expertsRouter = router({
 
   /**
    * Create a new custom expert
-   * ⚠️ DESHABILITADO: Los expertos personalizados han sido eliminados
+   * [WARN] DESHABILITADO: Los expertos personalizados han sido eliminados
    */
   create: protectedProcedure
     .input(
@@ -272,7 +272,7 @@ export const expertsRouter = router({
 
   /**
    * Update expert (only user's custom experts can be updated)
-   * ⚠️ DESHABILITADO: Los expertos personalizados han sido eliminados
+   * [WARN] DESHABILITADO: Los expertos personalizados han sido eliminados
    */
   update: protectedProcedure
     .input(
@@ -293,7 +293,7 @@ export const expertsRouter = router({
 
   /**
    * Delete expert
-   * ⚠️ DESHABILITADO: Los expertos personalizados han sido eliminados
+   * [WARN] DESHABILITADO: Los expertos personalizados han sido eliminados
    */
   delete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))

@@ -10,7 +10,7 @@ echo "====================================="
 LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/quoorum_backup_*.sql.gz 2>/dev/null | head -1)
 
 if [ -z "$LATEST_BACKUP" ]; then
-  echo "❌ No se encontró ningún backup"
+  echo "[ERROR] No se encontró ningún backup"
   echo "   Ejecuta: bash scripts/backup-db.sh"
   exit 1
 fi
@@ -21,7 +21,7 @@ echo "   Fecha: $(stat -c %y "$LATEST_BACKUP" 2>/dev/null || stat -f %Sm "$LATES
 echo ""
 
 # Confirmar rollback
-read -p "⚠️  ¿Restaurar este backup? ESTO SOBRESCRIBIRÁ LA DB ACTUAL (yes/no): " confirm
+read -p "[WARN]  ¿Restaurar este backup? ESTO SOBRESCRIBIRÁ LA DB ACTUAL (yes/no): " confirm
 
 if [ "$confirm" != "yes" ]; then
   echo "Rollback cancelado"
@@ -39,7 +39,7 @@ docker exec -i quoorum-postgres psql -U postgres -d quoorum < "$TEMP_SQL"
 
 if [ $? -eq 0 ]; then
   echo ""
-  echo "✅ ROLLBACK COMPLETADO"
+  echo "[OK] ROLLBACK COMPLETADO"
   echo "   Base de datos restaurada correctamente"
 
   # Limpiar archivo temporal
@@ -47,7 +47,7 @@ if [ $? -eq 0 ]; then
   exit 0
 else
   echo ""
-  echo "❌ Error al restaurar backup"
+  echo "[ERROR] Error al restaurar backup"
   rm "$TEMP_SQL"
   exit 1
 fi

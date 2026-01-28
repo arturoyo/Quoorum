@@ -67,11 +67,11 @@ Pregunta original: "${question}"
 ${domain ? `Dominio: ${domain}` : ''}
 
 Ejemplo de transformación:
-❌ MAL: "Should I launch a SaaS product?"
-✅ BIEN: ["SaaS product launch success rate", "SaaS MVP validation methods", "SaaS market entry strategies 2024"]
+[ERROR] MAL: "Should I launch a SaaS product?"
+[OK] BIEN: ["SaaS product launch success rate", "SaaS MVP validation methods", "SaaS market entry strategies 2024"]
 
-❌ MAL: "What price should I charge?"
-✅ BIEN: ["SaaS pricing benchmarks 2024", "average SaaS pricing by tier", "pricing strategy best practices"]
+[ERROR] MAL: "What price should I charge?"
+[OK] BIEN: ["SaaS pricing benchmarks 2024", "average SaaS pricing by tier", "pricing strategy best practices"]
 
 Return ONLY a JSON array of search queries, no additional text.`
 

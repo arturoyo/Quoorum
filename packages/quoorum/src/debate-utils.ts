@@ -37,10 +37,10 @@ export function formatDebateDuration(startTime: Date, endTime?: Date): string {
 export function formatConsensusScore(score: number): string {
   const percentage = Math.round(score * 100)
   
-  if (percentage >= 90) return `🎯 ${percentage}%`
-  if (percentage >= 70) return `✅ ${percentage}%`
-  if (percentage >= 50) return `⚠️ ${percentage}%`
-  return `❌ ${percentage}%`
+  if (percentage >= 90) return `[INFO] ${percentage}%`
+  if (percentage >= 70) return `[OK] ${percentage}%`
+  if (percentage >= 50) return `[WARN] ${percentage}%`
+  return `[ERROR] ${percentage}%`
 }
 
 /**
@@ -59,8 +59,8 @@ export function getStatusEmoji(status: string): string {
   const emojiMap: Record<string, string> = {
     pending: '⏳',
     in_progress: '🔄',
-    completed: '✅',
-    failed: '❌',
+    completed: '[OK]',
+    failed: '[ERROR]',
     cancelled: '🚫',
   }
   return emojiMap[status] || '❓'
@@ -192,9 +192,9 @@ export function getExpertDisplayName(expert: ExpertProfile): string {
  */
 export function getExpertAvatar(expert: ExpertProfile): string {
   const avatarMap: Record<string, string> = {
-    'positioning': '🎯',
+    'positioning': '[INFO]',
     'pricing': '💰',
-    'product': '🚀',
+    'product': '[INFO]',
     'growth': '📈',
     'operations': '⚙️',
     'technical': '💻',

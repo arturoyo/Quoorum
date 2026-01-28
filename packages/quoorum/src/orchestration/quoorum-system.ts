@@ -759,14 +759,14 @@ export class QuoorumSystem {
     lines.push(`Urgencia: ${summary.costOfDelay.urgencyLevel}`)
     lines.push('')
     lines.push('─'.repeat(60))
-    lines.push('🎯 INSIGHTS CLAVE')
+    lines.push('[INFO] INSIGHTS CLAVE')
     lines.push('─'.repeat(60))
     summary.keyInsights.forEach((insight, i) => {
       lines.push(`${i + 1}. ${insight}`)
     })
     lines.push('')
     lines.push('─'.repeat(60))
-    lines.push('⚠️ RIESGOS PRINCIPALES')
+    lines.push('[WARN] RIESGOS PRINCIPALES')
     lines.push('─'.repeat(60))
     summary.risks.slice(0, 3).forEach(risk => {
       lines.push(`• [${risk.severity.toUpperCase()}] ${risk.description}`)
@@ -774,7 +774,7 @@ export class QuoorumSystem {
     })
     lines.push('')
     lines.push('─'.repeat(60))
-    lines.push('🚀 OPORTUNIDADES')
+    lines.push('[INFO] OPORTUNIDADES')
     lines.push('─'.repeat(60))
     summary.opportunities.slice(0, 2).forEach(opp => {
       lines.push(`• [${opp.impact.toUpperCase()}] ${opp.description}`)
@@ -786,8 +786,8 @@ export class QuoorumSystem {
     lines.push('─'.repeat(60))
     lines.push(`Consenso: ${board.consensus.toUpperCase()}`)
     board.advisors.slice(0, 4).forEach(advisor => {
-      const voteIcon = advisor.vote === 'approve' ? '✅' :
-                       advisor.vote === 'reject' ? '❌' :
+      const voteIcon = advisor.vote === 'approve' ? '[OK]' :
+                       advisor.vote === 'reject' ? '[ERROR]' :
                        advisor.vote === 'abstain' ? '⚪' : '❓'
       lines.push(`${voteIcon} ${advisor.name}: ${advisor.perspective}`)
     })

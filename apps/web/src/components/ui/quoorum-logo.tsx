@@ -21,13 +21,11 @@ export function QuoorumLogo({
   // Añadir cache-busting parameter para forzar recarga del logo
   const logoBase = showGradient ? "/quoorum-logo-ok.svg" : "/quoorum-imagotipo.svg"
   // Hash MD5 de los archivos para cache-busting estable:
-  // quoorum-logo-ok.svg: 19DBF9111224825802DD79F0E8C58A25
+  // quoorum-logo-ok.svg: 20260127_FILL_FIX (updated after adding fill attribute)
   // quoorum-imagotipo.svg: AB2FFF268AB627FDD8C1CF755DC9D703
-  // Usar hash + timestamp único por montaje del componente para forzar recarga
-  const logoHash = showGradient ? "19DBF9111224825802DD79F0E8C58A25" : "AB2FFF268AB627FDD8C1CF755DC9D703"
-  // Timestamp único por instancia del componente (se genera una vez al montar)
-  const [logoVersion] = React.useState(() => Date.now())
-  const logoSrc = React.useMemo(() => `${logoBase}?v=${logoHash}&t=${logoVersion}`, [logoBase, logoHash, logoVersion])
+  const logoHash = showGradient ? "20260127_FILL_FIX" : "AB2FFF268AB627FDD8C1CF755DC9D703"
+  // Cache-busting estable usando solo el hash (evita desajustes SSR/CSR)
+  const logoSrc = `${logoBase}?v=${logoHash}`
 
   // Usar React state para manejar el hover
   const [isHovered, setIsHovered] = React.useState(false)
@@ -58,7 +56,7 @@ export function QuoorumLogo({
           )}
           {/* Logo principal con gradiente - sin efectos de sombra */}
           <div
-            className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 relative z-10"
+            className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 z-10"
             style={{
               maskImage: `url('${logoSrc}')`,
               maskSize: "contain",
@@ -208,21 +206,10 @@ export function QuoorumLogoWithText({
     '4xl': 'text-4xl',
   }
 
-  // Calcular tamaño del contenedor: icono + padding (8px en cada lado = 16px total)
-  const containerSize = iconSize + 16
-
   const content = (
     <div className={`flex items-center gap-3 group ${className}`}>
-      <div className="relative">
-        {/* Contenedor del logo con fondo oscuro - tamaño dinámico basado en iconSize */}
-        {/* El glow ahora está aplicado directamente al SVG dentro de QuoorumLogo */}
-        <div 
-          className="relative rounded-2xl flex items-center justify-center bg-[var(--theme-landing-bg)] border border-white/5 overflow-visible"
-          style={{ width: containerSize, height: containerSize }}
-        >
-          <QuoorumLogo size={iconSize} showGradient={showGradient} />
-        </div>
-      </div>
+      {/* Logo sin contenedor/cuadrado - solo el icono */}
+      <QuoorumLogo size={iconSize} showGradient={showGradient} />
       {/* Texto "Quoorum" con gradiente exacto: Quoo en blanco, r transición, um en azul claro */}
       {showText && (
         <span className={`font-bold ${textSizeClasses[textSize]} bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent`}>

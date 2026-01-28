@@ -243,7 +243,7 @@ export function renderCommunityVoting(voting: CommunityVotingResult): string {
 
   for (const vote of voting.votes) {
     const bar = generateVoteBar(vote.percentage)
-    const icon = vote.option === voting.expertConsensus ? '🟢' : '🔵'
+    const icon = vote.option === voting.expertConsensus ? '[OK]' : '🔵'
     output += `${icon} ${vote.option.padEnd(20)} ${bar} ${vote.percentage.toFixed(0)}%\n`
   }
 
@@ -254,9 +254,9 @@ export function renderCommunityVoting(voting: CommunityVotingResult): string {
   output += `Community says: ${communityWinner.option} (${communityWinner.percentage.toFixed(0)}%)\n`
 
   if (voting.alignment) {
-    output += `\n✅ Alignment! Experts and community agree.\n`
+    output += `\n[OK] Alignment! Experts and community agree.\n`
   } else {
-    output += `\n⚠️  Divergence! Community disagrees with experts.\n`
+    output += `\n[WARN]  Divergence! Community disagrees with experts.\n`
   }
 
   return output
@@ -415,7 +415,7 @@ export function generateSocialMetadata(result: DebateResult, url?: string): Soci
 export function generateSocialPost(result: DebateResult, url?: string): string {
   const metadata = generateSocialMetadata(result, url)
 
-  let post = `🎯 ${metadata.title}\n\n`
+  let post = `[INFO] ${metadata.title}\n\n`
   post += `${metadata.description}\n\n`
 
   if (url) {

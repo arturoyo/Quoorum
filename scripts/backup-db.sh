@@ -19,7 +19,7 @@ if [ $? -eq 0 ]; then
   # Comprimir backup
   gzip "$BACKUP_FILE"
 
-  echo "✅ Backup completado: ${BACKUP_FILE}.gz"
+  echo "[OK] Backup completado: ${BACKUP_FILE}.gz"
 
   # Mostrar tamaño
   SIZE=$(du -h "${BACKUP_FILE}.gz" | cut -f1)
@@ -34,6 +34,6 @@ if [ $? -eq 0 ]; then
 
   exit 0
 else
-  echo "❌ Error al crear backup"
+  echo "[ERROR] Error al crear backup"
   exit 1
 fi

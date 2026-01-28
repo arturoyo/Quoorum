@@ -384,7 +384,7 @@ export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
         )}
       </div>
 
-      {/* ⚠️ EXPERTOS PERSONALES ELIMINADOS */}
+      {/* [WARN] EXPERTOS PERSONALES ELIMINADOS */}
       <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
         <CardContent className="flex flex-col items-center justify-center py-16">
           <Sparkles className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-4" />

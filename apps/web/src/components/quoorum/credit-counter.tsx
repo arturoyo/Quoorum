@@ -169,169 +169,17 @@ export function CreditCounter({
                   {creditBalance.toLocaleString()}
                 </span>
               )}
-              {accumulatedCredits > 0 && (
-                <span className="text-xs text-[var(--theme-text-tertiary)]">
-                  (-{accumulatedCredits})
-                </span>
-              )}
             </div>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="max-w-sm bg-purple-600 border-purple-500/30">
-            <div className="space-y-3">
-              <div className="font-semibold text-[var(--theme-text-inverted)] text-base">Balance de Créditos</div>
-              
-              {/* Balance inicial */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center pb-2 border-b border-purple-500/30">
-                  <span className="text-purple-200 text-sm">Balance inicial:</span>
-                  <span className="font-bold text-[var(--theme-text-inverted)] text-base">{creditBalance.toLocaleString()} créditos</span>
-                </div>
-                
-                {/* Desglose por fase */}
-                {(() => {
-                  let runningTotal = creditBalance
-                  let total = accumulatedCredits
-                  
-                  if (currentPhaseCost) {
-                    total += currentPhaseCost.costCredits
-                  }
-                  if (estimatedDebateCost) {
-                    total += estimatedDebateCost.max
-                  }
-                  const remaining = creditBalance - total
-                  
-                  // Mapeo de nombres de fases con orden
-                  const phaseOrder: Record<string, number> = {
-                    'contexto': 1,
-                    'expertos': 2,
-                    'estrategia': 3,
-                    'revision': 4,
-                    'debate': 5,
-                  }
-                  const phaseNames: Record<string, string> = {
-                    'contexto': '1 - Contexto',
-                    'expertos': '2 - Expertos',
-                    'estrategia': '3 - Estrategia',
-                    'revision': '4 - Revisión',
-                    'debate': '5 - Debate',
-                  }
-                  
-                  // Ordenar fases completadas por orden
-                  const sortedAccumulated = [...accumulatedCosts].sort((a, b) => 
-                    (phaseOrder[a.phase] || 99) - (phaseOrder[b.phase] || 99)
-                  )
-                  
-                  return (
-                    <div className="space-y-2">
-                      {/* Fases completadas */}
-                      {sortedAccumulated.map((phase, idx) => {
-                        runningTotal -= phase.costCredits
-                        return (
-                          <div key={idx} className="space-y-1">
-                            <div className="flex justify-between items-center text-sm">
-                              <span className="text-purple-200">{phaseNames[phase.phase] || phase.phase}:</span>
-                              <span className="font-medium text-amber-300">-{phase.costCredits} créditos</span>
-                            </div>
-                            {phase.breakdown && phase.breakdown.length > 0 && (
-                              <div className="pl-3 space-y-0.5">
-                                {phase.breakdown.map((item, itemIdx) => (
-                                  <div key={itemIdx} className="flex justify-between text-xs text-purple-300/80">
-                                    <span>• {item.item}</span>
-                                    <span>-{item.costCredits}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                            <div className="flex justify-between items-center text-xs text-purple-300/60 pt-0.5">
-                              <span>Después de {phaseNames[phase.phase] || phase.phase}:</span>
-                              <span className="font-medium">{runningTotal.toLocaleString()} créditos</span>
-                            </div>
-                          </div>
-                        )
-                      })}
-                      
-                      {/* Fase actual (si tiene coste y no está en accumulatedCosts) */}
-                      {currentPhaseCost && !sortedAccumulated.find(p => p.phase === currentPhaseCost.phase) && (
-                        <div className="space-y-1 pt-1 border-t border-purple-500/20">
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-purple-200 font-medium">{phaseNames[currentPhaseCost.phase] || currentPhaseCost.phase} (actual):</span>
-                            <span className="font-medium text-purple-300">~{currentPhaseCost.costCredits} créditos</span>
-                          </div>
-                          {currentPhaseCost.breakdown && currentPhaseCost.breakdown.length > 0 && (
-                            <div className="pl-3 space-y-0.5">
-                              {currentPhaseCost.breakdown.map((item, itemIdx) => (
-                                <div key={itemIdx} className="flex justify-between text-xs text-purple-300/80">
-                                  <span>• {item.item}</span>
-                                  <span>~{item.costCredits}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          {(() => {
-                            const afterCurrent = runningTotal - currentPhaseCost.costCredits
-                            return (
-                              <div className="flex justify-between items-center text-xs text-purple-300/60 pt-0.5">
-                                <span>Después de {phaseNames[currentPhaseCost.phase] || currentPhaseCost.phase}:</span>
-                                <span className="font-medium">~{afterCurrent.toLocaleString()} créditos</span>
-                              </div>
-                            )
-                          })()}
-                        </div>
-                      )}
-                      
-                      {/* Debate estimado (solo si estamos en fase 4+) */}
-                      {estimatedDebateCost && (
-                        <div className="space-y-1 pt-1 border-t border-purple-500/20">
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-purple-200 font-medium">5 - Debate (estimado):</span>
-                            <span className="font-medium text-purple-300">~{estimatedDebateCost.max} créditos</span>
-                          </div>
-                          <div className="pl-3 space-y-0.5">
-                            <div className="flex justify-between text-xs text-purple-300/80">
-                              <span>• Rango estimado:</span>
-                              <span>{estimatedDebateCost.min} - {estimatedDebateCost.max}</span>
-                            </div>
-                          </div>
-                          {(() => {
-                            // Calcular runningTotal después de fase actual (si existe)
-                            let tempTotal = runningTotal
-                            if (currentPhaseCost && !sortedAccumulated.find(p => p.phase === currentPhaseCost.phase)) {
-                              tempTotal -= currentPhaseCost.costCredits
-                            }
-                            const afterDebate = tempTotal - estimatedDebateCost.max
-                            return (
-                              <div className="flex justify-between items-center text-xs text-purple-300/60 pt-0.5">
-                                <span>Después del debate:</span>
-                                <span className="font-medium">~{afterDebate.toLocaleString()} créditos</span>
-                              </div>
-                            )
-                          })()}
-                        </div>
-                      )}
-                      
-                      {/* Total y restantes */}
-                      <div className="pt-2 border-t-2 border-purple-500/40 space-y-1">
-                        {total > 0 && (
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-purple-200 font-medium">Total estimado:</span>
-                            <span className="font-bold text-purple-300">~{total} créditos</span>
-                          </div>
-                        )}
-                        {remaining >= 0 ? (
-                          <div className="flex justify-between items-center pt-1">
-                            <span className="text-green-200 font-medium text-sm">Restantes estimados:</span>
-                            <span className="font-bold text-green-300 text-base">~{remaining.toLocaleString()} créditos</span>
-                          </div>
-                        ) : (
-                          <div className="flex justify-between items-center pt-1">
-                            <span className="text-red-200 font-medium text-sm">⚠️ Insuficientes:</span>
-                            <span className="font-bold text-red-300 text-base">Faltan {Math.abs(remaining)} créditos</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })()}
+            <div className="space-y-2">
+              <div className="font-semibold text-[var(--theme-text-inverted)] text-sm">Balance Total de Créditos</div>
+              <div className="flex justify-between items-center">
+                <span className="text-purple-200 text-sm">Créditos disponibles:</span>
+                <span className="font-bold text-[var(--theme-text-inverted)] text-base">{creditBalance.toLocaleString()} créditos</span>
+              </div>
+              <div className="text-xs text-purple-200/70 border-t border-purple-500/30 pt-2">
+                Este es tu balance general de créditos. Los costos específicos del debate se muestran en el indicador inferior.
               </div>
             </div>
           </TooltipContent>
@@ -433,7 +281,7 @@ export function CreditCounter({
         {estimatedRemainingCredits < 0 && (
           <div className="flex justify-between items-center pt-1">
             <span className="text-sm font-medium text-red-300">
-              ⚠️ Créditos insuficientes:
+              [WARN] Créditos insuficientes:
             </span>
             <span className="text-lg font-bold text-red-400">
               Faltan {Math.abs(estimatedRemainingCredits)} créditos

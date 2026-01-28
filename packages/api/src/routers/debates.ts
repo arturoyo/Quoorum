@@ -1908,7 +1908,8 @@ export const debatesRouter = router({
         QUESTION_GENERATION_CREDITS,
         undefined, // No debateId for question generation
         'debate_creation', // Source: critical questions generation
-        'Generación de preguntas críticas de contexto'
+        'Generación de preguntas críticas de contexto',
+        input.question // Store the debate question in metadata
       );
 
       if (!deductionResult.success) {
@@ -2015,14 +2016,14 @@ export const debatesRouter = router({
 
         // Construir mensaje de contexto para la IA
         const contextMessage = existingContext
-          ? `\n\n⚠️ CONTEXTO EXISTENTE DEL USUARIO (NO PREGUNTES ESTO):${existingContext}\n\nIMPORTANTE: NO generes preguntas sobre información que YA está en el contexto existente. En su lugar, PROFUNDIZA en aspectos específicos relacionados con la pregunta del usuario que NO estén cubiertos.`
+          ? `\n\n[WARN] CONTEXTO EXISTENTE DEL USUARIO (NO PREGUNTES ESTO):${existingContext}\n\nIMPORTANTE: NO generes preguntas sobre información que YA está en el contexto existente. En su lugar, PROFUNDIZA en aspectos específicos relacionados con la pregunta del usuario que NO estén cubiertos.`
           : "";
 
         const systemPrompt = `Eres un experto en recopilar contexto para decisiones estratégicas.
 
 OBJETIVO: Generar 3-4 preguntas ESPECÍFICAS, DINÁMICAS y ÚNICAS basadas en la pregunta concreta del usuario.
 
-⚠️ REGLAS CRÍTICAS:
+[WARN] REGLAS CRÍTICAS:
 1. Las preguntas DEBEN ser ESPECÍFICAS a la pregunta del usuario, NO genéricas
 2. Cada pregunta debe ser ÚNICA y diferente de las otras (no repetir el mismo concepto)
 3. Varía el enfoque: una puede ser sobre recursos, otra sobre timing, otra sobre métricas, etc.
@@ -2040,13 +2041,13 @@ PROCESO:
    - Si la pregunta es sobre "producto" → Pregunta sobre features, usuarios objetivo, diferenciación
    - Si la pregunta es sobre "estrategia" → Pregunta sobre objetivos específicos, recursos, timeline, métricas
 
-3. ❌ NUNCA uses preguntas genéricas que se aplican a cualquier decisión:
-   - ❌ "¿Cuál es el objetivo principal?" (genérico, ya está en la pregunta)
-   - ❌ "¿En qué etapa está tu negocio?" (genérico, no específico a la decisión)
-   - ❌ "¿Tienes restricciones de presupuesto o tiempo?" (genérico, no específico)
-   - ✅ En su lugar, pregunta aspectos ESPECÍFICOS de la decisión concreta
+3. [ERROR] NUNCA uses preguntas genéricas que se aplican a cualquier decisión:
+   - [ERROR] "¿Cuál es el objetivo principal?" (genérico, ya está en la pregunta)
+   - [ERROR] "¿En qué etapa está tu negocio?" (genérico, no específico a la decisión)
+   - [ERROR] "¿Tienes restricciones de presupuesto o tiempo?" (genérico, no específico)
+   - [OK] En su lugar, pregunta aspectos ESPECÍFICOS de la decisión concreta
 
-4. ⚠️ ANTI-DUPLICACIÓN: Asegúrate de que cada pregunta:
+4. [WARN] ANTI-DUPLICACIÓN: Asegúrate de que cada pregunta:
    - Aborda un aspecto DIFERENTE de la decisión
    - No repite el mismo concepto con otras palabras
    - Varía el tipo de información que busca (cuantitativa vs cualitativa, corto plazo vs largo plazo, etc.)
@@ -2055,12 +2056,12 @@ EJEMPLOS DE PREGUNTAS ESPECÍFICAS vs GENÉRICAS:
 
 Pregunta del usuario: "¿Cuál es la mejor estrategia para lanzar Quoorum al mercado?"
 
-❌ GENÉRICAS (NO usar):
+[ERROR] GENÉRICAS (NO usar):
 - "¿Cuál es el objetivo principal que quieres lograr?" (ya está en la pregunta)
 - "¿En qué etapa está tu negocio?" (genérico)
 - "¿Tienes restricciones de presupuesto o tiempo?" (genérico)
 
-✅ ESPECÍFICAS Y ÚNICAS (usar):
+[OK] ESPECÍFICAS Y ÚNICAS (usar):
 - "¿Qué canales de marketing específicos estás considerando para el lanzamiento?" (free_text, long) - Enfoque: canales
 - "¿Cuál es tu propuesta de valor única que te diferencia de la competencia?" (free_text, long) - Enfoque: diferenciación
 - "¿Qué presupuesto de marketing tienes asignado para el lanzamiento?" (free_text, short) - Enfoque: recursos
@@ -2068,11 +2069,11 @@ Pregunta del usuario: "¿Cuál es la mejor estrategia para lanzar Quoorum al mer
 
 Pregunta del usuario: "¿Debería invertir en esta startup?"
 
-❌ GENÉRICAS (NO usar):
+[ERROR] GENÉRICAS (NO usar):
 - "¿Cuál es tu objetivo?" (genérico)
 - "¿En qué etapa está tu negocio?" (genérico)
 
-✅ ESPECÍFICAS Y ÚNICAS (usar):
+[OK] ESPECÍFICAS Y ÚNICAS (usar):
 - "¿Qué términos específicos te están proponiendo?" (free_text, short) - Enfoque: términos
 - "¿Qué valoración tiene la startup?" (free_text, short) - Enfoque: valoración
 - "¿En qué usarán los fondos?" (free_text, long) - Enfoque: uso de fondos
@@ -2085,9 +2086,9 @@ TIPO DE RESPUESTA:
   - "short": Una línea (ej: "¿Cuánto presupuesto?")
   - "long": Párrafo (ej: "Describe tu estrategia de diferenciación")
 
-⚠️ CONTEXTO EXISTENTE: El usuario ya proporcionó información sobre perfil, empresa y departamentos. NO preguntes información que YA está disponible. PROFUNDIZA en aspectos específicos de la decisión.
+[WARN] CONTEXTO EXISTENTE: El usuario ya proporcionó información sobre perfil, empresa y departamentos. NO preguntes información que YA está disponible. PROFUNDIZA en aspectos específicos de la decisión.
 
-⚠️ UNICIDAD: Cada pregunta debe ser única. Si generas dos preguntas similares, combínalas en una o elimina una.
+[WARN] UNICIDAD: Cada pregunta debe ser única. Si generas dos preguntas similares, combínalas en una o elimina una.
 
 RESPONDE JSON (sin markdown):
 [
@@ -2406,7 +2407,8 @@ RESPONDE JSON:
         EVALUATION_CREDITS,
         undefined, // No debateId for context evaluation
         'debate_creation', // Source: context quality evaluation
-        'Evaluación de calidad de contexto'
+        'Evaluación de calidad de contexto',
+        input.question // Store the debate question in metadata
       );
 
       if (!deductionResult.success) {

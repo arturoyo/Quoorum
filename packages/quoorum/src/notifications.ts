@@ -66,7 +66,7 @@ async function sendEmailNotification(
   debate: DebateResult,
   experts: ExpertProfile[]
 ): Promise<void> {
-  const subject = `✅ Tu debate de Forum está completo`
+  const subject = `[OK] Tu debate de Forum está completo`
 
   const html = generateEmailHTML(debate, experts)
   const text = generateEmailText(debate, experts)
@@ -242,7 +242,7 @@ function generateEmailHTML(debate: DebateResult, experts: ExpertProfile[]): stri
           <!-- Header -->
           <tr>
             <td style="background-color: ${brandingColor}; padding: 30px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">✅ Debate Completado</h1>
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">[OK] Debate Completado</h1>
             </td>
           </tr>
 

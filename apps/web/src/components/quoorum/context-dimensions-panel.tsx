@@ -26,23 +26,23 @@ interface ContextDimensionsPanelProps {
 }
 
 const DIMENSION_ICONS: Record<string, string> = {
-  objective: '🎯',
+  objective: '[INFO]',
   constraints: '💰',
   stakeholders: '👥',
   context: '📍',
   options: '⚡',
   criteria: '📏',
-  risks: '⚠️',
+  risks: '[WARN]',
   timeline: '⏰',
   vision: '🔮',
   current_state: '📊',
   market: '🌍',
   resources: '🛠️',
-  differentiators: '✨',
-  problem: '🔴',
+  differentiators: '[INFO]',
+  problem: '[ERROR]',
   user: '👤',
   solution: '💡',
-  mvp: '🚀',
+  mvp: '[INFO]',
   metrics: '📈',
 }
 
@@ -99,7 +99,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
             )}>
               {overallScore >= 85 ? '✓ Excelente' :
                overallScore >= 60 ? '→ Bueno' :
-               '❌ Insuficiente'}
+               '[ERROR] Insuficiente'}
             </div>
           </div>
         </div>
@@ -188,7 +188,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
           const statusText =
             dimension.status === 'complete' ? '✓ Completo' :
             dimension.status === 'partial' ? '→ Más detalles' :
-            '❌ Crítico'
+            '[ERROR] Crítico'
 
           return (
             <div

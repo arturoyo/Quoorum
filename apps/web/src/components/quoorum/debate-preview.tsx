@@ -160,7 +160,7 @@ export function DebatePreview({
       {hotPoints.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-white">
-            🔥 Puntos Calientes (Alta Controversia)
+            [WARN] Puntos Calientes (Alta Controversia)
           </h4>
           {hotPoints.map((point, index) => {
             const config = importanceConfig[point.importance]
@@ -273,7 +273,7 @@ export function DebatePreview({
       {weakPoints.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-white">
-            ⚠️ Puntos Débiles (Contexto Insuficiente)
+            [WARN] Puntos Débiles (Contexto Insuficiente)
           </h4>
           {weakPoints.map((weak, index) => (
             <motion.div

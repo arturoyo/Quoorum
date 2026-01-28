@@ -9,8 +9,8 @@
 
 import { useMemo, useState, useCallback } from 'react'
 import ReactFlow, {
-  Node,
-  Edge,
+  type Node,
+  type Edge,
   Background,
   Controls,
   MiniMap,
@@ -218,17 +218,9 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
     )
   }
 
+  // Don't render anything if there's no data
   if (!tree || tree.nodes.length === 0) {
-    return (
-      <Card className="border-[#2a3942] bg-[#111b21]">
-        <CardHeader>
-          <CardTitle className="text-white">Árbol de Argumentos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-[#aebac1]">No se pudieron extraer argumentos de este debate.</p>
-        </CardContent>
-      </Card>
-    )
+    return null
   }
 
   return (

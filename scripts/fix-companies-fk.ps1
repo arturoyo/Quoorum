@@ -59,7 +59,7 @@ Write-Host "⚡ Ejecutando SQL en PostgreSQL..." -ForegroundColor Yellow
 docker exec -i quoorum-postgres psql -U postgres -d quoorum -f /host_mnt/c/Quoorum/scripts/temp-fix.sql
 
 Write-Host ""
-Write-Host "✅ Verificando resultados..." -ForegroundColor Green
+Write-Host "[OK] Verificando resultados..." -ForegroundColor Green
 docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT id, email, name FROM profiles WHERE id = 'f198d53b-9524-45b9-87cf-a810a857a616';"
 
 Write-Host ""

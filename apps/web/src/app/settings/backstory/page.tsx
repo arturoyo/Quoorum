@@ -143,11 +143,11 @@ export default function BackstorySettingsPage() {
     if (backstory) {
       setFormData({
         companyName: backstory.companyName || "",
-        role: (backstory.role || "") as (typeof ROLES)[number]["value"] | "",
-        industry: (backstory.industry || "") as (typeof INDUSTRIES)[number]["value"] | "",
-        companySize: (backstory.companySize || "") as (typeof COMPANY_SIZES)[number]["value"] | "",
-        companyStage: (backstory.companyStage || "") as (typeof COMPANY_STAGES)[number]["value"] | "",
-        decisionStyle: (backstory.decisionStyle || "") as (typeof DECISION_STYLES)[number]["value"] | "",
+        role: (backstory.role || ""),
+        industry: (backstory.industry || ""),
+        companySize: (backstory.companySize || ""),
+        companyStage: (backstory.companyStage || ""),
+        decisionStyle: (backstory.decisionStyle || ""),
         additionalContext: backstory.additionalContext || "",
       });
     }

@@ -78,7 +78,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
   } = useDebatesLayout()
 
   return (
-    <div className="flex h-screen flex-col relative bg-[var(--theme-bg-primary)]">
+    <div className="flex h-screen flex-col relative bg-[var(--theme-bg-primary)] pt-16 pb-24">
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
@@ -89,9 +89,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
       <AppHeader variant="app" />
 
       <div className={cn(
-        "relative flex flex-1 overflow-hidden",
-        // Solo añadir pt-16 si NO es new-unified (para que el sticky funcione correctamente)
-        !isNewDebate && "pt-16"
+        "relative flex flex-1 overflow-hidden"
       )}>
         {/* Debates List - Left Side */}
         {!isNewDebate && (

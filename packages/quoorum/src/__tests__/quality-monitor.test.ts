@@ -249,7 +249,7 @@ describe('Quality Monitor', () => {
 
       const summary = summarizeQuality(analysis)
 
-      expect(summary).toContain('🟢')
+      expect(summary).toContain('[OK]')
       expect(summary).toContain('85/100')
       expect(summary).toContain('Profundidad: 80')
       expect(summary).toContain('Diversidad: 85')
@@ -307,7 +307,7 @@ describe('Quality Monitor', () => {
 
       const summary = summarizeQuality(analysis)
 
-      expect(summary).toContain('🔴')
+      expect(summary).toContain('[ERROR]')
       expect(summary).toContain('45/100')
       expect(summary).toContain('Problemas: 2')
     })

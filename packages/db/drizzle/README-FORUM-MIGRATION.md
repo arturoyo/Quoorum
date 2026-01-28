@@ -75,7 +75,7 @@ cd packages/db
 pnpm drizzle-kit push
 ```
 
-⚠️ **Warning**: `drizzle-kit push` will drop and recreate tables. Only use in development!
+[WARN] **Warning**: `drizzle-kit push` will drop and recreate tables. Only use in development!
 
 ## Verification
 

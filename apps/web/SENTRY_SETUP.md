@@ -1,16 +1,16 @@
-# 🔴 Setup de Sentry para Quoorum
+# [ERROR] Setup de Sentry para Quoorum
 
 > **Estado:** ⚪ PREPARADO pero NO instalado
 >
 > **Archivos creados:**
-> - ✅ `instrumentation.ts` - Entry point
-> - ✅ `sentry.client.config.ts` - Client-side
-> - ✅ `sentry.server.config.ts` - Server-side
-> - ✅ `sentry.edge.config.ts` - Edge Runtime
+> - [OK] `instrumentation.ts` - Entry point
+> - [OK] `sentry.client.config.ts` - Client-side
+> - [OK] `sentry.server.config.ts` - Server-side
+> - [OK] `sentry.edge.config.ts` - Edge Runtime
 
 ---
 
-## 🚀 Instalación Rápida (5 minutos)
+## [INFO] Instalación Rápida (5 minutos)
 
 ### 1. Instalar dependencia
 
@@ -47,7 +47,7 @@ Editar estos 3 archivos y descomentar el código:
 - `sentry.server.config.ts`
 - `sentry.edge.config.ts`
 
-(Buscar `// ⚠️ DESCOMENTAR CUANDO SENTRY ESTÉ INSTALADO`)
+(Buscar `// [WARN] DESCOMENTAR CUANDO SENTRY ESTÉ INSTALADO`)
 
 ### 5. Habilitar instrumentationHook en Next.js
 
@@ -56,7 +56,7 @@ Editar `next.config.ts`:
 const nextConfig: NextConfig = {
   // ... configuración existente
   experimental: {
-    instrumentationHook: true, // ✅ Añadir esta línea
+    instrumentationHook: true, // [OK] Añadir esta línea
   },
 }
 ```
@@ -69,7 +69,7 @@ pnpm dev
 
 Deberías ver en consola:
 ```
-✅ Sentry initialized
+[OK] Sentry initialized
 ```
 
 Si no ves nada, asegúrate de que las variables de entorno están correctas.
@@ -78,19 +78,19 @@ Si no ves nada, asegúrate de que las variables de entorno están correctas.
 
 ## 📊 Funcionalidades Configuradas
 
-### ✅ Client-Side (navegador)
+### [OK] Client-Side (navegador)
 - **Auto-captura de errores** no manejados
 - **Session Replay** (grabaciones de sesión cuando hay error)
 - **Browser Tracing** (performance)
 - **Redacción de datos sensibles** (tokens, passwords, etc.)
 
-### ✅ Server-Side (API routes)
+### [OK] Server-Side (API routes)
 - **Captura de errores** en API routes y Server Components
 - **Node Profiling** (performance profiling)
 - **Redacción automática** de headers sensibles (Authorization, Cookie)
 - **Filtrado de TRPCError** (ya manejados)
 
-### ✅ Edge Runtime (middleware)
+### [OK] Edge Runtime (middleware)
 - **Captura de errores** en middleware y edge functions
 - **Redacción de headers** sensibles
 - **Ignorar redirects** de Next.js

@@ -384,7 +384,7 @@ function buildContextSummary(
 
   // Mission/Vision/Values (Layer 2)
   if (company.context) {
-    lines.push(`\n🎯 Contexto Maestro:\n${company.context}`)
+    lines.push(`\n[INFO] Contexto Maestro:\n${company.context}`)
   }
 
   // Department contexts (Layer 3)

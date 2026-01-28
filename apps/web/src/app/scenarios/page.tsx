@@ -3,7 +3,7 @@
 /**
  * Scenarios Page
  *
- * Lista de Escenarios de Oro (Decision Playbooks) disponibles
+ * Lista de Escenarios (Decision Playbooks) disponibles
  * Permite seleccionar un escenario y lanzar un debate con un clic
  */
 
@@ -124,7 +124,7 @@ export default function ScenariosPage() {
           <div className="flex items-center gap-3 mb-4">
             <Sparkles className="h-8 w-8 text-purple-400" />
             <h1 className="text-3xl font-bold text-[var(--theme-text-primary)]">
-              Escenarios de Oro
+              Escenarios
             </h1>
           </div>
           <p className="text-[var(--theme-text-secondary)] max-w-2xl">

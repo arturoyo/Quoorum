@@ -10,7 +10,8 @@ import { api } from '@/lib/trpc/client'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Pencil, Trash2, Coins } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Pencil, Trash2, Sparkles } from 'lucide-react'
 import { getContextualIcon } from '@/lib/icons/contextual-icons'
 
 interface DebateListItemProps {
@@ -25,6 +26,8 @@ interface DebateListItemProps {
       tags?: string[]
       topics?: string[]
       areas?: string[]
+      scenarioId?: string
+      scenarioName?: string
     } | null
   }
   isSelected: boolean
@@ -67,12 +70,6 @@ export function DebateListItem({
   const [editedTitle, setEditedTitle] = useState(debate.metadata?.title || debate.question)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const utils = api.useUtils()
-
-  // Obtener créditos del usuario
-  const { data: planData } = api.billing.getCurrentPlan.useQuery(undefined, {
-    retry: false,
-  })
-  const creditBalance = planData?.credits ?? 0
 
   const updateDebateMutation = api.debates.update.useMutation({
     onSuccess: () => {
@@ -131,6 +128,9 @@ export function DebateListItem({
     debate.metadata?.areas
   )
 
+  const displayTitle = debate.metadata?.title || debate.question
+  const shortTitle = displayTitle.length > 120 ? `${displayTitle.slice(0, 120)}…` : displayTitle
+
   return (
     <div
       onMouseEnter={() => setIsHovered(true)}
@@ -179,35 +179,23 @@ export function DebateListItem({
               'truncate text-sm font-medium',
               isSelected ? 'text-white font-semibold' : 'text-white'
             )}>
-              {debate.metadata?.title || debate.question}
+                {shortTitle}
             </h3>
           )}
-          <div className="mt-1 flex items-center gap-2">
+            <div className="mt-1 flex items-center gap-2">
             <span className={cn('h-2 w-2 rounded-full', statusColors[debate.status as keyof typeof statusColors])} />
             <span className="text-xs text-[#aebac1]">
               {statusLabels[debate.status as keyof typeof statusLabels]}
             </span>
+              {debate.metadata?.scenarioId && (
+                <Badge variant="outline" className="border-purple-500/30 bg-purple-500/10 text-purple-200 flex items-center gap-1 text-[11px]">
+                  <Sparkles className="h-3 w-3" />
+                  Escenario
+                </Badge>
+              )}
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {/* Badge circular con porcentaje de consenso y créditos */}
-          {debate.consensusScore !== null && debate.consensusScore !== undefined && (
-            <div className="flex items-center gap-2">
-              {/* Badge circular con porcentaje */}
-              <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">
-                  {Math.round(debate.consensusScore * 100)}%
-                </span>
-              </div>
-              {/* Información de créditos */}
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[var(--theme-bg-input)] border border-[var(--theme-border)]">
-                <Coins className="h-3.5 w-3.5 text-purple-400" />
-                <span className="text-xs text-[#aebac1] font-medium">
-                  {creditBalance.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          )}
           {isHovered && !isEditing && (
             <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <button

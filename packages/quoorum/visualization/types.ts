@@ -17,7 +17,7 @@ export const EXPERT_COLORS: Record<ExpertCategory, ExpertColor> = {
   gtm: {
     category: 'gtm',
     color: '#10b981', // green-500
-    emoji: '🟢',
+    emoji: '[OK]',
     label: 'Go-to-Market',
   },
   pricing: {
@@ -41,7 +41,7 @@ export const EXPERT_COLORS: Record<ExpertCategory, ExpertColor> = {
   ai: {
     category: 'ai',
     color: '#ef4444', // red-500
-    emoji: '🔴',
+    emoji: '[ERROR]',
     label: 'AI/ML',
   },
   critic: {

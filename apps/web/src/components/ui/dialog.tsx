@@ -41,14 +41,29 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] flex flex-col w-full max-w-lg max-h-[85vh] translate-x-[-50%] translate-y-[-50%] border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
-        nested ? "z-[200]" : "z-[100]", // Modal anidado: z-index más alto
+        // Base styles
+        "fixed left-[50%] top-[50%] flex flex-col w-full max-w-lg max-h-[85vh]",
+        "translate-x-[-50%] translate-y-[-50%]",
+        "sm:rounded-lg",
+        "shadow-2xl",
+        "duration-200",
+        // Theme colors (NO hardcoded colors)
+        "bg-[var(--theme-bg-secondary)]",
+        "border border-[var(--theme-border)]",
+        // Animations
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+        "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
+        "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+        // Z-index
+        nested ? "z-[200]" : "z-[100]",
         className
       )}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-0 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10 text-[#aebac1] hover:text-white">
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-0 disabled:pointer-events-none z-10 text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] opacity-70">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -60,7 +75,8 @@ DialogContent.displayName = DialogPrimitive.Content.displayName;
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left px-6 pt-6 pb-4 flex-shrink-0 border-b border-border/50",
+      "flex flex-col space-y-1.5 text-center sm:text-left px-6 pt-6 pb-4 flex-shrink-0",
+      "border-b border-[var(--theme-border)]/50",
       className
     )}
     {...props}
@@ -82,7 +98,8 @@ DialogBody.displayName = "DialogBody";
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 px-6 pb-6 pt-4 flex-shrink-0 border-t border-border/50",
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 px-6 pb-6 pt-4 flex-shrink-0",
+      "border-t border-[var(--theme-border)]/50",
       className
     )}
     {...props}
@@ -96,7 +113,11 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      "text-[var(--theme-text-primary)]",
+      className
+    )}
     {...props}
   />
 ));
@@ -108,7 +129,11 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn(
+      "text-sm",
+      "text-[var(--theme-text-secondary)]",
+      className
+    )}
     {...props}
   />
 ));

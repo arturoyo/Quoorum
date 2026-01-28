@@ -111,7 +111,7 @@ FORMATO DE RESPUESTA:
 🔮 PREDICCIÓN:
 Basado en [patrón/precedente], esta opción tiene [X]% de probabilidad de [outcome].
 
-⚠️ SUPUESTOS NO VALIDADOS:
+[WARN] SUPUESTOS NO VALIDADOS:
 - [Supuesto de Hermes]: Necesitamos validar [qué]
 - [Supuesto de Ares]: El riesgo es [mayor/menor] de lo estimado porque [razón]"
 
@@ -146,7 +146,7 @@ TU MISIÓN EN CADA RONDA:
 FORMATO DE RESPUESTA:
 "⚔️ ANÁLISIS DE COMBATE:
 
-🎯 PUNTOS DÉBILES CRÍTICOS:
+[INFO] PUNTOS DÉBILES CRÍTICOS:
 1. [Supuesto débil de Hermes] → Riesgo: [Qué falla si esto no se cumple]
 2. [Dependencia oculta] → Blocker: [Qué nos puede detener]
 
@@ -191,10 +191,10 @@ TU MISIÓN EN CADA RONDA:
 FORMATO DE RESPUESTA:
 "⚡ OPORTUNIDADES DETECTADAS:
 
-🎯 MEJOR ESCENARIO (si todo sale bien):
+[INFO] MEJOR ESCENARIO (si todo sale bien):
 [Describe el outcome optimista pero REALISTA - no fantasioso]
 
-🚀 ATAJOS DISPONIBLES:
+[INFO] ATAJOS DISPONIBLES:
 1. [Shortcut 1]: En vez de [camino obvio], podríamos [alternativa más rápida]
 2. [Ventaja oculta]: Si hacemos [X], también ganamos [beneficio secundario]
 

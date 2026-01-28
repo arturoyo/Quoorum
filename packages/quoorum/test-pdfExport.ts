@@ -126,10 +126,10 @@ async function testPdfExport() {
     const hasRounds = markdown.includes('Ronda 1')
 
     if (hasQuestion && hasExperts && hasMetrics && hasRanking && hasRounds) {
-      log('   ✅ generateDebateMarkdown() produces valid markdown', colors.green)
+      log('   [OK] generateDebateMarkdown() produces valid markdown', colors.green)
       passedTests++
     } else {
-      log('   ❌ Missing content in markdown output', colors.red)
+      log('   [ERROR] Missing content in markdown output', colors.red)
       log(`      hasQuestion: ${hasQuestion}`)
       log(`      hasExperts: ${hasExperts}`)
       log(`      hasMetrics: ${hasMetrics}`)
@@ -141,7 +141,7 @@ async function testPdfExport() {
     log('\n   Preview of markdown output:', colors.cyan)
     log('   ' + markdown.substring(0, 500).replace(/\n/g, '\n   ') + '...')
   } catch (error) {
-    log(`   ❌ generateDebateMarkdown() failed: ${error}`, colors.red)
+    log(`   [ERROR] generateDebateMarkdown() failed: ${error}`, colors.red)
   }
 
   // Test 2: Markdown with minimal data
@@ -162,13 +162,13 @@ async function testPdfExport() {
     const markdown = generateDebateMarkdown(minimalDebate, [], undefined)
 
     if (markdown.includes('Test question') && markdown.includes('## Pregunta')) {
-      log('   ✅ generateDebateMarkdown() handles minimal data', colors.green)
+      log('   [OK] generateDebateMarkdown() handles minimal data', colors.green)
       passedTests++
     } else {
-      log('   ❌ Minimal markdown generation failed', colors.red)
+      log('   [ERROR] Minimal markdown generation failed', colors.red)
     }
   } catch (error) {
-    log(`   ❌ generateDebateMarkdown() with minimal data failed: ${error}`, colors.red)
+    log(`   [ERROR] generateDebateMarkdown() with minimal data failed: ${error}`, colors.red)
   }
 
   // Test 3: HTML escaping
@@ -190,13 +190,13 @@ async function testPdfExport() {
 
     // In markdown, we don't need HTML escaping, but the content should be there
     if (markdown.includes('script')) {
-      log('   ✅ Content preserved in markdown (escaping not needed for markdown)', colors.green)
+      log('   [OK] Content preserved in markdown (escaping not needed for markdown)', colors.green)
       passedTests++
     } else {
-      log('   ❌ Content lost in markdown generation', colors.red)
+      log('   [ERROR] Content lost in markdown generation', colors.red)
     }
   } catch (error) {
-    log(`   ❌ HTML escaping test failed: ${error}`, colors.red)
+    log(`   [ERROR] HTML escaping test failed: ${error}`, colors.red)
   }
 
   // Summary
@@ -211,14 +211,14 @@ async function testPdfExport() {
 testPdfExport()
   .then((success) => {
     if (success) {
-      log('\n✅ All PDF export tests passed!\n', colors.green)
+      log('\n[OK] All PDF export tests passed!\n', colors.green)
       process.exit(0)
     } else {
-      log('\n⚠️ Some tests failed\n', colors.yellow)
+      log('\n[WARN] Some tests failed\n', colors.yellow)
       process.exit(1)
     }
   })
   .catch((error) => {
-    log(`\n❌ Test error: ${error}\n`, colors.red)
+    log(`\n[ERROR] Test error: ${error}\n`, colors.red)
     process.exit(1)
   })

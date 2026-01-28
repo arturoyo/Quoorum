@@ -73,7 +73,6 @@ export function usePersonalization({ isInModal = false }: UsePersonalizationOpti
 
       // Load profile data from user metadata
       setProfileData({
-        nickname: user.user_metadata?.nickname || user.user_metadata?.first_name || '',
         occupation: user.user_metadata?.occupation || user.user_metadata?.role || '',
         about: user.user_metadata?.about || '',
         customInstructions: user.user_metadata?.custom_instructions || '',
@@ -152,7 +151,6 @@ export function usePersonalization({ isInModal = false }: UsePersonalizationOpti
       try {
         const { error } = await supabase.auth.updateUser({
           data: {
-            nickname: profileData.nickname,
             occupation: profileData.occupation,
             about: profileData.about,
             custom_instructions: profileData.customInstructions,

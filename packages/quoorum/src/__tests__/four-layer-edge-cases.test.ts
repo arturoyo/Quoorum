@@ -132,12 +132,12 @@ describe('4-Layer Prompt - Special Characters', () => {
 
   it('should handle unicode and emojis', () => {
     const prompt = buildFourLayerPrompt(mockAgent, {
-      companyContext: 'Misión: 🚀 Innovar 🌍 Globalmente 💡',
+      companyContext: 'Misión: [INFO] Innovar 🌍 Globalmente 💡',
       departmentContext: '📊 KPIs: CAC < $50 💰',
       customPrompt: 'Usa emojis 😊 para hacer el contenido más amigable 👍',
     })
 
-    expect(prompt).toContain('🚀')
+    expect(prompt).toContain('[INFO]')
     expect(prompt).toContain('📊')
     expect(prompt).toContain('😊')
   })

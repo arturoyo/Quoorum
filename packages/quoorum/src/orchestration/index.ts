@@ -3,7 +3,7 @@
  *
  * Exports for the debate orchestration system.
  *
- * ⚠️ IMPORTANT: Use QuoorumSystem as the unified entry point for all features.
+ * [WARN] IMPORTANT: Use QuoorumSystem as the unified entry point for all features.
  * The legacy exports (DebateOrchestrator, ExecutiveOrchestrator) are deprecated
  * and will be removed in a future version.
  */

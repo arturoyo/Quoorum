@@ -60,7 +60,7 @@ async function analyzeCommand(question: string) {
   log(`  Complexity: ${analysis.complexity}/10`)
   log(`  Decision Type: ${analysis.decisionType}`)
 
-  section('🎯 Knowledge Areas')
+  section('[INFO] Knowledge Areas')
   for (const area of analysis.areas) {
     log(`  • ${area.area} (${area.weight}%) - ${area.reasoning}`)
   }
@@ -112,7 +112,7 @@ async function modeCommand(question: string) {
 
   const modeInfo = await getDebateMode(question)
 
-  section('🎯 Mode')
+  section('[INFO] Mode')
   const modeColor = modeInfo.mode === 'dynamic' ? colors.green : colors.yellow
   log(`  Mode: ${modeInfo.mode.toUpperCase()}`, modeColor)
   log(`  Reason: ${modeInfo.reason}`)
@@ -144,27 +144,27 @@ async function costCommand(question: string) {
 }
 
 async function validateCommand(question: string) {
-  header('✅ QUESTION VALIDATION')
+  header('[OK] QUESTION VALIDATION')
 
   log(`Question: "${question}"`, colors.bright)
 
   const validation = validateQuestion(question)
 
   if (validation.valid) {
-    log('\n✅ Question is valid!', colors.green)
+    log('\n[OK] Question is valid!', colors.green)
   } else {
-    log('\n❌ Question is invalid', colors.red)
+    log('\n[ERROR] Question is invalid', colors.red)
   }
 
   if (validation.errors.length > 0) {
-    section('❌ Errors')
+    section('[ERROR] Errors')
     for (const error of validation.errors) {
       log(`  • ${error}`, colors.red)
     }
   }
 
   if (validation.warnings.length > 0) {
-    section('⚠️  Warnings')
+    section('[WARN]  Warnings')
     for (const warning of validation.warnings) {
       log(`  • ${warning}`, colors.yellow)
     }
@@ -190,7 +190,7 @@ async function insightsCommand(question: string) {
   log(`  Decision Type: ${insights.decisionTypeLabel}`)
   log(`  Recommended Mode: ${insights.recommendedMode.toUpperCase()}`)
 
-  section('🎯 Areas & Topics')
+  section('[INFO] Areas & Topics')
   log(`  Primary Area: ${insights.primaryArea}`)
   log(`  All Areas: ${insights.allAreas.join(', ')}`)
   log(`  Topics: ${insights.topics.join(', ')}`)
@@ -225,7 +225,7 @@ async function main() {
   const question = args.slice(1).join(' ')
 
   if (!question) {
-    log('❌ Error: Question is required', colors.red)
+    log('[ERROR] Error: Question is required', colors.red)
     process.exit(1)
   }
 
@@ -250,12 +250,12 @@ async function main() {
         await insightsCommand(question)
         break
       default:
-        log(`❌ Unknown command: ${command}`, colors.red)
+        log(`[ERROR] Unknown command: ${command}`, colors.red)
         log('Run "pnpm forum" to see available commands')
         process.exit(1)
     }
   } catch (error) {
-    log(`\n❌ Error: ${error instanceof Error ? error.message : String(error)}`, colors.red)
+    log(`\n[ERROR] Error: ${error instanceof Error ? error.message : String(error)}`, colors.red)
     process.exit(1)
   }
 }

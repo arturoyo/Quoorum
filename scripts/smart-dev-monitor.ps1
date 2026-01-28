@@ -10,8 +10,8 @@ $ErrorActionPreference = "Continue"
 
 Write-Host "🤖 Smart Dev Monitor" -ForegroundColor Cyan
 Write-Host ("=" * 70) -ForegroundColor DarkGray
-Write-Host "   Auto-detection: ✅ Enabled" -ForegroundColor Green
-Write-Host "   Auto-fix: $(if ($AutoFix) { '✅ Enabled' } else { '❌ Disabled (use -AutoFix)' })" -ForegroundColor $(if ($AutoFix) { 'Green' } else { 'Yellow' })
+Write-Host "   Auto-detection: [OK] Enabled" -ForegroundColor Green
+Write-Host "   Auto-fix: $(if ($AutoFix) { '[OK] Enabled' } else { '[ERROR] Disabled (use -AutoFix)' })" -ForegroundColor $(if ($AutoFix) { 'Green' } else { 'Yellow' })
 Write-Host "   Check interval: ${CheckInterval}s`n" -ForegroundColor Gray
 
 $TerminalDir = "$env:USERPROFILE\.cursor\projects\c-Quoorum\terminals"
@@ -58,7 +58,7 @@ while ($true) {
         # If errors detected
         if ($CurrentErrorCount -gt $LastErrorCount) {
             $NewErrors = $CurrentErrorCount - $LastErrorCount
-            Write-Host "`n⚠️  $NewErrors new error(s) detected!" -ForegroundColor Yellow
+            Write-Host "`n[WARN]  $NewErrors new error(s) detected!" -ForegroundColor Yellow
             Write-Host ("=" * 70) -ForegroundColor DarkGray
             
             # Show error summary
@@ -84,18 +84,18 @@ while ($true) {
                 }
                 
                 if ($AfterFixCount -lt $CurrentErrorCount) {
-                    Write-Host "✅ Fixes applied! Error count reduced." -ForegroundColor Green
+                    Write-Host "[OK] Fixes applied! Error count reduced." -ForegroundColor Green
                     $FixAttempts = 0 # Reset on success
                 } else {
-                    Write-Host "⚠️  Fixes applied but errors persist. Manual intervention may be needed." -ForegroundColor Yellow
+                    Write-Host "[WARN]  Fixes applied but errors persist. Manual intervention may be needed." -ForegroundColor Yellow
                 }
             } elseif ($AutoFix) {
-                Write-Host "⚠️  Max auto-fix attempts reached. Manual intervention required." -ForegroundColor Red
+                Write-Host "[WARN]  Max auto-fix attempts reached. Manual intervention required." -ForegroundColor Red
             }
             
             Write-Host ""
         } elseif ($CurrentErrorCount -eq 0 -and $LastErrorCount -gt 0) {
-            Write-Host "✅ All errors resolved!" -ForegroundColor Green
+            Write-Host "[OK] All errors resolved!" -ForegroundColor Green
             $FixAttempts = 0
         }
         
@@ -104,15 +104,15 @@ while ($true) {
         # Show status
         $Timestamp = Get-Date -Format "HH:mm:ss"
         if ($CurrentErrorCount -eq 0) {
-            Write-Host "[$Timestamp] ✅ No errors" -ForegroundColor Green
+            Write-Host "[$Timestamp] [OK] No errors" -ForegroundColor Green
         } else {
-            Write-Host "[$Timestamp] ⚠️  $CurrentErrorCount error(s) detected" -ForegroundColor Yellow
+            Write-Host "[$Timestamp] [WARN]  $CurrentErrorCount error(s) detected" -ForegroundColor Yellow
         }
         
         Start-Sleep -Seconds $CheckInterval
     }
     catch {
-        Write-Host "❌ Monitor error: $_" -ForegroundColor Red
+        Write-Host "[ERROR] Monitor error: $_" -ForegroundColor Red
         Start-Sleep -Seconds $CheckInterval
     }
 }

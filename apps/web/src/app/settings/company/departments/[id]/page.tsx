@@ -25,11 +25,11 @@ const DEPARTMENT_TYPES = [
   { value: 'operations', label: 'Operaciones', icon: '⚙️' },
   { value: 'hr', label: 'Recursos Humanos', icon: '👥' },
   { value: 'sales', label: 'Ventas', icon: '💼' },
-  { value: 'product', label: 'Producto', icon: '🎯' },
+  { value: 'product', label: 'Producto', icon: '[INFO]' },
   { value: 'engineering', label: 'Ingeniería', icon: '🛠️' },
   { value: 'customer_success', label: 'Customer Success', icon: '🤝' },
   { value: 'legal', label: 'Legal y Compliance', icon: '⚖️' },
-  { value: 'custom', label: 'Personalizado', icon: '✨' },
+  { value: 'custom', label: 'Personalizado', icon: '[INFO]' },
 ] as const
 
 const AGENT_ROLES = [

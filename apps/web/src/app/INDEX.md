@@ -8,101 +8,101 @@
 
 ---
 
-## 🎯 ARCHIVOS OFICIALES (ÚNICOS)
+## [INFO] ARCHIVOS OFICIALES (ÚNICOS)
 
 ### 🏠 Root Level
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `layout.tsx` | Layout principal de la app | ✅ Activo |
-| `page.tsx` | Landing page (homepage) | ✅ Activo |
+| `layout.tsx` | Layout principal de la app | [OK] Activo |
+| `page.tsx` | Landing page (homepage) | [OK] Activo |
 
 ### 🔐 Auth (`(auth)/`)
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `layout.tsx` | Layout de autenticación | ✅ Activo |
-| `login/page.tsx` | Página de login | ✅ Activo |
-| `signup/page.tsx` | Página de registro | ✅ Activo |
-| `forgot-password/page.tsx` | Recuperar contraseña | ✅ Activo |
-| `reset-password/page.tsx` | Resetear contraseña | ✅ Activo |
+| `layout.tsx` | Layout de autenticación | [OK] Activo |
+| `login/page.tsx` | Página de login | [OK] Activo |
+| `signup/page.tsx` | Página de registro | [OK] Activo |
+| `forgot-password/page.tsx` | Recuperar contraseña | [OK] Activo |
+| `reset-password/page.tsx` | Resetear contraseña | [OK] Activo |
 
 ### 📊 Dashboard
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `dashboard/layout.tsx` | Layout del dashboard | ✅ Activo |
-| `dashboard/page.tsx` | Dashboard principal | ✅ Activo |
+| `dashboard/layout.tsx` | Layout del dashboard | [OK] Activo |
+| `dashboard/page.tsx` | Dashboard principal | [OK] Activo |
 
 ### 💬 Debates (Sistema Quoorum)
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `debates/layout.tsx` | Layout de debates | ✅ Activo |
-| `debates/page.tsx` | Lista de debates | ✅ Activo |
-| `debates/[id]/page.tsx` | Vista de debate individual | ✅ Activo |
-| `debates/new/page.tsx` | **Crear nuevo debate (CHAT)** | ✅ Activo |
-| `debates/new/DebateForm.tsx` | Componente auxiliar (NO usado actualmente) | ⚠️ Revisar si eliminar |
+| `debates/layout.tsx` | Layout de debates | [OK] Activo |
+| `debates/page.tsx` | Lista de debates | [OK] Activo |
+| `debates/[id]/page.tsx` | Vista de debate individual | [OK] Activo |
+| `debates/new/page.tsx` | **Crear nuevo debate (CHAT)** | [OK] Activo |
+| `debates/new/DebateForm.tsx` | Componente auxiliar (NO usado actualmente) | [WARN] Revisar si eliminar |
 
 ### 🧠 Deliberations (Legacy/Alias?)
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `deliberations/page.tsx` | Lista de deliberaciones | ⚠️ Revisar si es duplicado de debates |
-| `deliberations/new/page.tsx` | Crear deliberación | ⚠️ Revisar si es duplicado de debates/new |
+| `deliberations/page.tsx` | Lista de deliberaciones | [WARN] Revisar si es duplicado de debates |
+| `deliberations/new/page.tsx` | Crear deliberación | [WARN] Revisar si es duplicado de debates/new |
 
 ### 👥 Experts
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `experts/page.tsx` | Página de expertos | ✅ Activo |
+| `experts/page.tsx` | Página de expertos | [OK] Activo |
 
 ### ⚙️ Settings
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `settings/page.tsx` | Settings principal | ✅ Activo |
-| `settings/api-keys/page.tsx` | Gestión API keys | ✅ Activo |
-| `settings/billing/page.tsx` | Facturación | ✅ Activo |
-| `settings/notifications/page.tsx` | Notificaciones | ✅ Activo |
-| `settings/security/page.tsx` | Seguridad | ✅ Activo |
+| `settings/page.tsx` | Settings principal | [OK] Activo |
+| `settings/api-keys/page.tsx` | Gestión API keys | [OK] Activo |
+| `settings/billing/page.tsx` | Facturación | [OK] Activo |
+| `settings/notifications/page.tsx` | Notificaciones | [OK] Activo |
+| `settings/security/page.tsx` | Seguridad | [OK] Activo |
 
 ### 📄 Legal & Info
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `about/page.tsx` | Sobre nosotros | ✅ Activo |
-| `blog/page.tsx` | Blog | ✅ Activo |
-| `contact/page.tsx` | Contacto | ✅ Activo |
-| `pricing/page.tsx` | Precios | ✅ Activo |
-| `privacy/page.tsx` | Política de privacidad | ✅ Activo |
-| `terms/page.tsx` | Términos de servicio | ✅ Activo |
+| `about/page.tsx` | Sobre nosotros | [OK] Activo |
+| `blog/page.tsx` | Blog | [OK] Activo |
+| `contact/page.tsx` | Contacto | [OK] Activo |
+| `pricing/page.tsx` | Precios | [OK] Activo |
+| `privacy/page.tsx` | Política de privacidad | [OK] Activo |
+| `terms/page.tsx` | Términos de servicio | [OK] Activo |
 
 ### 🎓 Onboarding
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `onboarding/page.tsx` | Flujo de onboarding | ✅ Activo |
+| `onboarding/page.tsx` | Flujo de onboarding | [OK] Activo |
 
 ### 🔧 Admin & Testing
 | Archivo | Propósito | Estado |
 |---------|-----------|--------|
-| `admin/logs/page.tsx` | Logs de administración | ✅ Activo |
-| `test/logging/page.tsx` | Test de logging | ✅ Activo (dev only) |
+| `admin/logs/page.tsx` | Logs de administración | [OK] Activo |
+| `test/logging/page.tsx` | Test de logging | [OK] Activo (dev only) |
 
 ---
 
-## ❌ ARCHIVOS A ELIMINAR (Backups innecesarios)
+## [ERROR] ARCHIVOS A ELIMINAR (Backups innecesarios)
 
 > Git ya tiene el historial completo. Los backups manuales son redundantes y causan confusión.
 
 ### Backups Detectados (ELIMINAR):
-- ❌ `page-backup.tsx` en: dashboard, debates/new, deliberations/new, deliberations, experts, onboarding, root, privacy, settings/api-keys, settings/billing, settings, terms
-- ❌ `page-2027.tsx` en root (archivo misterioso)
-- ❌ `DebateForm.tsx` en debates/new (si no se usa como componente importado)
+- [ERROR] `page-backup.tsx` en: dashboard, debates/new, deliberations/new, deliberations, experts, onboarding, root, privacy, settings/api-keys, settings/billing, settings, terms
+- [ERROR] `page-2027.tsx` en root (archivo misterioso)
+- [ERROR] `DebateForm.tsx` en debates/new (si no se usa como componente importado)
 
 ---
 
 ## 🚨 REGLAS DE ORO
 
-### ✅ HACER:
+### [OK] HACER:
 1. **CONSULTAR ESTE INDEX** antes de crear cualquier archivo .tsx
 2. **UNA SOLA VERSIÓN** por funcionalidad
 3. **GIT para historial** - NO crear backups manuales
 4. **Documentar aquí** cuando añadas un nuevo archivo principal
 
-### ❌ NO HACER:
+### [ERROR] NO HACER:
 1. **NO crear** `page-backup.tsx`, `page-old.tsx`, `page-v2.tsx`, etc.
 2. **NO duplicar** funcionalidad en archivos diferentes
 3. **NO dejar** archivos "por si acaso" - git los tiene
@@ -125,7 +125,7 @@ find apps/web/src/app -name "*similar*.tsx"
 # 4. Si necesitas crear uno nuevo:
 # - Añádelo a este INDEX
 # - Documenta su propósito
-# - Marca como ✅ Activo
+# - Marca como [OK] Activo
 ```
 
 ---

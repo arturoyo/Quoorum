@@ -4,17 +4,8 @@
  * Shows breadcrumbs, title, status badge, consensus score, and interactive controls.
  */
 
-import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
-import {
-  ArrowLeft,
-  Loader2,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-  Users,
-  ChevronRight,
-} from 'lucide-react'
+import { Loader2, CheckCircle2, AlertTriangle, Clock, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { InteractiveControls } from '@/components/quoorum/interactive-controls'
 import { DebateTagsManager } from './debate-tags-manager'
@@ -41,6 +32,8 @@ interface DebateHeaderProps {
       pattern?: string
       paused?: boolean
       tags?: string[]
+      scenarioId?: string
+      scenarioName?: string
     } | null
     rounds?: Array<{ messages?: unknown[] }> | null
     experts?: string[] | null
@@ -51,28 +44,28 @@ export function DebateHeader({ debate }: DebateHeaderProps) {
   const status = debate.status as DebateStatus
   const StatusIcon = statusConfig[status]?.icon
 
+  const displayTitle = debate.metadata?.title || debate.question
+  const shortTitle = displayTitle.length > 140 ? `${displayTitle.slice(0, 140)}…` : displayTitle
+
   return (
     <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/60 backdrop-blur-xl px-4 relative">
       <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
       <div className="relative flex min-h-16 py-3 items-start md:items-center justify-between gap-4">
         <div className="flex-1 min-w-0">
-          {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 mb-2 text-sm">
-            <Link
-              href="/debates"
-              className="text-[var(--theme-text-secondary)] hover:text-white transition-colors flex items-center gap-1 flex-shrink-0"
-            >
-              <ArrowLeft className="h-3 w-3" />
-              Debates
-            </Link>
-            <ChevronRight className="h-3 w-3 text-[var(--theme-text-tertiary)] flex-shrink-0" />
-            <span className="text-[var(--theme-text-secondary)] truncate">
-              {debate.metadata?.title || debate.question}
-            </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-lg md:text-xl font-semibold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent line-clamp-2 mb-2">
+              {shortTitle}
+            </h1>
+            {debate.metadata?.scenarioId && (
+              <Badge
+                variant="outline"
+                className="border-purple-500/30 bg-purple-500/10 text-purple-200 flex items-center gap-1 text-[11px]"
+              >
+                Escenario
+                {debate.metadata?.scenarioName && ` · ${debate.metadata.scenarioName}`}
+              </Badge>
+            )}
           </div>
-          <h1 className="text-lg md:text-xl font-semibold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent line-clamp-2 mb-2">
-            {debate.question}
-          </h1>
           <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--theme-text-secondary)]">
             <Badge
               className={cn(

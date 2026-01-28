@@ -125,7 +125,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
       if (!acc[category]) {
         acc[category] = []
       }
-      acc[category]!.push(expert)
+      acc[category].push(expert)
       return acc
     },
     {} as Record<string, typeof experts>,
@@ -144,7 +144,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
           Explora nuestra biblioteca de expertos predefinidos del sistema. Estos son los expertos disponibles para usar en tus debates.
         </p>
         <p className="text-sm text-[var(--theme-text-tertiary)] mt-2">
-          ⚠️ Los expertos personalizados han sido eliminados. Solo se pueden usar expertos del sistema.
+          [WARN] Los expertos personalizados han sido eliminados. Solo se pueden usar expertos del sistema.
         </p>
       </div>
 
@@ -295,7 +295,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
           <DialogHeader>
             <DialogTitle>Copiar Experto a Personalizados</DialogTitle>
             <DialogDescription className="text-[var(--theme-text-tertiary)]">
-              ⚠️ Los expertos personalizados han sido eliminados. Esta funcionalidad ya no está disponible.
+              [WARN] Los expertos personalizados han sido eliminados. Esta funcionalidad ya no está disponible.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -1,15 +1,17 @@
 /**
  * PhaseIndicator Component
- * 
+ *
  * Visual indicator of the 5 phases (tipo Typeform) at the top of the page.
  * Shows current phase, completed phases, and allows clicking to navigate.
- * Displays progress percentage in a circular indicator.
+ * Displays progress percentage and credit balance.
  */
 
 'use client'
 
 import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
+import { Coins } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { UnifiedPhase, PhaseProgress } from '../types'
 import type { PhaseCostEstimate } from '@quoorum/quoorum/analytics/phase-cost-estimator'
 
@@ -32,15 +34,14 @@ const PHASES = [
   { number: 5, name: 'Debate', key: 'debate' as const },
 ] as const
 
-export function PhaseIndicator({ 
-  currentPhase, 
-  phaseProgress, 
+export function PhaseIndicator({
+  currentPhase,
+  phaseProgress,
   onPhaseClick,
-  // Props de créditos mantenidas por compatibilidad pero no usadas visualmente
-  creditBalance: _creditBalance = 0,
-  accumulatedCosts: _accumulatedCosts = [],
-  currentPhaseCost: _currentPhaseCost,
-  estimatedDebateCost: _estimatedDebateCost,
+  creditBalance = 0,
+  accumulatedCosts = [],
+  currentPhaseCost,
+  estimatedDebateCost,
 }: PhaseIndicatorProps) {
   // Calculate overall progress - use useMemo to ensure consistent calculation
   const overallProgress = useMemo(() => {
@@ -48,6 +49,25 @@ export function PhaseIndicator({
     if (values.length === 0) return 0
     return values.reduce((sum, progress) => sum + progress, 0) / values.length
   }, [phaseProgress])
+
+  // Calculate accumulated cost
+  const accumulatedCredits = useMemo(() => {
+    return accumulatedCosts.reduce((sum, phase) => sum + phase.costCredits, 0)
+  }, [accumulatedCosts])
+
+  // Calculate total estimated cost
+  const totalEstimatedCredits = useMemo(() => {
+    let total = accumulatedCredits
+    if (currentPhaseCost) {
+      total += currentPhaseCost.costCredits
+    }
+    if (estimatedDebateCost) {
+      total += estimatedDebateCost.max
+    }
+    return total
+  }, [accumulatedCredits, currentPhaseCost, estimatedDebateCost])
+
+  const estimatedRemainingCredits = creditBalance - totalEstimatedCredits
   
   const getPhaseStatus = (phaseNumber: UnifiedPhase) => {
     if (phaseNumber < currentPhase) return 'completed'
@@ -106,14 +126,68 @@ export function PhaseIndicator({
           </div>
         </div>
 
-        {/* Círculo del %: fuera del ancho de la barra */}
-        <div className="flex-shrink-0">
+        {/* Círculo del % y Balance de créditos */}
+        <div className="flex-shrink-0 flex items-center gap-3">
           {/* Círculo del % */}
           <div className="w-12 h-12 rounded-full bg-purple-600 border-2 border-purple-400 flex items-center justify-center shadow-lg">
             <span className="text-sm font-bold text-[var(--theme-text-primary)]" suppressHydrationWarning>
               {Math.round(overallProgress)}%
             </span>
           </div>
+
+          {/* Balance de créditos */}
+          {creditBalance > 0 && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 cursor-help">
+                    <Coins className="h-4 w-4 text-purple-400" />
+                    <span className="text-sm font-medium text-purple-300">
+                      {totalEstimatedCredits.toLocaleString()}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs bg-[var(--theme-bg-secondary)] border-purple-500/30">
+                  <div className="space-y-2 p-1">
+                    <div className="font-semibold text-[var(--theme-text-primary)]">Créditos del Debate</div>
+                    {accumulatedCredits > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-[var(--theme-text-secondary)]">Fases completadas:</span>
+                        <span className="text-amber-400">{accumulatedCredits} créditos</span>
+                      </div>
+                    )}
+                    {currentPhaseCost && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-[var(--theme-text-secondary)]">Fase actual:</span>
+                        <span className="text-purple-300">~{currentPhaseCost.costCredits} créditos</span>
+                      </div>
+                    )}
+                    {estimatedDebateCost && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-[var(--theme-text-secondary)]">Debate estimado:</span>
+                        <span className="text-purple-300">~{estimatedDebateCost.min}-{estimatedDebateCost.max}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm pt-1 border-t border-purple-500/20">
+                      <span className="text-[var(--theme-text-secondary)]">Total debate:</span>
+                      <span className="font-bold text-[var(--theme-text-primary)]">
+                        ~{totalEstimatedCredits.toLocaleString()} créditos
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[var(--theme-text-secondary)]">Restantes estimados:</span>
+                      <span className={cn(
+                        'font-bold',
+                        estimatedRemainingCredits >= 0 ? 'text-green-400' : 'text-red-400'
+                      )}>
+                        ~{estimatedRemainingCredits.toLocaleString()} créditos
+                      </span>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       </div>
     </div>

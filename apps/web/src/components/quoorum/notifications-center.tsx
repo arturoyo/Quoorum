@@ -16,7 +16,7 @@ import {
   CheckCircle2,
   Clock,
   Loader2,
-  MessageCircle,
+  type MessageCircle,
   Trash2,
 } from 'lucide-react'
 import { useState } from 'react'

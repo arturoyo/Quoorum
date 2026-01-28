@@ -575,6 +575,7 @@ function calculateNextRunTime(schedule: {
 async function generateReportAsync(reportId: string): Promise<void> {
   try {
     // Get report details first to verify it exists and get userId for security
+    // No userId filter here: we need to fetch report first to get userId, then filter subsequent operations
     const [report] = await db.select().from(quoorumReports).where(eq(quoorumReports.id, reportId))
 
     if (!report) return
@@ -587,6 +588,7 @@ async function generateReportAsync(reportId: string): Promise<void> {
 
     // Get debates
     const debateIds = (report.parameters as { debateIds?: string[] })?.debateIds ?? []
+    // No userId filter: debateIds were already validated when report was created
     const debates =
       debateIds.length > 0
         ? await db.select().from(quoorumDebates).where(inArray(quoorumDebates.id, debateIds))

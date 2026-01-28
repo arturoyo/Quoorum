@@ -42,7 +42,7 @@ export function generateAutoSummary(result: DebateResult): DebateSummary {
   const cons = extractCons(allMessages)
 
   return {
-    emoji: confidence >= 90 ? '🎯' : confidence >= 70 ? '✅' : '🤔',
+    emoji: confidence >= 90 ? '[INFO]' : confidence >= 70 ? '[OK]' : '🤔',
     title: 'Debate Summary',
     recommendation: topOption,
     pros,
@@ -111,13 +111,13 @@ export function formatSummary(summary: DebateSummary): string {
   const lines = [
     `${summary.emoji} ${summary.title}`,
     '',
-    `🎯 Recomendación: ${summary.recommendation}`,
+    `[INFO] Recomendación: ${summary.recommendation}`,
     `📊 Confidence: ${summary.confidence}%`,
     '',
-    '✅ Pros:',
+    '[OK] Pros:',
     ...summary.pros.map((p) => `  • ${p}`),
     '',
-    '⚠️ Cons:',
+    '[WARN] Cons:',
     ...summary.cons.map((c) => `  • ${c}`),
     '',
     '📈 Top Options:',
@@ -216,7 +216,7 @@ export function calculateConfidenceScores(result: DebateResult): ConfidenceScore
     return {
       option,
       confidence,
-      emoji: confidence >= 80 ? '🟢' : confidence >= 60 ? '🟡' : '🟠',
+      emoji: confidence >= 80 ? '[OK]' : confidence >= 60 ? '🟡' : '🟠',
       supportingExperts,
       totalExperts,
       evidenceStrength: confidence >= 80 ? 'high' : confidence >= 60 ? 'medium' : 'low',
@@ -275,7 +275,7 @@ export function calculateBadges(result: DebateResult, qualityHistory: QualityAna
   return [
     {
       type: 'deep_thinker',
-      emoji: '✨',
+      emoji: '[INFO]',
       title: 'Deep Thinker',
       description: 'Depth score > 85',
       earned: avgDepth > 85,
@@ -490,7 +490,7 @@ export function scoreQuestionQuality(question: string): QuestionQuality {
 
   return {
     score,
-    emoji: score >= 8 ? '🟢' : score >= 6 ? '🟡' : '🟠',
+    emoji: score >= 8 ? '[OK]' : score >= 6 ? '🟡' : '🟠',
     strengths,
     improvements,
     suggestions,

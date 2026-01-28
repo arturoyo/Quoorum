@@ -28,7 +28,7 @@ export class MockAIProvider implements AIProvider {
   }
 
   private getDevilsAdvocateResponse(): string {
-    return `🔴 Razones por las que esto podría ser un error:
+    return `[ERROR] Razones por las que esto podría ser un error:
 1. El timing podría no ser el adecuado para el mercado
 2. Los recursos necesarios podrían estar subestimados significativamente
 3. La competencia podría reaccionar más rápido de lo esperado
@@ -45,7 +45,7 @@ export class MockAIProvider implements AIProvider {
 - "Deberíamos consolidar antes de expandir"
 - "Los números no cuadran"
 
-⚠️ El elephant in the room: ¿Realmente tienes product-market fit o solo early adopters entusiastas?
+[WARN] El elephant in the room: ¿Realmente tienes product-market fit o solo early adopters entusiastas?
 
 💡 Alternativa: Considera un piloto más pequeño primero. Valida con 10 clientes antes de escalar.`
   }
@@ -94,12 +94,12 @@ El concepto es sólido pero la ejecución es donde falla la mayoría.
   private getMentorResponse(): string {
     return `Mi consejo directo: El problema que describes es real, pero tu solución necesita validación.
 
-🔴 RED FLAGS:
+[ERROR] RED FLAGS:
 - No veo tracción real todavía
 - El mercado es más competitivo de lo que describes
 - Tu diferenciación no es clara
 
-🟢 GREEN FLAGS:
+[OK] GREEN FLAGS:
 - Entiendes el problema desde dentro
 - El timing del mercado parece correcto
 - Tienes capacidad técnica para ejecutar

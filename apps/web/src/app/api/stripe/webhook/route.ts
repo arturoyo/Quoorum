@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import Stripe from "stripe";
+import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/client";
 import { logError, logWarning } from "@/lib/monitoring";
 import { db } from "@quoorum/db";
@@ -201,7 +201,7 @@ export async function POST(request: Request) {
   try {
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
+        const session = event.data.object;
         const userId = session.metadata?.userId;
         const purchaseType = session.metadata?.type; // 'credit_purchase' or undefined (subscription)
 
@@ -399,7 +399,7 @@ export async function POST(request: Request) {
       }
 
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object;
         const customerId = subscription.customer as string;
 
         // Get free plan
@@ -447,7 +447,7 @@ export async function POST(request: Request) {
       }
 
       case "invoice.payment_succeeded": {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object;
         const customerId = invoice.customer as string;
 
         // Get subscription to find userId and monthlyCredits
@@ -519,7 +519,7 @@ export async function POST(request: Request) {
       }
 
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object;
         const customerId = invoice.customer as string;
 
         // Get subscription to find userId

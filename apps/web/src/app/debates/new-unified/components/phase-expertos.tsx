@@ -238,7 +238,7 @@ export function PhaseExpertos({
           <div className="flex flex-col items-center gap-4 pt-4">
             {!hasSufficientCredits && participantsValid && (
               <p className="text-sm text-amber-400 text-center">
-                ⚠️ No puedes continuar sin créditos suficientes
+                [WARN] No puedes continuar sin créditos suficientes
               </p>
             )}
             <Button

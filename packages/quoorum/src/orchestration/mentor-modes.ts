@@ -140,10 +140,10 @@ Sé directo y honesto. No endulces la realidad.
 
     for (const line of lines) {
       const l = line.trim().toLowerCase()
-      if (l.includes('red flag') || l.startsWith('- ⚠') || l.startsWith('- 🔴')) {
+      if (l.includes('red flag') || l.startsWith('- ⚠') || l.startsWith('- [ERROR]')) {
         redFlags.push(line.replace(/^[-•]\s*/, '').trim())
       }
-      if (l.includes('green') || l.startsWith('- ✅') || l.startsWith('- 🟢')) {
+      if (l.includes('green') || l.startsWith('- [OK]') || l.startsWith('- [OK]')) {
         greenFlags.push(line.replace(/^[-•]\s*/, '').trim())
       }
       if (l.includes('acción') || l.includes('hacer') || l.startsWith('- 📋')) {
@@ -175,12 +175,12 @@ export function getMockMentorAdvice(mentorType: MentorType): MentorAdvice {
   const mockAdvices: Record<MentorType, string> = {
     yc: `Mi consejo: Muévete rápido. Deja de planificar y empieza a ejecutar. Habla con 10 usuarios esta semana.
 
-🔴 RED FLAGS:
+[ERROR] RED FLAGS:
 - Estás sobreanalizando en lugar de actuar
 - No mencionas métricas de usuarios activos
 - El timeline es demasiado largo
 
-🟢 GREEN FLAGS:
+[OK] GREEN FLAGS:
 - El problema es real
 - Tienes background relevante
 
@@ -193,12 +193,12 @@ RATING: 6/10
 INVERTIRÍA: No todavía, pero me interesa ver tracción.`,
     vc: `Análisis detallado de la oportunidad...
 
-🔴 RED FLAGS:
+[ERROR] RED FLAGS:
 - Unit economics no claros
 - TAM necesita validación
 - Competencia no mapeada
 
-🟢 GREEN FLAGS:
+[OK] GREEN FLAGS:
 - Mercado en crecimiento
 - Equipo técnico sólido
 
@@ -211,12 +211,12 @@ RATING: 5/10
 INVERTIRÍA: No en esta etapa.`,
     bootstrap: `Como alguien que creció sin inversión...
 
-🔴 RED FLAGS:
+[ERROR] RED FLAGS:
 - Gastos innecesarios
 - No hay clientes pagando aún
 - Dependencia de inversión
 
-🟢 GREEN FLAGS:
+[OK] GREEN FLAGS:
 - Producto simple
 - Bajo costo operativo
 

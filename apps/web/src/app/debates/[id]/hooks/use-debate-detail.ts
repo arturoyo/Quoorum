@@ -15,7 +15,7 @@ export function useDebateDetail(debateId: string) {
   const router = useRouter()
   const [expertColors, setExpertColors] = useState<Record<string, string>>({})
   const [isContextExpanded, setIsContextExpanded] = useState(true)
-  const [isCommentsExpanded, setIsCommentsExpanded] = useState(true)
+  const [isCommentsExpanded, setIsCommentsExpanded] = useState(false)
 
   // ═══════════════════════════════════════════════════════════
   // QUERIES

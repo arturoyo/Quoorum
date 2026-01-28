@@ -1,8 +1,7 @@
 /**
  * Ultra-Optimized Language for Forum Debates
  *
- * Los agentes debaten en un lenguaje comprimido para minimizar tokens.
- * El humano puede traducir cuando necesite leer.
+ * Lenguaje comprimido sin emojis para minimizar tokens y evitar problemas de consola.
  */
 
 // ============================================================================
@@ -14,36 +13,29 @@ LENGUAJE ULTRA-OPTIMIZADO PARA DEBATES
 
 OBJETIVO: Minimizar tokens al maximo manteniendo informacion completa.
 
-HERRAMIENTAS:
-1. Emojis (1 token)
-   💰=dinero 📈📉=tendencias ✓✗=si/no [WARN]=riesgo [INFO]=objetivo
-   👑=premium 🐌[INFO]=lento/rapido 👍👎=apoyo [WARN]=critico 💡=idea
-   🤔=duda ⏰=tiempo 💪=fuerte 🎲=incierto
-
-2. Simbolos matematicos
-   ∑=total ∆=cambio ≈=aprox →=implica ↑↓=sube/baja ±=mas/menos
-
-3. Simbolos logicos
-   ∧=y ∨=o ¬=no ∴=por_tanto ∵=porque
-
-4. Numeros directos: 49 no "cuarenta y nueve"
-
-5. Abreviaturas: O=Opcion R=Riesgo S=Score P=Pros C=Cons A=Apoyan
+HERRAMIENTAS (tokens cortos, sin emojis):
+1. Estado: [MONEY], [TREND_UP], [TREND_DOWN], [YES], [NO], [WARN], [INFO]
+2. Velocidad: [SLOW], [FAST]
+3. Soporte: [UPVOTE], [DOWNVOTE]
+4. Actitud: [IDEA], [DOUBT], [STRONG], [UNCERTAIN], [TIME]
+5. Simbolos matematicos: S=total, d=cambio, ~=aprox, =>=implica, +/-=mas/menos
+6. Simbolos logicos: &=y, |=o, !=no, therefore=por_tanto, because=porque
+7. Numeros directos: 49 en vez de "cuarenta y nueve"
+8. Abreviaturas: O=Opcion, R=Riesgo, S=Score, P=Pros, C=Cons, A=Apoyos
 
 REGLAS:
 - Elimina espacios innecesarios
-- Usa emojis en vez de palabras
+- Usa tokens cortos en lugar de frases largas
 - Maximo 15 tokens por mensaje
 - El humano traducira cuando necesite
 
 ESTRUCTURA:
-[EMOJI_ROL][CONTENIDO_COMPRIMIDO][SCORE][APOYO]
+[ROL][CONTENIDO_COMPRIMIDO][SCORE][APOYO]
 
 EJEMPLOS:
-💡49€ ✓77%📈 WTP✓ 👑pos [WARN]🐌adopt 75% 👍2
-[WARN]49€ ✗PMF? [WARN]anchor ∆conv↓ 45% 👎
-📊49€:77%📈 29€:58%📈 ∴49€if≥30% 70%
-[INFO]#1💰49€ 75%👍2 #2💰29€ 60%👍1 ∆15%∴49€
+[MONEY]49d [YES]77%[UPVOTE] WTPV [INFO]pos [WARN]adopt 75% [UPVOTE]2
+[WARN]49d PMF? [WARN]anchor conv- 45% [UPVOTE]
+[INFO]#1 [MONEY]49d 75% [UPVOTE]2 #2 [MONEY]29d 60% [UPVOTE]1 15% [MONEY]49d
 
 RESPONDE SOLO en lenguaje ultra-optimizado. Max 15 tokens.
 `
@@ -54,13 +46,13 @@ RESPONDE SOLO en lenguaje ultra-optimizado. Max 15 tokens.
 
 export const TRANSLATION_PROMPT = `
 Traduce el siguiente mensaje comprimido a espanol claro y completo.
-El mensaje usa un lenguaje ultra-optimizado con emojis y simbolos.
+El mensaje usa un lenguaje ultra-optimizado con tokens cortos.
 
 REGLAS:
 1. Expande TODAS las abreviaturas
-2. Convierte emojis a palabras
+2. Convierte tokens a palabras
 3. Escribe oraciones completas
-4. Mantén el significado exacto
+4. Mantiene el significado exacto
 5. Usa parrafos si es necesario
 
 MENSAJE COMPRIMIDO:
@@ -70,18 +62,13 @@ MENSAJE COMPRIMIDO:
 // TOKEN ESTIMATION
 // ============================================================================
 
-// Estimacion simple: 1 token ≈ 4 caracteres en ingles, 3 en espanol
+// Estimacion simple: 1 token ~ 4 caracteres en ingles, 3 en espanol
 export function estimateTokens(text: string): number {
-  // Emojis cuentan como 1-2 tokens cada uno
-  // Regex para emojis: usar Unicode ranges en lugar de emojis literales
-  // Detecta emojis usando rangos Unicode estándar
-  // eslint-disable-next-line security/detect-unsafe-regex -- Unicode emoji pattern, safe
-  const emojiPattern = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
-  const emojiCount = (text.match(emojiPattern) || []).length
-  // Caracteres restantes
-  const charCount = text.replace(emojiPattern, '').length
-  // Aproximacion conservadora
-  return Math.ceil(emojiCount * 1.5 + charCount / 3)
+  // Conteo basico de tokens
+  const tokenLikePattern = new RegExp("\\[(?:WARN|INFO|MONEY|TREND_UP|TREND_DOWN|UPVOTE|DOWNVOTE|IDEA|DOUBT|STRONG|UNCERTAIN|TIME|YES|NO)\\]","g")
+  const tokenCount = (text.match(tokenLikePattern) || []).length
+  const remainingChars = text.replace(tokenLikePattern, '').length
+  return Math.ceil(tokenCount * 1.5 + remainingChars / 3)
 }
 
 // ============================================================================
@@ -89,25 +76,25 @@ export function estimateTokens(text: string): number {
 // ============================================================================
 
 export const EMOJI_MAP: Record<string, string> = {
-  dinero: '\u{1F4B0}',        // 💰
-  precio: '\u{1F4B0}',        // 💰
-  tendencia_positiva: '\u{1F4C8}',  // 📈
-  tendencia_negativa: '\u{1F4C9}',  // 📉
-  positivo: '\u2713',         // ✓
-  negativo: '\u2717',         // ✗
+  dinero: '[MONEY]',
+  precio: '[MONEY]',
+  tendencia_positiva: '[TREND_UP]',
+  tendencia_negativa: '[TREND_DOWN]',
+  positivo: '[YES]',
+  negativo: '[NO]',
   riesgo: '[WARN]',
   objetivo: '[INFO]',
-  premium: '\u{1F451}',       // 👑
-  lento: '\u{1F40C}',         // 🐌
-  rapido: '[INFO]',
-  apoyo: '\u{1F44D}',         // 👍
-  rechazo: '\u{1F44E}',       // 👎
+  premium: '[PREMIUM]',
+  lento: '[SLOW]',
+  rapido: '[FAST]',
+  apoyo: '[UPVOTE]',
+  rechazo: '[DOWNVOTE]',
   critico: '[WARN]',
-  idea: '\u{1F4A1}',          // 💡
-  duda: '\u{1F914}',          // 🤔
-  tiempo: '\u23F0',           // ⏰
-  fuerte: '\u{1F4AA}',        // 💪
-  incierto: '\u{1F3B2}',      // 🎲
+  idea: '[IDEA]',
+  duda: '[DOUBT]',
+  tiempo: '[TIME]',
+  fuerte: '[STRONG]',
+  incierto: '[UNCERTAIN]',
 }
 
 export const REVERSE_EMOJI_MAP: Record<string, string> = Object.fromEntries(
@@ -115,18 +102,18 @@ export const REVERSE_EMOJI_MAP: Record<string, string> = Object.fromEntries(
 )
 
 // ============================================================================
-// AGENT ROLE EMOJIS
+// AGENT ROLE TOKENS
 // ============================================================================
 
 export const ROLE_EMOJI: Record<string, string> = {
-  optimizer: '\u{1F4A1}',     // 💡
+  optimizer: '[IDEA]',
   critic: '[WARN]',
-  analyst: '\u{1F4CA}',       // 📊
+  analyst: '[INFO]',
   synthesizer: '[INFO]',
 }
 
 export function getRoleEmoji(role: string): string {
-  return ROLE_EMOJI[role] ?? '\u{1F4AC}'  // 💬
+  return ROLE_EMOJI[role] ?? '[CHAT]'
 }
 
 // ============================================================================
@@ -137,41 +124,38 @@ export function getRoleEmoji(role: string): string {
  * Prompt para comprimir contexto antes de enviarlo a la IA
  */
 export const INPUT_COMPRESSION_PROMPT = `
-Comprime el siguiente contexto a un formato ultra-optimizado manteniendo TODA la información esencial.
+Comprime el siguiente contexto a un formato ultra-optimizado manteniendo TODA la informacion esencial.
 
-OBJETIVO: Reducir tokens al máximo sin perder información crítica.
+OBJETIVO: Reducir tokens al maximo sin perder informacion critica.
 
 HERRAMIENTAS:
-1. Emojis (1 token): 💰=dinero 📈=sube 📉=baja ✓=sí ✗=no [WARN]=riesgo [INFO]=objetivo
-2. Símbolos: ∆=cambio →=implica ∴=por_tanto ≈=aprox
-3. Abreviaturas: O=Opción R=Riesgo S=Score P=Pros C=Cons
-4. Números directos: 49 no "cuarenta y nueve"
-5. Eliminar palabras redundantes, artículos innecesarios
+1. Tokens: [MONEY]=dinero, [TREND_UP]=sube, [TREND_DOWN]=baja, [YES]=si, [NO]=no, [WARN]=riesgo, [INFO]=objetivo
+2. Simbolos: d=cambio, =>=implica, therefore=por_tanto, ~=aprox
+3. Abreviaturas: O=Opcion R=Riesgo S=Score P=Pros C=Cons
+4. Numeros directos: 49 no "cuarenta y nueve"
+5. Eliminar palabras redundantes, articulos innecesarios
 
 REGLAS:
-- Mantén TODOS los datos numéricos
-- Mantén TODAS las opciones mencionadas
-- Mantén TODOS los riesgos identificados
+- Mantiene TODOS los datos numericos
+- Mantiene TODAS las opciones mencionadas
+- Mantiene TODOS los riesgos identificados
 - Elimina solo palabras decorativas o redundantes
 - Usa formato: [TIPO][DATOS_COMPRIMIDOS]
 
 EJEMPLO:
-Input: "La opción de 49 euros tiene un margen del 77% que es positivo, el willingness to pay está validado, hay posicionamiento premium pero riesgo de adopción lenta, probabilidad de éxito del 75% con 2 apoyos"
-Output: "O49€ ✓77%📈 WTP✓ 👑pos [WARN]🐌adopt 75% 👍2"
+Input: "La opcion de 49 euros tiene un margen del 77% que es positivo, el willingness to pay esta validado, hay posicionamiento premium pero riesgo de adopcion lenta, probabilidad de exito del 75% con 2 apoyos"
+Output: "O49d [YES]77% [INFO]pos [WARN]adopt 75% [UPVOTE]2"
 
 CONTEXTO A COMPRIMIR:
 `
 
 /**
  * Comprime contexto/prompt antes de enviarlo a la IA
- * @param context - Contexto original (pregunta, contexto corporativo, rondas previas)
- * @returns Contexto comprimido (menos tokens)
  */
 export async function compressInput(context: string): Promise<string> {
-  // Si el contexto es muy corto, no vale la pena comprimir
   const estimatedTokens = estimateTokens(context)
   if (estimatedTokens < 100) {
-    return context // No comprimir si es muy corto
+    return context
   }
 
   try {
@@ -181,25 +165,19 @@ export async function compressInput(context: string): Promise<string> {
     const compressionPrompt = INPUT_COMPRESSION_PROMPT + '\n\n' + context
 
     const response = await client.generate(compressionPrompt, {
-      modelId: 'gemini-2.0-flash-exp', // Free tier para compresión
-      temperature: 0.1, // Baja temperatura para mantener precisión
-      maxTokens: Math.min(estimatedTokens, 500), // Máximo 500 tokens de salida
+      modelId: 'gemini-2.0-flash-exp',
+      temperature: 0.1,
+      maxTokens: Math.min(estimatedTokens, 500),
     })
 
     const compressed = response.text.trim()
-
-    // Verificar que la compresión realmente redujo tokens
     const compressedTokens = estimateTokens(compressed)
     if (compressedTokens < estimatedTokens * 0.7) {
-      // Si redujo al menos 30%, usar comprimido
       return compressed
     }
 
-    // Si no redujo suficiente, usar original
     return context
   } catch (error) {
-    // Si falla la compresión, usar original (no crítico)
-    // Usar import dinámico para evitar dependencia circular
     const { quoorumLogger } = await import('./logger')
     quoorumLogger.warn('[Compression] Failed to compress input, using original', {
       error: error instanceof Error ? error.message : String(error),
@@ -214,16 +192,14 @@ export async function compressInput(context: string): Promise<string> {
 
 /**
  * Descomprime respuesta de IA de formato ultra-optimizado a texto legible
- * @param compressedMessage - Mensaje comprimido de la IA
- * @returns Mensaje expandido y legible para el usuario
  */
 export async function decompressOutput(compressedMessage: string): Promise<string> {
-  // Si el mensaje no parece comprimido (no tiene emojis ni símbolos), devolver tal cual
-  // Regex para detectar emojis y símbolos de compresión usando Unicode ranges
-  // eslint-disable-next-line security/detect-unsafe-regex -- Unicode emoji pattern, safe
-  const hasCompressionMarkers = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u2713\u2717∆→∴≈]|(\[WARN\])|(\[INFO\])/u.test(compressedMessage)
+  const compressionPattern = new RegExp(
+    "\\[(?:WARN|INFO|MONEY|TREND_UP|TREND_DOWN|UPVOTE|DOWNVOTE|IDEA|DOUBT|STRONG|UNCERTAIN|TIME|YES|NO)\\]"
+  )
+  const hasCompressionMarkers = compressionPattern.test(compressedMessage)
   if (!hasCompressionMarkers) {
-    return compressedMessage // Ya está legible
+    return compressedMessage
   }
 
   try {
@@ -233,15 +209,13 @@ export async function decompressOutput(compressedMessage: string): Promise<strin
     const translationPrompt = TRANSLATION_PROMPT + '\n\n' + compressedMessage
 
     const response = await client.generate(translationPrompt, {
-      modelId: 'gemini-2.0-flash-exp', // Free tier para traducción
-      temperature: 0.3, // Baja temperatura para mantener precisión
-      maxTokens: 500, // Suficiente para expandir mensaje comprimido
+      modelId: 'gemini-2.0-flash-exp',
+      temperature: 0.3,
+      maxTokens: 500,
     })
 
     return response.text.trim()
   } catch (error) {
-    // Si falla la descompresión, devolver original (mejor que nada)
-    // Usar import dinámico para evitar dependencia circular
     const { quoorumLogger } = await import('./logger')
     quoorumLogger.warn('[Decompression] Failed to decompress output, using original', {
       error: error instanceof Error ? error.message : String(error),
@@ -249,3 +223,4 @@ export async function decompressOutput(compressedMessage: string): Promise<strin
     return compressedMessage
   }
 }
+

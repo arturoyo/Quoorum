@@ -52,7 +52,7 @@ CREATE POLICY "system_logs_delete_super_admins"
 -- Verificar que RLS está habilitado
 SELECT
   tablename,
-  CASE WHEN rowsecurity THEN '✅ ENABLED' ELSE '❌ DISABLED' END as rls_status
+  CASE WHEN rowsecurity THEN '[OK] ENABLED' ELSE '[ERROR] DISABLED' END as rls_status
 FROM pg_tables
 WHERE tablename = 'system_logs';
 
@@ -61,9 +61,9 @@ SELECT
   policyname,
   cmd,
   CASE
-    WHEN qual = 'true' THEN '✅ Public'
-    WHEN qual LIKE '%admin%' THEN '✅ Admin only'
-    ELSE '✅ Custom'
+    WHEN qual = 'true' THEN '[OK] Public'
+    WHEN qual LIKE '%admin%' THEN '[OK] Admin only'
+    ELSE '[OK] Custom'
   END as access_level
 FROM pg_policies
 WHERE tablename = 'system_logs'

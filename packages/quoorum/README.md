@@ -8,7 +8,7 @@ Forum es un sistema personal de deliberación donde múltiples agentes de IA (co
 
 **Propósito:** Exponer conflictos reales, atacar sesgos cognitivos y permitir decisiones humanas conscientes en contextos de alta incertidumbre.
 
-## 🎯 Características
+## [INFO] Características
 
 ### Sistema Estático (Preguntas Simples)
 
@@ -60,7 +60,7 @@ packages/quoorum/
 pnpm install
 ```
 
-## 🚀 Uso
+## [INFO] Uso
 
 ### Uso Básico
 
@@ -252,10 +252,10 @@ Al finalizar el debate, se genera una **síntesis ejecutiva** independiente usan
 
 **Características:**
 
-- ✅ **Rol neutral:** El "Secretario del Tribunal" no tiene agenda propia
-- ✅ **Basado en datos:** Ignora argumentos emocionales, se enfoca en hechos
-- ✅ **Recomendación clara:** Opción principal con próximos pasos concretos
-- ✅ **Calidad del debate:** Scores de convergencia, profundidad y diversidad
+- [OK] **Rol neutral:** El "Secretario del Tribunal" no tiene agenda propia
+- [OK] **Basado en datos:** Ignora argumentos emocionales, se enfoca en hechos
+- [OK] **Recomendación clara:** Opción principal con próximos pasos concretos
+- [OK] **Calidad del debate:** Scores de convergencia, profundidad y diversidad
 
 **Uso:**
 
@@ -284,12 +284,12 @@ Los agentes ahora tienen **restricciones explícitas** para evitar "role drift":
 **Ejemplo - Optimista:**
 
 ```
-✅ LO QUE DEBES HACER:
+[OK] LO QUE DEBES HACER:
 - Maximiza upside, identifica oportunidades ocultas
 - Defiende la acción sobre la parálisis
 - Encuentra el camino más ambicioso pero viable
 
-❌ PROHIBIDO:
+[ERROR] PROHIBIDO:
 - Mencionar riesgos o fallos (eso es rol del Crítico)
 - Ser cauteloso o conservador
 - Decir "depende", "puede que sí", "tal vez"
@@ -299,12 +299,12 @@ Los agentes ahora tienen **restricciones explícitas** para evitar "role drift":
 **Ejemplo - Crítico:**
 
 ```
-✅ LO QUE DEBES HACER:
+[OK] LO QUE DEBES HACER:
 - Pre-mortem: ¿Por qué fallará esto?
 - Cuestiona TODOS los supuestos sin excepción
 - Devil's advocate brutal pero constructivo
 
-❌ PROHIBIDO:
+[ERROR] PROHIBIDO:
 - Ser complaciente o dar "pases" fáciles
 - Aceptar suposiciones sin evidencia sólida
 - Dar soluciones (tu trabajo es criticar, no resolver)
@@ -313,7 +313,7 @@ Los agentes ahora tienen **restricciones explícitas** para evitar "role drift":
 
 **Beneficios:**
 
-- 🎯 **Especialización clara:** Cada agente mantiene su rol sin solapamiento
+- [INFO] **Especialización clara:** Cada agente mantiene su rol sin solapamiento
 - 🚫 **Evita contaminación:** El Optimista no menciona riesgos, el Crítico no propone soluciones
 - 📊 **Debates más ricos:** Mayor contraste entre perspectivas
 - ⚡ **Más eficiente:** Menos redundancia, más valor por token
@@ -351,7 +351,7 @@ Los agentes debaten en un lenguaje comprimido con emojis y símbolos para minimi
 **Ejemplo:**
 
 ```
-💡49€ ✓77%📈 WTP✓ 👑pos ⚠️🐌adopt 75% 👍2
+💡49€ ✓77%📈 WTP✓ 👑pos [WARN]🐌adopt 75% 👍2
 ```
 
 **Traducción:**
@@ -503,7 +503,7 @@ const wallieContext = await loadWallieContext()
 const fullContext = `${wallieContext}\n\n${customContext}`
 ```
 
-## 🚀 Casos de Uso
+## [INFO] Casos de Uso
 
 ### 1. Decisiones de Negocio
 

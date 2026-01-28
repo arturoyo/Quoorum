@@ -394,7 +394,7 @@ describe('Meta-Moderator', () => {
 
       const summary = summarizeIntervention(intervention)
 
-      expect(summary).toContain('⚠️')
+      expect(summary).toContain('[WARN]')
       expect(summary).toContain('explore_alternatives')
       expect(summary).toContain('Severidad: 6/10')
     })

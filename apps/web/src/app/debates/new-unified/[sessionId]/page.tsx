@@ -23,7 +23,6 @@ import {
 } from '../components'
 import { useParams } from 'next/navigation'
 import { useTRPCHealth } from '@/hooks/use-trpc-health'
-import { CreditCounter } from '@/components/quoorum/credit-counter'
 import { createClient } from '@/lib/supabase/client'
 import {
   estimateContextPhaseCost,
@@ -241,17 +240,6 @@ export default function NewUnifiedDebatePageWithSession() {
 
   return (
     <div className="h-screen bg-[var(--theme-bg-primary)] text-[var(--theme-text-primary)] flex flex-col overflow-hidden relative">
-      {/* Credit Counter en header - actualizado dinámicamente */}
-      <div className="fixed top-16 right-4 z-50 hidden sm:block">
-        <CreditCounter
-          variant="compact"
-          currentPhase={state.currentPhase === 1 ? 'contexto' : state.currentPhase === 2 ? 'expertos' : state.currentPhase === 3 ? 'estrategia' : state.currentPhase === 4 ? 'revision' : 'debate'}
-          accumulatedCosts={accumulatedCosts}
-          currentPhaseCost={currentPhaseCost}
-          estimatedDebateCost={estimatedDebateCost}
-        />
-      </div>
-      
       {/* Main Content (Centered - Typeform Style) — scroll interno */}
       {/* 
         Contenedor scrollable con posicionamiento fixed:

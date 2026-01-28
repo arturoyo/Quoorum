@@ -15,9 +15,9 @@ export default function AuthLayout({
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-10 border-b border-white/5 backdrop-blur-2xl bg-[var(--theme-landing-bg)]/50">
         <div className="container mx-auto px-4 py-6">
-          <QuoorumLogoWithText 
+          <QuoorumLogoWithText
             href="/"
-            iconSize={48}
+            iconSize={200}
             showGradient={true}
             showText={false}
           />

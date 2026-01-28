@@ -159,7 +159,7 @@ if (shouldIntervene(qualityAnalysis)) {
   const intervention = generateIntervention(qualityAnalysis)
   // {
   //   type: 'challenge_depth',
-  //   prompt: '⚠️ META-MODERADOR: El debate carece de profundidad...',
+  //   prompt: '[WARN] META-MODERADOR: El debate carece de profundidad...',
   //   severity: 8,
   //   reason: 'Shallow arguments detected'
   // }

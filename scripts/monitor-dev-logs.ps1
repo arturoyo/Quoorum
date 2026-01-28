@@ -24,7 +24,7 @@ if ([string]::IsNullOrEmpty($LogFile)) {
 }
 
 if ([string]::IsNullOrEmpty($LogFile) -or -not (Test-Path $LogFile)) {
-    Write-Host "❌ No log file found. Make sure dev server is running." -ForegroundColor Red
+    Write-Host "[ERROR] No log file found. Make sure dev server is running." -ForegroundColor Red
     exit 1
 }
 
@@ -100,11 +100,11 @@ while ($true) {
                 
                 if ($Errors.Count -gt 0) {
                     $ErrorCount += $Errors.Count
-                    Write-Host "`n⚠️  ERRORS DETECTED ($($Errors.Count) new)" -ForegroundColor Yellow
+                    Write-Host "`n[WARN]  ERRORS DETECTED ($($Errors.Count) new)" -ForegroundColor Yellow
                     Write-Host ("=" * 60) -ForegroundColor DarkGray
                     
                     foreach ($Err in $Errors) {
-                        Write-Host "`n🔴 Pattern: $($Err.Pattern)" -ForegroundColor Red
+                        Write-Host "`n[ERROR] Pattern: $($Err.Pattern)" -ForegroundColor Red
                         Write-Host "   Line: $($Err.Line)" -ForegroundColor Gray
                         Write-Host "   Context:" -ForegroundColor Gray
                         Write-Host $Err.Context -ForegroundColor DarkGray
@@ -123,9 +123,9 @@ while ($true) {
         Start-Sleep -Seconds $CheckInterval
     }
     catch {
-        Write-Host "❌ Error monitoring logs: $_" -ForegroundColor Red
+        Write-Host "[ERROR] Error monitoring logs: $_" -ForegroundColor Red
         break
     }
 }
 
-Write-Host "`n✅ Monitoring complete. Total errors: $ErrorCount" -ForegroundColor Green
+Write-Host "`n[OK] Monitoring complete. Total errors: $ErrorCount" -ForegroundColor Green

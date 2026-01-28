@@ -19,33 +19,31 @@ export const usersRouter = router({
     const hasUserRole = ctx.user.role === "admin" || ctx.user.role === "super_admin";
     systemLogger.debug('[users.getMe] hasUserRole', { hasUserRole, userId: ctx.user.id });
     
-    // Find profile by email (adminUsers.userId references profiles.id, not users.id)
-    const [profile] = await ctx.db
-      .select()
-      .from(profiles)
-      .where(eq(profiles.email, ctx.user.email))
-      .limit(1);
+    // OPTIMIZED: Run both queries in parallel
+    const [[profile], adminCheckResult] = await Promise.all([
+      ctx.db.select().from(profiles).where(eq(profiles.email, ctx.user.email)).limit(1),
+      (async () => {
+        const [p] = await ctx.db.select().from(profiles).where(eq(profiles.email, ctx.user.email)).limit(1);
+        if (!p) return null;
+        const [admin] = await ctx.db
+          .select({
+            id: adminUsers.id,
+            userId: adminUsers.userId,
+            roleId: adminUsers.roleId,
+            roleSlug: adminRoles.slug,
+          })
+          .from(adminUsers)
+          .innerJoin(adminRoles, eq(adminUsers.roleId, adminRoles.id))
+          .where(and(eq(adminUsers.userId, p.id), eq(adminUsers.isActive, true)))
+          .limit(1);
+        return admin || null;
+      })()
+    ]);
     
     systemLogger.debug('[users.getMe] Profile found', { profileId: profile?.id || null, userId: ctx.user.id });
     
-    // Check if user has admin role in adminUsers table (new system)
-    let adminUser = null;
-    if (profile) {
-      const [adminUserResult] = await ctx.db
-        .select({
-          id: adminUsers.id,
-          userId: adminUsers.userId,
-          roleId: adminUsers.roleId,
-          roleSlug: adminRoles.slug,
-        })
-        .from(adminUsers)
-        .innerJoin(adminRoles, eq(adminUsers.roleId, adminRoles.id))
-        .where(and(eq(adminUsers.userId, profile.id), eq(adminUsers.isActive, true)))
-        .limit(1);
-      
-      adminUser = adminUserResult || null;
-      systemLogger.debug('[users.getMe] Admin user found', { adminRole: adminUser ? adminUser.roleSlug : null, userId: ctx.user.id });
-    }
+    const adminUser = adminCheckResult;
+    systemLogger.debug('[users.getMe] Admin user found', { adminRole: adminUser ? adminUser.roleSlug : null, userId: ctx.user.id });
     
     const isAdmin = hasUserRole || !!adminUser;
     systemLogger.debug('[users.getMe] Final isAdmin', { isAdmin, userId: ctx.user.id });
