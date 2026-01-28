@@ -109,24 +109,34 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
 
     systemLogger.debug("[tRPC Context] Profile found", { profileId: profile.id, email: profile.email });
 
-    // Find or create user in users table
-    let dbUser = await db
-      .select()
-      .from(users)
-      .where(sql`LOWER(${users.email}) = LOWER(${userEmail})`)
-      .limit(1)
-      .then(rows => rows[0] || null);
+    // Parallelize user and admin role queries for faster context creation
+    const queryStart = Date.now();
+    const [userResults, adminCheckResults] = await Promise.all([
+      db
+        .select()
+        .from(users)
+        .where(sql`LOWER(${users.email}) = LOWER(${userEmail})`)
+        .limit(1),
+      db
+        .select({ role: adminUsers.role })
+        .from(adminUsers)
+        .where(eq(adminUsers.userId, profile.id))
+        .limit(1)
+    ]);
+    const queryTime = Date.now() - queryStart;
+    
+    systemLogger.debug("[tRPC Context] Parallel queries completed", { 
+      queryTimeMs: queryTime,
+      hasUser: userResults.length > 0,
+      hasAdminRole: adminCheckResults.length > 0
+    });
+
+    let dbUser = userResults[0] || null;
 
     if (!dbUser) {
       systemLogger.info("[tRPC Context] User not found in users table, creating", { email: userEmail, profileId: profile.id });
       
-      // Check if user has admin role in adminUsers table
-      const [adminCheck] = await db
-        .select({ role: adminUsers.role })
-        .from(adminUsers)
-        .where(eq(adminUsers.userId, profile.id))
-        .limit(1);
-
+      const adminCheck = adminCheckResults[0];
       const defaultRole = adminCheck?.role === "super_admin" || adminCheck?.role === "admin" 
         ? "admin" 
         : (profile.role === "admin" || profile.role === "super_admin" ? profile.role : "member");

@@ -19,19 +19,16 @@ export const usersRouter = router({
     const hasUserRole = ctx.user.role === "admin" || ctx.user.role === "super_admin";
     systemLogger.debug('[users.getMe] hasUserRole', { hasUserRole, userId: ctx.user.id });
     
-    // Find profile by email (adminUsers.userId references profiles.id, not users.id)
-    const [profile] = await ctx.db
-      .select()
-      .from(profiles)
-      .where(eq(profiles.email, ctx.user.email))
-      .limit(1);
-    
-    systemLogger.debug('[users.getMe] Profile found', { profileId: profile?.id || null, userId: ctx.user.id });
-    
-    // Check if user has admin role in adminUsers table (new system)
-    let adminUser = null;
-    if (profile) {
-      const [adminUserResult] = await ctx.db
+    // Parallelize profile and admin role queries
+    const queryStart = Date.now();
+    const [profileResults, adminUserResults] = await Promise.all([
+      ctx.db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.email, ctx.user.email))
+        .limit(1),
+      // Pre-fetch admin role data if profile exists
+      ctx.db
         .select({
           id: adminUsers.id,
           userId: adminUsers.userId,
@@ -40,12 +37,20 @@ export const usersRouter = router({
         })
         .from(adminUsers)
         .innerJoin(adminRoles, eq(adminUsers.roleId, adminRoles.id))
-        .where(and(eq(adminUsers.userId, profile.id), eq(adminUsers.isActive, true)))
-        .limit(1);
-      
-      adminUser = adminUserResult || null;
-      systemLogger.debug('[users.getMe] Admin user found', { adminRole: adminUser ? adminUser.roleSlug : null, userId: ctx.user.id });
-    }
+        .where(and(eq(adminUsers.userId, ctx.user.id), eq(adminUsers.isActive, true)))
+        .limit(1)
+    ]);
+    const queryTime = Date.now() - queryStart;
+    
+    const profile = profileResults[0] || null;
+    const adminUser = adminUserResults[0] || null;
+    
+    systemLogger.debug('[users.getMe] Queries completed (parallelized)', { 
+      queryTimeMs: queryTime,
+      profileId: profile?.id || null,
+      hasAdminRole: !!adminUser,
+      userId: ctx.user.id 
+    });
     
     const isAdmin = hasUserRole || !!adminUser;
     systemLogger.debug('[users.getMe] Final isAdmin', { isAdmin, userId: ctx.user.id });
