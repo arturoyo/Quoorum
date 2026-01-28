@@ -4,6 +4,7 @@ import { db } from '@quoorum/db'
 import { sql, eq, and } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
 import { logger } from '@/lib/logger'
+import { trackAICall } from '@quoorum/quoorum/ai-cost-tracking'
 
 // Validation schemas
 const systemPromptSchema = z.object({
@@ -344,25 +345,64 @@ export const adminPromptsRouter = router({
         // Test with AI client
         const { getAIClient } = await import('@quoorum/ai')
         const aiClient = getAIClient()
+        const startTime = Date.now()
 
-        const response = await aiClient.generateWithSystemPrompt(
-          promptData.prompt,
-          input.testInput,
-          {
-            model: 'claude-3-5-sonnet-20241022',
-            maxTokens: 500,
+        try {
+          const response = await aiClient.generateWithSystemPrompt(
+            promptData.prompt,
+            input.testInput,
+            {
+              model: 'claude-3-5-sonnet-20241022',
+              maxTokens: 500,
+            }
+          )
+
+          // Track AI cost
+          void trackAICall({
+            userId: ctx.userId,
+            operationType: 'admin_prompt_test',
+            provider: 'anthropic',
+            modelId: 'claude-3-5-sonnet-20241022',
+            promptTokens: 0, // getAIClient doesn't return usage yet
+            completionTokens: response.length / 4, // Rough estimate: 4 chars per token
+            latencyMs: Date.now() - startTime,
+            success: true,
+            inputSummary: input.testInput.substring(0, 500),
+            outputSummary: response.substring(0, 500),
+          })
+
+          logger.info('[adminPromptsRouter.test] Prompt probado exitosamente')
+
+          return {
+            success: true,
+            response: response.substring(0, 1000), // First 1000 chars as preview
+            fullLength: response.length,
           }
-        )
+        } catch (error) {
+          // Track failed AI call
+          void trackAICall({
+            userId: ctx.userId,
+            operationType: 'admin_prompt_test',
+            provider: 'anthropic',
+            modelId: 'claude-3-5-sonnet-20241022',
+            promptTokens: 0,
+            completionTokens: 0,
+            latencyMs: Date.now() - startTime,
+            success: false,
+            errorMessage: error instanceof Error ? error.message : String(error),
+            inputSummary: input.testInput.substring(0, 500),
+          })
 
-        logger.info('[adminPromptsRouter.test] Prompt probado exitosamente')
-
-        return {
-          success: true,
-          response: response.substring(0, 1000), // First 1000 chars as preview
-          fullLength: response.length,
+          logger.error('[adminPromptsRouter.test] Error', { error })
+          throw error instanceof TRPCError
+            ? error
+            : new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: 'Error al probar el prompt',
+              })
         }
       } catch (error) {
-        logger.error('[adminPromptsRouter.test] Error', { error })
+        logger.error('[adminPromptsRouter.test] Error general', { error })
         throw error instanceof TRPCError
           ? error
           : new TRPCError({

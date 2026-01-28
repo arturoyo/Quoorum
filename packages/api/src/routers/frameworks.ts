@@ -6,6 +6,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { getAIClient } from "@quoorum/ai";
 import { logger } from "../lib/logger";
+import { trackAICall } from "@quoorum/quoorum/ai-cost-tracking";
 import {
   runProsAndCons,
   runSWOTAnalysis,
@@ -110,9 +111,10 @@ export const frameworksRouter = router({
       }
 
       // Use AI to analyze the question and suggest frameworks
+      const startTime = Date.now();
       try {
         const aiClient = getAIClient();
-        
+
         const systemPrompt = `Eres un experto en frameworks de toma de decisiones.
 Analiza la pregunta del usuario y sugiere el framework más apropiado para estructurar la respuesta final del debate.
 
@@ -149,6 +151,20 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
           modelId: "gemini-2.0-flash-exp",
           temperature: 0.3,
           maxTokens: 1000,
+        });
+
+        // Track AI cost
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'frameworks_suggestion',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          latencyMs: Date.now() - startTime,
+          success: true,
+          inputSummary: input.question.substring(0, 500),
+          outputSummary: response.text.substring(0, 500),
         });
 
         // Parse JSON response
@@ -207,8 +223,22 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
 
         return result;
       } catch (error) {
+        // Track failed AI call
+        void trackAICall({
+          userId: ctx.userId,
+          operationType: 'frameworks_suggestion',
+          provider: 'google',
+          modelId: 'gemini-2.0-flash-exp',
+          promptTokens: 0,
+          completionTokens: 0,
+          latencyMs: Date.now() - startTime,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          inputSummary: input.question.substring(0, 500),
+        });
+
         logger.error('[frameworks.suggest] AI suggestion failed:', error instanceof Error ? error : undefined);
-        
+
         // Fallback: return first framework
         return allFrameworks.slice(0, 1).map((f) => ({
           id: f.id,
