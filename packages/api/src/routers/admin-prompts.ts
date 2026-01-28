@@ -1,11 +1,22 @@
 import { protectedProcedure, publicProcedure, router } from '../trpc'
 import { z } from 'zod'
 import { db } from '@quoorum/db'
-import { sql, eq, and } from 'drizzle-orm'
+import { sql, eq } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
 import { logger } from '../lib/logger'
 import { clearPromptFromCache } from '../lib/get-system-prompt'
 import { trackAICall } from '@quoorum/quoorum/ai-cost-tracking'
+
+// Helper to check if user is admin
+async function isUserAdmin(userId: string): Promise<boolean> {
+  const { adminUsers } = await import('@quoorum/db/schema')
+  const [adminUser] = await db
+    .select()
+    .from(adminUsers)
+    .where(eq(adminUsers.userId, userId))
+    .limit(1)
+  return !!adminUser
+}
 
 // Validation schemas
 const systemPromptSchema = z.object({
@@ -23,14 +34,7 @@ export const adminPromptsRouter = router({
     .query(async ({ ctx }) => {
       try {
         // Check if user is admin
-        const { profiles } = await import('@quoorum/db/schema')
-        const [profile] = await db
-          .select()
-          .from(profiles)
-          .where(eq(profiles.id, ctx.userId))
-          .limit(1)
-
-        if (!profile?.isAdmin) {
+        if (!(await isUserAdmin(ctx.userId))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Solo administradores pueden acceder a los prompts del sistema',
@@ -44,7 +48,7 @@ export const adminPromptsRouter = router({
           ORDER BY category, name
         `)
 
-        return result.rows || []
+        return result
       } catch (error) {
         logger.error('[adminPromptsRouter.list] Error fetching prompts', { error })
         throw new TRPCError({
@@ -61,14 +65,7 @@ export const adminPromptsRouter = router({
     }))
     .query(async ({ ctx, input }) => {
       try {
-        const { profiles } = await import('@quoorum/db/schema')
-        const [profile] = await db
-          .select()
-          .from(profiles)
-          .where(eq(profiles.id, ctx.userId))
-          .limit(1)
-
-        if (!profile?.isAdmin) {
+        if (!(await isUserAdmin(ctx.userId))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Solo administradores pueden acceder',
@@ -82,7 +79,7 @@ export const adminPromptsRouter = router({
           ORDER BY name
         `)
 
-        return result.rows || []
+        return result
       } catch (error) {
         logger.error('[adminPromptsRouter.getByCategory] Error', { error })
         throw new TRPCError({
@@ -106,14 +103,14 @@ export const adminPromptsRouter = router({
           LIMIT 1
         `)
 
-        if (!result.rows || result.rows.length === 0) {
+        if (!result || result.length === 0) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: `Prompt con clave "${input.key}" no encontrado`,
           })
         }
 
-        return result.rows[0]
+        return result[0]
       } catch (error) {
         logger.error('[adminPromptsRouter.getByKey] Error', { error, key: input.key })
         throw error instanceof TRPCError
@@ -130,14 +127,7 @@ export const adminPromptsRouter = router({
     .input(systemPromptSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        const { profiles } = await import('@quoorum/db/schema')
-        const [profile] = await db
-          .select()
-          .from(profiles)
-          .where(eq(profiles.id, ctx.userId))
-          .limit(1)
-
-        if (!profile?.isAdmin) {
+        if (!(await isUserAdmin(ctx.userId))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Solo administradores pueden crear prompts',
@@ -149,7 +139,7 @@ export const adminPromptsRouter = router({
           SELECT id FROM system_prompts WHERE key = ${input.key} LIMIT 1
         `)
 
-        if (existing.rows && existing.rows.length > 0) {
+        if (existing && existing.length > 0) {
           throw new TRPCError({
             code: 'CONFLICT',
             message: 'Ya existe un prompt con esta clave',
@@ -158,7 +148,7 @@ export const adminPromptsRouter = router({
 
         const result = await db.execute(sql`
           INSERT INTO system_prompts (key, name, description, category, prompt, created_by)
-          VALUES (${input.key}, ${input.name}, ${input.description || null}, ${input.category}, ${input.prompt}, ${profile.userId})
+          VALUES (${input.key}, ${input.name}, ${input.description || null}, ${input.category}, ${input.prompt}, ${ctx.userId})
           RETURNING id, key, name, category, created_at
         `)
 
@@ -167,7 +157,7 @@ export const adminPromptsRouter = router({
           category: input.category,
         })
 
-        return result.rows?.[0]
+        return result?.[0]
       } catch (error) {
         logger.error('[adminPromptsRouter.create] Error', { error })
         throw error instanceof TRPCError
@@ -189,14 +179,7 @@ export const adminPromptsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const { profiles } = await import('@quoorum/db/schema')
-        const [profile] = await db
-          .select()
-          .from(profiles)
-          .where(eq(profiles.id, ctx.userId))
-          .limit(1)
-
-        if (!profile?.isAdmin) {
+        if (!(await isUserAdmin(ctx.userId))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Solo administradores pueden actualizar prompts',
@@ -207,7 +190,7 @@ export const adminPromptsRouter = router({
         const updates = {
           ...input.updates,
           updated_at: new Date(),
-          updated_by: profile.userId,
+          updated_by: ctx.userId,
           version: sql`version + 1`,
         }
 
@@ -222,7 +205,7 @@ export const adminPromptsRouter = router({
           RETURNING id, key, name, version, updated_at
         `)
 
-        if (!result.rows || result.rows.length === 0) {
+        if (!result || result.length === 0) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Prompt no encontrado',
@@ -230,7 +213,7 @@ export const adminPromptsRouter = router({
         }
 
         // Clear cache for this prompt so it's reloaded immediately
-        const promptRow = result.rows[0] as Record<string, unknown>
+        const promptRow = result[0] as Record<string, unknown>
         const promptKey = typeof promptRow.key === 'string' ? promptRow.key : String(promptRow.key || '')
         if (promptKey) {
           clearPromptFromCache(promptKey)
@@ -238,11 +221,11 @@ export const adminPromptsRouter = router({
 
         logger.info('[adminPromptsRouter.update] Prompt actualizado', {
           promptId: input.id,
-          updatedBy: profile.userId,
+          updatedBy: ctx.userId,
           key: promptKey,
         })
 
-        return result.rows[0]
+        return result[0]
       } catch (error) {
         logger.error('[adminPromptsRouter.update] Error', { error })
         throw error instanceof TRPCError
@@ -261,14 +244,7 @@ export const adminPromptsRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       try {
-        const { profiles } = await import('@quoorum/db/schema')
-        const [profile] = await db
-          .select()
-          .from(profiles)
-          .where(eq(profiles.id, ctx.userId))
-          .limit(1)
-
-        if (!profile?.isAdmin) {
+        if (!(await isUserAdmin(ctx.userId))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Solo administradores pueden eliminar prompts',
@@ -277,12 +253,12 @@ export const adminPromptsRouter = router({
 
         const result = await db.execute(sql`
           UPDATE system_prompts
-          SET is_active = false, updated_at = now(), updated_by = ${profile.userId}
+          SET is_active = false, updated_at = now(), updated_by = ${ctx.userId}
           WHERE id = ${input.id}
           RETURNING id
         `)
 
-        if (!result.rows || result.rows.length === 0) {
+        if (!result || result.length === 0) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Prompt no encontrado',
@@ -316,14 +292,7 @@ export const adminPromptsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const { profiles } = await import('@quoorum/db/schema')
-        const [profile] = await db
-          .select()
-          .from(profiles)
-          .where(eq(profiles.id, ctx.userId))
-          .limit(1)
-
-        if (!profile?.isAdmin) {
+        if (!(await isUserAdmin(ctx.userId))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Solo administradores pueden probar prompts',
@@ -336,12 +305,12 @@ export const adminPromptsRouter = router({
           const result = await db.execute(sql`
             SELECT prompt FROM system_prompts WHERE id = ${input.promptId} LIMIT 1
           `)
-          promptData = result.rows?.[0]
+          promptData = result?.[0]
         } else if (input.key) {
           const result = await db.execute(sql`
             SELECT prompt FROM system_prompts WHERE key = ${input.key} LIMIT 1
           `)
-          promptData = result.rows?.[0]
+          promptData = result?.[0]
         }
 
         if (!promptData) {
@@ -353,11 +322,11 @@ export const adminPromptsRouter = router({
 
         // Test with AI client
         const { getAIClient } = await import('@quoorum/ai')
-        const aiClient = getAIClient()
+        const aiClient = getAIClient() as any
         const startTime = Date.now()
 
         try {
-          const response = await aiClient.generateWithSystemPrompt(
+          const response = await aiClient.generateWithSystem(
             promptData.prompt,
             input.testInput,
             {
@@ -369,7 +338,7 @@ export const adminPromptsRouter = router({
           // Track AI cost
           void trackAICall({
             userId: ctx.userId,
-            operationType: 'admin_prompt_test',
+            operationType: 'generic_ai_call',
             provider: 'anthropic',
             modelId: 'claude-3-5-sonnet-20241022',
             promptTokens: 0, // getAIClient doesn't return usage yet
@@ -391,7 +360,7 @@ export const adminPromptsRouter = router({
           // Track failed AI call
           void trackAICall({
             userId: ctx.userId,
-            operationType: 'admin_prompt_test',
+            operationType: 'generic_ai_call',
             provider: 'anthropic',
             modelId: 'claude-3-5-sonnet-20241022',
             promptTokens: 0,

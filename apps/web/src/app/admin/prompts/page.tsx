@@ -7,17 +7,15 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Trash2, Edit, Plus, Search, Copy, CheckCircle2, X } from 'lucide-react'
+import { Loader2, Trash2, Edit, Search, Copy, CheckCircle2, X } from 'lucide-react'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
-import { logger } from '@/lib/logger'
 
 type Category = 'debates' | 'context' | 'experts' | 'departments' | 'frameworks' | 'narrative'
 
@@ -53,19 +51,10 @@ export default function AdminPromptsPage() {
   const [testResult, setTestResult] = useState<string | null>(null)
 
   // Queries
-  const { data: allPrompts = [], isLoading, refetch } = useQuery({
-    queryKey: ['admin-prompts-list'],
-    queryFn: async () => {
-      const response = await api.adminPrompts.list.query()
-      return response as Prompt[]
-    },
-  })
+  const { data: allPrompts = [], isLoading, refetch } = api.adminPrompts.list.useQuery()
 
   // Mutations
-  const updatePromptMutation = useMutation({
-    mutationFn: async (data: { id: string; updates: Partial<Prompt> }) => {
-      return await api.adminPrompts.update.mutate(data)
-    },
+  const { mutate: updatePrompt, isPending: isUpdating } = api.adminPrompts.update.useMutation({
     onSuccess: () => {
       toast.success('Prompt actualizado correctamente')
       refetch()
@@ -77,10 +66,7 @@ export default function AdminPromptsPage() {
     },
   })
 
-  const deletePromptMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await api.adminPrompts.delete.mutate({ id })
-    },
+  const { mutate: deletePrompt } = api.adminPrompts.delete.useMutation({
     onSuccess: () => {
       toast.success('Prompt eliminado correctamente')
       refetch()
@@ -91,13 +77,7 @@ export default function AdminPromptsPage() {
     },
   })
 
-  const testPromptMutation = useMutation({
-    mutationFn: async (data: { promptId: string; testInput: string }) => {
-      return await api.adminPrompts.test.mutate({
-        promptId: data.promptId,
-        testInput: data.testInput,
-      })
-    },
+  const { mutate: testPrompt, isPending: isTesting } = api.adminPrompts.test.useMutation({
     onSuccess: (data) => {
       setTestResult(data.response)
       toast.success('Prompt probado exitosamente')
@@ -108,9 +88,9 @@ export default function AdminPromptsPage() {
   })
 
   // Filtered prompts
-  const filteredPrompts = allPrompts
-    .filter((p) => p.category === selectedCategory)
-    .filter((p) =>
+  const filteredPrompts = (allPrompts as Prompt[])
+    .filter((p: Prompt) => p.category === selectedCategory)
+    .filter((p: Prompt) =>
       searchQuery
         ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -127,7 +107,7 @@ export default function AdminPromptsPage() {
   const handleSaveEdit = async () => {
     if (!selectedPrompt) return
 
-    await updatePromptMutation.mutateAsync({
+    updatePrompt({
       id: selectedPrompt.id,
       updates: editForm,
     })
@@ -135,7 +115,7 @@ export default function AdminPromptsPage() {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar este prompt?')) return
-    await deletePromptMutation.mutateAsync(id)
+    deletePrompt({ id })
   }
 
   const handleTestPrompt = async () => {
@@ -143,7 +123,7 @@ export default function AdminPromptsPage() {
       toast.error('Ingresa algo para probar')
       return
     }
-    await testPromptMutation.mutateAsync({
+    testPrompt({
       promptId: selectedPrompt.id,
       testInput,
     })
@@ -196,7 +176,7 @@ export default function AdminPromptsPage() {
                 >
                   {cat.label}
                   <span className="text-xs ml-2 opacity-70">
-                    {allPrompts.filter((p) => p.category === cat.value).length}
+                    {(allPrompts as Prompt[]).filter((p: Prompt) => p.category === cat.value).length}
                   </span>
                 </button>
               ))}
@@ -227,7 +207,7 @@ export default function AdminPromptsPage() {
                   </CardContent>
                 </Card>
               ) : (
-                filteredPrompts.map((prompt) => (
+                filteredPrompts.map((prompt: Prompt) => (
                   <Card
                     key={prompt.id}
                     className="cursor-pointer hover:shadow-md transition"
@@ -317,9 +297,9 @@ export default function AdminPromptsPage() {
                     <div className="flex gap-2">
                       <Button
                         onClick={handleSaveEdit}
-                        disabled={updatePromptMutation.isPending}
+                        disabled={isUpdating}
                       >
-                        {updatePromptMutation.isPending ? (
+                        {isUpdating ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Guardando...
@@ -379,10 +359,10 @@ export default function AdminPromptsPage() {
 
                         <Button
                           onClick={handleTestPrompt}
-                          disabled={testPromptMutation.isPending}
+                          disabled={isTesting}
                           className="w-full"
                         >
-                          {testPromptMutation.isPending ? (
+                          {isTesting ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Probando...
