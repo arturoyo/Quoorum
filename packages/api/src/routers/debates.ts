@@ -15,6 +15,7 @@ import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestra
 import { searchInternet } from "@quoorum/quoorum/context-loader";
 import type { ExpertProfile, PatternType, DebateResult, DebateSequence } from "@quoorum/quoorum";
 import { logger } from "../lib/logger";
+import { getSystemPrompt } from "../lib/get-system-prompt";
 import { systemLogger } from "../lib/system-logger";
 import { inngest } from "../lib/inngest-client";
 import { debateSequenceToResult } from "../lib/debate-orchestration-adapter";
@@ -2250,7 +2251,21 @@ ${fullContext}
 IMPORTANTE: NO generes preguntas sobre información que YA está en el contexto existente. En su lugar, PROFUNDIZA en aspectos específicos relacionados con la pregunta del usuario que NO estén cubiertos en el contexto.`
           : "";
 
-        const systemPrompt = `Eres un experto en recopilar contexto para decisiones estratégicas.
+        // Get prompt from DB or use fallback
+        const fallbackPrompt = `Eres un experto en recopilar contexto para decisiones estratégicas.
+
+OBJETIVO: Generar 3-4 preguntas ESPECÍFICAS, DINÁMICAS y ÚNICAS basadas en la pregunta concreta del usuario.
+
+[WARN] REGLAS CRÍTICAS:
+1. Las preguntas DEBEN ser ESPECÍFICAS a la pregunta del usuario, NO genéricas
+2. Cada pregunta debe ser ÚNICA y diferente de las otras (no repetir el mismo concepto)
+3. Varía el enfoque: una puede ser sobre recursos, otra sobre timing, otra sobre métricas
+4. NO uses la misma pregunta con diferentes palabras`;
+        
+        const systemPrompt = await getSystemPrompt(
+          'debates.generateCriticalQuestions',
+          fallbackPrompt
+        ) + `
 
 OBJETIVO: Generar 3-4 preguntas ESPECÍFICAS, DINÁMICAS y ÚNICAS basadas en la pregunta concreta del usuario.
 
@@ -3352,7 +3367,17 @@ IMPORTANTE:
         // Use provided context or build it fresh
         const fullContext = input.contextText || (await buildFullUserContext(ctx.userId));
 
-        const systemPrompt = `Eres un experto en crear mensajes de bienvenida personalizados y motivadores.
+        // Get prompt from DB or use fallback
+        const fallbackPrompt = `Eres un experto en crear mensajes de bienvenida personalizados y motivadores.
+
+Tu tarea es generar UN título (pregunta) y UN subtítulo (explicación breve) para la pantalla inicial de creación de debates.`;
+        
+        const basePrompt = await getSystemPrompt(
+          'debates.generatePersonalizedPrompt',
+          fallbackPrompt
+        );
+
+        const systemPrompt = `${basePrompt}
 
 Tu tarea es generar UN título (pregunta) y UN subtítulo (explicación breve) para la pantalla inicial de creación de debates.
 
@@ -3469,8 +3494,18 @@ RESPONDE JSON (sin markdown):
         // Use provided context or build it fresh
         const fullContext = input.contextText || (await buildFullUserContext(ctx.userId));
 
+        // Get prompt from DB or use fallback
+        const fallbackPrompt = `Eres un experto consultor de estrategia empresarial. Tu trabajo es generar preguntas de debate estratégico ALTAMENTE RELEVANTES Y CONTEXTUALIZADAS basadas en TODA la información disponible del usuario.
+
+OBJETIVO: Generar ${input.count} preguntas EXCELENTES, específicas al contexto del usuario, que impulsen debates valiosos.`;
+        
+        const basePrompt = await getSystemPrompt(
+          'debates.suggestInitialQuestions',
+          fallbackPrompt
+        );
+
         // Generate questions using AI with comprehensive context
-        const systemPrompt = `Eres un experto consultor de estrategia empresarial. Tu trabajo es generar preguntas de debate estratégico ALTAMENTE RELEVANTES Y CONTEXTUALIZADAS basadas en TODA la información disponible del usuario.
+        const systemPrompt = `${basePrompt}
 
 CONTEXTO DISPONIBLE:
 - Perfil del usuario (nombre, cargo, bio, instrucciones personalizadas)

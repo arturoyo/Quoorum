@@ -1,10 +1,9 @@
-import { protectedProcedure, publicProcedure, router } from '@/trpc'
+import { protectedProcedure, publicProcedure, router } from '../trpc'
 import { z } from 'zod'
 import { db } from '@quoorum/db'
 import { sql, eq, and } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
-import { logger } from '@/lib/logger'
-import { trackAICall } from '@quoorum/quoorum/ai-cost-tracking'
+import { logger } from '../lib/logger'import { clearPromptFromCache } from '@/lib/get-system-prompt'import { trackAICall } from '@quoorum/quoorum/ai-cost-tracking'
 
 // Validation schemas
 const systemPromptSchema = z.object({
@@ -228,9 +227,16 @@ export const adminPromptsRouter = router({
           })
         }
 
+        // Clear cache for this prompt so it's reloaded immediately
+        const promptKey = (result.rows[0] as any).key as string
+        if (promptKey) {
+          clearPromptFromCache(promptKey)
+        }
+
         logger.info('[adminPromptsRouter.update] Prompt actualizado', {
           promptId: input.id,
           updatedBy: profile.userId,
+          key: promptKey,
         })
 
         return result.rows[0]
