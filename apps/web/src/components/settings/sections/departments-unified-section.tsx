@@ -134,7 +134,27 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
           <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
         </div>
       ) : userDepartments && userDepartments.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <>
+          {/* Botones de acción cuando hay departamentos */}
+          <div className="flex gap-2 mb-4">
+            <Button
+              onClick={() => router.push('/settings/company/departments/new')}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Crear Nuevo
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => router.push('/settings/departments/library')}
+              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+            >
+              <BookOpen className="mr-2 h-4 w-4" />
+              Ver Plantillas
+            </Button>
+          </div>
+          
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {userDepartments.map((dept) => (
             <Card key={dept.id} className="relative border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl hover:border-purple-500/30 transition-colors">
               <CardHeader className="pb-2">
@@ -205,6 +225,7 @@ export function DepartmentsUnifiedSection({ isInModal = false }: DepartmentsUnif
             </Card>
           ))}
         </div>
+        </>
       ) : (
         <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
           <CardContent className="flex flex-col items-center justify-center py-12">
