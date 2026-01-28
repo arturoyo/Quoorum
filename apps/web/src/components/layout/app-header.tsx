@@ -300,14 +300,16 @@ export function AppHeader({
               {/* Admin link removed - using icon button instead */}
             </nav>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
               {/* Credit Counter - Solo mostrar en páginas de debate */}
               {pathname?.includes('/debates/new-unified') && (
-                <div className="hidden sm:block">
+                <div className="hidden sm:block mr-2">
                   <CreditCounter variant="compact" />
                 </div>
               )}
-              <Button 
+
+              {/* New Debate Button - CTA principal, siempre visible con texto */}
+              <Button
                 onClick={async (e) => {
                   try {
                     e.preventDefault()
@@ -322,74 +324,116 @@ export function AppHeader({
                     const targetUrl = `/debates/new-unified/${sessionId}?new=1`
                     await router.push(targetUrl)
                   } catch (error) {
-                    // Clasificar el error para determinar si debe ser silenciado
                     const errorInfo = classifyTRPCError(error)
-                    
-                    // Solo loggear errores que NO son de red (network)
                     if (errorInfo.type !== 'network') {
                       logger.error('[AppHeader] Error al crear nuevo debate', error instanceof Error ? error : new Error(String(error)))
-                    }
-                    
-                    // Solo mostrar toast si NO es un error de red
-                    if (errorInfo.type !== 'network') {
                       toast.error('Error al crear nuevo debate', {
                         description: error instanceof Error ? error.message : 'Error desconocido'
                       })
                     }
                   }
                 }}
-                className="hidden sm:block bg-purple-600 hover:bg-purple-500 text-white border-0 p-2" 
-                title="Crear nuevo debate (siempre inicia uno nuevo con URL única)"
+                className="hidden sm:flex bg-purple-600 hover:bg-purple-500 text-white border-0 px-3 py-1.5 h-8"
+                title="Crear nuevo debate"
                 type="button"
               >
                 <Plus className="h-4 w-4" />
               </Button>
+
+              {/* Notifications */}
               <div className="hidden sm:block">
                 <NotificationBell onClick={() => setNotificationsSidebarOpen(!notificationsSidebarOpen)} enabled={isAuthenticated} />
               </div>
-              <Link href="/debates">
-                <Button
-                  variant="ghost"
-                  className="hidden sm:block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2"
-                  title="Debates"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/scenarios">
-                <Button
-                  variant="ghost"
-                  className="hidden sm:block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2"
-                  title="Escenarios"
-                >
-                  <Sparkles className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Button
-                onClick={handleSettingsClick}
-                variant="ghost"
-                className="hidden sm:block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2"
-                title="Configuración"
+
+              {/* Nav items with hover-expand effect */}
+              <Link
+                href="/debates"
+                className={cn(
+                  'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
+                  'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
+                  'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
+                )}
+                title="Debates"
               >
-                <Settings className="h-4 w-4" />
-              </Button>
-              {/* Show admin button if user is admin */}
+                <MessageCircle className="h-4 w-4 flex-shrink-0" />
+                <span className={cn(
+                  'max-w-0 overflow-hidden whitespace-nowrap',
+                  'group-hover:max-w-[80px] group-hover:ml-1.5',
+                  'transition-all duration-300 ease-out',
+                  'text-xs font-medium'
+                )}>
+                  Debates
+                </span>
+              </Link>
+
+              <Link
+                href="/scenarios"
+                className={cn(
+                  'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
+                  'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
+                  'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
+                )}
+                title="Escenarios"
+              >
+                <Sparkles className="h-4 w-4 flex-shrink-0" />
+                <span className={cn(
+                  'max-w-0 overflow-hidden whitespace-nowrap',
+                  'group-hover:max-w-[80px] group-hover:ml-1.5',
+                  'transition-all duration-300 ease-out',
+                  'text-xs font-medium'
+                )}>
+                  Escenarios
+                </span>
+              </Link>
+
+              <button
+                onClick={handleSettingsClick}
+                className={cn(
+                  'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
+                  'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
+                  'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
+                )}
+                title="Configuración"
+                type="button"
+              >
+                <Settings className="h-4 w-4 flex-shrink-0" />
+                <span className={cn(
+                  'max-w-0 overflow-hidden whitespace-nowrap',
+                  'group-hover:max-w-[80px] group-hover:ml-1.5',
+                  'transition-all duration-300 ease-out',
+                  'text-xs font-medium'
+                )}>
+                  Ajustes
+                </span>
+              </button>
+
+              {/* Admin button with hover-expand */}
               {!isLoadingUser && currentUser?.isAdmin && (
-                <Button
+                <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    logger.debug('[AppHeader] Opening admin modal, current state:', { adminModalOpen });
+                    logger.debug('[AppHeader] Opening admin modal');
                     setAdminModalOpen(true);
-                    logger.debug('[AppHeader] Admin modal state set to true');
                   }}
-                  variant="ghost"
-                  className="text-purple-300 hover:text-purple-200 hover:bg-purple-500/10 p-2"
+                  className={cn(
+                    'group flex items-center gap-0 px-2 py-1.5 rounded-full',
+                    'text-purple-400 hover:text-purple-300',
+                    'hover:bg-purple-500/10 transition-all duration-300 ease-out'
+                  )}
                   title="Panel de Administración"
                   type="button"
                 >
-                  <Shield className="h-4 w-4" />
-                </Button>
+                  <Shield className="h-4 w-4 flex-shrink-0" />
+                  <span className={cn(
+                    'max-w-0 overflow-hidden whitespace-nowrap',
+                    'group-hover:max-w-[80px] group-hover:ml-1.5',
+                    'transition-all duration-300 ease-out',
+                    'text-xs font-medium'
+                  )}>
+                    Admin
+                  </span>
+                </button>
               )}
               {/* Mobile menu button - Solo visible en pantallas pequeñas */}
               <Button
