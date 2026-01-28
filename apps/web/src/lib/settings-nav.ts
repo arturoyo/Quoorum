@@ -14,6 +14,7 @@ import {
   User,
   Users,
   BarChart3,
+  Building2,
 } from "lucide-react";
 import type { LucideIcon } from 'lucide-react'
 
@@ -41,6 +42,7 @@ export function getSettingsNav(currentPath: string): SettingsNavItem[] {
     { href: '/settings/billing', label: 'Facturación', icon: CreditCard },
     { href: '/settings/team', label: 'Equipo', icon: Users },
     { href: '/settings/api-keys', label: 'API Keys', icon: Key },
+    { href: '/settings/departments', label: 'Departamentos', icon: Building2 },
     { href: '/settings/experts/library', label: 'Expertos', icon: Sparkles },
     {
       href: '/settings/workers',
