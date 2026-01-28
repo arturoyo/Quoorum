@@ -16,7 +16,7 @@ import {
   jsonb,
   index,
 } from 'drizzle-orm/pg-core'
-import { users, debates } from './index'
+import { users, quoorumDebates } from './index'
 import { relations } from 'drizzle-orm'
 
 // ============================================================================
@@ -75,7 +75,7 @@ export const aiCostTracking = pgTable(
 
     // Identification
     userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    debateId: uuid('debate_id').references(() => debates.id, { onDelete: 'cascade' }),
+    debateId: uuid('debate_id').references(() => quoorumDebates.id, { onDelete: 'cascade' }),
     operationType: varchar('operation_type', { length: 100 }).notNull().$type<AIOperationType>(),
 
     // AI Provider Details
@@ -127,9 +127,9 @@ export const aiCostTrackingRelations = relations(aiCostTracking, ({ one }) => ({
     fields: [aiCostTracking.userId],
     references: [users.id],
   }),
-  debate: one(debates, {
+  debate: one(quoorumDebates, {
     fields: [aiCostTracking.debateId],
-    references: [debates.id],
+    references: [quoorumDebates.id],
   }),
 }))
 

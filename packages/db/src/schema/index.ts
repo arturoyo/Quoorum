@@ -20,7 +20,7 @@ export { deliberations } from "./deliberations";
 export type { Deliberation, DeliberationStatus, NewDeliberation } from "./deliberations";
 
 export { experts } from "./experts";
-export type { AIConfig, AIProvider, Expert, NewExpert } from "./experts";
+export type { AIConfig, Expert, NewExpert } from "./experts";
 
 export { workers, workersRelations, workerRoleEnum, workerTypeEnum } from "./workers";
 export type { Worker, NewWorker, WorkerRole, WorkerType } from "./workers";

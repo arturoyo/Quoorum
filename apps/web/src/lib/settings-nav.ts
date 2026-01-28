@@ -12,12 +12,8 @@ import {
   Shield,
   Sparkles,
   User,
-  FileText,
-  Building2,
-  Network,
   Users,
   BarChart3,
-  Palette,
 } from "lucide-react";
 import type { LucideIcon } from 'lucide-react'
 
@@ -45,15 +41,7 @@ export function getSettingsNav(currentPath: string): SettingsNavItem[] {
     { href: '/settings/billing', label: 'Facturación', icon: CreditCard },
     { href: '/settings/team', label: 'Equipo', icon: Users },
     { href: '/settings/api-keys', label: 'API Keys', icon: Key },
-    {
-      href: '/settings/experts',
-      label: 'Expertos Externos',
-      icon: Sparkles,
-      subItems: [
-        { href: '/settings/experts', label: 'Nuevo' },
-        { href: '/settings/experts/library', label: 'Biblioteca' },
-      ],
-    },
+    { href: '/settings/experts/library', label: 'Expertos', icon: Sparkles },
     {
       href: '/settings/workers',
       label: 'Profesionales',

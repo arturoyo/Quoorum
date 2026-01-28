@@ -88,14 +88,14 @@ Return ONLY a JSON array of search queries, no additional text.`
       maxTokens: 300,
     })
 
-    // Track AI cost for analysis
+    // Track AI cost for analysis (tokens not available from generate(), using estimates)
     void trackAICall({
       userId,
       operationType: 'auto_research_analysis',
       provider: 'google',
       modelId: 'gemini-2.0-flash-exp',
-      promptTokens: analysisResponse.usage?.promptTokens || 0,
-      completionTokens: analysisResponse.usage?.completionTokens || 0,
+      promptTokens: Math.ceil(analysisPrompt.length / 4), // Estimate ~4 chars per token
+      completionTokens: Math.ceil(analysisResponse.text.length / 4),
       latencyMs: Date.now() - startTime1,
       success: true,
       inputSummary: question.substring(0, 500),
@@ -120,14 +120,14 @@ Ahora genera las queries específicas:`
       maxTokens: 500,
     })
 
-    // Track AI cost for query generation
+    // Track AI cost for query generation (tokens not available from generate(), using estimates)
     void trackAICall({
       userId,
       operationType: 'auto_research_queries',
       provider: 'google',
       modelId: 'gemini-2.0-flash-exp',
-      promptTokens: response.usage?.promptTokens || 0,
-      completionTokens: response.usage?.completionTokens || 0,
+      promptTokens: Math.ceil(queryPrompt.length / 4), // Estimate ~4 chars per token
+      completionTokens: Math.ceil(response.text.length / 4),
       latencyMs: Date.now() - startTime2,
       success: true,
       inputSummary: question.substring(0, 500),
