@@ -249,13 +249,33 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
 
     try {
       quoorumLogger.info('[Debate] Generating final synthesis...', { sessionId })
-      finalSynthesis = await generateFinalSynthesis(sessionId, question, rounds)
+      const synthesisResult = await generateFinalSynthesis(sessionId, question, rounds)
 
-      if (finalSynthesis) {
+      if (synthesisResult) {
+        finalSynthesis = synthesisResult.synthesis
         quoorumLogger.info('[Debate] Final synthesis completed', {
           sessionId,
           recommendation: finalSynthesis.recommendation.option,
           quality: finalSynthesis.debateQuality,
+        })
+
+        // Create virtual message for synthesis phase (for cost tracking)
+        const synthesisMessage: DebateMessage = {
+          agentKey: 'synthesis',
+          agentName: 'Secretario del Tribunal',
+          content: `Síntesis ejecutiva generada: ${finalSynthesis.recommendation.option}`,
+          provider: synthesisResult.provider as any,
+          model: synthesisResult.model,
+          tokensUsed: synthesisResult.tokensUsed,
+          costUsd: synthesisResult.costUsd,
+          timestamp: new Date(),
+          phase: 'synthesis', // Track synthesis phase cost
+        }
+
+        // Add synthesis as a virtual round for cost tracking
+        rounds.push({
+          round: rounds.length + 1,
+          messages: [synthesisMessage],
         })
       }
     } catch (error) {

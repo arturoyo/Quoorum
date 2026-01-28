@@ -141,3 +141,21 @@ export type { Scenario, NewScenario, ScenarioSegment, ScenarioStatus } from "./s
 
 export { scenarioUsage } from "./scenario-usage";
 export type { ScenarioUsage, NewScenarioUsage } from "./scenario-usage";
+
+// Pricing Configuration
+export {
+  pricingGlobalConfig,
+  tierPricingConfig,
+  pricingChangeHistory,
+  pricingGlobalConfigRelations,
+  tierPricingConfigRelations,
+  pricingChangeHistoryRelations,
+} from "./pricing-config";
+export type {
+  PricingGlobalConfig,
+  NewPricingGlobalConfig,
+  TierPricingConfig,
+  NewTierPricingConfig,
+  PricingChangeHistory,
+  NewPricingChangeHistory,
+} from "./pricing-config";

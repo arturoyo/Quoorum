@@ -448,6 +448,7 @@ export type {
 export {
   generateFinalSynthesis,
   extractSynthesisInsights,
+  type FinalSynthesisResult,
 } from './final-synthesis'
 
 export type {
@@ -500,3 +501,27 @@ export type {
   AppliedScenario,
   ScenarioVariableValues,
 } from './scenarios/types'
+
+// ============================================================================
+// PRICING SYSTEM (Profit Margin Calculations & Validation)
+// ============================================================================
+
+export {
+  getApiCostCoveragePerCredit,
+  calculateApiCost,
+  calculateBreakEvenPoint,
+  analyzeProfitMargin,
+  analyzeAllTiers,
+  validatePricingConfig,
+  validateTierConfig,
+  formatUsdFromCents,
+  formatProfitMargin,
+  generateImpactSummary,
+} from './pricing/helpers'
+
+export type {
+  PricingConfig,
+  TierConfig,
+  ProfitMarginAnalysis,
+  ValidationResult,
+} from './pricing/helpers'

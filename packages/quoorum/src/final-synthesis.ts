@@ -8,6 +8,7 @@
 
 import { getAIClient } from '@quoorum/ai'
 import { quoorumLogger } from './logger'
+import { calculateTokenCost } from './analytics/cost'
 import type { DebateRound, FinalSynthesis, FinalSynthesisOption } from './types'
 
 // ============================================================================
@@ -118,11 +119,22 @@ Genera el JSON ahora (sin explicaciones adicionales):
 // SYNTHESIS GENERATOR
 // ============================================================================
 
+/**
+ * Result of final synthesis generation including cost info
+ */
+export interface FinalSynthesisResult {
+  synthesis: FinalSynthesis
+  costUsd: number
+  tokensUsed: number
+  provider: string
+  model: string
+}
+
 export async function generateFinalSynthesis(
   sessionId: string,
   question: string,
   rounds: DebateRound[]
-): Promise<FinalSynthesis | null> {
+): Promise<FinalSynthesisResult | null> {
   try {
     quoorumLogger.info('[Final Synthesis] Starting synthesis generation', {
       sessionId,
@@ -152,8 +164,9 @@ export async function generateFinalSynthesis(
 
     // Generate synthesis with powerful model
     const client = getAIClient()
+    const modelId = 'gpt-4o' // Usar modelo potente para síntesis final
     const response = await client.generate(finalPrompt, {
-      modelId: 'gpt-4o', // Usar modelo potente para síntesis final
+      modelId,
       temperature: 0.2, // Baja temperatura para precisión
       maxTokens: 2000,
     })
@@ -169,13 +182,25 @@ export async function generateFinalSynthesis(
 
     const synthesis: FinalSynthesis = JSON.parse(jsonText)
 
+    // Calculate cost for tracking
+    const tokensUsed = (response.usage?.promptTokens || 0) + (response.usage?.completionTokens || 0)
+    const costUsd = calculateTokenCost(modelId, response.usage?.promptTokens || 0, response.usage?.completionTokens || 0)
+
     quoorumLogger.info('[Final Synthesis] Synthesis generated successfully', {
       sessionId,
       topOption: synthesis.recommendation.option,
       qualityScores: synthesis.debateQuality,
+      tokensUsed,
+      costUsd,
     })
 
-    return synthesis
+    return {
+      synthesis,
+      costUsd,
+      tokensUsed,
+      provider: 'openai', // Assuming OpenAI for gpt-4o
+      model: modelId,
+    }
 
   } catch (error) {
     quoorumLogger.error('[Final Synthesis] Failed to generate synthesis', error instanceof Error ? error : new Error(String(error)), {
