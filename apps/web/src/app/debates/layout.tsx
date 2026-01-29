@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 /**
  * DebatesLayout - Orchestrator Component
@@ -273,7 +273,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
         {/* Main Content - Right Side */}
         <div
           className={cn(
-            'flex-1 overflow-hidden',
+            'flex-1 overflow-hidden flex flex-col',
             !isDebateSelected && !isNewDebate && 'hidden md:flex'
           )}
         >

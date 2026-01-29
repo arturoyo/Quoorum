@@ -1,9 +1,100 @@
 # 🤖 CLAUDE-CORE.md — Reglas Esenciales
 
-> **Versión:** 1.0.0 | **Fecha:** 26 Ene 2026
+> **Versión:** 1.1.0 | **Fecha:** 29 Ene 2026
 > **Propósito:** Guía rápida con las 10 reglas más críticas
 > **Tiempo de lectura:** 3-5 minutos
 > **Documentación completa:** Ver [CLAUDE.md](./CLAUDE.md) o módulos en [docs/claude/](./docs/claude/)
+
+---
+
+## 🐧 CONFIGURACIÓN ACTUAL DEL PROYECTO
+
+**✅ ENTORNO DE DESARROLLO: WSL2 Ubuntu (NO Windows)**
+
+### Estado Actual (29 Ene 2026)
+```bash
+# Servidor corriendo desde WSL2
+- Sistema: Ubuntu en WSL2
+- Node.js: 20.20.0 (instalado vía NVM)
+- npm: 10.8.2
+- pnpm: 9.15.0
+- Ubicación proyecto: /mnt/c/Quoorum
+```
+
+### Comandos para Desarrollar
+```bash
+# 1. Abrir terminal WSL2 en VS Code
+# 2. Navegar al proyecto
+cd /mnt/c/Quoorum/apps/web
+
+# 3. Iniciar servidor (sin predev de PowerShell)
+pnpm dev:no-fix
+
+# 4. Servidor escucha en:
+#    - Local WSL2: http://localhost:3000
+#    - Desde Windows directa: http://172.23.174.216:3000
+#      (IP puede cambiar, verificar con: wsl hostname -I)
+```
+
+### 🔧 Port Forwarding para OAuth (REQUERIDO)
+
+**Problema:** OAuth de Google solo funciona con `localhost`, no con IP de WSL2.
+
+**Solución:** Configurar port forwarding de Windows → WSL2
+
+**1. Abrir PowerShell COMO ADMINISTRADOR**
+
+**2. Obtener IP actual de WSL2:**
+```powershell
+wsl hostname -I
+# Output: 172.23.174.216 (ejemplo)
+```
+
+**3. Configurar port forwarding:**
+```powershell
+# Reemplaza 172.23.174.216 con la IP de tu WSL2
+netsh interface portproxy add v4tov4 listenport=3000 listenaddress=127.0.0.1 connectport=3000 connectaddress=172.23.174.216
+```
+
+**4. Verificar configuración:**
+```powershell
+netsh interface portproxy show all
+```
+
+**5. Acceder desde Windows:** http://localhost:3000 ✅
+
+**Para eliminar port forwarding (si es necesario):**
+```powershell
+netsh interface portproxy delete v4tov4 listenport=3000 listenaddress=127.0.0.1
+```
+
+**⚠️ NOTA:** Si reinicias WSL2, la IP puede cambiar. Verifica con `wsl hostname -I` y reconfigura el port forwarding si es necesario.
+
+### ⚠️ Configuraciones Críticas
+
+**apps/web/package.json:**
+```json
+"dev:no-fix": "next dev -p 3000 --hostname 0.0.0.0"
+```
+- `--hostname 0.0.0.0` permite acceso desde Windows a WSL2
+
+**NO usar en WSL2:**
+- `pnpm dev` (requiere PowerShell)
+- Scripts con `pwsh` (no disponible en Linux)
+
+### 👤 Usuario de Prueba en PostgreSQL Local
+
+**Creado en Docker (quoorum-postgres):**
+- Email: `admin@test.com`
+- Role: `admin`
+- Autenticación: OAuth Google (no tiene password)
+
+### Ventajas de WSL2 vs Windows
+✅ No más errores UTF-8 (encoding nativo)
+✅ No más cache corrupto frecuente
+✅ Builds 2-3x más rápidos (I/O nativo)
+✅ File watching nativo de Linux
+✅ Mismo entorno que producción (Vercel usa Linux)
 
 ---
 

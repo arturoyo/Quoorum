@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "predev": "pwsh -NoProfile -File ../../scripts/auto-fix-dev.ps1",
-    "dev": "next dev -p 3000",
-    "dev:no-fix": "next dev -p 3000",
-    "dev:webpack": "next dev -p 3000 --webpack",
+    "dev": "next dev -p 3000 --hostname 0.0.0.0",
+    "dev:no-fix": "next dev -p 3000 --hostname 0.0.0.0",
+    "dev:webpack": "next dev -p 3000 --webpack --hostname 0.0.0.0",
     "build": "cd ../.. && turbo build --filter=@quoorum/web",
     "start": "next start",
     "typecheck": "tsc --noEmit",

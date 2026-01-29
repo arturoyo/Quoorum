@@ -209,7 +209,14 @@
       "Bash(tsx:*)",
       "Bash(git rm:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(wsl --status:*)",
+      "Bash(wsl --list:*)",
+      "Bash(wsl --set-default:*)",
+      "Bash(wsl -d Ubuntu -- bash -c \"which node && node --version || echo ''Node not installed''\")",
+      "Bash(wsl -d Ubuntu -- bash -c \"curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash\")",
+      "Bash(wsl:*)",
+      "Bash(wsl.exe:*)"
     ]
   }
 }
