@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { motion } from 'framer-motion'
 import { Save, History, Download, Trash2, Check } from 'lucide-react'
@@ -80,7 +80,7 @@ export function ContextSnapshots({
               </h3>
             </div>
             <p className="mt-1 text-sm text-[#aebac1]">
-              Guarda y restaura versiones de tu contexto para iterar rápidamente
+              Guarda y restaura versiones de tu contexto para iterar rï¿½pidamente
             </p>
           </div>
 
@@ -99,7 +99,7 @@ export function ContextSnapshots({
           <Input
             value={snapshotName}
             onChange={(e) => setSnapshotName(e.target.value)}
-            placeholder="Nombre del snapshot (ej: 'Primera versión')"
+            placeholder="Nombre del snapshot (ej: 'Primera versiï¿½n')"
             className="flex-1 border-[#2a3942] bg-[#111b21] text-[var(--theme-text-primary)] placeholder:text-[#8696a0]"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -135,10 +135,10 @@ export function ContextSnapshots({
         <Card className="border-[#2a3942] bg-[#111b21] p-8 text-center">
           <History className="mx-auto h-12 w-12 text-[#8696a0] mb-4" />
           <p className="text-sm text-[#aebac1]">
-            No hay snapshots guardados aún
+            No hay snapshots guardados aï¿½n
           </p>
           <p className="text-xs text-[#8696a0] mt-2">
-            Guarda una versión para poder volver a ella más tarde
+            Guarda una versiï¿½n para poder volver a ella mï¿½s tarde
           </p>
         </Card>
       ) : (
@@ -273,7 +273,7 @@ export function ContextSnapshots({
       >
         <p className="text-xs text-[#8696a0]">
           ?? <span className="text-[#aebac1]">Tip:</span> Guarda snapshots antes de hacer
-          cambios grandes. Puedes comparar versiones y volver atrás si es necesario.
+          cambios grandes. Puedes comparar versiones y volver atrï¿½s si es necesario.
         </p>
       </motion.div>
     </motion.div>

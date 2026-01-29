@@ -11,8 +11,8 @@ Write-Host "[INFO] AUTO-FIX: Corrigiendo errores antes de iniciar servidor" -For
 Write-Host $separator -ForegroundColor Cyan
 Write-Host ""
 
-# [EMOJI]. Clean and Build API package FIRST (esto corrige muchos errores de TypeScript durante el build)
-Write-Host "[[EMOJI]/[EMOJI]] Limpiando y compilando paquete API..." -ForegroundColor Yellow
+# Clean and Build API package FIRST (esto corrige muchos errores de TypeScript durante el build)
+Write-Host "[1/5] Limpiando y compilando paquete API..." -ForegroundColor Yellow
 Write-Host "   (Esto corrige errores de TypeScript durante el build)" -ForegroundColor Gray
 try {
     # Limpiar dist primero para evitar errores de archivos huerfanos
@@ -23,7 +23,7 @@ try {
     }
 
     # Ahora compilar
-    $null = & pnpm --filter @quoorum/api build [EMOJI]>&[EMOJI]
+    $null = & pnpm --filter @quoorum/api build 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "   [OK] Build de API completado exitosamente" -ForegroundColor Green
     } else {
@@ -36,10 +36,10 @@ try {
 
 Write-Host ""
 
-# [EMOJI]. Fix ESLint errors
-Write-Host "[[EMOJI]/[EMOJI]] Corrigiendo errores de ESLint automaticamente..." -ForegroundColor Yellow
+# Fix ESLint errors
+Write-Host "[2/5] Corrigiendo errores de ESLint automaticamente..." -ForegroundColor Yellow
 try {
-    $null = & pnpm lint:fix [EMOJI]>&[EMOJI]
+    $null = & pnpm lint:fix 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "   [OK] ESLint fix completado" -ForegroundColor Green
     } else {
@@ -52,10 +52,10 @@ try {
 Write-Host ""
 
 # [EMOJI]. Build Web package (para asegurar que todo compile)
-Write-Host "[[EMOJI]/[EMOJI]] Verificando compilacion de Web..." -ForegroundColor Yellow
+Write-Host "[3/5] Verificando compilacion de Web..." -ForegroundColor Yellow
 try {
     # Solo verificar que TypeScript compile, no hacer build completo
-    $null = & pnpm --filter @quoorum/web typecheck [EMOJI]>&[EMOJI] | Out-Null
+    $null = & pnpm --filter @quoorum/web typecheck 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "   [OK] TypeCheck de Web: Sin errores" -ForegroundColor Green
     } else {
@@ -69,9 +69,9 @@ try {
 Write-Host ""
 
 # [EMOJI]. TypeCheck general (verificacion rapida, no bloquea)
-Write-Host "[[EMOJI]/[EMOJI]] Verificacion final de tipos..." -ForegroundColor Yellow
+Write-Host "[4/5] Verificacion final de tipos..." -ForegroundColor Yellow
 try {
-    $typecheckOutput = & pnpm typecheck [EMOJI]>&[EMOJI] | Out-String
+    $typecheckOutput = & pnpm typecheck 2>&1 | Out-String
     if ($LASTEXITCODE -eq 0) {
         Write-Host "   [OK] TypeCheck: Sin errores de tipos" -ForegroundColor Green
     } else {

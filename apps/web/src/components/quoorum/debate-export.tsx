@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -50,7 +50,7 @@ export function DebateExport({ debateId, className }: DebateExportProps) {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
 
-        toast.success('Exportación completada')
+        toast.success('Exportaciï¿½n completada')
         setIsExporting(false)
       } catch (error) {
         toast.error(`Error al descargar: ${error instanceof Error ? error.message : 'Error desconocido'}`)

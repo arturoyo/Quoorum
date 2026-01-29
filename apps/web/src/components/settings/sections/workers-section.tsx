@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Workers Section Component (Profesionales)
  * 
  * Manages internal company professionals (vs external experts).

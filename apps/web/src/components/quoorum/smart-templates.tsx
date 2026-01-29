@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { motion } from 'framer-motion'
 import { Sparkles, TrendingUp, Users, CheckCircle2, ArrowRight } from 'lucide-react'
@@ -166,7 +166,7 @@ export function SmartTemplates({
       >
         <p className="text-xs text-[#8696a0]">
           ?? <span className="text-[#aebac1]">Tip:</span> Los debates con 85%+ calidad de
-          contexto tienen 3x más probabilidad de generar insights accionables.
+          contexto tienen 3x mï¿½s probabilidad de generar insights accionables.
         </p>
       </motion.div>
     </motion.div>

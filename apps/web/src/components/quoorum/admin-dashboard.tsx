@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin Dashboard
  * 
  * Comprehensive admin dashboard for forum analytics

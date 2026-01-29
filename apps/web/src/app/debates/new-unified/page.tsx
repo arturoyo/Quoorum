@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewUnifiedDebatePage
  * 
  * Main component for the unified Typeform-style debate creation flow.

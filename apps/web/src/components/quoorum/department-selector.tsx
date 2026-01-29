@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import { api } from '@/lib/trpc/client'
@@ -198,7 +198,7 @@ export function DepartmentSelector({
             Departamentos Corporativos (Opcional)
           </CardTitle>
           <CardDescription>
-            Añade contexto empresarial y departamental a tu debate
+            Aï¿½ade contexto empresarial y departamental a tu debate
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -206,7 +206,7 @@ export function DepartmentSelector({
             <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 font-semibold">Configura tu empresa primero</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Crea departamentos corporativos para debates más contextualizados
+              Crea departamentos corporativos para debates mï¿½s contextualizados
             </p>
             <Button
               className="mt-4"
@@ -219,10 +219,10 @@ export function DepartmentSelector({
             <div className="flex gap-2">
               <Info className="h-5 w-5 text-blue-400 flex-shrink-0" />
               <div className="space-y-1 text-sm">
-                <p className="font-medium text-blue-400">¿Qué son los Departamentos Corporativos?</p>
+                <p className="font-medium text-blue-400">ï¿½Quï¿½ son los Departamentos Corporativos?</p>
                 <p className="text-blue-300/80">
-                  Son agentes especializados que debaten desde la perspectiva de cada área de tu empresa
-                  (Finanzas, Marketing, Operaciones, etc.), inyectando el contexto específico de tu organización.
+                  Son agentes especializados que debaten desde la perspectiva de cada ï¿½rea de tu empresa
+                  (Finanzas, Marketing, Operaciones, etc.), inyectando el contexto especï¿½fico de tu organizaciï¿½n.
                 </p>
               </div>
             </div>
@@ -251,7 +251,7 @@ export function DepartmentSelector({
             Departamentos Corporativos (Opcional)
           </CardTitle>
           <CardDescription>
-            Añade contexto empresarial y departamental a tu debate
+            Aï¿½ade contexto empresarial y departamental a tu debate
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -259,7 +259,7 @@ export function DepartmentSelector({
             <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 font-semibold">Sin departamentos configurados</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Crea departamentos para debates más contextualizados
+              Crea departamentos para debates mï¿½s contextualizados
             </p>
             <Button
               className="mt-4"
@@ -314,7 +314,7 @@ export function DepartmentSelector({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-purple-400" />
-            <CardTitle className="text-[var(--theme-text-primary)]">Selección de Departamentos</CardTitle>
+            <CardTitle className="text-[var(--theme-text-primary)]">Selecciï¿½n de Departamentos</CardTitle>
           </div>
           <Button
             variant="ghost"
@@ -327,7 +327,7 @@ export function DepartmentSelector({
         </div>
         <CardDescription className="text-[var(--theme-text-secondary)]">
           {question && question.length >= 10
-            ? 'Departamentos propuestos automáticamente según tu pregunta. Puedes seleccionar manualmente o usar los sugeridos.'
+            ? 'Departamentos propuestos automï¿½ticamente segï¿½n tu pregunta. Puedes seleccionar manualmente o usar los sugeridos.'
             : 'Selecciona departamentos para inyectar contexto corporativo en tu debate.'}
         </CardDescription>
       </CardHeader>
@@ -387,7 +387,7 @@ export function DepartmentSelector({
         <div className="space-y-2">
           <Label className="text-[var(--theme-text-primary)] flex items-center gap-2">
             <Settings className="h-4 w-4 text-purple-400" />
-            Modo de Selección
+            Modo de Selecciï¿½n
           </Label>
           <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
             <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]">
@@ -397,7 +397,7 @@ export function DepartmentSelector({
               <SelectItem value="auto">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span>Automático (Recomendado)</span>
+                  <span>Automï¿½tico (Recomendado)</span>
                 </div>
               </SelectItem>
               <SelectItem value="manual">
@@ -426,7 +426,7 @@ export function DepartmentSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-[var(--theme-text-secondary)]">
                   <Sparkles className="h-4 w-4 text-yellow-400" />
-                  <span>Departamentos sugeridos según tu pregunta</span>
+                  <span>Departamentos sugeridos segï¿½n tu pregunta</span>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   {suggestedDepartments
@@ -575,8 +575,8 @@ export function DepartmentSelector({
                   <div className="rounded-lg border border-dashed border-[var(--theme-border)] p-6 text-center">
                     <p className="text-sm text-[var(--theme-text-secondary)]">
                       {searchQuery
-                        ? 'No se encontraron departamentos que coincidan con tu búsqueda.'
-                        : 'No hay más departamentos disponibles.'}
+                        ? 'No se encontraron departamentos que coincidan con tu bï¿½squeda.'
+                        : 'No hay mï¿½s departamentos disponibles.'}
                     </p>
                   </div>
                 )}
@@ -590,12 +590,12 @@ export function DepartmentSelector({
           <div className="flex gap-2">
             <Info className="h-5 w-5 text-blue-400 flex-shrink-0" />
             <div className="space-y-1 text-sm">
-              <p className="font-medium text-blue-400">Inyección de Contexto (4 Capas)</p>
+              <p className="font-medium text-blue-400">Inyecciï¿½n de Contexto (4 Capas)</p>
               <ul className="space-y-1 text-blue-300/80">
-                <li>• <strong>Capa 1:</strong> Rol técnico del agente</li>
-                <li>• <strong>Capa 2:</strong> Contexto de {company?.name || 'tu empresa'} (misión/visión/valores)</li>
-                <li>• <strong>Capa 3:</strong> Contexto departamental (KPIs/procesos)</li>
-                <li>• <strong>Capa 4:</strong> Prompt personalizado del departamento</li>
+                <li>ï¿½ <strong>Capa 1:</strong> Rol tï¿½cnico del agente</li>
+                <li>ï¿½ <strong>Capa 2:</strong> Contexto de {company?.name || 'tu empresa'} (misiï¿½n/visiï¿½n/valores)</li>
+                <li>ï¿½ <strong>Capa 3:</strong> Contexto departamental (KPIs/procesos)</li>
+                <li>ï¿½ <strong>Capa 4:</strong> Prompt personalizado del departamento</li>
               </ul>
             </div>
           </div>

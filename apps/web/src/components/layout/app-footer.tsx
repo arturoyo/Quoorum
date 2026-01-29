@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { HelpCircle, FileText, Shield, BookOpen } from 'lucide-react'

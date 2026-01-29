@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PhaseContexto Component (Unified - Typeform Style)
  * 
  * Phase 1: Context gathering with guided chat (one question at a time).

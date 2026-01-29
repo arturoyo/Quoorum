@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useEffect, useState } from 'react'
 import React from 'react'
@@ -175,7 +175,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
                 </Link>
                 <Link href="/settings" className="text-sm font-medium text-purple-500 relative group">
-                  Configuración
+                  Configuraciï¿½n
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500" />
                 </Link>
               </nav>
@@ -198,9 +198,9 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
         <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl px-6 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-[var(--theme-text-primary)]">
-              Configuración
+              Configuraciï¿½n
             </h2>
-            {/* El botón de cierre está en DialogContent, no duplicar aquí */}
+            {/* El botï¿½n de cierre estï¿½ en DialogContent, no duplicar aquï¿½ */}
           </div>
         </div>
       )}

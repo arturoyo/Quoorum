@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { SettingsContent } from './settings-content'

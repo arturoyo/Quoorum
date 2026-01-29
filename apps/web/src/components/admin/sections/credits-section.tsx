@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Credits Section
  * Gestión masiva de créditos
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateCommentsSection Component
  *
  * Collapsible comments section for completed debates.

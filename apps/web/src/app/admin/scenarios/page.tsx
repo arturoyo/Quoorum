@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin Scenarios Page
  * 
  * Redirects to Admin Modal with scenarios section

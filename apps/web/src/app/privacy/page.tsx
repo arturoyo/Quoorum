@@ -1,4 +1,4 @@
-import { Shield, Database, Eye, Lock, UserCheck, Cookie, Clock, RefreshCw, Mail } from "lucide-react";
+﻿import { Shield, Database, Eye, Lock, UserCheck, Cookie, Clock, RefreshCw, Mail } from "lucide-react";
 import { AppHeader } from "@/components/layout/app-header";
 import { LandingFooter } from "@/components/layout/landing-footer";
 

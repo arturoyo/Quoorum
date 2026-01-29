@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -57,11 +57,11 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
   })
 
   const handleSubmit = async () => {
-    // Validar que las preguntas críticas tengan respuesta
+    // Validar que las preguntas crï¿½ticas tengan respuesta
     const newErrors: Record<string, string> = {}
     sortedQuestions.forEach((q) => {
       if (q.priority === 'critical' && !answers[q.id]) {
-        newErrors[q.id] = 'Esta pregunta crítica requiere respuesta'
+        newErrors[q.id] = 'Esta pregunta crï¿½tica requiere respuesta'
       }
     })
 
@@ -123,7 +123,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
-            Completa la información faltante
+            Completa la informaciï¿½n faltante
           </h3>
           <p className="text-xs text-[#aebac1] mt-1">
             {answeredCount} de {sortedQuestions.length} respondidas
@@ -131,7 +131,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
         </div>
         <div className="text-xs text-[#8696a0]">
           <AlertCircle className="inline h-3 w-3 mr-1" />
-          Las marcadas como "Crítico" son obligatorias
+          Las marcadas como "Crï¿½tico" son obligatorias
         </div>
       </div>
 
@@ -161,7 +161,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                     </span>
                     {question.priority === 'critical' && (
                       <span className={cn("text-xs px-2 py-0.5 rounded border", colors.badge)}>
-                        Crítico
+                        Crï¿½tico
                       </span>
                     )}
                   </div>
@@ -187,7 +187,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                       )}
                       disabled={isLoading}
                     >
-                      Sí
+                      Sï¿½
                     </Button>
                     <Button
                       type="button"

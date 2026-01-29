@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PhaseEstrategia Component (Unified - Typeform Style)
  * 
  * Phase 3: Strategy selection with visual cards.

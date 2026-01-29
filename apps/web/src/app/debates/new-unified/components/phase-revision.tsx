@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PhaseRevision Component (Unified - Typeform Style)
  * 
  * Phase 4: Review and confirm before creating debate.

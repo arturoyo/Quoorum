@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateStickyHeader — Header fijo reutilizable en todas las fases del debate
  *
  * Muestra siempre visible: badges (ej. Pregunta 1, Pregunta crítica o Fase X) y el título.

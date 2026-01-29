@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Scenarios Management Section
  * 
  * CRUD completo de escenarios (Decision Playbooks) con capacidad de:

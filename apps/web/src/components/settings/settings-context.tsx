@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Settings Context
  * Provides setCurrentSection function to child components when in modal mode
  */

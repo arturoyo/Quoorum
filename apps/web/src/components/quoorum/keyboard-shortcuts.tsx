@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Keyboard Shortcuts for Quoorum
  * 
  * Quick bonus: Keyboard shortcuts for power users

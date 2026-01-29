@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ThemedCard - Card component using theme CSS variables
  *
  * [OK] Funciona en light Y dark mode

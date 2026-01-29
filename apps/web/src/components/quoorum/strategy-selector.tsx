@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { api } from '@/lib/trpc/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -25,17 +25,17 @@ interface StrategySelectorProps {
 const PATTERN_LABELS: Record<string, { label: string; description: string; icon: typeof Sparkles }> = {
   simple: {
     label: 'Simple',
-    description: 'Un debate único sin subdivisión',
+    description: 'Un debate ï¿½nico sin subdivisiï¿½n',
     icon: Sparkles,
   },
   sequential: {
     label: 'Secuencial',
-    description: 'A ? B ? C ? Conclusión (debates en orden)',
+    description: 'A ? B ? C ? Conclusiï¿½n (debates en orden)',
     icon: TrendingUp,
   },
   parallel: {
     label: 'Paralelo',
-    description: 'A, B, C simultáneamente ? Síntesis',
+    description: 'A, B, C simultï¿½neamente ? Sï¿½ntesis',
     icon: Sparkles,
   },
   conditional: {
@@ -50,7 +50,7 @@ const PATTERN_LABELS: Record<string, { label: string; description: string; icon:
   },
   tournament: {
     label: 'Torneo',
-    description: 'Eliminación por brackets (A vs B, C vs D)',
+    description: 'Eliminaciï¿½n por brackets (A vs B, C vs D)',
     icon: Sparkles,
   },
   adversarial: {
@@ -60,12 +60,12 @@ const PATTERN_LABELS: Record<string, { label: string; description: string; icon:
   },
   ensemble: {
     label: 'Ensemble',
-    description: 'Múltiples debates independientes ? Agregación',
+    description: 'Mï¿½ltiples debates independientes ? Agregaciï¿½n',
     icon: Sparkles,
   },
   hierarchical: {
-    label: 'Jerárquico',
-    description: 'Estructura de árbol, drill down',
+    label: 'Jerï¿½rquico',
+    description: 'Estructura de ï¿½rbol, drill down',
     icon: Sparkles,
   },
 }
@@ -110,22 +110,22 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-[var(--theme-text-primary)]">
           <Sparkles className="h-5 w-5 text-purple-400" />
-          Estrategia de Deliberación
+          Estrategia de Deliberaciï¿½n
         </CardTitle>
         <CardDescription className="text-[var(--theme-text-secondary)]">
-          Selecciona cómo quieres que se ejecute el debate
+          Selecciona cï¿½mo quieres que se ejecute el debate
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Mode Selection */}
         <div className="space-y-2">
-          <Label className="text-[var(--theme-text-primary)]">Modo de Selección</Label>
+          <Label className="text-[var(--theme-text-primary)]">Modo de Selecciï¿½n</Label>
           <Select value={patternMode} onValueChange={(v) => setPatternMode(v as typeof patternMode)}>
             <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="auto">Automático (Recomendado)</SelectItem>
+              <SelectItem value="auto">Automï¿½tico (Recomendado)</SelectItem>
               <SelectItem value="manual">Manual</SelectItem>
             </SelectContent>
           </Select>
@@ -200,7 +200,7 @@ export function StrategySelector({ question, onStrategySelect, selectedPattern }
               <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Info className="h-4 w-4 text-blue-400" />
-                  <Label className="text-xs text-[var(--theme-text-secondary)]">Señales Detectadas</Label>
+                  <Label className="text-xs text-[var(--theme-text-secondary)]">Seï¿½ales Detectadas</Label>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {strategyAnalysis.signals

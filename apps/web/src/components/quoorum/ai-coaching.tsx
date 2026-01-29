@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { motion } from 'framer-motion'
 import { Bot, AlertTriangle, Info, Lightbulb, ChevronRight, Plus } from 'lucide-react'
@@ -33,7 +33,7 @@ interface AICoachingProps {
 const importanceConfig = {
   critical: {
     icon: <AlertTriangle className="h-4 w-4" />,
-    label: 'Crítico',
+    label: 'Crï¿½tico',
     color: 'text-red-400',
     bgColor: 'bg-red-900/20',
     borderColor: 'border-red-500/30',
@@ -92,10 +92,10 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
               </h3>
             </div>
             <p className="mt-1 text-sm text-[#aebac1]">
-              He detectado {suggestions.length} áreas de mejora basadas en debates exitosos.
+              He detectado {suggestions.length} ï¿½reas de mejora basadas en debates exitosos.
               {criticalCount > 0 && (
                 <span className="ml-1 font-medium text-red-400">
-                  {criticalCount} son críticas.
+                  {criticalCount} son crï¿½ticas.
                 </span>
               )}
             </p>
@@ -118,7 +118,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
               variant="outline"
               className="border-red-500/30 bg-red-900/20 text-red-300"
             >
-              {criticalCount} Críticas
+              {criticalCount} Crï¿½ticas
             </Badge>
           )}
           {importantCount > 0 && (
@@ -197,7 +197,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                         <span className="font-medium text-purple-300">
                           {suggestion.percentageOfSuccessfulDebates}%
                         </span>{' '}
-                        de debates exitosos incluyen esta dimensión
+                        de debates exitosos incluyen esta dimensiï¿½n
                       </p>
                     </div>
 
@@ -219,7 +219,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                         className="bg-purple-600 hover:bg-purple-700 text-white"
                       >
                         <Plus className="mr-2 h-4 w-4" />
-                        Añadir al contexto
+                        Aï¿½adir al contexto
                       </Button>
                       <Button
                         onClick={() => setExpandedId(null)}
@@ -239,7 +239,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                     <span>
                       {suggestion.percentageOfSuccessfulDebates}% de debates exitosos
                     </span>
-                    <span className="text-purple-400">Click para ver más</span>
+                    <span className="text-purple-400">Click para ver mï¿½s</span>
                   </div>
                 )}
               </Card>
@@ -264,7 +264,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
             className="w-full bg-red-600 hover:bg-red-700 text-white"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Añadir todas las críticas ({criticalCount})
+            Aï¿½adir todas las crï¿½ticas ({criticalCount})
           </Button>
         </motion.div>
       )}

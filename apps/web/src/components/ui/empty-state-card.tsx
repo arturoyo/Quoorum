@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
@@ -130,7 +130,7 @@ export function EmptyDebatesList({
 }) {
   return (
     <EmptyStateCard
-      title="No hay debates aún"
+      title="No hay debates aï¿½n"
       description="Crea tu primer debate para comenzar a explorar ideas con expertos IA"
       actionLabel={onCreateDebate ? "Crear Debate" : undefined}
       onAction={onCreateDebate}
@@ -153,7 +153,7 @@ export function EmptySearchResults({
       description={
         searchTerm
           ? `No se encontraron resultados para "${searchTerm}"`
-          : "No se encontraron resultados para tu búsqueda"
+          : "No se encontraron resultados para tu bï¿½squeda"
       }
       variant="muted"
       className={className}

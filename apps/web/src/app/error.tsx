@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 /**
  * Error Boundary de Next.js 14 App Router

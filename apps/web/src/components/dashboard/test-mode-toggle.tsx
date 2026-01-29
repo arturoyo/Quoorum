@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Test Mode Toggle Component
  * 
  * Permite habilitar/deshabilitar el modo test desde el dashboard

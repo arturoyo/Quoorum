@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Logs Section
  * 
  * Sistema de logs integrado en el admin modal

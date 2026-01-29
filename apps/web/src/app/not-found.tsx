@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Página 404 personalizada de Next.js 14
  * Se muestra cuando no se encuentra una ruta
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateSynthesis Component
  *
  * Shows the executive summary when debate is completed.

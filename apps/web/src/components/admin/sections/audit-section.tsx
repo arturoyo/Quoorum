@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Audit Section
  * 
  * Logs de auditoría del sistema con filtros y búsqueda

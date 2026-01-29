@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
@@ -79,7 +79,7 @@ export function ResearchResults({
     datos_mercado: 'Datos de Mercado',
     consideraciones: 'Consideraciones',
     opciones_identificadas: 'Opciones Identificadas',
-    criterios_evaluacion: 'Criterios de Evaluación',
+    criterios_evaluacion: 'Criterios de Evaluaciï¿½n',
   }
 
   const handleToggleField = (field: string) => {
@@ -128,7 +128,7 @@ export function ResearchResults({
             </h3>
           </div>
           <p className="mt-1 text-sm text-[#aebac1]">
-            He investigado automáticamente y encontré {results.length} fuentes relevantes
+            He investigado automï¿½ticamente y encontrï¿½ {results.length} fuentes relevantes
             en {(executionTimeMs / 1000).toFixed(1)}s
           </p>
         </div>
@@ -266,7 +266,7 @@ export function ResearchResults({
           <DialogHeader>
             <DialogTitle className="text-[var(--theme-text-primary)]">Personalizar Contexto</DialogTitle>
             <DialogDescription className="text-[#aebac1]">
-              Selecciona qué campos del contexto quieres incluir en tu debate
+              Selecciona quï¿½ campos del contexto quieres incluir en tu debate
             </DialogDescription>
           </DialogHeader>
 

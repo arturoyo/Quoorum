@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Command Palette (Spotlight-style)
  * 
  * OMG-level productivity feature

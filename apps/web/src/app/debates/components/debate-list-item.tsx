@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateListItem Component
  *
  * Full debate list item with edit/delete functionality.

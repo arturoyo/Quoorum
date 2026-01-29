@@ -1,4 +1,4 @@
-/**
+﻿/**
  * QuestionCard Component
  * 
  * Typeform-style question card: one question at a time, centered, visual.

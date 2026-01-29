@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DEPRECATED: /debates/new-v2
  *
  * This route is deprecated in favor of /debates/new-unified/

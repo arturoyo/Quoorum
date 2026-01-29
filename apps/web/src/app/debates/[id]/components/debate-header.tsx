@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateHeader Component
  *
  * Shows breadcrumbs, title, status badge, consensus score, and interactive controls.

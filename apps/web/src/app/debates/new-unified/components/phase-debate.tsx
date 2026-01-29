@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PhaseDebate Component (Unified - Typeform Style)
  * 
  * Phase 5: Active debate with messages.

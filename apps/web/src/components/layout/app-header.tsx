@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -313,8 +313,8 @@ export function AppHeader({
                 </div>
               )}
 
-              {/* New Debate Button - CTA principal, siempre visible con texto */}
-              <Button
+              {/* New Debate Button with hover-expand effect */}
+              <button
                 onClick={async (e) => {
                   try {
                     e.preventDefault()
@@ -338,12 +338,24 @@ export function AppHeader({
                     }
                   }
                 }}
-                className="hidden sm:flex bg-purple-600 hover:bg-purple-500 text-[var(--theme-text-inverted)] border-0 px-3 py-1.5 h-8"
+                className={cn(
+                  'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
+                  'bg-purple-600 hover:bg-purple-500 text-[var(--theme-text-inverted)]',
+                  'transition-all duration-300 ease-out'
+                )}
                 title="Crear nuevo debate"
                 type="button"
               >
-                <Plus className="h-4 w-4" />
-              </Button>
+                <Plus className="h-4 w-4 flex-shrink-0" />
+                <span className={cn(
+                  'max-w-0 overflow-hidden whitespace-nowrap',
+                  'group-hover:max-w-[100px] group-hover:ml-1.5',
+                  'transition-all duration-300 ease-out',
+                  'text-xs font-medium'
+                )}>
+                  Nuevo
+                </span>
+              </button>
 
               {/* Nav items with hover-expand effect */}
 

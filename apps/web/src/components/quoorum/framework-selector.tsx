@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import { api } from '@/lib/trpc/client'
@@ -183,7 +183,7 @@ export function FrameworkSelector({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-purple-400" />
-            <CardTitle className="text-[var(--theme-text-primary)]">Framework de Decisión</CardTitle>
+            <CardTitle className="text-[var(--theme-text-primary)]">Framework de Decisiï¿½n</CardTitle>
           </div>
           <Button
             variant="ghost"
@@ -196,7 +196,7 @@ export function FrameworkSelector({
         </div>
         <CardDescription className="text-[var(--theme-text-secondary)]">
           {question && question.length >= 10
-            ? 'Framework propuesto automáticamente según tu pregunta. Puedes seleccionar manualmente o usar el sugerido.'
+            ? 'Framework propuesto automï¿½ticamente segï¿½n tu pregunta. Puedes seleccionar manualmente o usar el sugerido.'
             : 'Selecciona un framework para estructurar la respuesta final del debate.'}
         </CardDescription>
       </CardHeader>
@@ -250,7 +250,7 @@ export function FrameworkSelector({
         <div className="space-y-2">
           <Label className="text-[var(--theme-text-primary)] flex items-center gap-2">
             <Settings className="h-4 w-4 text-purple-400" />
-            Modo de Selección
+            Modo de Selecciï¿½n
           </Label>
           <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
             <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]">
@@ -260,7 +260,7 @@ export function FrameworkSelector({
               <SelectItem value="auto">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span>Automático (Recomendado)</span>
+                  <span>Automï¿½tico (Recomendado)</span>
                 </div>
               </SelectItem>
               <SelectItem value="manual">
@@ -294,7 +294,7 @@ export function FrameworkSelector({
                   <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-yellow-400" />
                     <span className="text-sm font-semibold text-[var(--theme-text-primary)]">
-                      Frameworks Sugeridos Automáticamente
+                      Frameworks Sugeridos Automï¿½ticamente
                     </span>
                     <Badge variant="outline" className="text-xs border-yellow-500/30 text-yellow-400 bg-yellow-500/10">
                       {suggestedFrameworks.length}
@@ -359,7 +359,7 @@ export function FrameworkSelector({
                     </Badge>
                   </div>
                   <p className="text-xs text-[var(--theme-text-secondary)] mb-3">
-                    El sistema ha analizado tu pregunta y seleccionado el framework más relevante. Puedes cambiar a modo manual para ver todos los frameworks disponibles.
+                    El sistema ha analizado tu pregunta y seleccionado el framework mï¿½s relevante. Puedes cambiar a modo manual para ver todos los frameworks disponibles.
                   </p>
                 </div>
               </>
@@ -374,9 +374,9 @@ export function FrameworkSelector({
             ) : (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <Info className="h-8 w-8 text-[var(--theme-text-tertiary)] mb-3" />
-                <p className="text-[var(--theme-text-secondary)] mb-2">Añade una pregunta para ver frameworks sugeridos</p>
+                <p className="text-[var(--theme-text-secondary)] mb-2">Aï¿½ade una pregunta para ver frameworks sugeridos</p>
                 <p className="text-sm text-[var(--theme-text-tertiary)]">
-                  El modo automático requiere una pregunta de al menos 10 caracteres
+                  El modo automï¿½tico requiere una pregunta de al menos 10 caracteres
                 </p>
               </div>
             )}
@@ -455,7 +455,7 @@ export function FrameworkSelector({
                     <Search className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
                     <p className="text-sm text-[var(--theme-text-secondary)]">
                       {searchQuery
-                        ? 'No se encontraron frameworks que coincidan con tu búsqueda.'
+                        ? 'No se encontraron frameworks que coincidan con tu bï¿½squeda.'
                         : 'No hay frameworks disponibles.'}
                     </p>
                   </div>
@@ -470,10 +470,10 @@ export function FrameworkSelector({
           <div className="flex gap-2">
             <Info className="h-5 w-5 text-blue-400 flex-shrink-0" />
             <div className="space-y-1 text-sm">
-              <p className="font-medium text-blue-400">¿Qué es un Framework de Decisión?</p>
+              <p className="font-medium text-blue-400">ï¿½Quï¿½ es un Framework de Decisiï¿½n?</p>
               <p className="text-blue-300/80">
-                Un framework estructura la respuesta final del debate según una metodología probada (FODA, ROI, Delphi, etc.).
-                Esto ayuda a presentar la decisión de forma clara y accionable.
+                Un framework estructura la respuesta final del debate segï¿½n una metodologï¿½a probada (FODA, ROI, Delphi, etc.).
+                Esto ayuda a presentar la decisiï¿½n de forma clara y accionable.
               </p>
             </div>
           </div>

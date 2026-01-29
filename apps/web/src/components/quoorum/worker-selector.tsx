@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import { api } from '@/lib/trpc/client'
@@ -237,8 +237,8 @@ export function WorkerSelector({
             </CardTitle>
             <CardDescription className="text-[#aebac1]">
               {selectionMode === 'auto'
-                ? 'El sistema sugiere profesionales basándose en la pregunta y departamentos seleccionados'
-                : 'Selecciona manualmente los profesionales que intervendrán en el debate'}
+                ? 'El sistema sugiere profesionales basï¿½ndose en la pregunta y departamentos seleccionados'
+                : 'Selecciona manualmente los profesionales que intervendrï¿½n en el debate'}
             </CardDescription>
           </div>
           <div className="flex gap-2">
@@ -250,7 +250,7 @@ export function WorkerSelector({
                 <SelectItem value="auto" className="text-[var(--theme-text-primary)] focus:bg-purple-600">
                   <span className="flex items-center gap-2">
                     <Zap className="h-4 w-4" />
-                    Automático
+                    Automï¿½tico
                   </span>
                 </SelectItem>
                 <SelectItem value="manual" className="text-[var(--theme-text-primary)] focus:bg-purple-600">
@@ -300,7 +300,7 @@ export function WorkerSelector({
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[var(--theme-text-primary)] truncate">{worker.name}</p>
                     <p className="text-xs text-[#aebac1] truncate">
-                      {[worker.role, worker.expertise].filter(Boolean).join(' · ')}
+                      {[worker.role, worker.expertise].filter(Boolean).join(' ï¿½ ')}
                     </p>
                   </div>
                   {worker.matchScore !== undefined && (
@@ -317,7 +317,7 @@ export function WorkerSelector({
                     onClick={() => handleToggleWorker(worker.id)}
                     className="h-6 w-6 p-0 text-[#8696a0] hover:text-[var(--theme-text-primary)] hover:bg-purple-600/20"
                   >
-                    ×
+                    ï¿½
                   </Button>
                 </div>
               ))}
@@ -375,13 +375,13 @@ export function WorkerSelector({
                                 </Badge>
                               </div>
                               <p className="text-xs text-[#aebac1] mt-1">
-                                {[worker.role, worker.expertise].filter(Boolean).join(' · ')}
+                                {[worker.role, worker.expertise].filter(Boolean).join(' ï¿½ ')}
                               </p>
                               {worker.reasons && worker.reasons.length > 0 && (
                                 <div className="mt-2 space-y-1">
                                   {worker.reasons.slice(0, 2).map((reason, idx) => (
                                     <p key={idx} className="text-xs text-[#8696a0]">
-                                      • {reason}
+                                      ï¿½ {reason}
                                     </p>
                                   ))}
                                 </div>
@@ -464,7 +464,7 @@ export function WorkerSelector({
                             <div className="flex-1 min-w-0 space-y-1">
                               <p className="font-medium text-[var(--theme-text-primary)] truncate">{worker.name}</p>
                               <p className="text-xs text-[#8696a0] line-clamp-2">
-                                {[worker.role, worker.expertise].filter(Boolean).join(' · ') || 'Sin rol'}
+                                {[worker.role, worker.expertise].filter(Boolean).join(' ï¿½ ') || 'Sin rol'}
                               </p>
                               {worker.description && (
                                 <p className="text-xs text-[#aebac1] line-clamp-2">{worker.description}</p>
@@ -484,7 +484,7 @@ export function WorkerSelector({
                           onClick={() => setSearchQuery('')}
                           className="mt-2 text-purple-400 hover:text-purple-300"
                         >
-                          Limpiar búsqueda
+                          Limpiar bï¿½squeda
                         </Button>
                       )}
                     </div>
@@ -500,10 +500,10 @@ export function WorkerSelector({
           <div className="flex gap-2">
             <Info className="h-5 w-5 text-purple-400 flex-shrink-0" />
             <div className="space-y-1 text-sm">
-              <p className="font-medium text-purple-400">¿Qué son los Profesionales?</p>
+              <p className="font-medium text-purple-400">ï¿½Quï¿½ son los Profesionales?</p>
               <p className="text-[#aebac1]">
                 Son representaciones virtuales de tu equipo que debaten con el contexto
-                de {company?.name || 'tu empresa'} y departamentos. En modo automático, el sistema
+                de {company?.name || 'tu empresa'} y departamentos. En modo automï¿½tico, el sistema
                 prioriza profesionales de los departamentos ya seleccionados.
               </p>
             </div>

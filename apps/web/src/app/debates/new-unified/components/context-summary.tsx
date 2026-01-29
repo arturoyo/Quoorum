@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ContextSummary Component
  * 
  * Muestra un resumen visual completo de todas las preguntas y respuestas

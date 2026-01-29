@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin Settings Section
  * 
  * Configuración general del sistema (solo lectura por seguridad)

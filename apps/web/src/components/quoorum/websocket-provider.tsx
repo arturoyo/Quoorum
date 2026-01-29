@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { captureMessage } from '@/lib/monitoring'
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'

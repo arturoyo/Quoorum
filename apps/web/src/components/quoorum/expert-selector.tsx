@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import { api } from '@/lib/trpc/client'
@@ -52,10 +52,10 @@ interface ExpertSelectorProps {
 }
 
 const CATEGORIES = [
-  { value: 'all', label: 'Todas las categorías' },
+  { value: 'all', label: 'Todas las categorï¿½as' },
   { value: 'empresa', label: 'Empresa' },
   { value: 'vida-personal', label: 'Vida Personal' },
-  { value: 'historicos', label: 'Personajes Históricos' },
+  { value: 'historicos', label: 'Personajes Histï¿½ricos' },
   { value: 'general', label: 'General' },
 ] as const
 
@@ -297,7 +297,7 @@ export function ExpertSelector({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-purple-400" />
-            <CardTitle className="text-[var(--theme-text-primary)]">Selección de Expertos</CardTitle>
+            <CardTitle className="text-[var(--theme-text-primary)]">Selecciï¿½n de Expertos</CardTitle>
           </div>
           <Button
             variant="ghost"
@@ -310,8 +310,8 @@ export function ExpertSelector({
         </div>
         <CardDescription className="text-[var(--theme-text-secondary)]">
           {question && question.length >= 10
-            ? 'Expertos propuestos automáticamente según tu pregunta. Puedes seleccionar manualmente o usar los sugeridos.'
-            : 'Selecciona expertos de la biblioteca. Si no seleccionas ninguno, se usarán expertos automáticos del sistema.'}
+            ? 'Expertos propuestos automï¿½ticamente segï¿½n tu pregunta. Puedes seleccionar manualmente o usar los sugeridos.'
+            : 'Selecciona expertos de la biblioteca. Si no seleccionas ninguno, se usarï¿½n expertos automï¿½ticos del sistema.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
@@ -369,7 +369,7 @@ export function ExpertSelector({
         <div className="space-y-2">
           <Label className="text-[var(--theme-text-primary)] flex items-center gap-2">
             <Settings className="h-4 w-4 text-purple-400" />
-            Modo de Selección
+            Modo de Selecciï¿½n
           </Label>
           <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
             <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]">
@@ -379,7 +379,7 @@ export function ExpertSelector({
               <SelectItem value="auto">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span>Automático (Recomendado)</span>
+                  <span>Automï¿½tico (Recomendado)</span>
                 </div>
               </SelectItem>
               <SelectItem value="manual">
@@ -413,7 +413,7 @@ export function ExpertSelector({
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-yellow-400" />
                   <span className="text-sm font-semibold text-[var(--theme-text-primary)]">
-                    Expertos Sugeridos Automáticamente
+                    Expertos Sugeridos Automï¿½ticamente
                   </span>
                   <Badge variant="outline" className="text-xs border-yellow-500/30 text-yellow-400 bg-yellow-500/10">
                     {filteredSuggestedExperts.length}
@@ -455,7 +455,7 @@ export function ExpertSelector({
                                     : 'border-gray-600 text-[var(--theme-text-secondary)]'
                                 )}
                               >
-                                {suggested.role === 'primary' ? 'Principal' : suggested.role === 'critic' ? 'Crítico' : 'Secundario'}
+                                {suggested.role === 'primary' ? 'Principal' : suggested.role === 'critic' ? 'Crï¿½tico' : 'Secundario'}
                               </Badge>
                               <Badge
                                 variant="outline"
@@ -489,7 +489,7 @@ export function ExpertSelector({
                   </Badge>
                 </div>
                 <p className="text-xs text-[var(--theme-text-secondary)] mb-3">
-                  El sistema ha analizado tu pregunta y seleccionado los expertos más relevantes. Puedes cambiar a modo manual para ver todos los expertos disponibles.
+                  El sistema ha analizado tu pregunta y seleccionado los expertos mï¿½s relevantes. Puedes cambiar a modo manual para ver todos los expertos disponibles.
                 </p>
               </div>
             </>
@@ -504,9 +504,9 @@ export function ExpertSelector({
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Info className="h-8 w-8 text-[var(--theme-text-tertiary)] mb-3" />
-              <p className="text-[var(--theme-text-secondary)] mb-2">Añade una pregunta para ver expertos sugeridos</p>
+              <p className="text-[var(--theme-text-secondary)] mb-2">Aï¿½ade una pregunta para ver expertos sugeridos</p>
               <p className="text-sm text-[var(--theme-text-tertiary)]">
-                El modo automático requiere una pregunta de al menos 10 caracteres
+                El modo automï¿½tico requiere una pregunta de al menos 10 caracteres
               </p>
             </div>
           )}
@@ -531,8 +531,8 @@ export function ExpertSelector({
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="px-3 py-2 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  title="Filtrar por categoría"
-                  aria-label="Filtrar expertos por categoría"
+                  title="Filtrar por categorï¿½a"
+                  aria-label="Filtrar expertos por categorï¿½a"
                 >
                   {CATEGORIES.map((cat) => (
                     <option key={cat.value} value={cat.value}>
@@ -548,7 +548,7 @@ export function ExpertSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
-                  <span className="text-sm text-[var(--theme-text-secondary)]">Cargando expertos y categorías...</span>
+                  <span className="text-sm text-[var(--theme-text-secondary)]">Cargando expertos y categorï¿½as...</span>
                 </div>
                 {/* Show category structure with loading skeletons */}
                 {categoryCounts?.byCategory ? (
@@ -662,7 +662,7 @@ export function ExpertSelector({
                                               ? expert.expertise
                                               : Array.isArray(expert.expertise)
                                                 ? expert.expertise.join(', ')
-                                                : expert.description || 'Sin descripción'}
+                                                : expert.description || 'Sin descripciï¿½n'}
                                           </p>
                                         </div>
                                       </div>
@@ -670,7 +670,7 @@ export function ExpertSelector({
                                   })
                                 ) : (
                                   <p className="text-xs text-[var(--theme-text-tertiary)] text-center py-4">
-                                    No hay expertos en esta categoría
+                                    No hay expertos en esta categorï¿½a
                                   </p>
                                 )}
                               </div>
@@ -730,7 +730,7 @@ export function ExpertSelector({
                                           ? expert.expertise
                                           : Array.isArray(expert.expertise)
                                             ? expert.expertise.join(', ')
-                                            : expert.description || 'Sin descripción'}
+                                            : expert.description || 'Sin descripciï¿½n'}
                                       </p>
                                     </div>
                                   </div>
@@ -750,7 +750,7 @@ export function ExpertSelector({
                 <Sparkles className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
                 <p className="text-[var(--theme-text-secondary)] mb-2">No hay expertos disponibles en la biblioteca</p>
                 <p className="text-sm text-[var(--theme-text-tertiary)]">
-                  Los expertos se seleccionan automáticamente según tu pregunta y contexto.
+                  Los expertos se seleccionan automï¿½ticamente segï¿½n tu pregunta y contexto.
                 </p>
               </div>
             ))}
@@ -763,7 +763,7 @@ export function ExpertSelector({
                 <Search className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
                 <p className="text-[var(--theme-text-secondary)] mb-2">No se encontraron expertos</p>
                 <p className="text-sm text-[var(--theme-text-tertiary)]">
-                  Intenta con otros términos de búsqueda o cambia el filtro de categoría
+                  Intenta con otros tï¿½rminos de bï¿½squeda o cambia el filtro de categorï¿½a
                 </p>
               </div>
             )}

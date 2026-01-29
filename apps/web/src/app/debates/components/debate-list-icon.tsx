@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateListIconOnly Component
  *
  * Shows only the icon when the sidebar is collapsed.

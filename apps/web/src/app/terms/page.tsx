@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { FileText, Scale, Shield, CreditCard, Users, AlertTriangle, Lock, XCircle, RefreshCw, Gavel, Mail } from "lucide-react";
 import { AppHeader } from "@/components/layout/app-header";
 import { LandingFooter } from "@/components/layout/landing-footer";

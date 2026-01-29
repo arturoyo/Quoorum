@@ -1,4 +1,4 @@
-/**
+﻿/**
  * InternetSearchResults Component
  * 
  * Displays search results and allows user to select which ones to include in context.

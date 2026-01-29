@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PhaseIndicator Component
  *
  * Visual indicator of the 5 phases (tipo Typeform) at the top of the page.

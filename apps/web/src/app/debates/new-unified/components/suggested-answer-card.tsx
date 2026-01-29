@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SuggestedAnswerCard — Plantilla reutilizable para opciones de respuesta
  *
  * Usado en: QuestionCard (respuestas sugeridas), y cualquier flujo de debates

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Logs Page - Redirects to Admin Modal
  * 
  * Esta página redirige a /admin con la sección de logs

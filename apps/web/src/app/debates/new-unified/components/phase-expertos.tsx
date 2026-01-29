@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PhaseExpertos / Participantes (Unified - Typeform Style)
  *
  * Phase 2: "¿Quién interviene?" — Expertos, Departamentos, Profesionales (1, 2 o los 3).
