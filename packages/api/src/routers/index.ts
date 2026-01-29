@@ -62,3 +62,15 @@ export { adminPricingRouter } from "./admin-pricing";
 
 // Admin Prompts Management
 export { adminPromptsRouter } from "./admin-prompts";
+
+// Debate Routing
+export { debateRoutingRouter } from "./debate-routing";
+
+// Debate Sessions (Gateway Control Plane)
+export { debateSessionsRouter } from "./debate-sessions";
+
+// Integration Pairings (DM Security)
+export { integrationPairingsRouter } from "./integration-pairings";
+
+// Debate Skills
+export { debateSkillsRouter } from "./debate-skills";

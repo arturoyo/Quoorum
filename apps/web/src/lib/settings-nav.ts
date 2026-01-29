@@ -9,6 +9,7 @@ import {
   Bell,
   CreditCard,
   Key,
+  Link2,
   Shield,
   Sparkles,
   User,
@@ -53,6 +54,7 @@ export function getSettingsNav(currentPath: string): SettingsNavItem[] {
         { href: '/settings/workers/library', label: 'Biblioteca' },
       ],
     },
+    { href: '/settings/integrations', label: 'Integraciones', icon: Link2 },
     { href: '/settings/notifications', label: 'Notificaciones', icon: Bell },
     { href: '/settings/security', label: 'Seguridad', icon: Shield },
   ]

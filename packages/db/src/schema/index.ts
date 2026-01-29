@@ -160,6 +160,22 @@ export type {
   NewPricingChangeHistory,
 } from "./pricing-config";
 
+// Debate Sessions (Gateway Control Plane)
+export { debateSessions, debateSessionsRelations, debateSessionStateEnum } from "./debate-sessions";
+export type { DebateSession, NewDebateSession } from "./debate-sessions";
+
+// Debate Routing
+export { debateRoutingConfigs, debateRoutingConfigsRelations, agentSelectionModeEnum } from "./debate-routing";
+export type { DebateRoutingConfig, NewDebateRoutingConfig } from "./debate-routing";
+
+// Debate Skills
+export { debateSkills, debateSkillsRelations, companySkills, companySkillsRelations, skillCategoryEnum, skillVisibilityEnum } from "./debate-skills";
+export type { DebateSkill, NewDebateSkill, CompanySkill, NewCompanySkill } from "./debate-skills";
+
+// Integration Pairings (DM Security)
+export { integrationPairings, integrationPairingsRelations, pairingPlatformEnum, pairingStatusEnum } from "./integration-pairings";
+export type { IntegrationPairing, NewIntegrationPairing } from "./integration-pairings";
+
 // AI Cost Tracking
 export {
   aiCostTracking,

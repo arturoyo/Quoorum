@@ -36,7 +36,10 @@
     "./voting/quadratic-voting": "./src/voting/quadratic-voting.ts",
     "./analytics/phase-cost-estimator": "./src/analytics/phase-cost-estimator.ts",
     "./scenarios/types": "./src/scenarios/types.ts",
-    "./ai-cost-tracking": "./src/ai-cost-tracking.ts"
+    "./ai-cost-tracking": "./src/ai-cost-tracking.ts",
+    "./skills/predefined-skills": "./src/skills/predefined-skills.ts",
+    "./skills/skill-registry": "./src/skills/skill-registry.ts",
+    "./routing/debate-router": "./src/routing/debate-router.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -53,6 +53,14 @@ import {
   adminPricingRouter,
   // Admin Prompts
   adminPromptsRouter,
+  // Debate Routing
+  debateRoutingRouter,
+  // Debate Sessions (Gateway Control Plane)
+  debateSessionsRouter,
+  // Integration Pairings (DM Security)
+  integrationPairingsRouter,
+  // Debate Skills
+  debateSkillsRouter,
 } from "./routers/index";
 
 export const appRouter = router({
@@ -109,6 +117,14 @@ export const appRouter = router({
   adminPricing: adminPricingRouter,
   // Admin Prompts Management
   adminPrompts: adminPromptsRouter,
+  // Debate Routing
+  debateRouting: debateRoutingRouter,
+  // Debate Sessions (Gateway Control Plane)
+  debateSessions: debateSessionsRouter,
+  // Integration Pairings (DM Security)
+  integrationPairings: integrationPairingsRouter,
+  // Debate Skills
+  debateSkills: debateSkillsRouter,
 });
 
 export type AppRouter = typeof appRouter;
