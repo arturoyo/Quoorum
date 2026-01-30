@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import React from 'react'
@@ -27,7 +27,7 @@ import {
 import { QuoorumLogo } from '@/components/ui/quoorum-logo'
 import { getSettingsNav } from '@/lib/settings-nav'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { SettingsSectionRenderer } from './settings-section-renderer'
 import { SettingsProvider } from './settings-context'
 
@@ -149,7 +149,11 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
     <div className={cn('relative flex flex-col', isInModal ? 'max-h-[90vh]' : 'min-h-screen')}>
       {/* Header - Only show if not in modal */}
       {!isInModal && (
-        <header className="relative border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl sticky top-0 z-50">
+        <header className={cn(
+          'border-b backdrop-blur-xl sticky top-0 z-50',
+          styles.colors.border.default,
+          styles.colors.bg.secondary
+        )}>
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
           <div className="container mx-auto px-4">
             <div className="relative flex h-16 items-center justify-between">
@@ -160,17 +164,17 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                     <QuoorumLogo size={24} showGradient={true} />
                   </div>
                 </div>
-                <span className="text-xl font-bold text-[var(--theme-text-primary)]">
+                <span className="text-xl font-bold styles.colors.text.primary">
                   Quoorum
                 </span>
               </Link>
 
               <nav className="hidden md:flex items-center gap-6">
-                <Link href="/dashboard" className="text-sm text-[var(--theme-text-secondary)] hover:text-purple-500 transition-colors relative group">
+                <Link href="/dashboard" className="text-sm styles.colors.text.secondary hover:text-purple-500 transition-colors relative group">
                   Dashboard
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
                 </Link>
-                <Link href="/debates" className="text-sm text-[var(--theme-text-secondary)] hover:text-purple-500 transition-colors relative group">
+                <Link href="/debates" className="text-sm styles.colors.text.secondary hover:text-purple-500 transition-colors relative group">
                   Debates
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all" />
                 </Link>
@@ -195,9 +199,9 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
 
       {/* Modal Header - Only show if in modal */}
       {isInModal && (
-        <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl px-6 py-4">
+        <div className="sticky top-0 z-10 border-b styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl px-6 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-[var(--theme-text-primary)]">
+            <h2 className="text-xl font-bold styles.colors.text.primary">
               Configuraci�n
             </h2>
             {/* El bot�n de cierre est� en DialogContent, no duplicar aqu� */}
@@ -228,7 +232,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                           className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition group w-full text-left ${
                             item.active && !hasSubItems
                               ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
-                              : 'text-[var(--theme-text-secondary)] hover:text-purple-500 hover:bg-purple-500/10'
+                              : 'styles.colors.text.secondary hover:text-purple-500 hover:bg-purple-500/10'
                           }`}
                         >
                           {(item.active && !hasSubItems) && (
@@ -243,7 +247,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                           className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition group ${
                             item.active && !hasSubItems
                               ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
-                              : 'text-[var(--theme-text-secondary)] hover:text-purple-500 hover:bg-purple-500/10'
+                              : 'styles.colors.text.secondary hover:text-purple-500 hover:bg-purple-500/10'
                           }`}
                         >
                           {(item.active && !hasSubItems) && (
@@ -255,7 +259,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                       )}
                       
                       {hasSubItems && isExpanded && (
-                        <div className="ml-4 space-y-1 pl-4 border-l border-[var(--theme-border)]">
+                        <div className="ml-4 space-y-1 pl-4 border-l styles.colors.border.default">
                           {item.subItems?.map((subItem) => (
                             <React.Fragment key={subItem.href}>
                               {isInModal ? (
@@ -267,7 +271,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                                   className={`relative flex items-center gap-3 px-4 py-2 rounded-lg transition group text-sm w-full text-left ${
                                     subItem.active
                                       ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
-                                      : 'text-[var(--theme-text-secondary)] hover:text-purple-500 hover:bg-purple-500/10'
+                                      : 'styles.colors.text.secondary hover:text-purple-500 hover:bg-purple-500/10'
                                   }`}
                                 >
                                   {subItem.active && (
@@ -281,7 +285,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
                                   className={`relative flex items-center gap-3 px-4 py-2 rounded-lg transition group text-sm ${
                                     subItem.active
                                       ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
-                                      : 'text-[var(--theme-text-secondary)] hover:text-purple-500 hover:bg-purple-500/10'
+                                      : 'styles.colors.text.secondary hover:text-purple-500 hover:bg-purple-500/10'
                                   }`}
                                 >
                                   {subItem.active && (

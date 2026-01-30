@@ -1,4 +1,5 @@
-﻿import { type Metadata } from "next";
+import { type Metadata } from "next";
+import { cn, styles } from '@/lib/utils'
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,7 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { CTASection } from "@/components/ui/cta-section";
@@ -94,7 +95,7 @@ const quadrants = [
     gradient: "from-gray-500 to-slate-500",
     bgColor: "bg-gray-500/10",
     borderColor: "border-gray-500/20",
-    textColor: "text-[var(--theme-text-secondary)]",
+    textColor: "styles.colors.text.secondary",
     items: ["Time wasters", "Redes sociales sin propósito", "Busy work"],
     tip: "Eliminar completamente. Si estás aquí, estás perdiendo el tiempo.",
   },
@@ -144,7 +145,7 @@ export default function EisenhowerMatrixLandingPage() {
         {/* Hero */}
         <section className="pt-40 pb-24 px-4">
           <div className="container mx-auto max-w-4xl text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm styles.colors.text.secondary mb-8">
               <Sparkles className="w-4 h-4 text-green-400" />
               <span>Matriz de Eisenhower Gratis - IA Experta</span>
             </div>
@@ -157,7 +158,7 @@ export default function EisenhowerMatrixLandingPage() {
               con IA
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed mb-8">
+            <p className="text-xl md:text-2xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed mb-8">
               Prioriza tareas según urgencia e importancia en 2 minutos.
               IA clasifica automáticamente en 4 cuadrantes y optimiza tu time management.
             </p>
@@ -184,15 +185,15 @@ export default function EisenhowerMatrixLandingPage() {
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10">
               <div>
                 <div className="text-3xl font-bold text-green-400">4</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">Cuadrantes</div>
+                <div className="text-sm styles.colors.text.tertiary">Cuadrantes</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-green-400">2 min</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">Promedio</div>
+                <div className="text-sm styles.colors.text.tertiary">Promedio</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-green-400">100%</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">Gratis</div>
+                <div className="text-sm styles.colors.text.tertiary">Gratis</div>
               </div>
             </div>
           </div>
@@ -222,7 +223,7 @@ export default function EisenhowerMatrixLandingPage() {
                         <Badge className={`${quadrant.bgColor} ${quadrant.textColor} border ${quadrant.borderColor}`}>
                           {quadrant.id}
                         </Badge>
-                        <div className="flex gap-2 text-xs text-[var(--theme-text-tertiary)]">
+                        <div className="flex gap-2 text-xs styles.colors.text.tertiary">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {quadrant.urgentLabel}
@@ -244,13 +245,13 @@ export default function EisenhowerMatrixLandingPage() {
                           <h3 className={`text-lg font-semibold ${quadrant.textColor}`}>
                             {quadrant.title}
                           </h3>
-                          <p className="text-xs text-[var(--theme-text-tertiary)]">{quadrant.description}</p>
+                          <p className="text-xs styles.colors.text.tertiary">{quadrant.description}</p>
                         </div>
                       </div>
 
                       <ul className="space-y-2 mb-4">
                         {quadrant.items.map((item, itemIdx) => (
-                          <li key={itemIdx} className="flex items-start gap-2 text-sm text-[var(--theme-text-secondary)]">
+                          <li key={itemIdx} className="flex items-start gap-2 text-sm styles.colors.text.secondary">
                             <Icon className={`w-4 h-4 ${quadrant.textColor} flex-shrink-0 mt-0.5`} />
                             <span>{item}</span>
                           </li>
@@ -291,7 +292,7 @@ export default function EisenhowerMatrixLandingPage() {
                     <div className="relative z-10">
                       <Icon className="w-8 h-8 text-green-400 mb-4" />
                       <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                      <p className="text-sm text-[var(--theme-text-secondary)]">{feature.description}</p>
+                      <p className="text-sm styles.colors.text.secondary">{feature.description}</p>
                     </div>
                   </div>
                 );
@@ -305,7 +306,7 @@ export default function EisenhowerMatrixLandingPage() {
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
             ¿Listo para optimizar tu tiempo?
           </h2>
-          <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+          <p className="text-xl styles.colors.text.secondary mb-10 max-w-2xl mx-auto">
             Clasifica tus tareas con IA en 2 minutos
           </p>
           <Link href="/debates/new-unified?framework=eisenhower-matrix&new=1">

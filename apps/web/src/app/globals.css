@@ -205,19 +205,6 @@
   background-clip: padding-box;
 }
 
-/* Firefox scrollbar */
-.dark,
-:root.dark {
-  scrollbar-width: thin;
-  scrollbar-color: #9333ea rgba(15, 23, 42, 0.6);
-}
-
-.light,
-:root:not(.dark) {
-  scrollbar-width: thin;
-  scrollbar-color: #9333ea rgba(241, 245, 249, 0.8);
-}
-
 /* Debates list scrollbar - visible on hover */
 .debates-scrollbar::-webkit-scrollbar {
   width: 8px;
@@ -289,5 +276,11 @@ body.sidebar-open {
   transform: none !important;
   filter: none !important;
   pointer-events: auto !important;
+  -webkit-user-select: auto !important;
   user-select: auto !important;
+}
+
+.dept-hierarchy-pattern {
+  background-image: radial-gradient(circle at 2px 2px, rgba(168, 85, 247, 0.3) 1px, transparent 0);
+  background-size: 32px 32px;
 }

@@ -1,7 +1,7 @@
-﻿import * as React from "react";
+import * as React from "react";
+import { cn, styles } from '@/lib/utils'
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
 
 /**
  * Button component with theme CSS variables
@@ -22,11 +22,11 @@ const buttonVariants = cva(
         // Destructive: Red theme
         destructive: "bg-red-600 text-white shadow-sm hover:bg-red-700",
         // Outline: Theme borders with purple hover
-        outline: "border border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] shadow-sm hover:bg-purple-600 hover:text-white hover:border-purple-600",
+        outline: "border styles.colors.border.default styles.colors.bg.input styles.colors.text.primary shadow-sm hover:bg-purple-600 hover:text-white hover:border-purple-600",
         // Secondary: Theme background
-        secondary: "bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] shadow-sm hover:bg-purple-600/20",
+        secondary: "styles.colors.bg.tertiary styles.colors.text.primary shadow-sm hover:bg-purple-600/20",
         // Ghost: Transparent with theme hover
-        ghost: "text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] hover:text-purple-400",
+        ghost: "styles.colors.text.primary hover:styles.colors.bg.tertiary hover:text-purple-400",
         // Link: Purple text with underline
         link: "text-purple-400 underline-offset-4 hover:underline hover:text-purple-300",
       },

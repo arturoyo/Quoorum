@@ -103,7 +103,7 @@ export const adminRouter = router({
         conditions.push(eq(users.role, input.role))
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+      const whereClause = conditions.length > 0 ? and(...(conditions as any)) : undefined
 
       const orderBy =
         input.sortBy === 'created_at'
@@ -934,5 +934,52 @@ export const adminRouter = router({
         totalTokens: parseInt(row.total_tokens || '0'),
         requestCount: parseInt(row.request_count || '0'),
       }))
+    }),
+
+  // ============================================
+  // PERFORMANCE PROFILES
+  // ============================================
+
+  /**
+   * Get all performance profiles
+   */
+  getPerformanceProfiles: adminProcedure.query(async () => {
+    const result = await db.execute(sql`
+      SELECT *
+      FROM performance_profiles
+      WHERE is_active = true
+      ORDER BY cost_multiplier ASC
+    `)
+
+    return result
+  }),
+
+  /**
+   * Update user's performance level
+   */
+  updateUserPerformanceLevel: adminProcedure
+    .input(
+      z.object({
+        userId: z.string().uuid(),
+        performanceLevel: z.enum(['economic', 'balanced', 'performance']),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const result = await db.execute(sql`
+        UPDATE profiles
+        SET performance_level = ${input.performanceLevel},
+            updated_at = NOW()
+        WHERE user_id = ${input.userId}
+        RETURNING id, user_id, performance_level
+      `)
+
+      if (!result || result.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuario no encontrado',
+        })
+      }
+
+      return result[0]
     }),
 })

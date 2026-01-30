@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -91,7 +91,7 @@ export default function ResetPasswordPage() {
           <CardTitle className="text-2xl font-bold text-white">
             ¡Contraseña actualizada!
           </CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardDescription className="styles.colors.text.secondary">
             Tu contraseña ha sido cambiada exitosamente. Redirigiendo al
             dashboard...
           </CardDescription>
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
         <CardTitle className="text-2xl font-bold text-white">
           Crea una nueva contraseña
         </CardTitle>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className="styles.colors.text.secondary">
           Introduce tu nueva contraseña para acceder a tu cuenta
         </CardDescription>
       </CardHeader>
@@ -126,11 +126,11 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleResetPassword} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="password" className="styles.colors.text.secondary">
               Nueva contraseña
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 styles.colors.text.tertiary" />
               <Input
                 id="password"
                 type="password"
@@ -140,17 +140,17 @@ export default function ResetPasswordPage() {
                 required
                 minLength={8}
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="confirmPassword" className="styles.colors.text.secondary">
               Confirmar contraseña
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 styles.colors.text.tertiary" />
               <Input
                 id="confirmPassword"
                 type="password"
@@ -160,7 +160,7 @@ export default function ResetPasswordPage() {
                 required
                 minLength={8}
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary focus:border-purple-500"
               />
             </div>
           </div>

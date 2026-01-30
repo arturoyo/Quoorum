@@ -233,7 +233,7 @@ Extrae la estructura argumentativa.`
     systemPrompt,
     userPrompt,
     {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       temperature: 0.3,
       maxTokens: 2000,
     }

@@ -6,7 +6,7 @@
 
 import { Button } from '@/components/ui/button'
 import { MessageCircle, ChevronUp, ChevronDown } from 'lucide-react'
-import { DebateComments } from '@/components/quoorum/debate-comments'
+import { DebateComments } from '@/components/quoorum'
 
 interface DebateCommentsSectionProps {
   debateId: string

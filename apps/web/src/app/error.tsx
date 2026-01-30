@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * Error Boundary de Next.js 14 App Router
@@ -52,7 +52,7 @@ export default function Error({ error, reset }: ErrorProps) {
         </h1>
 
         {/* Description */}
-        <p className="mb-6 text-center text-[var(--theme-text-secondary)]">
+        <p className="mb-6 text-center styles.colors.text.secondary">
           El dashboard encontró un error inesperado. Nuestro sistema lo ha registrado automáticamente.
         </p>
 
@@ -65,13 +65,13 @@ export default function Error({ error, reset }: ErrorProps) {
             </div>
             <div className="space-y-2 text-sm">
               <div>
-                <span className="font-medium text-[var(--theme-text-secondary)]">Mensaje:</span>
+                <span className="font-medium styles.colors.text.secondary">Mensaje:</span>
                 <p className="mt-1 font-mono text-xs text-red-300">{error.message}</p>
               </div>
               {error.digest && (
                 <div>
-                  <span className="font-medium text-[var(--theme-text-secondary)]">Digest:</span>
-                  <p className="mt-1 font-mono text-xs text-[var(--theme-text-tertiary)]">{error.digest}</p>
+                  <span className="font-medium styles.colors.text.secondary">Digest:</span>
+                  <p className="mt-1 font-mono text-xs styles.colors.text.tertiary">{error.digest}</p>
                 </div>
               )}
             </div>
@@ -100,10 +100,10 @@ export default function Error({ error, reset }: ErrorProps) {
 
         {/* Footer info */}
         <div className="mt-8 border-t border-gray-800 pt-6 text-center">
-          <p className="text-xs text-[var(--theme-text-tertiary)]">
+          <p className="text-xs styles.colors.text.tertiary">
             Error ID: {error.digest || 'N/A'}
           </p>
-          <p className="mt-1 text-xs text-[var(--theme-text-tertiary)]">
+          <p className="mt-1 text-xs styles.colors.text.tertiary">
             Si el problema persiste, contacta con soporte técnico.
           </p>
         </div>

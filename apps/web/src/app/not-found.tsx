@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Página 404 personalizada de Next.js 14
  * Se muestra cuando no se encuentra una ruta
  */
@@ -16,9 +16,9 @@ export default function NotFound() {
         <div className="mb-6 flex justify-center">
           <div className="relative">
             <div className="text-center">
-              <p className="text-8xl font-bold text-[var(--theme-text-secondary)]">404</p>
+              <p className="text-8xl font-bold styles.colors.text.secondary">404</p>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Search className="h-12 w-12 text-[var(--theme-text-tertiary)]" />
+                <Search className="h-12 w-12 styles.colors.text.tertiary" />
               </div>
             </div>
           </div>
@@ -30,7 +30,7 @@ export default function NotFound() {
         </h1>
 
         {/* Description */}
-        <p className="mb-8 text-center text-[var(--theme-text-secondary)]">
+        <p className="mb-8 text-center styles.colors.text.secondary">
           Lo sentimos, la página que buscas no existe o ha sido movida.
         </p>
 
@@ -60,25 +60,25 @@ export default function NotFound() {
 
         {/* Helpful links */}
         <div className="mt-12 border-t border-gray-800 pt-6">
-          <p className="mb-4 text-center text-sm font-medium text-[var(--theme-text-secondary)]">
+          <p className="mb-4 text-center text-sm font-medium styles.colors.text.secondary">
             Páginas populares:
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             <Link
               href="/debates"
-              className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-[var(--theme-text-secondary)] transition-colors hover:bg-gray-800"
+              className="rounded-lg border border-gray-700 px-4 py-2 text-sm styles.colors.text.secondary transition-colors hover:bg-gray-800"
             >
               Debates
             </Link>
             <Link
               href="/experts"
-              className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-[var(--theme-text-secondary)] transition-colors hover:bg-gray-800"
+              className="rounded-lg border border-gray-700 px-4 py-2 text-sm styles.colors.text.secondary transition-colors hover:bg-gray-800"
             >
               Expertos
             </Link>
             <Link
               href="/settings"
-              className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-[var(--theme-text-secondary)] transition-colors hover:bg-gray-800"
+              className="rounded-lg border border-gray-700 px-4 py-2 text-sm styles.colors.text.secondary transition-colors hover:bg-gray-800"
             >
               Configuración
             </Link>

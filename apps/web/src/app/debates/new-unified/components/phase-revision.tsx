@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PhaseRevision Component (Unified - Typeform Style)
  * 
  * Phase 4: Review and confirm before creating debate.
@@ -15,7 +15,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { DebateStickyHeader } from './debate-sticky-header'
-import { CreditCounter } from '@/components/quoorum/credit-counter'
+import { useBackstoryHeader } from '../hooks/use-backstory-header'
+import { RealCreditsTracker } from './real-credits-tracker'
+import { CreditCounter } from '@/components/quoorum'
 import {
   estimateContextPhaseCost,
   estimateExpertSelectionPhaseCost,
@@ -40,13 +42,14 @@ export function PhaseRevision({
   state,
   contexto,
   expertos,
-  estrategia: _estrategia,
+  estrategia,
   onEditPhase,
   onCreateDebate,
   isCreating,
   creditBalance = 0,
 }: PhaseRevisionProps) {
   const router = useRouter()
+  const backstoryHeader = useBackstoryHeader()
   const { data: expertsList } = api.experts.getByIds.useQuery(
     { ids: expertos.selectedExpertIds },
     { enabled: expertos.selectedExpertIds.length > 0 }
@@ -148,23 +151,35 @@ export function PhaseRevision({
       <DebateStickyHeader
         phaseNumber={4}
         title="Revisa tu Debate"
+        subtitle={backstoryHeader.subtitle}
       />
+
+      {/* Mostrar créditos reales gastados en fase de contexto */}
+      {contexto.realCreditsDeducted > 0 && (
+        <div className="mt-4">
+          <RealCreditsTracker
+            realCreditsDeducted={contexto.realCreditsDeducted}
+            variant="card"
+          />
+        </div>
+      )}
+
       <div className="mb-6 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 mb-4">
           <CheckCircle2 className="h-8 w-8 text-green-400" />
         </div>
-        <p className="text-[var(--theme-text-tertiary)]">
+        <p className="styles.colors.text.tertiary">
           Verifica que todo esté correcto antes de crear el debate
         </p>
       </div>
       <div className="space-y-4">
         {/* Question */}
-        <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+        <Card className="styles.colors.bg.secondary styles.colors.border.default">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-medium text-[var(--theme-text-tertiary)]">Pregunta Principal</span>
+                  <span className="text-xs font-medium styles.colors.text.tertiary">Pregunta Principal</span>
                   <Badge variant="outline" className="border-purple-500/30 text-purple-300">
                     Fase 1
                   </Badge>
@@ -175,7 +190,7 @@ export function PhaseRevision({
                 variant="ghost"
                 size="sm"
                 onClick={() => onEditPhase(1)}
-                className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                className="styles.colors.text.tertiary hover:styles.colors.text.primary"
               >
                 <Edit className="h-4 w-4" />
               </Button>
@@ -185,30 +200,30 @@ export function PhaseRevision({
 
         {/* Resumen del contexto (preguntas y respuestas de la Fase 1) */}
         {(Object.keys(contexto.answers).length > 0 || contexto.internetSearch?.context) && (
-          <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+          <Card className="styles.colors.bg.secondary styles.colors.border.default">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-[var(--theme-text-tertiary)]">Resumen del contexto</span>
+                    <span className="text-xs font-medium styles.colors.text.tertiary">Resumen del contexto</span>
                     <Badge variant="outline" className="border-purple-500/30 text-purple-300">
                       Fase 1
                     </Badge>
                   </div>
-                  <p className="text-sm text-[var(--theme-text-tertiary)]">
+                  <p className="text-sm styles.colors.text.tertiary">
                     {Object.keys(contexto.answers).length} pregunta{Object.keys(contexto.answers).length !== 1 ? 's' : ''} respondida{Object.keys(contexto.answers).length !== 1 ? 's' : ''}
                     {contexto.internetSearch?.context ? ' · Contexto de internet incluido' : ''}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-lg font-bold text-[var(--theme-text-primary)] tabular-nums">
+                  <span className="text-lg font-bold styles.colors.text.primary tabular-nums">
                     {state.summary.contextScore}%
                   </span>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onEditPhase(1)}
-                    className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                    className="styles.colors.text.tertiary hover:styles.colors.text.primary"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -220,10 +235,10 @@ export function PhaseRevision({
                   .map((q) => (
                     <div
                       key={q.id}
-                      className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/60 p-4"
+                      className="rounded-lg border styles.colors.border.default styles.colors.bg.primary/60 p-4"
                     >
                       <p className="text-sm font-medium text-purple-300 mb-2">{q.content}</p>
-                      <p className="text-sm text-[var(--theme-text-secondary)] whitespace-pre-wrap">
+                      <p className="text-sm styles.colors.text.secondary whitespace-pre-wrap">
                         {contexto.answers[q.id]}
                       </p>
                     </div>
@@ -233,7 +248,7 @@ export function PhaseRevision({
                     <p className="text-xs font-medium text-blue-300 mb-2">
                       Contexto de internet
                     </p>
-                    <p className="text-sm text-[#aebac1] whitespace-pre-wrap">
+                    <p className="text-sm styles.colors.text.secondary whitespace-pre-wrap">
                       {contexto.internetSearch.context}
                     </p>
                   </div>
@@ -245,12 +260,12 @@ export function PhaseRevision({
 
         {/* Participantes (Expertos, Departamentos, Profesionales) */}
         {hasParticipantes && (
-          <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+          <Card className="styles.colors.bg.secondary styles.colors.border.default">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-[var(--theme-text-tertiary)]">Participantes</span>
+                    <span className="text-xs font-medium styles.colors.text.tertiary">Participantes</span>
                     <Badge variant="outline" className="border-purple-500/30 text-purple-300">
                       Fase 2
                     </Badge>
@@ -260,8 +275,8 @@ export function PhaseRevision({
                       <div className="flex items-start gap-2">
                         <Users className="h-4 w-4 text-purple-400 mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-xs text-[var(--theme-text-tertiary)] mb-1">Expertos</p>
-                          <p className="text-sm text-[var(--theme-text-primary)]">
+                          <p className="text-xs styles.colors.text.tertiary mb-1">Expertos</p>
+                          <p className="text-sm styles.colors.text.primary">
                             {expertNames.length > 0
                               ? expertNames.join(', ')
                               : expertos.selectedExpertIds.length > 0
@@ -275,8 +290,8 @@ export function PhaseRevision({
                       <div className="flex items-start gap-2">
                         <Building2 className="h-4 w-4 text-purple-400 mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-xs text-[var(--theme-text-tertiary)] mb-1">Departamentos</p>
-                          <p className="text-sm text-[var(--theme-text-primary)]">
+                          <p className="text-xs styles.colors.text.tertiary mb-1">Departamentos</p>
+                          <p className="text-sm styles.colors.text.primary">
                             {selectedDepartmentNames.length > 0
                               ? selectedDepartmentNames.join(', ')
                               : expertos.selectedDepartmentIds.length > 0
@@ -290,8 +305,8 @@ export function PhaseRevision({
                       <div className="flex items-start gap-2">
                         <UserCircle className="h-4 w-4 text-purple-400 mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-xs text-[var(--theme-text-tertiary)] mb-1">Profesionales</p>
-                          <p className="text-sm text-[var(--theme-text-primary)]">
+                          <p className="text-xs styles.colors.text.tertiary mb-1">Profesionales</p>
+                          <p className="text-sm styles.colors.text.primary">
                             {workerNames.length > 0
                               ? workerNames.join(', ')
                               : validWorkerIds.length > 0
@@ -307,7 +322,7 @@ export function PhaseRevision({
                   variant="ghost"
                   size="sm"
                   onClick={() => onEditPhase(2)}
-                  className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                  className="styles.colors.text.tertiary hover:styles.colors.text.primary"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -317,23 +332,23 @@ export function PhaseRevision({
         )}
         
         {/* Strategy */}
-        <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+        <Card className="styles.colors.bg.secondary styles.colors.border.default">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-medium text-[var(--theme-text-tertiary)]">Estrategia</span>
+                  <span className="text-xs font-medium styles.colors.text.tertiary">Estrategia</span>
                   <Badge variant="outline" className="border-purple-500/30 text-purple-300">
                     Fase 3
                   </Badge>
                 </div>
-                <p className="text-lg text-[var(--theme-text-primary)]">{state.summary.strategy}</p>
+                <p className="text-lg styles.colors.text.primary">{state.summary.strategy}</p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onEditPhase(3)}
-                className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                className="styles.colors.text.tertiary hover:styles.colors.text.primary"
               >
                 <Edit className="h-4 w-4" />
               </Button>

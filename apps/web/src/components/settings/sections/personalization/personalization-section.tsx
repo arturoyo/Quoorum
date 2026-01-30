@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * PersonalizationSection - Orchestrator Component
@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { User, BookOpen, Palette, Building2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { ThemeToggle, useTheme } from '@/components/theme'
 import { usePersonalization } from './hooks/use-personalization'
 import {
@@ -85,27 +85,27 @@ export function PersonalizationSection({ isInModal = false, initialTab }: Person
     <div className={cn('space-y-6', isInModal ? 'pb-8' : 'pb-0')}>
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-[var(--theme-text-primary)]">Perfil</h1>
-        <p className="text-[var(--theme-text-secondary)]">
+        <h1 className="text-3xl font-bold mb-2 styles.colors.text.primary">Perfil</h1>
+        <p className="styles.colors.text.secondary">
           Administra tu información personal, empresa y preferencias
         </p>
       </div>
 
       <Tabs defaultValue={initialTab || "profile"} className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-[var(--theme-bg-tertiary)] border border-[var(--theme-border)]">
-          <TabsTrigger value="profile" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-[var(--theme-text-secondary)]">
+        <TabsList className="grid w-full max-w-2xl grid-cols-4 styles.colors.bg.tertiary border styles.colors.border.default">
+          <TabsTrigger value="profile" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white styles.colors.text.secondary">
             <User className="mr-2 h-4 w-4" />
             Perfil
           </TabsTrigger>
-          <TabsTrigger value="company" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-[var(--theme-text-secondary)]">
+          <TabsTrigger value="company" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white styles.colors.text.secondary">
             <Building2 className="mr-2 h-4 w-4" />
             Empresa
           </TabsTrigger>
-          <TabsTrigger value="knowledge" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-[var(--theme-text-secondary)]">
+          <TabsTrigger value="knowledge" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white styles.colors.text.secondary">
             <BookOpen className="mr-2 h-4 w-4" />
             Conocimiento
           </TabsTrigger>
-          <TabsTrigger value="appearance" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-[var(--theme-text-secondary)]">
+          <TabsTrigger value="appearance" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white styles.colors.text.secondary">
             <Palette className="mr-2 h-4 w-4" />
             Apariencia
           </TabsTrigger>
@@ -210,25 +210,25 @@ function AppearanceTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Tema de la Aplicación</CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardTitle className="styles.colors.text.primary">Tema de la Aplicación</CardTitle>
+          <CardDescription className="styles.colors.text.secondary">
             Selecciona cómo quieres que se vea Quoorum. Puedes elegir entre modo claro, oscuro, o dejar que el sistema decida automáticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Theme Toggle */}
           <div className="space-y-4">
-            <label className="text-sm font-medium text-[var(--theme-text-secondary)]">
+            <label className="text-sm font-medium styles.colors.text.secondary">
               Modo de visualización
             </label>
             <ThemeToggle showLabels />
           </div>
 
           {/* Current Theme Info */}
-          <div className="pt-4 border-t border-[var(--theme-border)]">
-            <p className="text-sm text-[var(--theme-text-tertiary)]">
+          <div className="pt-4 border-t styles.colors.border.default">
+            <p className="text-sm styles.colors.text.tertiary">
               {theme === 'system'
                 ? 'El tema se ajusta automáticamente según la configuración de tu sistema operativo.'
                 : theme === 'dark'
@@ -240,15 +240,15 @@ function AppearanceTab() {
       </Card>
 
       {/* Additional Appearance Options (future expansion) */}
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] opacity-60">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default opacity-60">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Próximamente</CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardTitle className="styles.colors.text.primary">Próximamente</CardTitle>
+          <CardDescription className="styles.colors.text.secondary">
             Más opciones de personalización visual estarán disponibles pronto.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2 text-sm text-[var(--theme-text-tertiary)]">
+          <ul className="space-y-2 text-sm styles.colors.text.tertiary">
             <li>• Tamaño de fuente personalizable</li>
             <li>• Colores de acento</li>
             <li>• Densidad de la interfaz</li>

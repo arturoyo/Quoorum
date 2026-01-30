@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { motion } from 'framer-motion'
 import { TrendingUp, Award, Target, BarChart3, ArrowUp, ArrowDown } from 'lucide-react'
@@ -100,11 +100,11 @@ export function QualityBenchmark({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+              <h3 className="text-lg font-semibold styles.colors.text.primary">
                 📊 Quality Benchmarking
               </h3>
             </div>
-            <p className="mt-1 text-sm text-[#aebac1]">
+            <p className="mt-1 text-sm styles.colors.text.secondary">
               Comparación con {Math.round(overall.percentile)}% de debates históricos
             </p>
           </div>
@@ -113,7 +113,7 @@ export function QualityBenchmark({
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-[var(--theme-text-primary)]"
+            className="styles.colors.text.tertiary hover:styles.colors.text.primary"
           >
             Cerrar
           </Button>
@@ -121,14 +121,14 @@ export function QualityBenchmark({
 
         {/* Overall Score */}
         <div className="mt-4 grid grid-cols-2 gap-4">
-          <Card className="border-[#2a3942] bg-[#111b21] p-4">
+          <Card className="styles.colors.border.default styles.colors.bg.secondary p-4">
             <div className="flex items-center gap-3">
               <div className={`rounded-full p-3 ${config.bgColor}`}>
                 <span className={config.color}>{config.icon}</span>
               </div>
               <div>
-                <p className="text-xs text-[#8696a0]">Tu Score</p>
-                <p className="text-3xl font-bold text-[var(--theme-text-primary)]">{overall.score}%</p>
+                <p className="text-xs styles.colors.text.tertiary">Tu Score</p>
+                <p className="text-3xl font-bold styles.colors.text.primary">{overall.score}%</p>
                 <Badge
                   variant="outline"
                   className={`mt-1 ${config.borderColor} ${config.bgColor} ${config.color}`}
@@ -139,24 +139,24 @@ export function QualityBenchmark({
             </div>
           </Card>
 
-          <Card className="border-[#2a3942] bg-[#111b21] p-4">
+          <Card className="styles.colors.border.default styles.colors.bg.secondary p-4">
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-[#8696a0]">Percentil</span>
-                <span className="font-semibold text-[var(--theme-text-primary)]">
+                <span className="styles.colors.text.tertiary">Percentil</span>
+                <span className="font-semibold styles.colors.text.primary">
                   {Math.round(overall.percentile)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-[#8696a0]">Promedio</span>
-                <span className="font-semibold text-[#aebac1]">{overall.avgScore}%</span>
+                <span className="styles.colors.text.tertiary">Promedio</span>
+                <span className="font-semibold styles.colors.text.secondary">{overall.avgScore}%</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-[#8696a0]">Top 10%</span>
+                <span className="styles.colors.text.tertiary">Top 10%</span>
                 <span className="font-semibold text-green-400">{overall.topScore}%</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-[#8696a0]">Prob. Éxito</span>
+                <span className="styles.colors.text.tertiary">Prob. Éxito</span>
                 <span className="font-semibold text-purple-400">
                   {estimatedSuccessRate}%
                 </span>
@@ -168,7 +168,7 @@ export function QualityBenchmark({
 
       {/* Dimensions Comparison */}
       <div className="space-y-3">
-        <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
+        <h4 className="text-sm font-semibold styles.colors.text.primary">
           📈 Comparación por Dimensión
         </h4>
         {dimensions.map((dim, index) => {
@@ -182,9 +182,9 @@ export function QualityBenchmark({
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className="border-[#2a3942] bg-[#111b21] p-4">
+              <Card className="styles.colors.border.default styles.colors.bg.secondary p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <h5 className="text-sm font-semibold text-[var(--theme-text-primary)]">{dim.dimensionName}</h5>
+                  <h5 className="text-sm font-semibold styles.colors.text.primary">{dim.dimensionName}</h5>
                   {isTopTier ? (
                     <Badge variant="outline" className="border-green-500/30 bg-green-900/20 text-green-300">
                       <Award className="mr-1 h-3 w-3" />
@@ -205,13 +205,13 @@ export function QualityBenchmark({
 
                 {/* Progress Bar */}
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-[#8696a0]">
+                  <div className="flex justify-between text-xs styles.colors.text.tertiary">
                     <span>Tu score: {dim.yourScore}%</span>
                     <span>Gap al top: {dim.gap}</span>
                   </div>
                   <Progress value={dim.yourScore} className="h-2" />
                   <div className="flex justify-between text-xs">
-                    <span className="text-[#8696a0]">
+                    <span className="styles.colors.text.tertiary">
                       Promedio: {dim.avgScore}%
                     </span>
                     <span className="text-green-400">
@@ -222,8 +222,8 @@ export function QualityBenchmark({
 
                 {/* Improvement Suggestion */}
                 {dim.gap > 10 && (
-                  <div className="mt-3 rounded border border-[#2a3942] bg-[#0b141a] p-2">
-                    <p className="text-xs text-[#aebac1]">{dim.improvement}</p>
+                  <div className="mt-3 rounded border styles.colors.border.default styles.colors.bg.primary p-2">
+                    <p className="text-xs styles.colors.text.secondary">{dim.improvement}</p>
                   </div>
                 )}
               </Card>
@@ -235,13 +235,13 @@ export function QualityBenchmark({
       {/* Recommendations */}
       {recommendations.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
+          <h4 className="text-sm font-semibold styles.colors.text.primary">
             💡 Recomendaciones
           </h4>
           <Card className="border-purple-500/30 bg-purple-900/10 p-4">
             <ul className="space-y-2">
               {recommendations.map((rec, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-[#aebac1]">
+                <li key={index} className="flex items-start gap-2 text-sm styles.colors.text.secondary">
                   <span className="text-purple-400">•</span>
                   <span>{rec}</span>
                 </li>
@@ -254,13 +254,13 @@ export function QualityBenchmark({
       {/* AI Insights */}
       {comparisonInsights.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
+          <h4 className="text-sm font-semibold styles.colors.text.primary">
             🤖 Insights de IA
           </h4>
-          <Card className="border-[#2a3942] bg-[#111b21] p-4">
+          <Card className="styles.colors.border.default styles.colors.bg.secondary p-4">
             <ul className="space-y-2">
               {comparisonInsights.map((insight, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-[#aebac1]">
+                <li key={index} className="flex items-start gap-2 text-sm styles.colors.text.secondary">
                   <span className="text-purple-400">→</span>
                   <span>{insight}</span>
                 </li>

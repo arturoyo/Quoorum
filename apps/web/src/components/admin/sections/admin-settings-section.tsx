@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Admin Settings Section
  * 
  * Configuración general del sistema (solo lectura por seguridad)
@@ -27,7 +27,7 @@ import {
   Server,
   Loader2,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface AdminSettingsSectionProps {
   isInModal?: boolean
@@ -47,8 +47,8 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
 
   if (!systemConfig) {
     return (
-      <div className="text-center py-8 text-[#aebac1]">
-        <AlertCircle className="h-12 w-12 mx-auto mb-4 text-[#8696a0]" />
+      <div className="text-center py-8 styles.colors.text.secondary">
+        <AlertCircle className="h-12 w-12 mx-auto mb-4 styles.colors.text.tertiary" />
         <p>No se pudo cargar la configuración del sistema</p>
       </div>
     )
@@ -60,27 +60,27 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-white">Configuración del Sistema</h2>
-        <p className="text-sm text-[#aebac1] mt-1">
+        <p className="text-sm styles.colors.text.secondary mt-1">
           Estado de integraciones y configuración general (solo lectura)
         </p>
       </div>
 
       {/* Environment Variables Status */}
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Key className="h-5 w-5" />
             Variables de Entorno
           </CardTitle>
-          <CardDescription className="text-[#aebac1]">
+          <CardDescription className="styles.colors.text.secondary">
             Estado de las integraciones configuradas
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
+            <div className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg">
               <div className="flex items-center gap-3">
-                <Database className="h-5 w-5 text-[#aebac1]" />
+                <Database className="h-5 w-5 styles.colors.text.secondary" />
                 <span className="text-white">Base de Datos</span>
               </div>
               <Badge
@@ -100,9 +100,9 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
+            <div className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg">
               <div className="flex items-center gap-3">
-                <Server className="h-5 w-5 text-[#aebac1]" />
+                <Server className="h-5 w-5 styles.colors.text.secondary" />
                 <span className="text-white">Supabase</span>
               </div>
               <Badge
@@ -122,9 +122,9 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
+            <div className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg">
               <div className="flex items-center gap-3">
-                <Globe className="h-5 w-5 text-[#aebac1]" />
+                <Globe className="h-5 w-5 styles.colors.text.secondary" />
                 <span className="text-white">OpenAI</span>
               </div>
               <Badge
@@ -144,9 +144,9 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
+            <div className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg">
               <div className="flex items-center gap-3">
-                <Key className="h-5 w-5 text-[#aebac1]" />
+                <Key className="h-5 w-5 styles.colors.text.secondary" />
                 <span className="text-white">Stripe</span>
               </div>
               <Badge
@@ -166,9 +166,9 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
+            <div className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg">
               <div className="flex items-center gap-3">
-                <Key className="h-5 w-5 text-[#aebac1]" />
+                <Key className="h-5 w-5 styles.colors.text.secondary" />
                 <span className="text-white">Resend (Email)</span>
               </div>
               <Badge
@@ -188,9 +188,9 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
+            <div className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg">
               <div className="flex items-center gap-3">
-                <Database className="h-5 w-5 text-[#aebac1]" />
+                <Database className="h-5 w-5 styles.colors.text.secondary" />
                 <span className="text-white">Pinecone</span>
               </div>
               <Badge
@@ -210,9 +210,9 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
+            <div className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg">
               <div className="flex items-center gap-3">
-                <Database className="h-5 w-5 text-[#aebac1]" />
+                <Database className="h-5 w-5 styles.colors.text.secondary" />
                 <span className="text-white">Redis</span>
               </div>
               <Badge
@@ -232,9 +232,9 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
+            <div className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg">
               <div className="flex items-center gap-3">
-                <Globe className="h-5 w-5 text-[#aebac1]" />
+                <Globe className="h-5 w-5 styles.colors.text.secondary" />
                 <span className="text-white">Serper (Web Search)</span>
               </div>
               <Badge
@@ -258,13 +258,13 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
       </Card>
 
       {/* Feature Flags */}
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Settings className="h-5 w-5" />
             Feature Flags
           </CardTitle>
-          <CardDescription className="text-[#aebac1]">
+          <CardDescription className="styles.colors.text.secondary">
             Funcionalidades activas en el sistema
           </CardDescription>
         </CardHeader>
@@ -273,7 +273,7 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
             {Object.entries(featureFlags).map(([key, enabled]) => (
               <div
                 key={key}
-                className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg"
+                className="flex items-center justify-between p-3 styles.colors.bg.input rounded-lg"
               >
                 <span className="text-white text-sm capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                 <Badge
@@ -293,41 +293,47 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
       </Card>
 
       {/* System Limits */}
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
           <CardTitle className="text-white">Límites del Sistema por Plan</CardTitle>
-          <CardDescription className="text-[#aebac1]">
+          <CardDescription className="styles.colors.text.secondary">
             Límites de uso configurados para cada tier
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Object.entries(systemLimits).map(([tier, limits]) => (
-              <div key={tier} className="p-4 bg-[#2a3942] rounded-lg">
+            {Object.entries(systemLimits as Record<string, {
+              debatesPerDay: number
+              debatesPerHour: number
+              roundsPerDebate: number
+              maxConcurrentDebates: number
+              maxCostPerDay: number
+            }>).map(([tier, limits]) => (
+              <div key={tier} className="p-4 styles.colors.bg.input rounded-lg">
                 <h3 className="text-white font-semibold mb-3 capitalize">{tier}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
                   <div>
-                    <span className="text-[#aebac1]">Debates/día:</span>
+                    <span className="styles.colors.text.secondary">Debates/día:</span>
                     <span className="ml-2 text-white">
                       {limits.debatesPerDay === -1 ? 'Ilimitado' : limits.debatesPerDay}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#aebac1]">Debates/hora:</span>
+                    <span className="styles.colors.text.secondary">Debates/hora:</span>
                     <span className="ml-2 text-white">
                       {limits.debatesPerHour === -1 ? 'Ilimitado' : limits.debatesPerHour}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#aebac1]">Rondas/debate:</span>
+                    <span className="styles.colors.text.secondary">Rondas/debate:</span>
                     <span className="ml-2 text-white">{limits.roundsPerDebate}</span>
                   </div>
                   <div>
-                    <span className="text-[#aebac1]">Concurrentes:</span>
+                    <span className="styles.colors.text.secondary">Concurrentes:</span>
                     <span className="ml-2 text-white">{limits.maxConcurrentDebates}</span>
                   </div>
                   <div>
-                    <span className="text-[#aebac1]">Costo máx/día:</span>
+                    <span className="styles.colors.text.secondary">Costo máx/día:</span>
                     <span className="ml-2 text-white">${limits.maxCostPerDay}</span>
                   </div>
                 </div>

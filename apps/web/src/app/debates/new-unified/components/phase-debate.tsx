@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PhaseDebate Component (Unified - Typeform Style)
  * 
  * Phase 5: Active debate with messages.
@@ -10,10 +10,11 @@ import React, { useRef, useEffect, useState } from 'react'
 import { Send, Loader2, MessageSquare, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/trpc/client'
 import { DebateStickyHeader } from './debate-sticky-header'
+import { useBackstoryHeader } from '../hooks/use-backstory-header'
 import type { DebateState } from '../types'
 
 interface PhaseDebateProps {
@@ -24,6 +25,7 @@ interface PhaseDebateProps {
 
 export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProps) {
   const router = useRouter()
+  const backstoryHeader = useBackstoryHeader()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [input, setInput] = React.useState('')
   const [debateStatus, setDebateStatus] = useState<'pending' | 'in_progress' | 'completed' | 'failed' | null>(null)
@@ -116,7 +118,9 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
           bgColor: 'bg-red-500/20',
           borderColor: 'border-red-500/30',
           title: 'Error al iniciar el debate',
-          message: debate?.metadata?.error || 'El debate no pudo iniciarse. Revisa tus créditos o intenta de nuevo.',
+          message: typeof debate?.metadata?.error === 'string'
+            ? debate.metadata.error
+            : 'El debate no pudo iniciarse. Revisa tus créditos o intenta de nuevo.',
         }
       }
       if (debateStatus === 'in_progress' || processingInfo) {
@@ -126,7 +130,9 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
           bgColor: 'bg-purple-500/20',
           borderColor: 'border-purple-500/30',
           title: 'Iniciando debate...',
-          message: processingInfo?.message || 'El sistema está preparando los expertos y analizando tu pregunta.',
+          message: typeof processingInfo?.message === 'string'
+            ? processingInfo.message
+            : 'El sistema está preparando los expertos y analizando tu pregunta.',
         }
       }
       if (debateStatus === 'completed') {
@@ -170,6 +176,7 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
             </span>
           }
           title={statusInfo.title}
+          subtitle={backstoryHeader.subtitle}
         />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center space-y-4 max-w-md">
@@ -184,27 +191,26 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
             </div>
             
             <div className="space-y-2">
-              <p className="text-lg font-medium text-[var(--theme-text-primary)]">{statusInfo.title}</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">{statusInfo.message}</p>
+              <p className={cn("text-lg font-medium", styles.colors.text.primary)}>{statusInfo.title}</p>
+              <p className={cn("text-sm", styles.colors.text.tertiary)}>{statusInfo.message}</p>
               
               {/* Show processing progress if available */}
               {processingInfo && processingInfo.progress > 0 && (
                 <div className="mt-4 space-y-2">
-                  <div className="w-full bg-[var(--theme-bg-input)] rounded-full h-2">
-                    <div 
-                      className="bg-purple-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${processingInfo.progress}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-[var(--theme-text-tertiary)]">{processingInfo.progress}% completado</p>
+                  <progress
+                    className={cn("w-full h-2 rounded-full overflow-hidden", styles.colors.bg.input)}
+                    value={processingInfo.progress}
+                    max={100}
+                  />
+                  <p className={cn("text-xs", styles.colors.text.tertiary)}>{processingInfo.progress}% completado</p>
                 </div>
               )}
               
               {/* Show debate status details */}
-              <div className="mt-4 p-4 bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg text-left">
+              <div className={cn("mt-4 p-4 border rounded-lg text-left", styles.colors.bg.secondary, styles.colors.border.default)}>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[var(--theme-text-tertiary)]">Estado:</span>
+                    <span className={styles.colors.text.tertiary}>Estado:</span>
                     <span className={cn(
                       "font-medium",
                       debateStatus === 'in_progress' ? 'text-purple-400' :
@@ -221,13 +227,13 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
                   </div>
                   {debate?.question && (
                     <div className="flex justify-between">
-                      <span className="text-[var(--theme-text-tertiary)]">Pregunta:</span>
+                      <span className="styles.colors.text.tertiary">Pregunta:</span>
                       <span className="text-white text-right max-w-[60%] truncate" title={debate.question}>
                         {debate.question.substring(0, 40)}...
                       </span>
                     </div>
                   )}
-                  {debateStatus === 'failed' && debate?.metadata?.errorDetails && (
+                  {debateStatus === 'failed' && !!debate?.metadata?.errorDetails && (
                     <div className="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-300">
                       {String(debate.metadata.errorDetails)}
                     </div>
@@ -238,10 +244,10 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
               {/* Countdown and redirect info */}
               {redirectCountdown > 0 && (
                 <div className="mt-4 space-y-2">
-                  <p className="text-sm text-[var(--theme-text-tertiary)]">
+                  <p className="text-sm styles.colors.text.tertiary">
                     Redirigiendo en {redirectCountdown} segundo{redirectCountdown !== 1 ? 's' : ''}...
                   </p>
-                  <p className="text-xs text-[var(--theme-text-tertiary)]">
+                  <p className="text-xs styles.colors.text.tertiary">
                     Si no redirige automáticamente,{' '}
                     <a 
                       href={`/debates/${state.debateId}`} 
@@ -276,21 +282,22 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
       <DebateStickyHeader
         phaseNumber={5}
         title="Debate Activo"
+        subtitle={backstoryHeader.subtitle}
       />
       <div className="mb-6 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-500/20 mb-4">
           <MessageSquare className="h-8 w-8 text-purple-400" />
         </div>
-        <p className="text-[var(--theme-text-tertiary)]">Interactúa con los expertos IA</p>
+        <p className="styles.colors.text.tertiary">Interactúa con los expertos IA</p>
       </div>
       
       {/* Messages */}
-      <div className="bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg p-6 mb-4 min-h-[400px] max-h-[500px] overflow-y-auto">
+      <div className="styles.colors.bg.secondary border styles.colors.border.default rounded-lg p-6 mb-4 min-h-[400px] max-h-[500px] overflow-y-auto">
         {state.messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center">
             <div>
               <Loader2 className="h-8 w-8 animate-spin text-purple-400 mx-auto mb-4" />
-              <p className="text-[var(--theme-text-tertiary)]">Iniciando debate...</p>
+              <p className="styles.colors.text.tertiary">Iniciando debate...</p>
             </div>
           </div>
         ) : (
@@ -308,11 +315,11 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
                     'rounded-lg px-4 py-3 max-w-[80%]',
                     msg.role === 'user'
                       ? 'bg-purple-600 text-white'
-                      : 'bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] border border-[var(--theme-border)]'
+                      : 'styles.colors.bg.tertiary styles.colors.text.primary border styles.colors.border.default'
                   )}
                 >
                   <p className="whitespace-pre-wrap">{msg.content}</p>
-                  <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                  <p className="text-xs styles.colors.text.tertiary mt-1">
                     {msg.timestamp.toLocaleTimeString('es-ES', {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -340,8 +347,8 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
           placeholder="Escribe tu mensaje..."
           disabled={isLoading}
           className={cn(
-            'flex-1 bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
-            'placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500',
+            'flex-1 styles.colors.bg.secondary styles.colors.border.default styles.colors.text.primary',
+            'placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500',
             'focus-visible:border-purple-500'
           )}
         />

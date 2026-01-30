@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DebateStickyHeader — Header fijo reutilizable en todas las fases del debate
  *
  * Muestra siempre visible: badges (ej. Pregunta 1, Pregunta crítica o Fase X) y el título.
@@ -8,7 +8,7 @@
 'use client'
 
 import React from 'react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 export interface DebateStickyHeaderProps {
   /** Contenido opcional arriba del todo (ej. barra de progreso de contexto), dentro del sticky */
@@ -75,8 +75,8 @@ export function DebateStickyHeader({
     <div
       className={cn(
         'fixed top-16 left-0 right-0 z-30',
-        'bg-[var(--theme-bg-secondary)]',
-        'border-b border-[var(--theme-border)] shadow-[0_4px_12px_-2px_rgba(0,0,0,0.6)]',
+        'styles.colors.bg.secondary',
+        'border-b styles.colors.border.default shadow-[0_4px_12px_-2px_rgba(0,0,0,0.6)]',
         'px-4 pt-[5px] pb-2',
         'flex flex-col',
         className
@@ -112,7 +112,7 @@ export function DebateStickyHeader({
               </div>
             )}
             <h2 className={cn(
-              'font-bold text-[var(--theme-text-primary)] leading-tight break-words flex-1 min-w-0',
+              'font-bold styles.colors.text.primary leading-tight break-words flex-1 min-w-0',
               fontSizeClass
             )}>
               {title}
@@ -125,7 +125,7 @@ export function DebateStickyHeader({
             )}
           </div>
           {subtitle && (
-            <p className="text-base sm:text-lg text-[var(--theme-text-tertiary)] mt-2 leading-relaxed">
+            <p className="text-base sm:text-lg styles.colors.text.tertiary mt-2 leading-relaxed">
               {subtitle}
             </p>
           )}

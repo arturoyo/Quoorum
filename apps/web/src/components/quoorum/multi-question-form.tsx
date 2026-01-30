@@ -1,10 +1,10 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2, Send, AlertCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface ClarifyingQuestion {
   id: string
@@ -122,14 +122,14 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+          <h3 className="text-lg font-semibold styles.colors.text.primary">
             Completa la informaci�n faltante
           </h3>
-          <p className="text-xs text-[#aebac1] mt-1">
+          <p className="text-xs styles.colors.text.secondary mt-1">
             {answeredCount} de {sortedQuestions.length} respondidas
           </p>
         </div>
-        <div className="text-xs text-[#8696a0]">
+        <div className="text-xs styles.colors.text.tertiary">
           <AlertCircle className="inline h-3 w-3 mr-1" />
           Las marcadas como "Cr�tico" son obligatorias
         </div>
@@ -156,7 +156,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-[#aebac1]">
+                    <span className="text-xs font-bold styles.colors.text.secondary">
                       {index + 1}.
                     </span>
                     {question.priority === 'critical' && (
@@ -165,7 +165,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-medium text-[var(--theme-text-primary)] leading-relaxed">
+                  <p className="text-sm font-medium styles.colors.text.primary leading-relaxed">
                     {question.question}
                   </p>
                 </div>
@@ -183,7 +183,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                         "flex-1",
                         answer === true
                           ? "bg-green-600 hover:bg-green-500 text-white border-0"
-                          : "bg-[var(--theme-bg-tertiary)] hover:bg-[var(--theme-bg-input)] text-[#aebac1] border-[#2a3942]"
+                          : "styles.colors.bg.tertiary hover:styles.colors.bg.input styles.colors.text.secondary styles.colors.border.default"
                       )}
                       disabled={isLoading}
                     >
@@ -196,7 +196,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                         "flex-1",
                         answer === false
                           ? "bg-red-600 hover:bg-red-500 text-white border-0"
-                          : "bg-[var(--theme-bg-tertiary)] hover:bg-[var(--theme-bg-input)] text-[#aebac1] border-[#2a3942]"
+                          : "styles.colors.bg.tertiary hover:styles.colors.bg.input styles.colors.text.secondary styles.colors.border.default"
                       )}
                       disabled={isLoading}
                     >
@@ -222,7 +222,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                             "w-full text-left px-4 py-3 rounded-lg border-2 transition-all",
                             isSelected
                               ? "bg-purple-600/20 border-purple-500 text-white"
-                              : "bg-[var(--theme-bg-tertiary)] border-[#2a3942] text-[#aebac1] hover:border-purple-500/50 hover:bg-[var(--theme-bg-tertiary)]"
+                              : "styles.colors.bg.tertiary styles.colors.border.default styles.colors.text.secondary hover:border-purple-500/50 hover:styles.colors.bg.tertiary"
                           )}
                           disabled={isLoading}
                         >
@@ -232,7 +232,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                               isSelected ? "bg-purple-600 border-purple-500" : "border-[#aebac1]"
                             )}>
                               {isSelected && (
-                                <svg className="w-3 h-3 text-[var(--theme-text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-3 h-3 styles.colors.text.primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                 </svg>
                               )}
@@ -252,7 +252,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
                     value={(answer as string) || ''}
                     onChange={(e) => handleFreeText(question.id, e.target.value)}
                     placeholder="Escribe tu respuesta..."
-                    className="bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)] placeholder:text-[#8696a0] focus:border-purple-500"
+                    className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary focus:border-purple-500"
                     disabled={isLoading}
                   />
                 )}
@@ -293,7 +293,7 @@ export function MultiQuestionForm({ questions, onSubmit, isLoading = false }: Mu
             onClick={handleSubmit}
             variant="outline"
             disabled={isLoading}
-            className="border-[#2a3942] text-[#aebac1] hover:bg-[var(--theme-bg-tertiary)]"
+            className="styles.colors.border.default styles.colors.text.secondary hover:styles.colors.bg.tertiary"
           >
             Omitir opcionales
           </Button>

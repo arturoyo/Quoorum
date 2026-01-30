@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { api } from '@/lib/trpc/client'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import {
   CheckCircle,
   Eye,
@@ -79,6 +79,8 @@ function StarRating({
           onClick={() => onChange(star)}
           onMouseEnter={() => setHovered(star)}
           onMouseLeave={() => setHovered(null)}
+          aria-label={`Seleccionar ${star} estrella${star > 1 ? 's' : ''}`}
+          title={`Seleccionar ${star} estrella${star > 1 ? 's' : ''}`}
           className="transition-transform hover:scale-110"
         >
           <Star
@@ -87,7 +89,7 @@ function StarRating({
               'transition-colors',
               (hovered !== null ? star <= hovered : star <= value)
                 ? 'fill-yellow-400 text-yellow-400'
-                : 'text-[#8696a0]'
+                : 'styles.colors.text.tertiary'
             )}
           />
         </button>
@@ -105,7 +107,7 @@ function SentimentSelector({
 }) {
   const options: { value: Sentiment; icon: typeof ThumbsUp; label: string; color: string }[] = [
     { value: 'positive', icon: ThumbsUp, label: 'Positivo', color: 'text-green-400' },
-    { value: 'neutral', icon: Minus, label: 'Neutral', color: 'text-[#8696a0]' },
+    { value: 'neutral', icon: Minus, label: 'Neutral', color: 'styles.colors.text.tertiary' },
     { value: 'negative', icon: ThumbsDown, label: 'Negativo', color: 'text-red-400' },
   ]
 
@@ -120,12 +122,12 @@ function SentimentSelector({
             'flex items-center gap-2 rounded-lg border px-3 py-2 transition-all',
             value === opt.value
               ? 'border-[#00a884] bg-[#00a884]/10'
-              : 'border-[#2a3942] bg-[#111b21] hover:border-[#8696a0]'
+              : 'styles.colors.border.default styles.colors.bg.secondary hover:border-[#8696a0]'
           )}
         >
-          <opt.icon className={cn('h-4 w-4', value === opt.value ? opt.color : 'text-[#8696a0]')} />
+          <opt.icon className={cn('h-4 w-4', value === opt.value ? opt.color : 'styles.colors.text.tertiary')} />
           <span
-            className={cn('text-sm', value === opt.value ? 'text-[#e9edef]' : 'text-[#8696a0]')}
+            className={cn('text-sm', value === opt.value ? 'text-[#e9edef]' : 'styles.colors.text.tertiary')}
           >
             {opt.label}
           </span>
@@ -147,9 +149,9 @@ function AspectRating({
   onChange: (val: number) => void
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg bg-[#111b21] p-3">
+    <div className="flex items-center justify-between rounded-lg styles.colors.bg.secondary p-3">
       <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-[#8696a0]" />
+        <Icon className="h-4 w-4 styles.colors.text.tertiary" />
         <span className="text-sm text-[#e9edef]">{label}</span>
       </div>
       <StarRating value={value} onChange={onChange} size="sm" />
@@ -173,13 +175,13 @@ function FollowedSelector({
           'flex items-center gap-2 rounded-lg border px-4 py-2 transition-all',
           value === true
             ? 'border-green-500 bg-green-500/10'
-            : 'border-[#2a3942] bg-[#111b21] hover:border-[#8696a0]'
+            : 'styles.colors.border.default styles.colors.bg.secondary hover:border-[#8696a0]'
         )}
       >
         <CheckCircle
-          className={cn('h-4 w-4', value === true ? 'text-green-400' : 'text-[#8696a0]')}
+          className={cn('h-4 w-4', value === true ? 'text-green-400' : 'styles.colors.text.tertiary')}
         />
-        <span className={cn('text-sm', value === true ? 'text-green-400' : 'text-[#8696a0]')}>
+        <span className={cn('text-sm', value === true ? 'text-green-400' : 'styles.colors.text.tertiary')}>
           Sí
         </span>
       </button>
@@ -190,11 +192,11 @@ function FollowedSelector({
           'flex items-center gap-2 rounded-lg border px-4 py-2 transition-all',
           value === false
             ? 'border-red-500 bg-red-500/10'
-            : 'border-[#2a3942] bg-[#111b21] hover:border-[#8696a0]'
+            : 'styles.colors.border.default styles.colors.bg.secondary hover:border-[#8696a0]'
         )}
       >
-        <XCircle className={cn('h-4 w-4', value === false ? 'text-red-400' : 'text-[#8696a0]')} />
-        <span className={cn('text-sm', value === false ? 'text-red-400' : 'text-[#8696a0]')}>
+        <XCircle className={cn('h-4 w-4', value === false ? 'text-red-400' : 'styles.colors.text.tertiary')} />
+        <span className={cn('text-sm', value === false ? 'text-red-400' : 'styles.colors.text.tertiary')}>
           No
         </span>
       </button>
@@ -205,10 +207,10 @@ function FollowedSelector({
           'flex items-center gap-2 rounded-lg border px-4 py-2 transition-all',
           value === null
             ? 'border-[#8696a0] bg-[#8696a0]/10'
-            : 'border-[#2a3942] bg-[#111b21] hover:border-[#8696a0]'
+            : 'styles.colors.border.default styles.colors.bg.secondary hover:border-[#8696a0]'
         )}
       >
-        <span className={cn('text-sm', value === null ? 'text-[#e9edef]' : 'text-[#8696a0]')}>
+        <span className={cn('text-sm', value === null ? 'text-[#e9edef]' : 'styles.colors.text.tertiary')}>
           No sé aún
         </span>
       </button>
@@ -295,7 +297,7 @@ export function ExpertFeedbackPanel({ debateId, experts, onComplete }: ExpertFee
   }
 
   return (
-    <Card className="border-[#2a3942] bg-[#202c33]">
+    <Card className="styles.colors.border.default styles.colors.bg.tertiary">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -303,33 +305,32 @@ export function ExpertFeedbackPanel({ debateId, experts, onComplete }: ExpertFee
               <Star className="h-5 w-5 text-yellow-400" />
               Valorar Expertos
             </CardTitle>
-            <CardDescription className="text-[#8696a0]">
+            <CardDescription className="styles.colors.text.tertiary">
               Tu feedback mejora las futuras recomendaciones
             </CardDescription>
           </div>
-          <Badge variant="outline" className="border-[#8696a0] text-[#8696a0]">
+          <Badge variant="outline" className="border-[#8696a0] styles.colors.text.tertiary">
             {currentExpertIndex + 1} / {experts.length}
           </Badge>
         </div>
         {/* Progress bar */}
-        <div className="mt-2 h-1 w-full rounded-full bg-[#111b21]">
-          <div
-            className="h-full rounded-full bg-[#00a884] transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        <progress
+          className={cn("mt-2 h-1 w-full rounded-full overflow-hidden", styles.colors.bg.secondary, "accent-emerald-500")}
+          value={progress}
+          max={100}
+        />
       </CardHeader>
 
       <CardContent className="space-y-6">
         {/* Expert header */}
-        <div className="flex items-center gap-4 rounded-lg bg-[#111b21] p-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-lg font-bold text-[var(--theme-text-primary)]">
+        <div className="flex items-center gap-4 rounded-lg styles.colors.bg.secondary p-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-lg font-bold styles.colors.text.primary">
             {currentExpert.name.charAt(0)}
           </div>
           <div>
             <h3 className="font-semibold text-[#e9edef]">{currentExpert.name}</h3>
             {currentExpert.specialty && (
-              <p className="text-sm text-[#8696a0]">{currentExpert.specialty}</p>
+              <p className="text-sm styles.colors.text.tertiary">{currentExpert.specialty}</p>
             )}
           </div>
         </div>
@@ -344,7 +345,7 @@ export function ExpertFeedbackPanel({ debateId, experts, onComplete }: ExpertFee
               size="lg"
             />
             {currentFeedback.rating > 0 && (
-              <span className="text-sm text-[#8696a0]">
+              <span className="text-sm styles.colors.text.tertiary">
                 {currentFeedback.rating === 5
                   ? 'Excelente'
                   : currentFeedback.rating === 4
@@ -373,25 +374,25 @@ export function ExpertFeedbackPanel({ debateId, experts, onComplete }: ExpertFee
           <Label className="text-[#e9edef]">Aspectos Detallados (opcional)</Label>
           <div className="space-y-2">
             <AspectRating
-              icon={Lightbulb}
+              Icon={Lightbulb}
               label="Perspicacia"
               value={currentFeedback.insightfulness}
               onChange={(val) => updateCurrentFeedback({ insightfulness: val })}
             />
             <AspectRating
-              icon={Target}
+              Icon={Target}
               label="Relevancia"
               value={currentFeedback.relevance}
               onChange={(val) => updateCurrentFeedback({ relevance: val })}
             />
             <AspectRating
-              icon={Eye}
+              Icon={Eye}
               label="Claridad"
               value={currentFeedback.clarity}
               onChange={(val) => updateCurrentFeedback({ clarity: val })}
             />
             <AspectRating
-              icon={Sparkles}
+              Icon={Sparkles}
               label="Accionabilidad"
               value={currentFeedback.actionability}
               onChange={(val) => updateCurrentFeedback({ actionability: val })}
@@ -415,7 +416,7 @@ export function ExpertFeedbackPanel({ debateId, experts, onComplete }: ExpertFee
             placeholder="¿Algo más que quieras compartir sobre este experto?"
             value={currentFeedback.comment}
             onChange={(e) => updateCurrentFeedback({ comment: e.target.value })}
-            className="min-h-[80px] border-[#2a3942] bg-[#111b21] text-[#e9edef] placeholder:text-[#8696a0]"
+            className="min-h-[80px] styles.colors.border.default styles.colors.bg.secondary text-[#e9edef] placeholder:styles.colors.text.tertiary"
           />
         </div>
 
@@ -425,7 +426,7 @@ export function ExpertFeedbackPanel({ debateId, experts, onComplete }: ExpertFee
             variant="outline"
             onClick={() => setCurrentExpertIndex((prev) => Math.max(0, prev - 1))}
             disabled={currentExpertIndex === 0}
-            className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+            className="styles.colors.border.default styles.colors.bg.secondary text-[#e9edef]"
           >
             Anterior
           </Button>

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * ScheduleCard Component
@@ -35,7 +35,7 @@ export function ScheduleCard({ schedule, onToggle, onDelete, onRunNow }: Schedul
     : 'No programado'
 
   return (
-    <div className="rounded-lg border border-[#2a3942] bg-[#111b21] p-4">
+    <div className="rounded-lg border styles.colors.border.default styles.colors.bg.secondary p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -45,20 +45,20 @@ export function ScheduleCard({ schedule, onToggle, onDelete, onRunNow }: Schedul
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="border-[#2a3942] text-xs text-[#8696a0]">
+            <Badge variant="outline" className="styles.colors.border.default text-xs styles.colors.text.tertiary">
               {reportTypeLabels[schedule.type as ReportType]}
             </Badge>
             <Badge variant="outline" className="border-purple-500 text-xs text-purple-400">
               {frequencyLabels[schedule.schedule.frequency]}
             </Badge>
-            <Badge variant="outline" className="border-[#2a3942] text-xs text-[#8696a0]">
+            <Badge variant="outline" className="styles.colors.border.default text-xs styles.colors.text.tertiary">
               {formatLabels[schedule.format as ReportFormat]?.label}
             </Badge>
           </div>
 
-          <p className="mt-2 text-xs text-[#8696a0]">{getScheduleText(schedule.schedule)}</p>
+          <p className="mt-2 text-xs styles.colors.text.tertiary">{getScheduleText(schedule.schedule)}</p>
 
-          <div className="mt-2 flex items-center gap-4 text-xs text-[#8696a0]">
+          <div className="mt-2 flex items-center gap-4 text-xs styles.colors.text.tertiary">
             <span>Próximo: {nextRun}</span>
             <span>Ejecuciones: {schedule.runCount}</span>
             {schedule.failCount > 0 && (
@@ -67,7 +67,7 @@ export function ScheduleCard({ schedule, onToggle, onDelete, onRunNow }: Schedul
           </div>
 
           {schedule.deliveryMethod && (
-            <div className="mt-2 flex items-center gap-2 text-xs text-[#8696a0]">
+            <div className="mt-2 flex items-center gap-2 text-xs styles.colors.text.tertiary">
               {schedule.deliveryMethod.email && <Badge variant="outline">Email</Badge>}
               {schedule.deliveryMethod.inApp && <Badge variant="outline">In-App</Badge>}
               {schedule.deliveryMethod.webhook && <Badge variant="outline">Webhook</Badge>}
@@ -81,7 +81,7 @@ export function ScheduleCard({ schedule, onToggle, onDelete, onRunNow }: Schedul
             size="sm"
             onClick={onRunNow}
             disabled={!schedule.isActive}
-            className="h-8 border-[#2a3942] bg-[#202c33]"
+            className="h-8 styles.colors.border.default styles.colors.bg.tertiary"
           >
             <Play className="mr-1 h-4 w-4" />
             Ejecutar Ahora
@@ -90,7 +90,7 @@ export function ScheduleCard({ schedule, onToggle, onDelete, onRunNow }: Schedul
             variant="ghost"
             size="sm"
             onClick={onDelete}
-            className="h-8 text-[#8696a0] hover:text-red-400"
+            className="h-8 styles.colors.text.tertiary hover:text-red-400"
           >
             <Trash2 className="mr-1 h-4 w-4" />
             Eliminar

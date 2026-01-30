@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 
 import * as React from 'react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 export interface PageHeaderProps {
   /** Page title */
@@ -41,7 +41,7 @@ export function PageHeader({
   className,
   size = 'md',
 }: PageHeaderProps) {
-  const styles = sizeStyles[size]
+  const sizeStyle = sizeStyles[size]
 
   return (
     <div className={cn('mb-6', className)}>
@@ -49,9 +49,9 @@ export function PageHeader({
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className={cn('font-bold text-white', styles.title)}>{title}</h1>
+          <h1 className={cn('font-bold', styles.colors.text.primary, sizeStyle.title)}>{title}</h1>
           {description && (
-            <p className={cn('text-[var(--theme-text-secondary)] mt-1', styles.description)}>
+            <p className={cn(styles.colors.text.secondary, 'mt-1', sizeStyle.description)}>
               {description}
             </p>
           )}
@@ -78,9 +78,9 @@ export function SectionHeader({
   return (
     <div className={cn('flex items-center justify-between mb-4', className)}>
       <div>
-        <h2 className="text-lg font-semibold text-[var(--theme-text-primary)]">{title}</h2>
+        <h2 className={cn('text-lg font-semibold', styles.colors.text.primary)}>{title}</h2>
         {description && (
-          <p className="text-sm text-[var(--theme-text-secondary)]">{description}</p>
+          <p className={cn('text-sm', styles.colors.text.secondary)}>{description}</p>
         )}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}

@@ -83,7 +83,7 @@ Return ONLY a JSON array of search queries, no additional text.`
     // Paso 1: Analizar la pregunta para entender qué necesita
     const startTime1 = Date.now()
     const analysisResponse = await aiClient.generate(analysisPrompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       temperature: 0.2,
       maxTokens: 300,
     })
@@ -93,7 +93,7 @@ Return ONLY a JSON array of search queries, no additional text.`
       userId,
       operationType: 'auto_research_analysis',
       provider: 'google',
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       promptTokens: Math.ceil(analysisPrompt.length / 4), // Estimate ~4 chars per token
       completionTokens: Math.ceil(analysisResponse.text.length / 4),
       latencyMs: Date.now() - startTime1,
@@ -114,7 +114,7 @@ Ahora genera las queries específicas:`
 
     const startTime2 = Date.now()
     const response = await aiClient.generate(queryPrompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt: 'You are an expert research query generator. You create specific, data-focused search queries. Output ONLY valid JSON array.',
       temperature: 0.3,
       maxTokens: 500,
@@ -125,7 +125,7 @@ Ahora genera las queries específicas:`
       userId,
       operationType: 'auto_research_queries',
       provider: 'google',
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       promptTokens: Math.ceil(queryPrompt.length / 4), // Estimate ~4 chars per token
       completionTokens: Math.ceil(response.text.length / 4),
       latencyMs: Date.now() - startTime2,
@@ -159,7 +159,7 @@ Ahora genera las queries específicas:`
       userId,
       operationType: 'auto_research_queries',
       provider: 'google',
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       promptTokens: 0,
       completionTokens: 0,
       latencyMs: 0,
@@ -331,7 +331,7 @@ Output as JSON:
   try {
     const aiClient = getAIClient()
     const response = await aiClient.generate(prompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt: 'You are a research synthesizer. Extract key data and insights. Output ONLY valid JSON.',
       temperature: 0.2,
       maxTokens: 1000,
@@ -393,7 +393,7 @@ Only include fields where you have concrete data from research.`
   try {
     const aiClient = getAIClient()
     const response = await aiClient.generate(prompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt:
         'You are a context generator. Extract structured data from research. Output ONLY valid JSON.',
       temperature: 0.2,
@@ -439,7 +439,7 @@ IMPORTANTE: Proporciona información concreta, específica y útil para tomar la
 
   try {
     const response = await aiClient.generate(prompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt:
         'You are a business research analyst. Provide concrete, actionable insights. Output ONLY valid JSON.',
       temperature: 0.6,
@@ -549,7 +549,7 @@ Solo incluye campos relevantes para esta decisión específica.`
 
   try {
     const response = await aiClient.generate(prompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt:
         'You are a context generator. Create structured, actionable context. Output ONLY valid JSON.',
       temperature: 0.3,
@@ -801,7 +801,7 @@ Output as JSON array:
   try {
     const aiClient = getAIClient()
     const response = await aiClient.generate(prompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt: 'You are an AI debate coach. Provide actionable suggestions. Output ONLY valid JSON.',
       temperature: 0.5,
       maxTokens: 2000,

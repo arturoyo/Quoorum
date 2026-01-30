@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Building2, Info, Sparkles, Zap, Settings, X, Search } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { useOpenSettings } from '@/hooks/use-open-settings'
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 
 interface DepartmentSelectorProps {
   selectedDepartmentIds: string[]
@@ -292,7 +293,13 @@ export function DepartmentSelector({
           <Button
             variant="default"
             onClick={() => setIsOpen(true)}
-            className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-[var(--theme-text-primary)] font-semibold shadow-lg shadow-purple-500/30 border-2 border-purple-400/50 transition-all duration-200 hover:scale-[1.02]"
+            className={cn(
+              "w-full bg-gradient-to-r from-purple-600 to-purple-500",
+              "hover:from-purple-500 hover:to-purple-400 font-semibold",
+              "shadow-lg shadow-purple-500/30 border-2 border-purple-400/50",
+              "transition-all duration-200 hover:scale-[1.02]",
+              styles.colors.text.primary
+            )}
           >
             <Building2 className="mr-2 h-4 w-4" />
             {selectedDepartmentIds.length > 0
@@ -309,23 +316,26 @@ export function DepartmentSelector({
   const isLoading = isLoadingSuggestions || loadingDepartments
 
   return (
-    <Card className="border-purple-500/20 bg-[var(--theme-bg-secondary)] backdrop-blur-sm">
+    <Card className={cn("border-purple-500/20 backdrop-blur-sm", styles.colors.bg.secondary)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-purple-400" />
-            <CardTitle className="text-[var(--theme-text-primary)]">Selecci�n de Departamentos</CardTitle>
+            <CardTitle className={styles.colors.text.primary}>Selección de Departamentos</CardTitle>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
+            className={cn(
+              styles.colors.text.secondary,
+              styles.hoverState()
+            )}
           >
             Cerrar
           </Button>
         </div>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className={styles.colors.text.secondary}>
           {question && question.length >= 10
             ? 'Departamentos propuestos autom�ticamente seg�n tu pregunta. Puedes seleccionar manualmente o usar los sugeridos.'
             : 'Selecciona departamentos para inyectar contexto corporativo en tu debate.'}
@@ -334,11 +344,11 @@ export function DepartmentSelector({
       <CardContent className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
         {/* Selected Departments - Fixed Top Section */}
         {selectedDepartmentsData.length > 0 && (
-          <div className="space-y-3 pb-4 border-b border-[var(--theme-border)]">
+          <div className={cn("space-y-3 pb-4 border-b", styles.colors.border.default)}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-semibold text-[var(--theme-text-primary)]">
+                <span className={cn("text-sm font-semibold", styles.colors.text.primary)}>
                   Departamentos Seleccionados
                 </span>
                 <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-400 bg-purple-500/10">
@@ -349,7 +359,11 @@ export function DepartmentSelector({
                 variant="ghost"
                 size="sm"
                 onClick={() => onSelectionChange([])}
-                className="text-xs text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
+                className={cn(
+                  "text-xs",
+                  styles.colors.text.secondary,
+                  styles.hoverState()
+                )}
               >
                 Limpiar todos
               </Button>
@@ -361,7 +375,7 @@ export function DepartmentSelector({
                   className="flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-500/50 bg-purple-500/20 backdrop-blur-sm"
                 >
                   {dept.icon && <span>{dept.icon}</span>}
-                  <span className="text-sm font-medium text-[var(--theme-text-primary)]">{dept.name}</span>
+                  <span className={cn("text-sm font-medium", styles.colors.text.primary)}>{dept.name}</span>
                   {dept.matchScore && (
                     <Badge
                       variant="outline"
@@ -372,7 +386,11 @@ export function DepartmentSelector({
                   )}
                   <button
                     onClick={() => handleToggleDepartment(dept.id)}
-                    className="ml-1 p-0.5 rounded hover:bg-purple-600/30 text-[var(--theme-text-secondary)] hover:text-white transition-colors"
+                    className={cn(
+                      "ml-1 p-0.5 rounded hover:bg-purple-600/30 transition-colors",
+                      styles.colors.text.secondary,
+                      "hover:text-white"
+                    )}
                     title="Eliminar"
                   >
                     <X className="h-3 w-3" />
@@ -385,12 +403,16 @@ export function DepartmentSelector({
 
         {/* Mode Selection (Auto/Manual) */}
         <div className="space-y-2">
-          <Label className="text-[var(--theme-text-primary)] flex items-center gap-2">
+          <Label className={cn("flex items-center gap-2", styles.colors.text.primary)}>
             <Settings className="h-4 w-4 text-purple-400" />
-            Modo de Selecci�n
+            Modo de Selección
           </Label>
           <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
-            <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]">
+            <SelectTrigger className={cn(
+              styles.colors.border.default,
+              styles.colors.bg.tertiary,
+              styles.colors.text.primary
+            )}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -416,15 +438,19 @@ export function DepartmentSelector({
             {isLoadingSuggestions ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-4 animate-pulse">
-                    <div className="h-4 bg-[var(--theme-bg-input)] rounded w-3/4 mb-2" />
-                    <div className="h-3 bg-[var(--theme-bg-input)] rounded w-1/2" />
+                  <div key={i} className={cn(
+                    "rounded-lg border p-4 animate-pulse",
+                    styles.colors.border.default,
+                    styles.colors.bg.tertiary
+                  )}>
+                    <div className={cn("h-4 rounded w-3/4 mb-2", styles.colors.bg.input)} />
+                    <div className={cn("h-3 rounded w-1/2", styles.colors.bg.input)} />
                   </div>
                 ))}
               </div>
             ) : suggestedDepartments && suggestedDepartments.length > 0 ? (
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-[var(--theme-text-secondary)]">
+                <div className={cn("flex items-center gap-2 text-sm", styles.colors.text.secondary)}>
                   <Sparkles className="h-4 w-4 text-yellow-400" />
                   <span>Departamentos sugeridos seg�n tu pregunta</span>
                 </div>
@@ -452,7 +478,7 @@ export function DepartmentSelector({
                               {dept.icon && <span>{dept.icon}</span>}
                               <p className="font-medium leading-none">{dept.name}</p>
                             </div>
-                            <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-2">
+                            <p className={cn("text-xs line-clamp-2", styles.colors.text.secondary)}>
                               {dept.type}
                             </p>
                             <div className="flex gap-2 pt-1">
@@ -467,9 +493,9 @@ export function DepartmentSelector({
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border border-dashed border-[var(--theme-border)] p-6 text-center">
-                <Building2 className="mx-auto h-8 w-8 text-[var(--theme-text-tertiary)] mb-2" />
-                <p className="text-sm text-[var(--theme-text-secondary)]">
+              <div className={cn("rounded-lg border border-dashed p-6 text-center", styles.colors.border.default)}>
+                <Building2 className={cn("mx-auto h-8 w-8 mb-2", styles.colors.text.tertiary)} />
+                <p className={cn("text-sm", styles.colors.text.secondary)}>
                   No se encontraron departamentos sugeridos. Cambia a modo manual para ver todos.
                 </p>
               </div>
@@ -480,14 +506,19 @@ export function DepartmentSelector({
           <>
             {/* Search and Filter (only in manual mode) */}
             <div className="space-y-2">
-              <Label className="text-[var(--theme-text-primary)]">Buscar departamentos</Label>
+              <Label className={styles.colors.text.primary}>Buscar departamentos</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--theme-text-secondary)]" />
+                <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4", styles.colors.text.secondary)} />
                 <Input
                   placeholder="Buscar por nombre, tipo o contexto..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)]"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                  className={cn(
+                    "pl-9",
+                    styles.colors.bg.tertiary,
+                    styles.colors.border.default,
+                    styles.colors.text.primary
+                  )}
                 />
               </div>
             </div>
@@ -496,9 +527,13 @@ export function DepartmentSelector({
             {loadingDepartments && (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-4 animate-pulse">
-                    <div className="h-4 bg-[var(--theme-bg-input)] rounded w-3/4 mb-2" />
-                    <div className="h-3 bg-[var(--theme-bg-input)] rounded w-1/2" />
+                  <div key={i} className={cn(
+                    "rounded-lg border p-4 animate-pulse",
+                    styles.colors.border.default,
+                    styles.colors.bg.tertiary
+                  )}>
+                    <div className={cn("h-4 rounded w-3/4 mb-2", styles.colors.bg.input)} />
+                    <div className={cn("h-3 rounded w-1/2", styles.colors.bg.input)} />
                   </div>
                 ))}
               </div>
@@ -507,8 +542,8 @@ export function DepartmentSelector({
             {/* Department list */}
             {!loadingDepartments && (
               <>
-                <div className="flex items-center justify-between rounded-lg bg-[var(--theme-bg-tertiary)] p-3">
-                  <span className="text-sm font-medium text-[var(--theme-text-primary)]">Departamentos disponibles:</span>
+                <div className={cn("flex items-center justify-between rounded-lg p-3", styles.colors.bg.tertiary)}>
+                  <span className={cn("text-sm font-medium", styles.colors.text.primary)}>Departamentos disponibles:</span>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -553,9 +588,9 @@ export function DepartmentSelector({
                           <div className="flex-1 space-y-1">
                             <div className="flex items-center gap-2">
                               {dept.icon && <span>{dept.icon}</span>}
-                              <p className="font-medium leading-none text-[var(--theme-text-primary)]">{dept.name}</p>
+                              <p className={cn("font-medium leading-none", styles.colors.text.primary)}>{dept.name}</p>
                             </div>
-                            <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-2">
+                            <p className={cn("text-xs line-clamp-2", styles.colors.text.secondary)}>
                               {dept.departmentContext?.substring(0, 80) + '...'}
                             </p>
                             <div className="flex gap-2 pt-1">
@@ -572,8 +607,8 @@ export function DepartmentSelector({
                     })}
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-dashed border-[var(--theme-border)] p-6 text-center">
-                    <p className="text-sm text-[var(--theme-text-secondary)]">
+                  <div className={cn("rounded-lg border border-dashed p-6 text-center", styles.colors.border.default)}>
+                    <p className={cn("text-sm", styles.colors.text.secondary)}>
                       {searchQuery
                         ? 'No se encontraron departamentos que coincidan con tu b�squeda.'
                         : 'No hay m�s departamentos disponibles.'}

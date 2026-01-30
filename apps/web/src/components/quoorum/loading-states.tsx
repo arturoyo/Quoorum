@@ -5,6 +5,7 @@
  */
 
 import React from 'react'
+import { cn, styles } from '@/lib/utils'
 
 // ============================================================================
 // DEBATE LOADING SKELETON
@@ -104,7 +105,7 @@ export function LoadingOverlay({ message }: { message?: string }) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4">
         <Spinner size="lg" />
-        {message && <p className="text-[var(--theme-text-secondary)] font-medium">{message}</p>}
+        {message && <p className={cn("font-medium", styles.colors.text.secondary)}>{message}</p>}
       </div>
     </div>
   )
@@ -119,14 +120,16 @@ export function DebateProgress({ current, total }: { current: number; total: num
   
   return (
     <div className="space-y-2">
-      <div className="flex justify-between text-sm text-[var(--theme-text-tertiary)]">
+      <div className={cn("flex justify-between text-sm", styles.colors.text.tertiary)}>
         <span>Ronda {current} de {total}</span>
         <span>{Math.round(percentage)}%</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div 
-          className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-          style={{ width: `${percentage}%` }}
+          className={cn(
+            "bg-blue-600 h-2 rounded-full transition-all duration-500",
+            `w-[${percentage}%]`
+          )}
         ></div>
       </div>
     </div>
@@ -139,14 +142,16 @@ export function ConsensusProgress({ score }: { score: number }) {
   
   return (
     <div className="space-y-2">
-      <div className="flex justify-between text-sm text-[var(--theme-text-tertiary)]">
+      <div className={cn("flex justify-between text-sm", styles.colors.text.tertiary)}>
         <span>Consenso</span>
         <span>{percentage.toFixed(1)}%</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div 
-          className={`${color} h-2 rounded-full transition-all duration-500`}
-          style={{ width: `${percentage}%` }}
+          className={cn(
+            `${color} h-2 rounded-full transition-all duration-500`,
+            `w-[${percentage}%]`
+          )}
         ></div>
       </div>
     </div>
@@ -161,9 +166,9 @@ export function EmptyDebateList() {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">[CHAT]</div>
-      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No hay debates aún</h3>
-      <p className="text-[var(--theme-text-tertiary)] mb-6">Crea tu primer debate para empezar</p>
-      <button className="bg-blue-600 text-[var(--theme-text-primary)] px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+      <h3 className={cn("text-xl font-semibold mb-2", styles.colors.text.primary)}>No hay debates aún</h3>
+      <p className={cn("mb-6", styles.colors.text.tertiary)}>Crea tu primer debate para empezar</p>
+      <button className={cn("bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors", styles.colors.text.primary)}>
         Crear Debate
       </button>
     </div>
@@ -174,8 +179,8 @@ export function EmptySearchResults({ query }: { query: string }) {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">[SEARCH]</div>
-      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No se encontraron resultados</h3>
-      <p className="text-[var(--theme-text-tertiary)]">No hay debates que coincidan con "{query}"</p>
+      <h3 className={cn("text-xl font-semibold mb-2", styles.colors.text.primary)}>No se encontraron resultados</h3>
+      <p className={styles.colors.text.tertiary}>No hay debates que coincidan con "{query}"</p>
     </div>
   )
 }
@@ -184,9 +189,9 @@ export function NoExperts() {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">[USERS]</div>
-      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">No hay expertos personalizados</h3>
-      <p className="text-[var(--theme-text-tertiary)] mb-6">Crea expertos personalizados para tus debates</p>
-      <button className="bg-blue-600 text-[var(--theme-text-primary)] px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+      <h3 className={cn("text-xl font-semibold mb-2", styles.colors.text.primary)}>No hay expertos personalizados</h3>
+      <p className={cn("mb-6", styles.colors.text.tertiary)}>Crea expertos personalizados para tus debates</p>
+      <button className={cn("bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors", styles.colors.text.primary)}>
         Crear Experto
       </button>
     </div>
@@ -201,12 +206,12 @@ export function ErrorState({ error, retry }: { error: string; retry?: () => void
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">[WARN]</div>
-      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">Algo salió mal</h3>
-      <p className="text-[var(--theme-text-tertiary)] mb-6">{error}</p>
+      <h3 className={cn("text-xl font-semibold mb-2", styles.colors.text.primary)}>Algo salió mal</h3>
+      <p className={cn("mb-6", styles.colors.text.tertiary)}>{error}</p>
       {retry && (
         <button 
           onClick={retry}
-          className="bg-blue-600 text-[var(--theme-text-primary)] px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className={cn("bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors", styles.colors.text.primary)}
         >
           Reintentar
         </button>
@@ -219,12 +224,12 @@ export function NetworkError({ retry }: { retry?: () => void }) {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">[OFFLINE]</div>
-      <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-2">Sin conexión</h3>
-      <p className="text-[var(--theme-text-tertiary)] mb-6">Verifica tu conexión a internet</p>
+      <h3 className={cn("text-xl font-semibold mb-2", styles.colors.text.primary)}>Sin conexión</h3>
+      <p className={cn("mb-6", styles.colors.text.tertiary)}>Verifica tu conexión a internet</p>
       {retry && (
         <button 
           onClick={retry}
-          className="bg-blue-600 text-[var(--theme-text-primary)] px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className={cn("bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors", styles.colors.text.primary)}
         >
           Reintentar
         </button>

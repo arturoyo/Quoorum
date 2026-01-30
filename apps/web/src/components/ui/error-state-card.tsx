@@ -1,9 +1,9 @@
-﻿'use client'
+'use client'
 
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { AlertCircle, RefreshCw, WifiOff, ServerCrash } from 'lucide-react'
 
 export type ErrorType = 'generic' | 'network' | 'server' | 'not_found'
@@ -81,11 +81,11 @@ export function ErrorStateCard({
         <Icon className="h-12 w-12" />
       </div>
 
-      <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-2">
+      <h3 className={cn('text-lg font-semibold mb-2', styles.colors.text.primary)}>
         {displayTitle}
       </h3>
 
-      <p className="text-sm text-[var(--theme-text-secondary)] max-w-md mb-4">
+      <p className={cn('text-sm max-w-md mb-4', styles.colors.text.secondary)}>
         {displayMessage}
       </p>
 

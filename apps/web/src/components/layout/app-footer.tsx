@@ -1,8 +1,8 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { HelpCircle, FileText, Shield, BookOpen } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { ThemeDropdown } from '@/components/theme/theme-toggle'
 
 interface AppFooterProps {
@@ -29,8 +29,8 @@ export function AppFooter({ className }: AppFooterProps) {
   return (
     <footer
       className={cn(
-        'border-t border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/95 backdrop-blur-sm',
-        'fixed bottom-0 left-0 right-0 z-40',
+        'border-t styles.colors.border.default styles.colors.bg.primary/95 backdrop-blur-sm',
+        'fixed bottom-0 left-0 right-0 w-full z-40',
         className
       )}
     >
@@ -48,8 +48,8 @@ export function AppFooter({ className }: AppFooterProps) {
               href={link.href}
               className={cn(
                 'group flex items-center gap-0 px-2 py-1.5 rounded-full',
-                'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
-                'hover:bg-[var(--theme-bg-secondary)] transition-all duration-300 ease-out'
+                'styles.colors.text.secondary hover:styles.colors.text.primary',
+                'hover:styles.colors.bg.secondary transition-all duration-300 ease-out'
               )}
               title={link.label}
             >
@@ -68,8 +68,8 @@ export function AppFooter({ className }: AppFooterProps) {
           ))}
 
           {/* Copyright - only on larger screens */}
-          <div className="hidden sm:flex items-center ml-4 pl-4 border-l border-[var(--theme-border)]">
-            <span className="text-xs text-[var(--theme-text-tertiary)]">
+          <div className="hidden sm:flex items-center ml-4 pl-4 border-l styles.colors.border.default">
+            <span className="text-xs styles.colors.text.tertiary">
               &copy; {currentYear} Quoorum
             </span>
           </div>

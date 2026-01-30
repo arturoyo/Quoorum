@@ -1,4 +1,5 @@
-﻿import { type Metadata } from "next";
+import { type Metadata } from "next";
+import { cn, styles } from '@/lib/utils'
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +14,7 @@ import {
   Scale,
   Target,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { CTASection } from "@/components/ui/cta-section";
@@ -150,7 +151,7 @@ export default function ProsAndConsLandingPage() {
         {/* Hero */}
         <section className="pt-40 pb-24 px-4">
           <div className="container mx-auto max-w-4xl text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm styles.colors.text.secondary mb-8">
               <Sparkles className="w-4 h-4 text-purple-400" />
               <span>Framework Gratis - 4 IAs Expertas</span>
             </div>
@@ -163,7 +164,7 @@ export default function ProsAndConsLandingPage() {
               con IA
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed mb-8">
+            <p className="text-xl md:text-2xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed mb-8">
               Obtén un análisis balanceado de ventajas y desventajas en minutos.
               4 agentes de IA expertos debaten tu decisión desde diferentes perspectivas.
             </p>
@@ -190,15 +191,15 @@ export default function ProsAndConsLandingPage() {
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10">
               <div>
                 <div className="text-3xl font-bold text-purple-400">4</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">IAs Expertas</div>
+                <div className="text-sm styles.colors.text.tertiary">IAs Expertas</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-purple-400">3 min</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">Promedio</div>
+                <div className="text-sm styles.colors.text.tertiary">Promedio</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-purple-400">100%</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">Gratis</div>
+                <div className="text-sm styles.colors.text.tertiary">Gratis</div>
               </div>
             </div>
           </div>
@@ -234,13 +235,13 @@ export default function ProsAndConsLandingPage() {
                           <h3 className="text-lg font-semibold text-white">
                             {idx + 1}. {agent.name}
                           </h3>
-                          <p className="text-sm text-[var(--theme-text-secondary)]">{agent.description}</p>
+                          <p className="text-sm styles.colors.text.secondary">{agent.description}</p>
                         </div>
                       </div>
 
                       <ul className="space-y-2">
                         {agent.items.map((item, itemIdx) => (
-                          <li key={itemIdx} className="flex items-start gap-2 text-sm text-[var(--theme-text-secondary)]">
+                          <li key={itemIdx} className="flex items-start gap-2 text-sm styles.colors.text.secondary">
                             <Icon className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
                             <span>{item}</span>
                           </li>
@@ -277,17 +278,17 @@ export default function ProsAndConsLandingPage() {
                   <div className="space-y-4">
                     <div>
                       <div className="mb-1 font-medium text-white">Adquisición viral (peso: 85)</div>
-                      <p className="text-sm text-[var(--theme-text-secondary)]">
+                      <p className="text-sm styles.colors.text.secondary">
                         El modelo freemium genera crecimiento orgánico exponencial. Los usuarios gratis son marketing gratuito.
                       </p>
                     </div>
                     <div>
                       <div className="mb-1 font-medium text-white">Reduce fricción de entrada (peso: 80)</div>
-                      <p className="text-sm text-[var(--theme-text-secondary)]">
+                      <p className="text-sm styles.colors.text.secondary">
                         Sin tarjeta de crédito, más usuarios prueban. La conversión sucede después cuando ya ven valor.
                       </p>
                     </div>
-                    <p className="text-sm text-[var(--theme-text-tertiary)]">+ 2 pros más con pesos de 70 y 65</p>
+                    <p className="text-sm styles.colors.text.tertiary">+ 2 pros más con pesos de 70 y 65</p>
                   </div>
                 </div>
               </div>
@@ -306,17 +307,17 @@ export default function ProsAndConsLandingPage() {
                   <div className="space-y-4">
                     <div>
                       <div className="mb-1 font-medium text-white">Costos de infraestructura (peso: 75)</div>
-                      <p className="text-sm text-[var(--theme-text-secondary)]">
+                      <p className="text-sm styles.colors.text.secondary">
                         Miles de usuarios gratis pueden generar costos significativos de servidor antes de monetizar.
                       </p>
                     </div>
                     <div>
                       <div className="mb-1 font-medium text-white">Usuarios low-quality (peso: 60)</div>
-                      <p className="text-sm text-[var(--theme-text-secondary)]">
+                      <p className="text-sm styles.colors.text.secondary">
                         Freemium atrae usuarios que nunca pagarán. Puede contaminar métricas y feedback.
                       </p>
                     </div>
-                    <p className="text-sm text-[var(--theme-text-tertiary)]">+ 1 con más con peso de 55</p>
+                    <p className="text-sm styles.colors.text.tertiary">+ 1 con más con peso de 55</p>
                   </div>
                 </div>
               </div>
@@ -333,21 +334,21 @@ export default function ProsAndConsLandingPage() {
                   Recomendación: CONDITIONAL
                 </h3>
 
-                <p className="text-[var(--theme-text-secondary)] mb-4">
+                <p className="styles.colors.text.secondary mb-4">
                   <strong className="text-white">Rationale:</strong> El modelo freemium es recomendable SI tienes runway para soportar 6-12 meses sin revenue significativo Y tu producto tiene un hook claro que genera conversión natural. Los PROS (85+80) superan a los CONS (75+60), pero requiere capital inicial suficiente.
                 </p>
 
                 <div className="flex flex-wrap gap-6 text-sm">
                   <div>
-                    <span className="text-[var(--theme-text-secondary)]">PROS Weight:</span>{" "}
+                    <span className="styles.colors.text.secondary">PROS Weight:</span>{" "}
                     <span className="text-white font-medium">75/100</span>
                   </div>
                   <div>
-                    <span className="text-[var(--theme-text-secondary)]">CONS Weight:</span>{" "}
+                    <span className="styles.colors.text.secondary">CONS Weight:</span>{" "}
                     <span className="text-white font-medium">63/100</span>
                   </div>
                   <div>
-                    <span className="text-[var(--theme-text-secondary)]">Confianza:</span>{" "}
+                    <span className="styles.colors.text.secondary">Confianza:</span>{" "}
                     <span className="text-white font-medium">82/100</span>
                   </div>
                 </div>
@@ -377,7 +378,7 @@ export default function ProsAndConsLandingPage() {
                     <div className="relative z-10">
                       <Icon className="w-8 h-8 text-purple-400 mb-4" />
                       <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                      <p className="text-sm text-[var(--theme-text-secondary)]">{feature.description}</p>
+                      <p className="text-sm styles.colors.text.secondary">{feature.description}</p>
                     </div>
                   </div>
                 );
@@ -391,7 +392,7 @@ export default function ProsAndConsLandingPage() {
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
             ¿Tienes una decisión que tomar?
           </h2>
-          <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+          <p className="text-xl styles.colors.text.secondary mb-10 max-w-2xl mx-auto">
             Obtén un análisis balanceado de pros y cons en 3 minutos
           </p>
           <Link href="/debates/new-unified?framework=pros-and-cons&new=1">

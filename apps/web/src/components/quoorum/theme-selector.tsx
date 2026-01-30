@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { api } from '@/lib/trpc/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,8 +37,8 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
 
   if (!question || question.length < 10) {
     return (
-      <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
-        <CardContent className="py-6 text-center text-sm text-[var(--theme-text-secondary)]">
+      <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
+        <CardContent className="py-6 text-center text-sm styles.colors.text.secondary">
           Escribe una pregunta para ver el tema narrativo sugerido
         </CardContent>
       </Card>
@@ -46,12 +46,12 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
   }
 
   return (
-    <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+    <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-indigo-400" />
-            <CardTitle className="text-[var(--theme-text-primary)]">Tema Narrativo</CardTitle>
+            <CardTitle className="styles.colors.text.primary">Tema Narrativo</CardTitle>
           </div>
           <Switch
             checked={themeEnabled}
@@ -59,7 +59,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
             className="data-[state=checked]:bg-indigo-600"
           />
         </div>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className="styles.colors.text.secondary">
           {themeEnabled ? 'Los expertos tendrán identidades narrativas' : 'Los expertos usarán nombres genéricos'}
         </CardDescription>
       </CardHeader>
@@ -80,7 +80,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
                 <div className="text-4xl">{themePreview.themeEmoji}</div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-[var(--theme-text-primary)]">{themePreview.themeName}</h3>
+                    <h3 className="font-semibold styles.colors.text.primary">{themePreview.themeName}</h3>
                     <Badge className={`${
                       themePreview.shouldUseTheme
                         ? 'bg-indigo-600 text-white'
@@ -89,10 +89,10 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
                       {Math.round(themePreview.confidence * 100)}% confianza
                     </Badge>
                   </div>
-                  <p className="text-sm text-[var(--theme-text-secondary)] mb-2">
+                  <p className="text-sm styles.colors.text.secondary mb-2">
                     {themePreview.themeDescription}
                   </p>
-                  <p className="text-xs text-[var(--theme-text-secondary)] italic">
+                  <p className="text-xs styles.colors.text.secondary italic">
                     {themePreview.reason}
                   </p>
                 </div>
@@ -104,7 +104,7 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
               <div className="rounded-lg border border-yellow-500/30 bg-yellow-900/10 p-3">
                 <div className="flex items-start gap-2">
                   <Info className="h-4 w-4 text-yellow-400 mt-0.5" />
-                  <div className="text-xs text-[var(--theme-text-secondary)]">
+                  <div className="text-xs styles.colors.text.secondary">
                     <p className="font-medium text-yellow-400 mb-1">Confianza baja</p>
                     <p>
                       La pregunta no se ajusta claramente a ningún tema narrativo.
@@ -116,12 +116,12 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
             )}
 
             {/* What are narrative themes? */}
-            <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-3">
+            <div className="rounded-lg border styles.colors.border.default styles.colors.bg.tertiary p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Info className="h-4 w-4 text-blue-400" />
-                <Label className="text-xs text-[var(--theme-text-secondary)]">¿Qué son los temas narrativos?</Label>
+                <Label className="text-xs styles.colors.text.secondary">¿Qué son los temas narrativos?</Label>
               </div>
-              <p className="text-xs text-[var(--theme-text-secondary)]">
+              <p className="text-xs styles.colors.text.secondary">
                 Los temas narrativos asignan identidades de personajes a los expertos del debate
                 (ej: Atenea, Lancelot, Steve Jobs) para hacer la experiencia más inmersiva.
                 Los modelos de IA (GPT, Claude, etc.) quedan ocultos para el usuario.
@@ -129,8 +129,8 @@ export function ThemeSelector({ question, context, onThemeToggle, enabled = true
             </div>
           </>
         ) : (
-          <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-4 text-center">
-            <p className="text-sm text-[var(--theme-text-secondary)]">
+          <div className="rounded-lg border styles.colors.border.default styles.colors.bg.tertiary p-4 text-center">
+            <p className="text-sm styles.colors.text.secondary">
               Los expertos usarán nombres genéricos (Experto 1, Experto 2...)
             </p>
           </div>

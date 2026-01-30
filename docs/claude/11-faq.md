@@ -258,14 +258,14 @@ Windows stdio in console mode does not support writing non-UTF-8 byte sequences
 3. Emoji en código → UTF-8 bytes → PowerShell explota
 4. **Todo el dev server se cae**
 
-**Solución DEFINITIVA:** Usar WSL2 (ver sección siguiente)
+**Solución DEFINITIVA:** Bloquear emojis en código antes de levantar servidor (ver sección siguiente)
 
 #### Plataformas comparadas
 
 | Plataforma | Cache Issues | UTF-8 Issues | Recomendación |
 |------------|--------------|--------------|---------------|
-| **Windows Native** | 🔴 Frecuentes | 🔴 Emojis = 💥 | ⚠️ Evitar emojis + limpiar cache |
-| **WSL2** | 🟢 Raros | 🟢 Sin problemas | ✅ **MEJOR opción Windows** |
+| **Windows Native** | 🟡 Controlables | 🟡 Bloqueo preventivo | ✅ **Recomendado para este proyecto** |
+| **WSL2** | 🟠 Variables | 🟠 Inestable en este repo | ❌ No recomendado |
 | **macOS** | 🟢 Raros | 🟢 Sin problemas | ✅ Ideal |
 | **Linux** | 🟢 Raros | 🟢 Sin problemas | ✅ Ideal |
 
@@ -286,72 +286,39 @@ rm -rf .next node_modules/.cache && pnpm dev
 
 - **CLAUDE.md Regla #0:** NUNCA emojis en código ejecutable
 - **CLAUDE.md Regla #20:** Cache corrupto - siempre limpiar .next primero
-- **WSL2 Setup:** Ver sección siguiente
+- **Windows Setup:** Ver sección siguiente
 
 ---
 
-### 🐧 WSL2 Setup (Recomendado para Windows)
+### 🪟 Windows Setup
 
-**Por qué WSL2 es mejor que Windows nativo:**
-- ✅ UTF-8 nativo (sin problemas con emojis)
-- ✅ Mejor file watching (menos cache issues)
-- ✅ Builds más rápidos
-- ✅ Compatible con scripts bash/zsh
-- ✅ Mismo entorno que producción (Linux)
+**Por qué Windows nativo es la opción estable aquí:**
+- ✅ Scripts PowerShell ya integrados
+- ✅ Menos fricción con tooling existente
+- ✅ Bloqueo preventivo de emojis antes de dev/build
 
-**Instalación:**
+**Configuración básica:**
 ```powershell
-# 1. Instalar WSL2 (PowerShell como Admin)
-wsl --install
+# 1. Verificar Node.js 20+ instalado
+node -v
 
-# 2. Reiniciar PC
-
-# 3. Configurar usuario Ubuntu (se abre automático)
-# Username: tu-nombre
-# Password: tu-password
-
-# 4. Actualizar Ubuntu
-sudo apt update && sudo apt upgrade -y
-
-# 5. Instalar Node.js 20 (via nvm recomendado)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-source ~/.bashrc
-nvm install 20
-nvm use 20
-
-# 6. Instalar pnpm
+# 2. Instalar pnpm (si falta)
 npm install -g pnpm
 
-# 7. Acceder a tu proyecto Windows desde WSL2
-cd /mnt/c/Quoorum
-
-# 8. Instalar dependencias
+# 3. Instalar dependencias
+cd C:\Quoorum
 pnpm install
 
-# 9. Iniciar servidor
-pnpm dev
+# 4. Iniciar servidor (bloquea emojis antes de levantar)
+pnpm dev:no-fix
 ```
 
-**Acceder a archivos WSL desde Windows:**
-```
-\\wsl$\Ubuntu\home\tu-usuario\
-# O si clonaste desde Windows:
-/mnt/c/Quoorum/
+**Chequeo manual de emojis (opcional):**
+```powershell
+pnpm check:emoji
 ```
 
-**Configurar VS Code con WSL2:**
-```bash
-# 1. Instalar extensión "WSL" en VS Code
-# 2. En WSL2 terminal:
-code .
-# Abre VS Code conectado a WSL2
-```
-
-**Ventajas adicionales:**
-- ✅ Docker nativo (sin Docker Desktop)
-- ✅ Performance de I/O muchísimo mejor
-- ✅ Scripts bash funcionan sin modificar
-- ✅ git funciona nativamente
+**Nota:** WSL2 no es recomendado para este repo por inestabilidad observada.
 
 ---
 

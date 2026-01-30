@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
@@ -123,11 +123,11 @@ export function ResearchResults({
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <Search className="h-5 w-5 text-purple-400" />
-            <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+            <h3 className="text-lg font-semibold styles.colors.text.primary">
               ?? Auto-Research Completado
             </h3>
           </div>
-          <p className="mt-1 text-sm text-[#aebac1]">
+          <p className="mt-1 text-sm styles.colors.text.secondary">
             He investigado autom�ticamente y encontr� {results.length} fuentes relevantes
             en {(executionTimeMs / 1000).toFixed(1)}s
           </p>
@@ -144,7 +144,7 @@ export function ResearchResults({
           <Button
             onClick={onSkip}
             variant="outline"
-            className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942]"
+            className="styles.colors.border.default styles.colors.text.secondary hover:styles.colors.bg.input"
           >
             Omitir
           </Button>
@@ -160,7 +160,7 @@ export function ResearchResults({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="border-[#2a3942] bg-[#111b21] p-4">
+            <Card className="styles.colors.border.default styles.colors.bg.secondary p-4">
               {/* Category Badge */}
               <div className="mb-3 flex items-center justify-between">
                 <Badge
@@ -172,35 +172,35 @@ export function ResearchResults({
                 </Badge>
                 <div className="flex items-center gap-1">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                  <span className="text-xs text-[#8696a0]">
+                  <span className="text-xs styles.colors.text.tertiary">
                     {Math.round(result.confidence * 100)}% confianza
                   </span>
                 </div>
               </div>
 
               {/* Summary */}
-              <h4 className="mb-2 text-sm font-medium text-[var(--theme-text-primary)]">{result.title}</h4>
-              <p className="mb-3 text-sm text-[#aebac1] leading-relaxed">
+              <h4 className="mb-2 text-sm font-medium styles.colors.text.primary">{result.title}</h4>
+              <p className="mb-3 text-sm styles.colors.text.secondary leading-relaxed">
                 {result.summary}
               </p>
 
               {/* Sources */}
               <div className="space-y-2">
-                <p className="text-xs font-medium text-[#8696a0]">Fuentes:</p>
+                <p className="text-xs font-medium styles.colors.text.tertiary">Fuentes:</p>
                 {result.sources.slice(0, 2).map((source, sourceIndex) => (
                   <a
                     key={sourceIndex}
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-start gap-2 rounded border border-[#2a3942] bg-[#0b141a] p-2 transition-colors hover:border-purple-500/40 hover:bg-[#202c33]"
+                    className="group flex items-start gap-2 rounded border styles.colors.border.default styles.colors.bg.primary p-2 transition-colors hover:border-purple-500/40 hover:styles.colors.bg.tertiary"
                   >
-                    <ExternalLink className="mt-0.5 h-3 w-3 flex-shrink-0 text-[#8696a0] group-hover:text-purple-400" />
+                    <ExternalLink className="mt-0.5 h-3 w-3 flex-shrink-0 styles.colors.text.tertiary group-hover:text-purple-400" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-[#aebac1] group-hover:text-[var(--theme-text-primary)] line-clamp-1">
+                      <p className="text-xs font-medium styles.colors.text.secondary group-hover:styles.colors.text.primary line-clamp-1">
                         {source.title}
                       </p>
-                      <p className="mt-0.5 text-xs text-[#8696a0] line-clamp-2">
+                      <p className="mt-0.5 text-xs styles.colors.text.tertiary line-clamp-2">
                         {source.snippet}
                       </p>
                     </div>
@@ -218,9 +218,9 @@ export function ResearchResults({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="rounded-lg border border-[#2a3942] bg-[#111b21] p-4"
+          className="rounded-lg border styles.colors.border.default styles.colors.bg.secondary p-4"
         >
-          <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--theme-text-primary)]">
+          <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold styles.colors.text.primary">
             <Lightbulb className="h-4 w-4 text-purple-400" />
             Contexto Pre-llenado
           </h4>
@@ -229,10 +229,10 @@ export function ResearchResults({
             {Object.entries(suggestedContext).map(([key, value], index) => (
               <div
                 key={index}
-                className="rounded border border-[#2a3942] bg-[#0b141a] p-3"
+                className="rounded border styles.colors.border.default styles.colors.bg.primary p-3"
               >
                 <p className="mb-1 text-xs font-medium text-purple-300">{key}</p>
-                <pre className="text-xs text-[#aebac1] whitespace-pre-wrap">
+                <pre className="text-xs styles.colors.text.secondary whitespace-pre-wrap">
                   {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
                 </pre>
               </div>
@@ -251,7 +251,7 @@ export function ResearchResults({
               onClick={() => setIsCustomizeDialogOpen(true)}
               size="sm"
               variant="outline"
-              className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942]"
+              className="styles.colors.border.default styles.colors.text.secondary hover:styles.colors.bg.input"
             >
               <Settings className="mr-2 h-4 w-4" />
               Personalizar
@@ -262,22 +262,22 @@ export function ResearchResults({
 
       {/* Customize Context Dialog */}
       <Dialog open={isCustomizeDialogOpen} onOpenChange={setIsCustomizeDialogOpen}>
-        <DialogContent className="max-w-2xl bg-[#111b21] border-[#2a3942] text-[var(--theme-text-primary)]">
+        <DialogContent className="max-w-2xl styles.colors.bg.secondary styles.colors.border.default styles.colors.text.primary">
           <DialogHeader>
-            <DialogTitle className="text-[var(--theme-text-primary)]">Personalizar Contexto</DialogTitle>
-            <DialogDescription className="text-[#aebac1]">
+            <DialogTitle className="styles.colors.text.primary">Personalizar Contexto</DialogTitle>
+            <DialogDescription className="styles.colors.text.secondary">
               Selecciona qu� campos del contexto quieres incluir en tu debate
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 max-h-[400px] overflow-y-auto">
             {/* Select All / Deselect All */}
-            <div className="flex gap-2 pb-2 border-b border-[#2a3942]">
+            <div className="flex gap-2 pb-2 border-b styles.colors.border.default">
               <Button
                 onClick={handleSelectAll}
                 size="sm"
                 variant="outline"
-                className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942] text-xs"
+                className="styles.colors.border.default styles.colors.text.secondary hover:styles.colors.bg.input text-xs"
               >
                 Seleccionar todo
               </Button>
@@ -285,7 +285,7 @@ export function ResearchResults({
                 onClick={handleDeselectAll}
                 size="sm"
                 variant="outline"
-                className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942] text-xs"
+                className="styles.colors.border.default styles.colors.text.secondary hover:styles.colors.bg.input text-xs"
               >
                 Deseleccionar todo
               </Button>
@@ -299,20 +299,20 @@ export function ResearchResults({
               return (
                 <div
                   key={key}
-                  className="flex items-start gap-3 rounded-lg border border-[#2a3942] bg-[#0b141a] p-4 hover:border-purple-500/40 transition-colors"
+                  className="flex items-start gap-3 rounded-lg border styles.colors.border.default styles.colors.bg.primary p-4 hover:border-purple-500/40 transition-colors"
                 >
                   <Checkbox
                     id={key}
                     checked={isSelected}
                     onCheckedChange={() => handleToggleField(key)}
-                    className="mt-1 border-[#2a3942] data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                    className="mt-1 styles.colors.border.default data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                   />
                   <Label
                     htmlFor={key}
-                    className="flex-1 cursor-pointer text-sm text-[var(--theme-text-primary)]"
+                    className="flex-1 cursor-pointer text-sm styles.colors.text.primary"
                   >
                     <div className="font-medium mb-1">{label}</div>
-                    <div className="text-xs text-[#aebac1] mt-1">
+                    <div className="text-xs styles.colors.text.secondary mt-1">
                       <pre className="whitespace-pre-wrap break-words">
                         {typeof value === 'object' 
                           ? JSON.stringify(value, null, 2).substring(0, 200) + (JSON.stringify(value, null, 2).length > 200 ? '...' : '')
@@ -330,7 +330,7 @@ export function ResearchResults({
             <Button
               onClick={() => setIsCustomizeDialogOpen(false)}
               variant="outline"
-              className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942]"
+              className="styles.colors.border.default styles.colors.text.secondary hover:styles.colors.bg.input"
             >
               Cancelar
             </Button>

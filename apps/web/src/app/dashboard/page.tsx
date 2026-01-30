@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -29,7 +29,7 @@ import {
   DollarSign,
   Target,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { SettingsModal } from "@/components/settings/settings-modal";
 import { TestModeToggle } from "@/components/dashboard/test-mode-toggle";
 import type { User } from "@supabase/supabase-js";
@@ -221,7 +221,7 @@ export default function DashboardPage() {
   const daysUntilRenewal = 30; // TODO: Calculate from subscription.currentPeriodEnd
 
   return (
-    <div className="min-h-screen relative bg-[var(--theme-bg-primary)] transition-colors duration-300">
+    <div className="min-h-screen relative styles.colors.bg.primary transition-colors duration-300">
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[var(--theme-bg-primary)] to-blue-900/20 transition-colors duration-300" />
@@ -239,10 +239,10 @@ export default function DashboardPage() {
       <main className="container mx-auto px-4 pt-20 pb-24 sm:pb-28 md:pb-32 min-h-[calc(100vh-64px)] flex flex-col">
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 flex-shrink-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)]">
+          <h1 className="text-2xl sm:text-3xl font-bold styles.colors.text.primary">
             ¡Hola, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split("@")[0] || 'Usuario'}!
           </h1>
-          <p className="text-sm sm:text-base text-[var(--theme-text-secondary)] mt-1">
+          <p className="text-sm sm:text-base styles.colors.text.secondary mt-1">
             Aquí tienes un resumen de tu actividad en Quoorum.
           </p>
           {hasDatabaseError && (
@@ -258,17 +258,17 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 flex-shrink-0">
           {/* Card 1: Decisiones Completadas */}
-          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
+          <Card className="relative overflow-hidden styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">Decisiones Completadas</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
+                  <p className="text-sm styles.colors.text.secondary">Decisiones Completadas</p>
+                  <p className="text-2xl sm:text-3xl font-bold styles.colors.text.primary mt-1">
                     {safeStats.completedDebates || 0}
                   </p>
                   {safeStats.totalDebates > 0 && (
-                    <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                    <p className="text-xs styles.colors.text.tertiary mt-1">
                       de {safeStats.totalDebates} total
                     </p>
                   )}
@@ -281,19 +281,19 @@ export default function DashboardPage() {
           </Card>
 
           {/* Card 2: Tiempo Promedio */}
-          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
+          <Card className="relative overflow-hidden styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">Tiempo Promedio</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
+                  <p className="text-sm styles.colors.text.secondary">Tiempo Promedio</p>
+                  <p className="text-2xl sm:text-3xl font-bold styles.colors.text.primary mt-1">
                     {safeStats.avgDurationMinutes > 0
                       ? `${safeStats.avgDurationMinutes} min`
                       : "—"}
                   </p>
                   {safeStats.avgDurationMinutes > 0 && (
-                    <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                    <p className="text-xs styles.colors.text.tertiary mt-1">
                       vs semanas de reuniones
                     </p>
                   )}
@@ -306,17 +306,17 @@ export default function DashboardPage() {
           </Card>
 
           {/* Card 3: Consenso Alto */}
-          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
+          <Card className="relative overflow-hidden styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">Consenso Alto</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
+                  <p className="text-sm styles.colors.text.secondary">Consenso Alto</p>
+                  <p className="text-2xl sm:text-3xl font-bold styles.colors.text.primary mt-1">
                     {safeStats.consensusDistribution?.high || 0}
                   </p>
                   {safeStats.completedDebates > 0 && (
-                    <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                    <p className="text-xs styles.colors.text.tertiary mt-1">
                       {Math.round(
                         ((safeStats.consensusDistribution?.high || 0) /
                           safeStats.completedDebates) *
@@ -333,19 +333,19 @@ export default function DashboardPage() {
           </Card>
 
           {/* Card 4: Inversión Total */}
-          <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
+          <Card className="relative overflow-hidden styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <CardContent className="relative p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">Inversión Total</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mt-1">
+                  <p className="text-sm styles.colors.text.secondary">Inversión Total</p>
+                  <p className="text-2xl sm:text-3xl font-bold styles.colors.text.primary mt-1">
                     {safeStats.totalCostUsd > 0
                       ? `$${safeStats.totalCostUsd.toFixed(2)}`
                       : "$0.00"}
                   </p>
                   {safeStats.avgCostUsd > 0 && (
-                    <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                    <p className="text-xs styles.colors.text.tertiary mt-1">
                       ${safeStats.avgCostUsd.toFixed(2)} por decisión
                     </p>
                   )}
@@ -361,15 +361,15 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 flex-1 overflow-hidden">
           {/* Recent Debates */}
           <div className="lg:col-span-2 flex flex-col overflow-hidden">
-            <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group flex flex-col h-full">
+            <Card className="relative overflow-hidden styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group flex flex-col h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader className="relative flex flex-row items-center justify-between flex-shrink-0">
                 <div>
                   <CardTitle className="bg-gradient-to-r from-[var(--theme-gradient-text-from)] to-[var(--theme-gradient-text-to)] bg-clip-text text-transparent">Debates Recientes</CardTitle>
-                  <CardDescription className="text-[var(--theme-text-tertiary)]">Tus últimas deliberaciones</CardDescription>
+                  <CardDescription className="styles.colors.text.tertiary">Tus últimas deliberaciones</CardDescription>
                 </div>
                 <Link href="/debates">
-                  <Button variant="ghost" className="text-[var(--theme-text-tertiary)] hover:text-blue-300 transition-colors">
+                  <Button variant="ghost" className="styles.colors.text.tertiary hover:text-blue-300 transition-colors">
                     Ver todos
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -383,8 +383,8 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 ) : (Array.isArray(safeRecentDebates) && safeRecentDebates.length === 0) ? (
-                  <div className="p-4 rounded-lg bg-[var(--theme-bg-tertiary)]/50 text-center">
-                    <p className="text-[var(--theme-text-tertiary)] text-sm">
+                  <div className="p-4 rounded-lg styles.colors.bg.tertiary/50 text-center">
+                    <p className="styles.colors.text.tertiary text-sm">
                       No tienes debates todavía. Crea tu primer debate para empezar.
                     </p>
                   </div>
@@ -396,12 +396,12 @@ export default function DashboardPage() {
                     <Link
                       key={debate.id}
                       href={`/debates/${debate.id}`}
-                      className="block p-4 rounded-lg bg-[var(--theme-bg-tertiary)]/50 hover:bg-purple-500/10 transition-all duration-200 cursor-pointer border border-[var(--theme-border)] hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02]"
+                      className="block p-4 rounded-lg styles.colors.bg.tertiary/50 hover:bg-purple-500/10 transition-all duration-200 cursor-pointer border styles.colors.border.default hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02]"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <p className="text-[var(--theme-text-primary)] font-medium text-base leading-snug break-words mb-3">{debate.question}</p>
-                          <div className="flex items-center gap-4 text-sm text-[var(--theme-text-secondary)]">
+                          <p className="styles.colors.text.primary font-medium text-base leading-snug break-words mb-3">{debate.question}</p>
+                          <div className="flex items-center gap-4 text-sm styles.colors.text.secondary">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
                               {new Date(debate.createdAt).toLocaleString("es-ES", {
@@ -443,7 +443,7 @@ export default function DashboardPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Subscription Card */}
-            <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
+            <Card className="relative overflow-hidden styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader className="relative">
                 <div className="flex items-center justify-between">
@@ -456,8 +456,8 @@ export default function DashboardPage() {
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-[var(--theme-text-secondary)]">Créditos disponibles</span>
-                    <span className="text-[var(--theme-text-primary)]">
+                    <span className="styles.colors.text.secondary">Créditos disponibles</span>
+                    <span className="styles.colors.text.primary">
                       {subscription.creditsUsed} / {subscription.creditsLimit}
                     </span>
                   </div>
@@ -465,12 +465,12 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--theme-text-secondary)]">Próxima renovación</span>
-                  <span className="text-[var(--theme-text-primary)]">{daysUntilRenewal} días</span>
+                  <span className="styles.colors.text.secondary">Próxima renovación</span>
+                  <span className="styles.colors.text.primary">{daysUntilRenewal} días</span>
                 </div>
 
                 <Button 
-                  className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-[var(--theme-text-primary)] relative z-10"
+                  className="w-full mt-4 bg-purple-600 hover:bg-purple-700 styles.colors.text.primary relative z-10"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -487,7 +487,7 @@ export default function DashboardPage() {
 
             {/* Notifications Widget */}
             {!isAuthChecking && user && (
-              <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
+              <Card className="relative overflow-hidden styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="relative">
                   <div className="flex items-center justify-between">
@@ -504,8 +504,8 @@ export default function DashboardPage() {
                 <CardContent>
                   {!Array.isArray(safeRecentNotifications) || safeRecentNotifications.length === 0 ? (
                     <div className="text-center py-4">
-                      <Bell className="w-8 h-8 text-[var(--theme-text-tertiary)] mx-auto mb-2" />
-                      <p className="text-sm text-[var(--theme-text-tertiary)]">No hay notificaciones</p>
+                      <Bell className="w-8 h-8 styles.colors.text.tertiary mx-auto mb-2" />
+                      <p className="text-sm styles.colors.text.tertiary">No hay notificaciones</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -515,12 +515,12 @@ export default function DashboardPage() {
                           <Link
                             key={notification.id}
                             href={notification.debateId ? `/debates/${notification.debateId}` : '/debates'}
-                            className="block p-2 rounded-lg bg-[var(--theme-bg-tertiary)]/50 hover:bg-[var(--theme-bg-tertiary)] transition text-sm"
+                            className="block p-2 rounded-lg styles.colors.bg.tertiary/50 hover:styles.colors.bg.tertiary transition text-sm"
                           >
-                            <p className="text-[var(--theme-text-primary)] font-medium line-clamp-2 break-words">
+                            <p className="styles.colors.text.primary font-medium line-clamp-2 break-words">
                               {notification.message}
                             </p>
-                            <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+                            <p className="text-xs styles.colors.text.tertiary mt-1">
                               {new Date(notification.createdAt).toLocaleDateString('es-ES', {
                                 day: 'numeric',
                                 month: 'short',
@@ -529,11 +529,11 @@ export default function DashboardPage() {
                           </Link>
                         );
                       }) : (
-                        <p className="text-xs text-[var(--theme-text-tertiary)] text-center py-2">No hay notificaciones</p>
+                        <p className="text-xs styles.colors.text.tertiary text-center py-2">No hay notificaciones</p>
                       )}
                       {Array.isArray(safeRecentNotifications) && safeRecentNotifications.length > 0 && (
                         <Link href="/debates" className="block mt-3">
-                          <Button variant="ghost" className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] text-xs">
+                          <Button variant="ghost" className="w-full styles.colors.text.secondary hover:styles.colors.text.primary hover:styles.colors.bg.tertiary text-xs">
                             Ver todas
                             <ArrowRight className="ml-2 h-3 w-3" />
                           </Button>
@@ -552,10 +552,10 @@ export default function DashboardPage() {
             {subscription.plan === "Free" && (
               <Card className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border-purple-500/30">
                 <CardContent className="relative p-6">
-                  <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-2">
+                  <h3 className="text-lg font-semibold styles.colors.text.primary mb-2">
                     Desbloquea más poder
                   </h3>
-                  <p className="text-[var(--theme-text-secondary)] text-sm mb-4">
+                  <p className="styles.colors.text.secondary text-sm mb-4">
                     Actualiza a Pro para 10,000 créditos/mes, Inteligencia Corporativa y exportación a PDF profesional.
                   </p>
                   <Button 
@@ -593,7 +593,7 @@ export default function DashboardPage() {
 
 function DashboardSkeleton() {
   return (
-    <div className="min-h-screen relative bg-[var(--theme-bg-primary)] transition-colors duration-300">
+    <div className="min-h-screen relative styles.colors.bg.primary transition-colors duration-300">
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[var(--theme-bg-primary)] to-blue-900/20 transition-colors duration-300" />
@@ -601,42 +601,42 @@ function DashboardSkeleton() {
       </div>
 
       <main className="container mx-auto px-4 py-4 sm:py-8">
-        <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-2 bg-[var(--theme-bg-tertiary)]/60" />
-        <Skeleton className="h-4 sm:h-5 w-72 sm:w-96 mb-8 bg-[var(--theme-bg-tertiary)]/40" />
+        <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-2 styles.colors.bg.tertiary/60" />
+        <Skeleton className="h-4 sm:h-5 w-72 sm:w-96 mb-8 styles.colors.bg.tertiary/40" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)]">
+            <Card key={i} className="styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)]">
               <CardContent className="relative p-6">
-                <Skeleton className="h-4 w-20 mb-2 bg-[var(--theme-bg-tertiary)]/60" />
-                <Skeleton className="h-8 w-16 bg-[var(--theme-bg-tertiary)]/60" />
+                <Skeleton className="h-4 w-20 mb-2 styles.colors.bg.tertiary/60" />
+                <Skeleton className="h-8 w-16 styles.colors.bg.tertiary/60" />
               </CardContent>
             </Card>
           ))}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          <Card className="lg:col-span-2 bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)]">
+          <Card className="lg:col-span-2 styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)]">
             <CardHeader>
-              <Skeleton className="h-6 w-40 bg-[var(--theme-bg-tertiary)]/60" />
+              <Skeleton className="h-6 w-40 styles.colors.bg.tertiary/60" />
             </CardHeader>
             <CardContent className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-20 w-full bg-[var(--theme-bg-tertiary)]/40" />
+                <Skeleton key={i} className="h-20 w-full styles.colors.bg.tertiary/40" />
               ))}
             </CardContent>
           </Card>
 
           <div className="space-y-6">
-            <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
+            <Card className="relative overflow-hidden styles.colors.bg.secondary/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardHeader>
-                <Skeleton className="h-6 w-24 bg-[var(--theme-bg-tertiary)]/60" />
+                <Skeleton className="h-6 w-24 styles.colors.bg.tertiary/60" />
               </CardHeader>
               <CardContent className="space-y-4">
-                <Skeleton className="h-4 w-full bg-[var(--theme-bg-tertiary)]/40" />
-                <Skeleton className="h-2 w-full bg-[var(--theme-bg-tertiary)]/40" />
-                <Skeleton className="h-10 w-full bg-[var(--theme-bg-tertiary)]/60" />
+                <Skeleton className="h-4 w-full styles.colors.bg.tertiary/40" />
+                <Skeleton className="h-2 w-full styles.colors.bg.tertiary/40" />
+                <Skeleton className="h-10 w-full styles.colors.bg.tertiary/60" />
               </CardContent>
             </Card>
           </div>

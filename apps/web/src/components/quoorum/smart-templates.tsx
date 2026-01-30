@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { motion } from 'framer-motion'
 import { Sparkles, TrendingUp, Users, CheckCircle2, ArrowRight } from 'lucide-react'
@@ -53,11 +53,11 @@ export function SmartTemplates({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+              <h3 className="text-lg font-semibold styles.colors.text.primary">
                 ?? Debates Similares Exitosos
               </h3>
             </div>
-            <p className="mt-1 text-sm text-[#aebac1]">
+            <p className="mt-1 text-sm styles.colors.text.secondary">
               He encontrado {similarDebates.length} debates similares con alta calidad.
               Puedes reutilizar su contexto.
             </p>
@@ -67,7 +67,7 @@ export function SmartTemplates({
             onClick={onSkip}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-[var(--theme-text-primary)]"
+            className="styles.colors.text.tertiary hover:styles.colors.text.primary"
           >
             Omitir
           </Button>
@@ -83,7 +83,7 @@ export function SmartTemplates({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="group relative overflow-hidden border-[#2a3942] bg-[#111b21] p-4 transition-all hover:border-purple-500/40 hover:bg-[#202c33]">
+            <Card className="group relative overflow-hidden styles.colors.border.default styles.colors.bg.secondary p-4 transition-all hover:border-purple-500/40 hover:styles.colors.bg.tertiary">
               {/* Quality Badge */}
               <div className="absolute right-2 top-2">
                 <Badge
@@ -97,29 +97,29 @@ export function SmartTemplates({
 
               {/* Question */}
               <div className="mb-3 pr-20">
-                <p className="text-sm font-medium text-[var(--theme-text-primary)] line-clamp-2">
+                <p className="text-sm font-medium styles.colors.text.primary line-clamp-2">
                   {debate.question}
                 </p>
               </div>
 
               {/* Stats */}
               <div className="mb-4 space-y-2">
-                <div className="flex items-center gap-2 text-xs text-[#8696a0]">
+                <div className="flex items-center gap-2 text-xs styles.colors.text.tertiary">
                   <Users className="h-3 w-3" />
                   {debate.expertCount} expertos
                 </div>
-                <div className="flex items-center gap-2 text-xs text-[#8696a0]">
+                <div className="flex items-center gap-2 text-xs styles.colors.text.tertiary">
                   <CheckCircle2 className="h-3 w-3" />
                   {debate.successfulDimensions.length} dimensiones completas
                 </div>
-                <div className="text-xs text-[#8696a0]">
+                <div className="text-xs styles.colors.text.tertiary">
                   Hace {formatDistanceToNow(debate.createdAt, { locale: es })}
                 </div>
               </div>
 
               {/* Successful Dimensions */}
               <div className="mb-4">
-                <p className="mb-2 text-xs font-medium text-[#aebac1]">
+                <p className="mb-2 text-xs font-medium styles.colors.text.secondary">
                   Dimensiones incluidas:
                 </p>
                 <div className="flex flex-wrap gap-1">
@@ -127,7 +127,7 @@ export function SmartTemplates({
                     <Badge
                       key={i}
                       variant="outline"
-                      className="border-[#2a3942] bg-[#0b141a] text-[#8696a0] text-xs"
+                      className="styles.colors.border.default styles.colors.bg.primary styles.colors.text.tertiary text-xs"
                     >
                       {dim}
                     </Badge>
@@ -135,7 +135,7 @@ export function SmartTemplates({
                   {debate.successfulDimensions.length > 4 && (
                     <Badge
                       variant="outline"
-                      className="border-[#2a3942] bg-[#0b141a] text-[#8696a0] text-xs"
+                      className="styles.colors.border.default styles.colors.bg.primary styles.colors.text.tertiary text-xs"
                     >
                       +{debate.successfulDimensions.length - 4}
                     </Badge>
@@ -162,10 +162,10 @@ export function SmartTemplates({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="rounded-lg border border-[#2a3942] bg-[#0b141a] p-3"
+        className="rounded-lg border styles.colors.border.default styles.colors.bg.primary p-3"
       >
-        <p className="text-xs text-[#8696a0]">
-          ?? <span className="text-[#aebac1]">Tip:</span> Los debates con 85%+ calidad de
+        <p className="text-xs styles.colors.text.tertiary">
+          ?? <span className="styles.colors.text.secondary">Tip:</span> Los debates con 85%+ calidad de
           contexto tienen 3x m�s probabilidad de generar insights accionables.
         </p>
       </motion.div>

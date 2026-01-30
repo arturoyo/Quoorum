@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +14,7 @@ import {
   Pause,
   SkipForward,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { api } from '@/lib/trpc/client'
 import { useWebSocket } from './websocket-provider'
 // Animations disabled - components not used
@@ -105,9 +105,9 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
 
   if (isLoadingDebate || !debate) {
     return (
-      <Card className="border-[#2a3942] bg-[#202c33]">
+      <Card className="styles.colors.border.default styles.colors.bg.tertiary">
         <CardContent className="p-8 text-center">
-          <div className="text-[#8696a0]">Cargando debate...</div>
+          <div className="styles.colors.text.tertiary">Cargando debate...</div>
         </CardContent>
       </Card>
     )
@@ -142,10 +142,10 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
     <div className="space-y-4">
       {/* Theme Indicator */}
       {themeName && (
-        <Card className="border-[#2a3942] bg-[#202c33]">
+        <Card className="styles.colors.border.default styles.colors.bg.tertiary">
           <CardContent className="p-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-[#8696a0]">Tema narrativo:</span>
+              <span className="styles.colors.text.tertiary">Tema narrativo:</span>
               <Badge variant="outline" className="border-[#00a884] text-[#00a884]">
                 {themeName}
               </Badge>
@@ -155,13 +155,13 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
       )}
 
       {/* Progress Bar */}
-      <Card className="border-[#2a3942] bg-[#202c33]">
+      <Card className="styles.colors.border.default styles.colors.bg.tertiary">
         <CardContent className="p-4">
           <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="text-[#8696a0]">
+            <span className="styles.colors.text.tertiary">
               Ronda {currentRound + 1} de {totalRounds}
             </span>
-            <span className="text-[#8696a0]">{progress.toFixed(0)}%</span>
+            <span className="styles.colors.text.tertiary">{progress.toFixed(0)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
 
@@ -172,7 +172,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
               size="sm"
               onClick={() => setCurrentRound(Math.max(0, currentRound - 1))}
               disabled={currentRound === 0}
-              className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+              className="styles.colors.border.default styles.colors.bg.secondary text-[#e9edef]"
             >
               <SkipForward className="h-4 w-4 rotate-180" />
             </Button>
@@ -181,7 +181,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
               variant="outline"
               size="sm"
               onClick={() => setIsPlaying(!isPlaying)}
-              className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+              className="styles.colors.border.default styles.colors.bg.secondary text-[#e9edef]"
             >
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
@@ -193,7 +193,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                 setCurrentRound(Math.min((debate.rounds?.length ?? 1) - 1, currentRound + 1))
               }
               disabled={currentRound >= (debate.rounds?.length ?? 1) - 1}
-              className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+              className="styles.colors.border.default styles.colors.bg.secondary text-[#e9edef]"
             >
               <SkipForward className="h-4 w-4" />
             </Button>
@@ -204,27 +204,27 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
       {/* Quality Metrics */}
       {debate.qualityMetrics && (
         <div className="grid grid-cols-3 gap-4">
-          <Card className="border-[#2a3942] bg-[#202c33]">
+          <Card className="styles.colors.border.default styles.colors.bg.tertiary">
             <CardContent className="p-4">
-              <div className="text-sm text-[#8696a0]">Depth</div>
+              <div className="text-sm styles.colors.text.tertiary">Depth</div>
               <div className="text-2xl font-bold text-[#e9edef]">
                 {debate.qualityMetrics.depth ?? 0}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-[#2a3942] bg-[#202c33]">
+          <Card className="styles.colors.border.default styles.colors.bg.tertiary">
             <CardContent className="p-4">
-              <div className="text-sm text-[#8696a0]">Diversity</div>
+              <div className="text-sm styles.colors.text.tertiary">Diversity</div>
               <div className="text-2xl font-bold text-[#e9edef]">
                 {debate.qualityMetrics.diversity ?? 0}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-[#2a3942] bg-[#202c33]">
+          <Card className="styles.colors.border.default styles.colors.bg.tertiary">
             <CardContent className="p-4">
-              <div className="text-sm text-[#8696a0]">Originality</div>
+              <div className="text-sm styles.colors.text.tertiary">Originality</div>
               <div className="text-2xl font-bold text-[#e9edef]">
                 {debate.qualityMetrics.originality ?? 0}
               </div>
@@ -235,7 +235,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
 
       {/* Current Round Messages */}
       {currentRoundData && (
-        <Card className="border-[#2a3942] bg-[#202c33]">
+        <Card className="styles.colors.border.default styles.colors.bg.tertiary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-[#e9edef]">
               <MessageCircle className="h-5 w-5" />
@@ -250,7 +250,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                   'rounded-lg p-4',
                   message.role === 'moderator'
                     ? 'bg-[#00a884]/10 border border-[#00a884]/30'
-                    : 'bg-[#111b21]'
+                    : 'styles.colors.bg.secondary'
                 )}
               >
                 <div className="mb-2 flex items-center justify-between">
@@ -260,7 +260,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                       className={cn(
                         message.role === 'moderator'
                           ? 'bg-[#00a884] text-white'
-                          : 'border-[#8696a0] text-[#8696a0]'
+                          : 'border-[#8696a0] styles.colors.text.tertiary'
                       )}
                     >
                       {/* Show narrative name (anonymized) for all users */}
@@ -268,7 +268,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                     </Badge>
                     {/* TODO: Add admin mode to show model info
                     {isAdmin && message.modelId && (
-                      <span className="text-xs text-[#8696a0]">
+                      <span className="text-xs styles.colors.text.tertiary">
                         ({message.modelId})
                       </span>
                     )}
@@ -287,7 +287,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
 
       {/* Final Ranking */}
       {debate.status === 'completed' && debate.finalRanking && (
-        <Card className="border-[#2a3942] bg-[#202c33]">
+        <Card className="styles.colors.border.default styles.colors.bg.tertiary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-[#e9edef]">
               <TrendingUp className="h-5 w-5" />
@@ -298,7 +298,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
             {(debate.finalRanking as RankingOption[]).map((option: RankingOption, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center justify-between rounded-lg bg-[#111b21] p-3"
+                className="flex items-center justify-between rounded-lg styles.colors.bg.secondary p-3"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -308,7 +308,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                         ? 'bg-[#00a884] text-white'
                         : idx === 1
                           ? 'bg-[#8696a0]/30 text-[#e9edef]'
-                          : 'bg-[#8696a0]/10 text-[#8696a0]'
+                          : 'bg-[#8696a0]/10 styles.colors.text.tertiary'
                     )}
                   >
                     {idx + 1}
@@ -320,7 +320,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[#8696a0]">{option.score.toFixed(1)}%</span>
+                  <span className="text-sm styles.colors.text.tertiary">{option.score.toFixed(1)}%</span>
                   {idx === 0 && <CheckCircle className="h-4 w-4 text-[#00a884]" />}
                 </div>
               </div>
@@ -331,7 +331,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
 
       {/* Interventions */}
       {debate.interventions && debate.interventions.length > 0 && (
-        <Card className="border-[#2a3942] bg-[#202c33]">
+        <Card className="styles.colors.border.default styles.colors.bg.tertiary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-[#e9edef]">
               <AlertTriangle className="h-5 w-5 text-[#00a884]" />
@@ -345,7 +345,7 @@ export function DebateViewer({ debateId, realtime = false }: DebateViewerProps) 
                   <Badge variant="outline" className="border-[#00a884] text-[#00a884]">
                     {intervention.type}
                   </Badge>
-                  <span className="text-xs text-[#8696a0]">Ronda {intervention.round}</span>
+                  <span className="text-xs styles.colors.text.tertiary">Ronda {intervention.round}</span>
                 </div>
                 <p className="text-sm text-[#e9edef]">{intervention.prompt}</p>
               </div>

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Keyboard Shortcuts for Quoorum
  * 
  * Quick bonus: Keyboard shortcuts for power users
@@ -71,10 +71,10 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: { isOpen: boolean; o
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-white rounded-lg p-8 max-w-2xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-[var(--theme-text-primary)]">Atajos de Teclado</h2>
+          <h2 className="text-2xl font-bold styles.colors.text.primary">Atajos de Teclado</h2>
           <button 
             onClick={onClose}
-            className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-tertiary)] transition-colors text-2xl"
+            className="styles.colors.text.secondary hover:styles.colors.text.tertiary transition-colors text-2xl"
           >
             ✕
           </button>
@@ -83,11 +83,11 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: { isOpen: boolean; o
         <div className="space-y-3">
           {shortcuts.map((shortcut, index) => (
             <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-              <span className="text-[var(--theme-text-secondary)]">{shortcut.description}</span>
+              <span className="styles.colors.text.secondary">{shortcut.description}</span>
               <div className="flex gap-1">
                 {shortcut.keys.map((key, i) => (
                   <React.Fragment key={i}>
-                    {i > 0 && <span className="text-[var(--theme-text-secondary)] mx-1">+</span>}
+                    {i > 0 && <span className="styles.colors.text.secondary mx-1">+</span>}
                     <kbd className="px-3 py-1 bg-gray-100 border border-gray-300 rounded text-sm font-mono">
                       {key}
                     </kbd>
@@ -98,7 +98,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: { isOpen: boolean; o
           ))}
         </div>
         
-        <div className="mt-6 text-sm text-[var(--theme-text-tertiary)] text-center">
+        <div className="mt-6 text-sm styles.colors.text.tertiary text-center">
           Presiona <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">?</kbd> en cualquier momento para ver esta ayuda
         </div>
       </div>

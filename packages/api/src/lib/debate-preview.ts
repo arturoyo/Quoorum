@@ -133,7 +133,7 @@ Output ONLY valid JSON:
 
   try {
     const response = await aiClient.generate(prompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt:
         'You are an expert debate analyst. Predict expert discussions accurately. Output ONLY valid JSON.',
       temperature: 0.4,
@@ -202,7 +202,7 @@ Output ONLY valid JSON:
 
   try {
     const response = await aiClient.generate(prompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt: 'You are an expert matchmaking system. Output ONLY valid JSON.',
       temperature: 0.3,
       maxTokens: 2000,

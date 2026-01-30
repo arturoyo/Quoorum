@@ -1,21 +1,21 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { QuoorumLogo, QuoorumLogoWithText } from '@/components/ui/quoorum-logo'
 import { createClient } from '@/lib/supabase/client'
-import { NotificationsSidebar } from '@/components/quoorum/notifications-sidebar'
+import { NotificationsSidebar, CreditCounter } from '@/components/quoorum'
 import { SettingsModal } from '@/components/settings/settings-modal'
-import { AdminModal } from '@/components/admin/admin-modal'
+import { AdminModal } from '@/components/admin'
 import { api } from '@/lib/trpc/client'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { logger } from '@/lib/logger'
 import { classifyTRPCError } from '@/lib/trpc/error-handler'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles, Bell } from 'lucide-react'
-import { CreditCounter } from '@/components/quoorum/credit-counter'
+
 import { AppFooter } from '@/components/layout/app-footer'
 import type { User } from '@supabase/supabase-js'
 
@@ -167,7 +167,7 @@ export function AppHeader({
 
   if (variant === 'landing') {
     return (
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--theme-landing-border)] backdrop-blur-2xl bg-[var(--theme-landing-glass)] transition-colors duration-300">
+      <header className="fixed top-0 left-0 right-0 w-full z-50 border-b border-[var(--theme-landing-border)] backdrop-blur-2xl bg-[var(--theme-landing-glass)] transition-colors duration-300">
         <div className="container mx-auto px-4">
           <div className="flex h-20 items-center">
             {/* Logo - Columna izquierda */}
@@ -183,15 +183,15 @@ export function AppHeader({
 
             {/* Nav - Columna central (centrada) */}
             <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-              <Link href="#features" className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors relative group">
+              <Link href="#features" className="text-sm styles.colors.text.secondary hover:styles.colors.text.primary transition-colors relative group">
                 Caracter�sticas
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
               </Link>
-              <Link href="#use-cases" className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors relative group">
+              <Link href="#use-cases" className="text-sm styles.colors.text.secondary hover:styles.colors.text.primary transition-colors relative group">
                 Casos de Uso
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
               </Link>
-              <Link href="#pricing" className="text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors relative group">
+              <Link href="#pricing" className="text-sm styles.colors.text.secondary hover:styles.colors.text.primary transition-colors relative group">
                 Precios
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all" />
               </Link>
@@ -202,12 +202,12 @@ export function AppHeader({
               {!isAuthenticated ? (
                 <>
                   <Link href="/login" className="hidden sm:block">
-                    <Button variant="ghost" className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)]">
+                    <Button variant="ghost" className="styles.colors.text.secondary hover:styles.colors.text.primary hover:bg-[var(--theme-landing-card-hover)]">
                       Iniciar Sesi�n
                     </Button>
                   </Link>
                   <Link href="/signup" className="hidden sm:block">
-                    <Button className="relative group overflow-hidden bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-[var(--theme-text-primary)] border-0">
+                    <Button className="relative group overflow-hidden bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 styles.colors.text.primary border-0">
                       <span className="relative z-10">Empezar Gratis</span>
                       <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
                     </Button>
@@ -215,7 +215,7 @@ export function AppHeader({
                 </>
               ) : (
                 <Link href="/dashboard" className="hidden sm:block">
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-[var(--theme-text-inverted)]">
+                  <Button className="bg-purple-600 hover:bg-purple-700 styles.colors.text.inverted">
                     Dashboard
                   </Button>
                 </Link>
@@ -223,7 +223,7 @@ export function AppHeader({
               {/* Mobile menu button */}
               <Button
                 variant="ghost"
-                className="md:hidden text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)] p-2"
+                className="md:hidden styles.colors.text.secondary hover:styles.colors.text.primary hover:bg-[var(--theme-landing-card-hover)] p-2"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -238,21 +238,21 @@ export function AppHeader({
             <div className="container mx-auto px-4 py-6 space-y-4">
               <Link
                 href="#features"
-                className="block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] py-2 transition-colors"
+                className="block styles.colors.text.secondary hover:styles.colors.text.primary py-2 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Caracter�sticas
               </Link>
               <Link
                 href="#use-cases"
-                className="block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] py-2 transition-colors"
+                className="block styles.colors.text.secondary hover:styles.colors.text.primary py-2 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Casos de Uso
               </Link>
               <Link
                 href="#pricing"
-                className="block text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] py-2 transition-colors"
+                className="block styles.colors.text.secondary hover:styles.colors.text.primary py-2 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Precios
@@ -261,19 +261,19 @@ export function AppHeader({
                 {!isAuthenticated ? (
                   <>
                     <Link href="/login" className="block">
-                      <Button variant="ghost" className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)]">
+                      <Button variant="ghost" className="w-full styles.colors.text.secondary hover:styles.colors.text.primary hover:bg-[var(--theme-landing-card-hover)]">
                         Iniciar Sesi�n
                       </Button>
                     </Link>
                     <Link href="/signup" className="block">
-                      <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-[var(--theme-text-primary)] border-0">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 styles.colors.text.primary border-0">
                         Empezar Gratis
                       </Button>
                     </Link>
                   </>
                 ) : (
                   <Link href="/dashboard" className="block">
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-[var(--theme-text-inverted)]">
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700 styles.colors.text.inverted">
                       Dashboard
                     </Button>
                   </Link>
@@ -289,7 +289,7 @@ export function AppHeader({
   // App variant - for authenticated pages
   return (
     <>
-      <header className="border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)]/80 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 transition-colors duration-300">
+      <header className="border-b styles.colors.border.default styles.colors.bg.secondary/80 backdrop-blur-xl fixed top-0 left-0 right-0 w-full z-50 transition-colors duration-300">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 pointer-events-none" />
         <div className="container mx-auto px-4">
           <div className="relative flex h-16 items-center justify-between">
@@ -340,7 +340,7 @@ export function AppHeader({
                 }}
                 className={cn(
                   'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
-                  'bg-purple-600 hover:bg-purple-500 text-[var(--theme-text-inverted)]',
+                  'bg-purple-600 hover:bg-purple-500 styles.colors.text.inverted',
                   'transition-all duration-300 ease-out'
                 )}
                 title="Crear nuevo debate"
@@ -364,15 +364,15 @@ export function AppHeader({
                 onClick={() => setNotificationsSidebarOpen(!notificationsSidebarOpen)}
                 className={cn(
                   'group relative hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
-                  'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
-                  'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
+                  'styles.colors.text.secondary hover:styles.colors.text.primary',
+                  'hover:styles.colors.bg.tertiary transition-all duration-300 ease-out'
                 )}
                 title={(unreadCount ?? 0) > 0 ? `${unreadCount} notificaciones sin leer` : 'Notificaciones'}
                 type="button"
               >
                 <Bell className="h-4 w-4 flex-shrink-0" />
                 {(unreadCount ?? 0) > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-500 text-[10px] font-medium text-[var(--theme-text-inverted)]">
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-500 text-[10px] font-medium styles.colors.text.inverted">
                     {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -390,8 +390,8 @@ export function AppHeader({
                 href="/debates"
                 className={cn(
                   'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
-                  'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
-                  'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
+                  'styles.colors.text.secondary hover:styles.colors.text.primary',
+                  'hover:styles.colors.bg.tertiary transition-all duration-300 ease-out'
                 )}
                 title="Debates"
               >
@@ -410,8 +410,8 @@ export function AppHeader({
                 href="/scenarios"
                 className={cn(
                   'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
-                  'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
-                  'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
+                  'styles.colors.text.secondary hover:styles.colors.text.primary',
+                  'hover:styles.colors.bg.tertiary transition-all duration-300 ease-out'
                 )}
                 title="Escenarios"
               >
@@ -430,8 +430,8 @@ export function AppHeader({
                 onClick={handleSettingsClick}
                 className={cn(
                   'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
-                  'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]',
-                  'hover:bg-[var(--theme-bg-tertiary)] transition-all duration-300 ease-out'
+                  'styles.colors.text.secondary hover:styles.colors.text.primary',
+                  'hover:styles.colors.bg.tertiary transition-all duration-300 ease-out'
                 )}
                 title="Configuraci�n"
                 type="button"
@@ -478,7 +478,7 @@ export function AppHeader({
               {/* Mobile menu button - Solo visible en pantallas peque�as */}
               <Button
                 variant="ghost"
-                className="md:hidden text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] p-2 z-50 relative"
+                className="md:hidden styles.colors.text.secondary hover:styles.colors.text.primary hover:styles.colors.bg.tertiary p-2 z-50 relative"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -502,7 +502,7 @@ export function AppHeader({
               onClick={() => setMobileMenuOpen(false)}
             />
             {/* Menu content */}
-            <div className="md:hidden absolute top-full left-0 right-0 bg-[var(--theme-bg-secondary)]/98 backdrop-blur-xl border-b border-[var(--theme-border)] shadow-2xl z-50 transition-all duration-300">
+            <div className="md:hidden absolute top-full left-0 right-0 styles.colors.bg.secondary/98 backdrop-blur-xl border-b styles.colors.border.default shadow-2xl z-50 transition-all duration-300">
               <div className="container mx-auto px-4 py-6 space-y-4">
                 {currentUser?.isAdmin && (
                   <button
@@ -510,13 +510,13 @@ export function AppHeader({
                       setAdminModalOpen(true)
                       setMobileMenuOpen(false)
                     }}
-                    className="block w-full text-left py-3 px-4 rounded-lg transition-colors text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+                    className="block w-full text-left py-3 px-4 rounded-lg transition-colors styles.colors.text.secondary hover:styles.colors.text.primary hover:styles.colors.bg.tertiary"
                   >
                     <Shield className="inline-block mr-2 h-4 w-4" />
                     Panel de Administraci�n
                   </button>
                 )}
-                <div className={cn("space-y-3", currentUser?.isAdmin && "pt-4 border-t border-[var(--theme-border)]")}>
+                <div className={cn("space-y-3", currentUser?.isAdmin && "pt-4 border-t styles.colors.border.default")}>
                 <Button 
                   onClick={async (e) => {
                     try {
@@ -549,7 +549,7 @@ export function AppHeader({
                       }
                     }
                   }}
-                  className="w-full bg-purple-600 hover:bg-purple-500 text-[var(--theme-text-inverted)] font-medium py-3"
+                  className="w-full bg-purple-600 hover:bg-purple-500 styles.colors.text.inverted font-medium py-3"
                   type="button"
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -558,7 +558,7 @@ export function AppHeader({
                   <Link href="/debates" onClick={() => setMobileMenuOpen(false)}>
                     <Button
                       variant="ghost"
-                      className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] justify-start"
+                      className="w-full styles.colors.text.secondary hover:styles.colors.text.primary hover:styles.colors.bg.tertiary justify-start"
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Debates
@@ -567,7 +567,7 @@ export function AppHeader({
                   <Link href="/scenarios" onClick={() => setMobileMenuOpen(false)}>
                     <Button
                       variant="ghost"
-                      className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] justify-start"
+                      className="w-full styles.colors.text.secondary hover:styles.colors.text.primary hover:styles.colors.bg.tertiary justify-start"
                     >
                       <Sparkles className="mr-2 h-4 w-4" />
                       Escenarios
@@ -579,7 +579,7 @@ export function AppHeader({
                       handleSettingsClick()
                     }}
                     variant="ghost"
-                    className="w-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] justify-start"
+                    className="w-full styles.colors.text.secondary hover:styles.colors.text.primary hover:styles.colors.bg.tertiary justify-start"
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     Configuraci�n
@@ -615,7 +615,7 @@ export function AppHeader({
           {/* Bot�n para mostrar/ocultar panel de debug */}
           <button
             onClick={() => setShowDebugPanel(!showDebugPanel)}
-            className="fixed bottom-4 right-4 bg-black/80 hover:bg-black/90 text-[var(--theme-text-primary)] p-2 rounded-full z-[9999] transition-all shadow-lg border border-[var(--theme-border)]"
+            className="fixed bottom-4 right-4 bg-black/80 hover:bg-black/90 styles.colors.text.primary p-2 rounded-full z-[9999] transition-all shadow-lg border styles.colors.border.default"
             title={showDebugPanel ? 'Ocultar panel de debug' : 'Mostrar panel de debug'}
           >
             {showDebugPanel ? (
@@ -627,7 +627,7 @@ export function AppHeader({
           
           {/* Panel de debug (solo visible si showDebugPanel es true) */}
           {showDebugPanel && (
-            <div className="fixed bottom-16 right-4 bg-black/80 text-[var(--theme-text-primary)] p-3 text-xs rounded z-[9999] max-w-xs shadow-lg border border-[var(--theme-border)]">
+            <div className="fixed bottom-16 right-4 bg-black/80 styles.colors.text.primary p-3 text-xs rounded z-[9999] max-w-xs shadow-lg border styles.colors.border.default">
               <div className="space-y-1">
                 <div>Admin Modal: {adminModalOpen ? 'OPEN' : 'CLOSED'}</div>
                 <div>isAdmin: {currentUser?.isAdmin ? 'YES' : 'NO'}</div>

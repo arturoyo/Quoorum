@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * CreateScheduleDialog Component
@@ -95,10 +95,10 @@ export function CreateScheduleDialog({ onSuccess }: CreateScheduleDialogProps) {
           Nueva Programación
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-[#2a3942] bg-[#202c33] text-[#e9edef]">
+      <DialogContent className="styles.colors.border.default styles.colors.bg.tertiary text-[#e9edef]">
         <DialogHeader className="border-b-0 pb-0">
           <DialogTitle>Crear Informe Programado</DialogTitle>
-          <DialogDescription className="text-[#8696a0]">
+          <DialogDescription className="styles.colors.text.tertiary">
             Configura un informe que se generará automáticamente
           </DialogDescription>
         </DialogHeader>
@@ -110,14 +110,14 @@ export function CreateScheduleDialog({ onSuccess }: CreateScheduleDialogProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ej: Resumen Semanal Ventas"
-              className="border-[#2a3942] bg-[#111b21]"
+              className="styles.colors.border.default styles.colors.bg.secondary"
             />
           </div>
 
           <div className="space-y-2">
             <Label>Tipo de Informe</Label>
             <Select value={type} onValueChange={(v) => setType(v as ScheduleReportType)}>
-              <SelectTrigger className="border-[#2a3942] bg-[#111b21]">
+              <SelectTrigger className="styles.colors.border.default styles.colors.bg.secondary">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -131,7 +131,7 @@ export function CreateScheduleDialog({ onSuccess }: CreateScheduleDialogProps) {
           <div className="space-y-2">
             <Label>Formato</Label>
             <Select value={format} onValueChange={(v) => setFormat(v as ReportFormat)}>
-              <SelectTrigger className="border-[#2a3942] bg-[#111b21]">
+              <SelectTrigger className="styles.colors.border.default styles.colors.bg.secondary">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -145,7 +145,7 @@ export function CreateScheduleDialog({ onSuccess }: CreateScheduleDialogProps) {
           <div className="space-y-2">
             <Label>Frecuencia</Label>
             <Select value={frequency} onValueChange={(v) => setFrequency(v as ScheduleFrequency)}>
-              <SelectTrigger className="border-[#2a3942] bg-[#111b21]">
+              <SelectTrigger className="styles.colors.border.default styles.colors.bg.secondary">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -160,7 +160,7 @@ export function CreateScheduleDialog({ onSuccess }: CreateScheduleDialogProps) {
             <div className="space-y-2">
               <Label>Día de la semana</Label>
               <Select value={dayOfWeek.toString()} onValueChange={(v) => setDayOfWeek(Number(v))}>
-                <SelectTrigger className="border-[#2a3942] bg-[#111b21]">
+                <SelectTrigger className="styles.colors.border.default styles.colors.bg.secondary">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -183,7 +183,7 @@ export function CreateScheduleDialog({ onSuccess }: CreateScheduleDialogProps) {
                 max="31"
                 value={dayOfMonth}
                 onChange={(e) => setDayOfMonth(Number(e.target.value))}
-                className="border-[#2a3942] bg-[#111b21]"
+                className="styles.colors.border.default styles.colors.bg.secondary"
               />
             </div>
           )}
@@ -196,18 +196,18 @@ export function CreateScheduleDialog({ onSuccess }: CreateScheduleDialogProps) {
               max="23"
               value={hour}
               onChange={(e) => setHour(Number(e.target.value))}
-              className="border-[#2a3942] bg-[#111b21]"
+              className="styles.colors.border.default styles.colors.bg.secondary"
             />
           </div>
 
           <div className="space-y-3">
             <Label>Métodos de entrega</Label>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#8696a0]">Email</span>
+              <span className="text-sm styles.colors.text.tertiary">Email</span>
               <Switch checked={emailEnabled} onCheckedChange={setEmailEnabled} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#8696a0]">In-App</span>
+              <span className="text-sm styles.colors.text.tertiary">In-App</span>
               <Switch checked={inAppEnabled} onCheckedChange={setInAppEnabled} />
             </div>
           </div>
@@ -217,7 +217,7 @@ export function CreateScheduleDialog({ onSuccess }: CreateScheduleDialogProps) {
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
-            className="border-[#2a3942] bg-[#111b21]"
+            className="styles.colors.border.default styles.colors.bg.secondary"
           >
             Cancelar
           </Button>

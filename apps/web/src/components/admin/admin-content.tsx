@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Admin Content Component
  * 
  * Similar a SettingsContent pero para funcionalidades de administración
@@ -16,7 +16,7 @@ import { X, Loader2 } from 'lucide-react'
 import { QuoorumLogo } from '@/components/ui/quoorum-logo'
 import { getAdminNav } from '@/lib/admin-nav'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { AdminSectionRenderer } from './admin-section-renderer'
 
 interface AdminContentProps {
@@ -87,7 +87,7 @@ export function AdminContent({ isInModal = false, onClose, initialSection }: Adm
     <div className={cn('relative flex flex-col', isInModal ? 'max-h-[90vh]' : 'min-h-screen')}>
       {/* Modal Header - Only show if in modal */}
       {isInModal && (
-        <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl px-6 py-4">
+        <div className="sticky top-0 z-10 border-b styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl px-6 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
               Panel de Administración
@@ -118,7 +118,7 @@ export function AdminContent({ isInModal = false, onClose, initialSection }: Adm
                           className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition group w-full text-left ${
                             item.active
                               ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30'
-                              : 'text-[var(--theme-text-secondary)] hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
+                              : 'styles.colors.text.secondary hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
                           }`}
                         >
                           {item.active && (
@@ -133,7 +133,7 @@ export function AdminContent({ isInModal = false, onClose, initialSection }: Adm
                           className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition group ${
                             item.active
                               ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-blue-300 border border-purple-500/30'
-                              : 'text-[var(--theme-text-secondary)] hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
+                              : 'styles.colors.text.secondary hover:text-blue-300 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
                           }`}
                         >
                           {item.active && (

@@ -121,12 +121,12 @@ npx vitest --run packages/quoorum
 pnpm test --coverage
 ```
 
-### Opción 3: Usar WSL o entorno Linux
+### Opción 3: Windows nativo con bloqueo preventivo
 
-Si el problema de stdio persiste, ejecutar en WSL:
+Si el problema de stdio persiste, verifica primero emojis en código y usa PowerShell:
 
-```bash
-wsl
+```powershell
+pnpm check:emoji
 pnpm test
 ```
 
@@ -156,10 +156,10 @@ pnpm test
 # 3. Ejecutar: pnpm --filter @wallie/quoorum test
 ```
 
-**Si persiste problema de output:** Investigar configuración de terminal/consola en Windows o usar WSL.
+**Si persiste problema de output:** Revisar configuración de terminal/consola en Windows y asegurar que no hay emojis en código.
 
 ---
 
 **Investigación completada:** 16 Enero 2026
 **Problema identificado:** Falta script "test" en package.json
-**Solución:** Añadir script + verificar en WSL si necesario
+**Solución:** Añadir script + verificar emojis antes de ejecutar tests

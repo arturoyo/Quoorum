@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Logs Section
  * 
  * Sistema de logs integrado en el admin modal
@@ -41,11 +41,11 @@ import {
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { toast } from 'sonner'
 
 const LEVEL_CONFIG = {
-  debug: { icon: Bug, color: "text-[#8696a0]", bg: "bg-[#2a3942]" },
+  debug: { icon: Bug, color: "styles.colors.text.tertiary", bg: "styles.colors.bg.input" },
   info: { icon: Info, color: "text-blue-400", bg: "bg-blue-500/20" },
   warn: { icon: AlertTriangle, color: "text-yellow-400", bg: "bg-yellow-500/20" },
   error: { icon: AlertCircle, color: "text-red-400", bg: "bg-red-500/20" },
@@ -123,7 +123,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-white">System Logs</h2>
-        <p className="text-sm text-[#aebac1] mt-1">
+        <p className="text-sm styles.colors.text.secondary mt-1">
           Monitoreo en tiempo real de eventos del sistema
         </p>
       </div>
@@ -134,7 +134,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
           variant="outline"
           onClick={() => void refetch()}
           disabled={isLoading}
-          className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+          className="styles.colors.border.default styles.colors.bg.input text-white hover:bg-purple-600 hover:border-purple-600"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
           Refrescar
@@ -142,7 +142,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
         <Button 
           variant="outline" 
           onClick={handleExport}
-          className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+          className="styles.colors.border.default styles.colors.bg.input text-white hover:bg-purple-600 hover:border-purple-600"
         >
           <Download className="w-4 h-4 mr-2" />
           Exportar CSV
@@ -163,9 +163,9 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <Card className="bg-[#111b21] border-[#2a3942]">
+          <Card className="styles.colors.bg.secondary styles.colors.border.default">
             <CardContent className="p-4">
-              <div className="text-sm text-[#aebac1]">Total Logs</div>
+              <div className="text-sm styles.colors.text.secondary">Total Logs</div>
               <div className="text-2xl font-bold text-white">{stats.total.toLocaleString()}</div>
             </CardContent>
           </Card>
@@ -175,11 +175,11 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
             const Icon = config.icon;
 
             return (
-              <Card key={stat.level} className="bg-[#111b21] border-[#2a3942]">
+              <Card key={stat.level} className="styles.colors.bg.secondary styles.colors.border.default">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <Icon className={`w-4 h-4 ${config.color}`} />
-                    <div className="text-sm text-[#aebac1] capitalize">
+                    <div className="text-sm styles.colors.text.secondary capitalize">
                       {stat.level}
                     </div>
                   </div>
@@ -192,21 +192,21 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
       )}
 
       {/* Filters */}
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardContent className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="level" className="text-sm font-medium text-[#aebac1] mb-2 block">
+              <Label htmlFor="level" className="text-sm font-medium styles.colors.text.secondary mb-2 block">
                 Nivel
               </Label>
               <Select value={level} onValueChange={setLevel}>
                 <SelectTrigger 
                   id="level"
-                  className="bg-[#2a3942] border-[#2a3942] text-white"
+                  className="styles.colors.bg.input styles.colors.border.default text-white"
                 >
                   <SelectValue placeholder="Todos los niveles" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111b21] border-[#2a3942]">
+                <SelectContent className="styles.colors.bg.secondary styles.colors.border.default">
                   <SelectItem value="all" className="text-white hover:bg-purple-600/20">Todos</SelectItem>
                   <SelectItem value="debug" className="text-white hover:bg-purple-600/20">Debug</SelectItem>
                   <SelectItem value="info" className="text-white hover:bg-purple-600/20">Info</SelectItem>
@@ -218,17 +218,17 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
             </div>
 
             <div>
-              <Label htmlFor="source" className="text-sm font-medium text-[#aebac1] mb-2 block">
+              <Label htmlFor="source" className="text-sm font-medium styles.colors.text.secondary mb-2 block">
                 Source
               </Label>
               <Select value={source} onValueChange={setSource}>
                 <SelectTrigger 
                   id="source"
-                  className="bg-[#2a3942] border-[#2a3942] text-white"
+                  className="styles.colors.bg.input styles.colors.border.default text-white"
                 >
                   <SelectValue placeholder="Todos los sources" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111b21] border-[#2a3942]">
+                <SelectContent className="styles.colors.bg.secondary styles.colors.border.default">
                   <SelectItem value="all" className="text-white hover:bg-purple-600/20">Todos</SelectItem>
                   <SelectItem value="client" className="text-white hover:bg-purple-600/20">Client</SelectItem>
                   <SelectItem value="server" className="text-white hover:bg-purple-600/20">Server</SelectItem>
@@ -239,7 +239,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
             </div>
 
             <div>
-              <Label htmlFor="search" className="text-sm font-medium text-[#aebac1] mb-2 block">
+              <Label htmlFor="search" className="text-sm font-medium styles.colors.text.secondary mb-2 block">
                 Buscar
               </Label>
               <Input
@@ -247,7 +247,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
                 placeholder="Buscar en mensajes..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                className="styles.colors.bg.input styles.colors.border.default text-white placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
               />
             </div>
           </div>
@@ -255,14 +255,14 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
       </Card>
 
       {/* Logs Table */}
-      <Card className="overflow-hidden bg-[#111b21] border-[#2a3942]">
+      <Card className="overflow-hidden styles.colors.bg.secondary styles.colors.border.default">
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="p-8 text-center text-[#aebac1]">
+            <div className="p-8 text-center styles.colors.text.secondary">
               Cargando logs...
             </div>
           ) : data?.logs.length === 0 ? (
-            <div className="p-8 text-center text-[#aebac1]">
+            <div className="p-8 text-center styles.colors.text.secondary">
               No se encontraron logs
             </div>
           ) : (
@@ -273,7 +273,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
                 const isExpanded = expandedLog === log.id;
 
                 return (
-                  <div key={log.id} className="p-4 hover:bg-[#202c33] transition-colors">
+                  <div key={log.id} className="p-4 hover:styles.colors.bg.tertiary transition-colors">
                     <div
                       className="flex items-start gap-4 cursor-pointer"
                       onClick={() =>
@@ -283,9 +283,9 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
                       {/* Expand icon */}
                       <div className="flex-shrink-0 mt-1">
                         {isExpanded ? (
-                          <ChevronDown className="w-4 h-4 text-[#8696a0]" />
+                          <ChevronDown className="w-4 h-4 styles.colors.text.tertiary" />
                         ) : (
-                          <ChevronRight className="w-4 h-4 text-[#8696a0]" />
+                          <ChevronRight className="w-4 h-4 styles.colors.text.tertiary" />
                         )}
                       </div>
 
@@ -299,14 +299,14 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <Badge variant="outline" className="capitalize border-[#2a3942] bg-[#2a3942] text-[#aebac1]">
+                          <Badge variant="outline" className="capitalize styles.colors.border.default styles.colors.bg.input styles.colors.text.secondary">
                             {log.source}
                           </Badge>
-                          <span className="text-xs text-[#8696a0]">
+                          <span className="text-xs styles.colors.text.tertiary">
                             {format(new Date(log.createdAt), "PPp", { locale: es })}
                           </span>
                           {log.userId && (
-                            <span className="text-xs text-[#8696a0]">
+                            <span className="text-xs styles.colors.text.tertiary">
                               User: {log.userId.slice(0, 8)}
                             </span>
                           )}
@@ -344,11 +344,11 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
                         )}
 
                         {log.metadata && (
-                          <div className="bg-[#2a3942] border border-[#2a3942] rounded-lg p-3">
-                            <div className="text-xs font-medium text-[#aebac1] mb-1">
+                          <div className="styles.colors.bg.input border styles.colors.border.default rounded-lg p-3">
+                            <div className="text-xs font-medium styles.colors.text.secondary mb-1">
                               Metadata
                             </div>
-                            <pre className="text-xs text-[#8696a0] overflow-x-auto">
+                            <pre className="text-xs styles.colors.text.tertiary overflow-x-auto">
                               {JSON.stringify(log.metadata, null, 2)}
                             </pre>
                           </div>
@@ -366,7 +366,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
       {/* Pagination */}
       {data && data.total > limit && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-[#aebac1]">
+          <div className="text-sm styles.colors.text.secondary">
             Mostrando {page * limit + 1} - {Math.min((page + 1) * limit, data.total)} de {data.total}
           </div>
 
@@ -375,7 +375,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
               variant="outline"
               onClick={() => setPage(Math.max(0, page - 1))}
               disabled={page === 0}
-              className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600 disabled:opacity-50"
+              className="styles.colors.border.default styles.colors.bg.input text-white hover:bg-purple-600 hover:border-purple-600 disabled:opacity-50"
             >
               Anterior
             </Button>
@@ -383,7 +383,7 @@ export function LogsSection({ isInModal = false }: LogsSectionProps) {
               variant="outline"
               onClick={() => setPage(page + 1)}
               disabled={!data.hasMore}
-              className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600 disabled:opacity-50"
+              className="styles.colors.border.default styles.colors.bg.input text-white hover:bg-purple-600 hover:border-purple-600 disabled:opacity-50"
             >
               Siguiente
             </Button>

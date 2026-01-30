@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * ContextFileDialog Component
@@ -38,7 +38,7 @@ interface ContextFileDialogProps {
   onDragLeave: (e: React.DragEvent<HTMLDivElement>) => void
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void
-  fileInputRef: React.RefObject<HTMLInputElement>
+  fileInputRef: React.RefObject<HTMLInputElement | null>
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
@@ -66,39 +66,39 @@ export function ContextFileDialog({
           Crear Archivo
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl text-[var(--theme-text-primary)] max-w-lg">
+      <DialogContent className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl styles.colors.text.primary max-w-lg">
         <DialogHeader className="border-b-0 pb-0">
-          <DialogTitle className="text-[var(--theme-text-primary)]">
+          <DialogTitle className="styles.colors.text.primary">
             {isEditing ? 'Editar Archivo de Contexto' : 'Crear Nuevo Archivo de Contexto'}
           </DialogTitle>
-          <DialogDescription className="text-[var(--theme-text-secondary)]">
+          <DialogDescription className="styles.colors.text.secondary">
             Añade un archivo de texto que se incluirá automáticamente en tus debates para proporcionar contexto adicional.
           </DialogDescription>
         </DialogHeader>
 
         <DialogBody className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-[var(--theme-text-primary)]">Nombre *</Label>
+            <Label className="styles.colors.text.primary">Nombre *</Label>
             <Input
               value={formData.name}
               onChange={(e) => onFormChange({ ...formData, name: e.target.value })}
               placeholder="Ej: Documentación Quoorum"
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]"
+              className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[var(--theme-text-primary)]">Descripción</Label>
+            <Label className="styles.colors.text.primary">Descripción</Label>
             <Input
               value={formData.description}
               onChange={(e) => onFormChange({ ...formData, description: e.target.value })}
               placeholder="Breve descripción del archivo..."
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]"
+              className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[var(--theme-text-primary)]">Subir Archivo (opcional)</Label>
+            <Label className="styles.colors.text.primary">Subir Archivo (opcional)</Label>
             <FileUploadZone
               variant="dialog"
               isDragging={isDragging}
@@ -113,40 +113,40 @@ export function ContextFileDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[var(--theme-text-primary)]">Contenido *</Label>
+            <Label className="styles.colors.text.primary">Contenido *</Label>
             <Textarea
               value={formData.content}
               onChange={(e) => onFormChange({ ...formData, content: e.target.value })}
               placeholder="Pega o escribe el contenido del archivo aquí..."
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] min-h-[200px] font-mono text-sm"
+              className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary min-h-[200px] font-mono text-sm"
             />
-            <p className="text-xs text-[var(--theme-text-tertiary)]">
+            <p className="text-xs styles.colors.text.tertiary">
               {formData.content.length} caracteres
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[var(--theme-text-primary)]">Orden</Label>
+              <Label className="styles.colors.text.primary">Orden</Label>
               <Input
                 type="number"
                 min="0"
                 value={formData.order}
                 onChange={(e) => onFormChange({ ...formData, order: parseInt(e.target.value) || 0 })}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary"
               />
-              <p className="text-xs text-[var(--theme-text-tertiary)]">
+              <p className="text-xs styles.colors.text.tertiary">
                 Orden en que se incluyen los archivos (menor = primero)
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[var(--theme-text-primary)]">Tags (separados por comas)</Label>
+              <Label className="styles.colors.text.primary">Tags (separados por comas)</Label>
               <Input
                 value={formData.tags}
                 onChange={(e) => onFormChange({ ...formData, tags: e.target.value })}
                 placeholder="Ej: proyecto, landing, estrategia"
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary"
               />
             </div>
           </div>
@@ -156,7 +156,7 @@ export function ContextFileDialog({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-input)]"
+            className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary hover:styles.colors.bg.input"
           >
             Cancelar
           </Button>

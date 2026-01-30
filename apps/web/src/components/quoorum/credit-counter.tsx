@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { api } from '@/lib/trpc/client'
 import { createClient } from '@/lib/supabase/client'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import type { PhaseCostEstimate } from '@quoorum/quoorum/analytics/phase-cost-estimator'
 
 interface CreditCounterProps {
@@ -157,7 +157,7 @@ export function CreditCounter({
                 alertLevel === 'ok' && 'text-purple-400',
               )} />
               {isLoadingCredits ? (
-                <span className="text-sm text-[var(--theme-text-secondary)]">...</span>
+                <span className={cn("text-sm", styles.colors.text.secondary)}>...</span>
               ) : (
                 <span className={cn(
                   'text-sm font-medium',
@@ -173,10 +173,10 @@ export function CreditCounter({
           </TooltipTrigger>
           <TooltipContent side="bottom" className="max-w-sm bg-purple-600 border-purple-500/30">
             <div className="space-y-2">
-              <div className="font-semibold text-[var(--theme-text-inverted)] text-sm">Balance Total de Créditos</div>
+              <div className={cn("font-semibold text-sm", styles.colors.text.inverted)}>Balance Total de Créditos</div>
               <div className="flex justify-between items-center">
                 <span className="text-purple-200 text-sm">Créditos disponibles:</span>
-                <span className="font-bold text-[var(--theme-text-inverted)] text-base">{creditBalance.toLocaleString()} créditos</span>
+                <span className={cn("font-bold text-base", styles.colors.text.inverted)}>{creditBalance.toLocaleString()} créditos</span>
               </div>
               <div className="text-xs text-purple-200/70 border-t border-purple-500/30 pt-2">
                 Este es tu balance general de créditos. Los costos específicos del debate se muestran en el indicador inferior.
@@ -192,7 +192,7 @@ export function CreditCounter({
   return (
     <div className={cn('space-y-4 p-4 rounded-lg border border-purple-500/30 bg-purple-500/10', className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[var(--theme-text-primary)] flex items-center gap-2">
+        <h3 className={cn("text-lg font-semibold flex items-center gap-2", styles.colors.text.primary)}>
           <Coins className="h-5 w-5 text-purple-400" />
           Coste del Debate
         </h3>
@@ -212,17 +212,17 @@ export function CreditCounter({
 
       {showBreakdown && accumulatedCosts.length > 0 && (
         <div className="space-y-2">
-          <div className="text-sm font-medium text-[var(--theme-text-secondary)] mb-2">
+          <div className={cn("text-sm font-medium mb-2", styles.colors.text.secondary)}>
             Coste acumulado:
           </div>
           {accumulatedCosts.map((phase, idx) => (
             <div key={idx} className="flex justify-between text-sm">
-              <span className="text-[var(--theme-text-secondary)] capitalize">{phase.phase}:</span>
-              <span className="text-[var(--theme-text-primary)] font-medium">{phase.costCredits} créditos</span>
+              <span className={cn("capitalize", styles.colors.text.secondary)}>{phase.phase}:</span>
+              <span className={cn("font-medium", styles.colors.text.primary)}>{phase.costCredits} créditos</span>
             </div>
           ))}
           <div className="flex justify-between text-sm pt-2 border-t border-purple-500/20">
-            <span className="text-[var(--theme-text-primary)] font-medium">Total acumulado:</span>
+            <span className={cn("font-medium", styles.colors.text.primary)}>Total acumulado:</span>
             <span className="text-purple-300 font-bold">{accumulatedCredits} créditos</span>
           </div>
         </div>
@@ -230,23 +230,23 @@ export function CreditCounter({
 
       {estimatedDebateCost && (
         <div className="space-y-2 pt-2 border-t border-purple-500/20">
-          <div className="text-sm font-medium text-[var(--theme-text-secondary)]">
+          <div className={cn("text-sm font-medium", styles.colors.text.secondary)}>
             Coste previsto del debate:
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--theme-text-secondary)]">Mínimo:</span>
-            <span className="text-[var(--theme-text-primary)]">{estimatedDebateCost.min} créditos</span>
+            <span className={styles.colors.text.secondary}>Mínimo:</span>
+            <span className={styles.colors.text.primary}>{estimatedDebateCost.min} créditos</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--theme-text-secondary)]">Máximo:</span>
-            <span className="text-[var(--theme-text-primary)]">{estimatedDebateCost.max} créditos</span>
+            <span className={styles.colors.text.secondary}>Máximo:</span>
+            <span className={styles.colors.text.primary}>{estimatedDebateCost.max} créditos</span>
           </div>
         </div>
       )}
 
       <div className="space-y-2 pt-2 border-t border-purple-500/20">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-[var(--theme-text-secondary)]">Balance disponible:</span>
+          <span className={cn("text-sm", styles.colors.text.secondary)}>Balance disponible:</span>
           <span className={cn(
             'text-lg font-bold',
             alertLevel === 'critical' && 'text-red-400',
@@ -258,7 +258,7 @@ export function CreditCounter({
         </div>
         {totalEstimatedCredits > 0 && (
           <div className="flex justify-between items-center">
-            <span className="text-sm text-[var(--theme-text-secondary)]">Total estimado:</span>
+            <span className={cn("text-sm", styles.colors.text.secondary)}>Total estimado:</span>
             <span className="text-lg font-bold text-purple-300">
               ~{totalEstimatedCredits} créditos
             </span>
@@ -266,7 +266,7 @@ export function CreditCounter({
         )}
         {estimatedRemainingCredits >= 0 && (
           <div className="flex justify-between items-center pt-1">
-            <span className="text-sm font-medium text-[var(--theme-text-primary)]">
+            <span className={cn("text-sm font-medium", styles.colors.text.primary)}>
               Créditos restantes estimados:
             </span>
             <span className={cn(

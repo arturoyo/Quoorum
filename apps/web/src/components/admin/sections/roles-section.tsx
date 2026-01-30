@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Roles and Permissions Section
  * 
  * CRUD completo de roles administrativos con gestión de permisos
@@ -179,7 +179,7 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Roles y Permisos</h2>
-          <p className="text-sm text-[#aebac1] mt-1">
+          <p className="text-sm styles.colors.text.secondary mt-1">
             Gestiona roles administrativos y sus permisos
           </p>
         </div>
@@ -197,10 +197,10 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
       </div>
 
       {/* Roles List */}
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
           <CardTitle className="text-white">Roles Existentes</CardTitle>
-          <CardDescription className="text-[#aebac1]">
+          <CardDescription className="styles.colors.text.secondary">
             {roles?.length || 0} roles configurados
           </CardDescription>
         </CardHeader>
@@ -208,23 +208,23 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
           {roles && roles.length > 0 ? (
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a3942] hover:bg-[#202c33]">
-                  <TableHead className="text-[#aebac1]">Nombre</TableHead>
-                  <TableHead className="text-[#aebac1]">Slug</TableHead>
-                  <TableHead className="text-[#aebac1]">Permisos</TableHead>
-                  <TableHead className="text-[#aebac1]">Usuarios</TableHead>
-                  <TableHead className="text-[#aebac1]">Estado</TableHead>
-                  <TableHead className="text-[#aebac1]">Acciones</TableHead>
+                <TableRow className="styles.colors.border.default hover:styles.colors.bg.tertiary">
+                  <TableHead className="styles.colors.text.secondary">Nombre</TableHead>
+                  <TableHead className="styles.colors.text.secondary">Slug</TableHead>
+                  <TableHead className="styles.colors.text.secondary">Permisos</TableHead>
+                  <TableHead className="styles.colors.text.secondary">Usuarios</TableHead>
+                  <TableHead className="styles.colors.text.secondary">Estado</TableHead>
+                  <TableHead className="styles.colors.text.secondary">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {roles.map((role) => (
-                  <TableRow key={role.id} className="border-[#2a3942] hover:bg-[#202c33]">
+                  <TableRow key={role.id} className="styles.colors.border.default hover:styles.colors.bg.tertiary">
                     <TableCell className="text-white font-medium">{role.name}</TableCell>
-                    <TableCell className="text-[#aebac1]">
-                      <code className="text-xs bg-[#2a3942] px-2 py-1 rounded">{role.slug}</code>
+                    <TableCell className="styles.colors.text.secondary">
+                      <code className="text-xs styles.colors.bg.input px-2 py-1 rounded">{role.slug}</code>
                     </TableCell>
-                    <TableCell className="text-[#aebac1]">
+                    <TableCell className="styles.colors.text.secondary">
                       <div className="flex flex-wrap gap-1">
                         {(role.permissions).length > 0 ? (
                           (role.permissions).slice(0, 3).map((perm) => (
@@ -237,16 +237,16 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                             </Badge>
                           ))
                         ) : (
-                          <span className="text-[#8696a0] text-sm">Sin permisos</span>
+                          <span className="styles.colors.text.tertiary text-sm">Sin permisos</span>
                         )}
                         {(role.permissions).length > 3 && (
-                          <Badge variant="secondary" className="bg-[#2a3942] text-[#aebac1]">
+                          <Badge variant="secondary" className="styles.colors.bg.input styles.colors.text.secondary">
                             +{(role.permissions).length - 3}
                           </Badge>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-[#aebac1]">
+                    <TableCell className="styles.colors.text.secondary">
                       <div className="flex items-center gap-2">
                         <Users className="h-4 w-4" />
                         {role.userCount || 0}
@@ -258,7 +258,7 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                         className={
                           role.isActive
                             ? 'bg-green-900/20 text-green-300 border-green-500/30'
-                            : 'bg-[#2a3942] text-[#8696a0]'
+                            : 'styles.colors.bg.input styles.colors.text.tertiary'
                         }
                       >
                         {role.isActive ? 'Activo' : 'Inactivo'}
@@ -290,10 +290,10 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
               </TableBody>
             </Table>
           ) : (
-            <div className="text-center py-8 text-[#aebac1]">
-              <Shield className="h-12 w-12 mx-auto mb-4 text-[#8696a0]" />
+            <div className="text-center py-8 styles.colors.text.secondary">
+              <Shield className="h-12 w-12 mx-auto mb-4 styles.colors.text.tertiary" />
               <p>No hay roles configurados</p>
-              <p className="text-sm text-[#8696a0] mt-1">
+              <p className="text-sm styles.colors.text.tertiary mt-1">
                 Crea tu primer rol para comenzar
               </p>
             </div>
@@ -303,12 +303,12 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="bg-[#111b21] border-[#2a3942] text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="styles.colors.bg.secondary styles.colors.border.default text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white">
               {editingRole ? 'Editar Rol' : 'Nuevo Rol'}
             </DialogTitle>
-            <DialogDescription className="text-[#aebac1]">
+            <DialogDescription className="styles.colors.text.secondary">
               {editingRole
                 ? 'Modifica los detalles del rol y sus permisos'
                 : 'Crea un nuevo rol administrativo con permisos personalizados'}
@@ -317,7 +317,7 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-[#aebac1]">
+              <Label htmlFor="name" className="styles.colors.text.secondary">
                 Nombre del Rol *
               </Label>
               <Input
@@ -325,13 +325,13 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Ej: Moderador, Soporte, etc."
-                className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                className="styles.colors.bg.input styles.colors.border.default text-white placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
                 disabled={!!editingRole}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="slug" className="text-[#aebac1]">
+              <Label htmlFor="slug" className="styles.colors.text.secondary">
                 Slug (identificador único) *
               </Label>
               <Input
@@ -341,16 +341,16 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                   setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })
                 }
                 placeholder="Ej: moderator, support, etc."
-                className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                className="styles.colors.bg.input styles.colors.border.default text-white placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
                 disabled={!!editingRole}
               />
-              <p className="text-xs text-[#8696a0]">
+              <p className="text-xs styles.colors.text.tertiary">
                 Solo letras minúsculas, números y guiones. No se puede cambiar después.
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-[#aebac1]">
+              <Label htmlFor="description" className="styles.colors.text.secondary">
                 Descripción
               </Label>
               <Textarea
@@ -358,21 +358,21 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe el propósito y responsabilidades de este rol..."
-                className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500 min-h-[100px]"
+                className="styles.colors.bg.input styles.colors.border.default text-white placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500 min-h-[100px]"
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[#aebac1]">Permisos</Label>
-              <div className="bg-[#2a3942] border border-[#2a3942] rounded-lg p-4 max-h-64 overflow-y-auto space-y-2">
+              <Label className="styles.colors.text.secondary">Permisos</Label>
+              <div className="styles.colors.bg.input border styles.colors.border.default rounded-lg p-4 max-h-64 overflow-y-auto space-y-2">
                 {availablePermissions?.permissions.map((permission) => (
                   <div key={permission} className="flex items-center space-x-2">
                     <Checkbox
                       id={`perm-${permission}`}
                       checked={formData.permissions.includes(permission)}
                       onCheckedChange={() => togglePermission(permission)}
-                      className="border-[#2a3942] data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                      className="styles.colors.border.default data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                     />
                     <Label
                       htmlFor={`perm-${permission}`}
@@ -387,7 +387,7 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-[#8696a0]">
+              <p className="text-xs styles.colors.text.tertiary">
                 {formData.permissions.length} permiso(s) seleccionado(s)
               </p>
             </div>
@@ -401,7 +401,7 @@ export function RolesSection({ isInModal = false }: RolesSectionProps) {
                 resetForm()
                 setEditingRole(null)
               }}
-              className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-[#202c33]"
+              className="styles.colors.border.default styles.colors.bg.input text-white hover:styles.colors.bg.tertiary"
             >
               Cancelar
             </Button>

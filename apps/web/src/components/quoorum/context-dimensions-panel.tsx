@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 
 import { CheckCircle2, AlertTriangle, XCircle, TrendingUp, Award, Info } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import {
   Tooltip,
   TooltipContent,
@@ -61,7 +61,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
   return (
     <div className="space-y-4">
       {/* Overall Score Header */}
-      <div className="bg-[#111b21] border border-[#2a3942] rounded-lg p-4">
+      <div className="styles.colors.bg.secondary border styles.colors.border.default rounded-lg p-4">
         {/* Scientific Badge */}
         <div className="flex items-center justify-between mb-3">
           <TooltipProvider>
@@ -72,7 +72,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
                   Consenso Científico
                 </Badge>
               </TooltipTrigger>
-              <TooltipContent className="max-w-xs bg-[#202c33] border-[#2a3942] text-[var(--theme-text-primary)]">
+              <TooltipContent className="max-w-xs styles.colors.bg.tertiary styles.colors.border.default styles.colors.text.primary">
                 <p className="text-xs">
                   <strong>Algoritmo validado:</strong> 4 expertos IA independientes analizan tu contexto.
                   El consenso final garantiza decisiones equilibradas, no sesgadas por un solo modelo.
@@ -84,13 +84,13 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
 
         <div className="flex items-center justify-between mb-3">
           <div className="flex-1">
-            <h3 className="text-sm font-medium text-[#aebac1]">Calidad del Contexto</h3>
-            <p className="text-xs text-[#8696a0] mt-1">
+            <h3 className="text-sm font-medium styles.colors.text.secondary">Calidad del Contexto</h3>
+            <p className="text-xs styles.colors.text.tertiary mt-1">
               Objetivo: 85%+ para continuar
             </p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-[var(--theme-text-primary)]">{overallScore}%</div>
+            <div className="text-3xl font-bold styles.colors.text.primary">{overallScore}%</div>
             <div className={cn(
               "text-xs font-medium mt-1",
               overallScore >= 85 ? "text-green-400" :
@@ -105,46 +105,46 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
         </div>
 
         {/* Progress Bar */}
-        <div className="h-3 bg-[#2a3942] rounded-full overflow-hidden">
-          <div
-            className={cn(
-              "h-full transition-all duration-500",
-              overallScore >= 85 ? "bg-gradient-to-r from-green-600 to-emerald-500" :
-              overallScore >= 60 ? "bg-gradient-to-r from-yellow-600 to-orange-500" :
-              "bg-gradient-to-r from-red-600 to-pink-500"
-            )}
-            style={{ width: `${Math.min(overallScore, 100)}%` }}
-          />
-        </div>
+        <progress
+          className={cn(
+            "h-3 w-full rounded-full overflow-hidden",
+            styles.colors.bg.input,
+            overallScore >= 85 ? "accent-emerald-500" :
+            overallScore >= 60 ? "accent-orange-500" :
+            "accent-rose-500"
+          )}
+          value={Math.min(overallScore, 100)}
+          max={100}
+        />
 
         {/* Stats */}
         <div className="flex items-center gap-4 mt-3 text-xs">
           <div className="flex items-center gap-1">
             <CheckCircle2 className="h-3 w-3 text-green-400" />
-            <span className="text-[#aebac1]">{complete} completas</span>
+            <span className="styles.colors.text.secondary">{complete} completas</span>
           </div>
           <div className="flex items-center gap-1">
             <AlertTriangle className="h-3 w-3 text-yellow-400" />
-            <span className="text-[#aebac1]">{partial} parciales</span>
+            <span className="styles.colors.text.secondary">{partial} parciales</span>
           </div>
           <div className="flex items-center gap-1">
             <XCircle className="h-3 w-3 text-red-400" />
-            <span className="text-[#aebac1]">{missing} faltantes</span>
+            <span className="styles.colors.text.secondary">{missing} faltantes</span>
           </div>
         </div>
 
         {/* Confidence Score Badge */}
-        <div className="mt-3 pt-3 border-t border-[#2a3942]">
+        <div className="mt-3 pt-3 border-t styles.colors.border.default">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center justify-between cursor-help">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-purple-400" />
-                    <span className="text-xs font-medium text-[#aebac1]">
+                    <span className="text-xs font-medium styles.colors.text.secondary">
                       Success Rate Estimado
                     </span>
-                    <Info className="h-3 w-3 text-[#8696a0]" />
+                    <Info className="h-3 w-3 styles.colors.text.tertiary" />
                   </div>
                   <Badge
                     variant="outline"
@@ -161,13 +161,13 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
                   </Badge>
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="max-w-xs bg-[#202c33] border-[#2a3942] text-[var(--theme-text-primary)]">
+              <TooltipContent className="max-w-xs styles.colors.bg.tertiary styles.colors.border.default styles.colors.text.primary">
                 <p className="text-xs">
                   <strong>Probabilidad de éxito:</strong> Basado en la calidad del contexto,
                   estimamos un {estimatedSuccessRate}% de probabilidad de que los expertos
                   alcancen un consenso sólido y útil.
                 </p>
-                <p className="text-xs mt-2 text-[#8696a0]">
+                <p className="text-xs mt-2 styles.colors.text.tertiary">
                   Debates con contexto 85%+ tienen 90%+ de consenso exitoso.
                 </p>
               </TooltipContent>
@@ -194,7 +194,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
             <div
               key={dimension.id}
               className={cn(
-                "bg-[#111b21] border rounded-lg p-3 transition-colors",
+                "styles.colors.bg.secondary border rounded-lg p-3 transition-colors",
                 dimension.status === 'complete' ? "border-green-500/30" :
                 dimension.status === 'partial' ? "border-yellow-500/30" :
                 "border-red-500/30"
@@ -205,7 +205,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
                   <span className="text-lg">{icon}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-medium text-[var(--theme-text-primary)] truncate">
+                      <h4 className="text-sm font-medium styles.colors.text.primary truncate">
                         {dimension.name}
                       </h4>
                       {dimension.weight > 0.15 && (
@@ -214,7 +214,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#8696a0] truncate mt-0.5">
+                    <p className="text-xs styles.colors.text.tertiary truncate mt-0.5">
                       {dimension.description}
                     </p>
                   </div>
@@ -233,22 +233,22 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
               </div>
 
               {/* Progress Bar */}
-              <div className="h-1.5 bg-[#2a3942] rounded-full overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full transition-all duration-500",
-                    dimension.status === 'complete' ? "bg-green-500" :
-                    dimension.status === 'partial' ? "bg-yellow-500" :
-                    "bg-red-500"
-                  )}
-                  style={{ width: `${dimension.score}%` }}
-                />
-              </div>
+              <progress
+                className={cn(
+                  "h-1.5 w-full rounded-full overflow-hidden",
+                  styles.colors.bg.input,
+                  dimension.status === 'complete' ? "accent-green-500" :
+                  dimension.status === 'partial' ? "accent-yellow-500" :
+                  "accent-red-500"
+                )}
+                value={dimension.score}
+                max={100}
+              />
 
               {/* Suggestions (only for partial/missing) */}
               {dimension.status !== 'complete' && dimension.suggestions.length > 0 && (
                 <div className="mt-2 pl-7">
-                  <p className="text-xs text-[#aebac1] italic">
+                  <p className="text-xs styles.colors.text.secondary italic">
                     💡 {dimension.suggestions[0]}
                   </p>
                 </div>
@@ -267,7 +267,7 @@ export function ContextDimensionsPanel({ dimensions, overallScore }: ContextDime
               <h4 className="text-xs font-medium text-purple-300 mb-1">
                 Cómo alcanzar 85%
               </h4>
-              <p className="text-xs text-[#aebac1]">
+              <p className="text-xs styles.colors.text.secondary">
                 {missing > 0 ? (
                   `Completa las ${missing} dimensiones faltantes (marcadas en rojo) respondiendo las preguntas abajo.`
                 ) : partial > 0 ? (

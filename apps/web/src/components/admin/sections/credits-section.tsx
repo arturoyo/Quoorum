@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Credits Section
  * Gestión masiva de créditos
  */
@@ -41,7 +41,7 @@ export function CreditsSection({ isInModal = false }: { isInModal?: boolean }) {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-white">Gestión de Créditos</h2>
-        <p className="text-sm text-[var(--theme-text-secondary)] mt-1">
+        <p className="text-sm styles.colors.text.secondary mt-1">
           Actualiza créditos de usuarios individuales
         </p>
       </div>
@@ -49,13 +49,13 @@ export function CreditsSection({ isInModal = false }: { isInModal?: boolean }) {
       <Card className="bg-slate-900/60 border-purple-500/20">
         <CardHeader>
           <CardTitle className="text-white">Actualizar Créditos</CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardDescription className="styles.colors.text.secondary">
             Ingresa el ID del usuario y la cantidad de créditos
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="userId" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="userId" className="styles.colors.text.secondary">
               User ID (UUID)
             </Label>
             <Input
@@ -67,7 +67,7 @@ export function CreditsSection({ isInModal = false }: { isInModal?: boolean }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="credits" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="credits" className="styles.colors.text.secondary">
               Créditos
             </Label>
             <Input

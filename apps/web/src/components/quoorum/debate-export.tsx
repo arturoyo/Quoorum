@@ -12,6 +12,7 @@ import {
 import { Download, FileText, Presentation, Table, Code, Loader2 } from 'lucide-react'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
+import { cn, styles } from '@/lib/utils'
 
 interface DebateExportProps {
   debateId: string
@@ -77,36 +78,36 @@ export function DebateExport({ debateId, className }: DebateExportProps) {
   return (
     <div className={`flex items-center gap-2 ${className || ''}`}>
       <Select value={format} onValueChange={(v) => setFormat(v as typeof format)}>
-        <SelectTrigger className="w-[180px] bg-[#2a3942] border-[#2a3942] text-[var(--theme-text-primary)]">
+        <SelectTrigger className={cn("w-[180px]", styles.input.select)}>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-[#111b21] border-[#2a3942]">
-          <SelectItem value="pdf" className="text-[var(--theme-text-primary)]">
-            <div className="flex items-center gap-2">
+        <SelectContent className={styles.selectContent()}>
+          <SelectItem value="pdf" className={styles.colors.text.primary}>
+            <div className={styles.layout.flexRow}>
               <FileText className="h-4 w-4" />
               PDF
             </div>
           </SelectItem>
-          <SelectItem value="powerpoint" className="text-[var(--theme-text-primary)]">
-            <div className="flex items-center gap-2">
+          <SelectItem value="powerpoint" className={styles.colors.text.primary}>
+            <div className={styles.layout.flexRow}>
               <Presentation className="h-4 w-4" />
               PowerPoint
             </div>
           </SelectItem>
-          <SelectItem value="excel" className="text-[var(--theme-text-primary)]">
-            <div className="flex items-center gap-2">
+          <SelectItem value="excel" className={styles.colors.text.primary}>
+            <div className={styles.layout.flexRow}>
               <Table className="h-4 w-4" />
               Excel
             </div>
           </SelectItem>
-          <SelectItem value="markdown" className="text-[var(--theme-text-primary)]">
-            <div className="flex items-center gap-2">
+          <SelectItem value="markdown" className={styles.colors.text.primary}>
+            <div className={styles.layout.flexRow}>
               <Code className="h-4 w-4" />
               Markdown
             </div>
           </SelectItem>
-          <SelectItem value="json" className="text-[var(--theme-text-primary)]">
-            <div className="flex items-center gap-2">
+          <SelectItem value="json" className={styles.colors.text.primary}>
+            <div className={styles.layout.flexRow}>
               <Code className="h-4 w-4" />
               JSON
             </div>

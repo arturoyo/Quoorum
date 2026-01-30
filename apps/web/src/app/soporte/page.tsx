@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -12,7 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { IconCard } from "@/components/ui/icon-card";
@@ -117,7 +117,7 @@ export default function ContactPage() {
       <section className="pt-40 pb-24 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm styles.colors.text.secondary mb-8">
               <Mail className="w-4 h-4 text-purple-400" />
               <span>Contacto</span>
             </div>
@@ -129,7 +129,7 @@ export default function ContactPage() {
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed">
               Estamos aquí para ayudarte. Ya sea que tengas una pregunta sobre
               características, precios, o necesites una demo personalizada.
             </p>
@@ -159,7 +159,7 @@ export default function ContactPage() {
                   <h3 className="text-xl font-bold text-white mb-2">
                     {method.title}
                   </h3>
-                  <p className="text-sm text-[var(--theme-text-tertiary)] mb-4">
+                  <p className="text-sm styles.colors.text.tertiary mb-4">
                     {method.description}
                   </p>
                   <p className="text-purple-400 font-medium">{method.contact}</p>
@@ -182,7 +182,7 @@ export default function ContactPage() {
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                   Envíanos un mensaje
                 </h2>
-                <p className="text-[var(--theme-text-secondary)]">
+                <p className="styles.colors.text.secondary">
                   Te responderemos en menos de 24 horas
                 </p>
               </div>
@@ -195,7 +195,7 @@ export default function ContactPage() {
                   <h3 className="text-2xl font-bold text-white mb-4">
                     ¡Mensaje enviado!
                   </h3>
-                  <p className="text-[var(--theme-text-secondary)]">
+                  <p className="styles.colors.text.secondary">
                     Gracias por contactarnos. Te responderemos pronto.
                   </p>
                 </div>
@@ -205,7 +205,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="name"
-                        className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
+                        className="block text-sm font-medium styles.colors.text.secondary mb-2"
                       >
                         Nombre *
                       </label>
@@ -216,7 +216,7 @@ export default function ContactPage() {
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors"
+                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:styles.colors.text.tertiary focus:outline-none focus:border-purple-500/50 transition-colors"
                         placeholder="Tu nombre"
                       />
                     </div>
@@ -224,7 +224,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
+                        className="block text-sm font-medium styles.colors.text.secondary mb-2"
                       >
                         Email *
                       </label>
@@ -235,7 +235,7 @@ export default function ContactPage() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors"
+                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:styles.colors.text.tertiary focus:outline-none focus:border-purple-500/50 transition-colors"
                         placeholder="tu@email.com"
                       />
                     </div>
@@ -245,7 +245,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="company"
-                        className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
+                        className="block text-sm font-medium styles.colors.text.secondary mb-2"
                       >
                         Empresa
                       </label>
@@ -255,7 +255,7 @@ export default function ContactPage() {
                         name="company"
                         value={formData.company}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors"
+                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:styles.colors.text.tertiary focus:outline-none focus:border-purple-500/50 transition-colors"
                         placeholder="Tu empresa"
                       />
                     </div>
@@ -263,7 +263,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="subject"
-                        className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
+                        className="block text-sm font-medium styles.colors.text.secondary mb-2"
                       >
                         Asunto *
                       </label>
@@ -275,7 +275,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-purple-500/50 transition-colors appearance-none"
                       >
-                        <option value="" className="bg-[var(--theme-bg-primary)]">
+                        <option value="" className="styles.colors.bg.primary">
                           Selecciona un asunto
                         </option>
                         <option value="sales" className="bg-[#0A0A0F]">
@@ -300,7 +300,7 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="message"
-                      className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-2"
+                      className="block text-sm font-medium styles.colors.text.secondary mb-2"
                     >
                       Mensaje *
                     </label>
@@ -311,7 +311,7 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleChange}
                       rows={6}
-                      className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors resize-none"
+                      className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:styles.colors.text.tertiary focus:outline-none focus:border-purple-500/50 transition-colors resize-none"
                       placeholder="Cuéntanos en qué podemos ayudarte..."
                     />
                   </div>
@@ -355,11 +355,11 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">Oficina</h3>
-                    <p className="text-[var(--theme-text-secondary)] text-sm">Sede principal</p>
+                    <p className="styles.colors.text.secondary text-sm">Sede principal</p>
                   </div>
                 </div>
 
-                <p className="text-[var(--theme-text-secondary)] leading-relaxed">
+                <p className="styles.colors.text.secondary leading-relaxed">
                   Barcelona, España
                   <br />
                   Barrio de Gràcia
@@ -375,16 +375,16 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">Horario</h3>
-                    <p className="text-[var(--theme-text-secondary)] text-sm">Atención al cliente</p>
+                    <p className="styles.colors.text.secondary text-sm">Atención al cliente</p>
                   </div>
                 </div>
 
-                <p className="text-[var(--theme-text-secondary)] leading-relaxed">
+                <p className="styles.colors.text.secondary leading-relaxed">
                   Lunes - Viernes
                   <br />
                   9:00 AM - 6:00 PM (CET)
                   <br />
-                  <span className="text-[var(--theme-text-tertiary)] text-sm">
+                  <span className="styles.colors.text.tertiary text-sm">
                     Soporte por email 24/7
                   </span>
                 </p>
@@ -415,14 +415,14 @@ export default function ContactPage() {
                   <h3 className="text-xl font-bold text-white mb-4">
                     {faq.question}
                   </h3>
-                  <p className="text-[var(--theme-text-secondary)] leading-relaxed">{faq.answer}</p>
+                  <p className="styles.colors.text.secondary leading-relaxed">{faq.answer}</p>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-[var(--theme-text-secondary)]">
+            <p className="styles.colors.text.secondary">
               ¿No encuentras lo que buscas?{" "}
               <Link
                 href="/blog"

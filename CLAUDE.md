@@ -46,6 +46,7 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | 10 | **Security** | Checklist de seguridad obligatorio | 10 min | [10-security.md](./docs/claude/10-security.md) |
 | 11 | **FAQ** | Comandos útiles, troubleshooting, CI/CD | 5 min | [11-faq.md](./docs/claude/11-faq.md) |
 | 12 | **AI Systems** | Rate limiting, fallback, cost tracking para IA | 15 min | [12-ai-systems.md](./docs/claude/12-ai-systems.md) |
+| 13 | **Debate Flow** | Flujo completo de creación de debates (5 fases) | 20 min | [13-debate-flow.md](./docs/claude/13-debate-flow.md) |
 
 **📖 Navegación:** Ver [docs/claude/INDEX.md](./docs/claude/INDEX.md) para mapa completo del sistema de documentación.
 
@@ -85,7 +86,7 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | **CI/CD (Vercel)** | [11-faq.md#cicd](./docs/claude/11-faq.md) |
 | **pnpm commands** | [11-faq.md#comandos-utiles](./docs/claude/11-faq.md) |
 | **Next.js cache issues** | [11-faq.md#nextjs-cache-issues](./docs/claude/11-faq.md) - ⚠️ LEER |
-| **WSL2 setup (Windows)** | [11-faq.md#wsl2-setup](./docs/claude/11-faq.md) - 🐧 Recomendado |
+| **Windows setup (PowerShell)** | [11-faq.md#windows-setup](./docs/claude/11-faq.md) - ✅ Recomendado |
 | **Pre-commit untracked files** | Scripts automáticos detectan archivos sin trackear |
 
 **💡 TIP:** Usa la herramienta `Grep` para buscar cualquier keyword en este archivo o en módulos específicos.

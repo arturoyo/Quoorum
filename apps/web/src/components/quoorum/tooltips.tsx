@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Tooltips System
  * 
  * Contextual tooltips for better UX
@@ -100,7 +100,7 @@ export function Tooltip({
 
       {isVisible && (
         <div
-          className="fixed z-50 bg-gray-900 text-[var(--theme-text-primary)] text-sm rounded-lg px-3 py-2 pointer-events-none"
+          className="fixed z-50 bg-gray-900 styles.colors.text.primary text-sm rounded-lg px-3 py-2 pointer-events-none"
           style={{
             ...getPositionStyles(),
             maxWidth: `${maxWidth}px`,
@@ -206,7 +206,7 @@ export function RichTooltip({ title, description, link, children }: RichTooltipP
       content={
         <div className="space-y-2">
           <div className="font-semibold">{title}</div>
-          <div className="text-[var(--theme-text-secondary)] text-xs">{description}</div>
+          <div className="styles.colors.text.secondary text-xs">{description}</div>
           {link && (
             <a href={link.href} className="text-blue-400 hover:text-blue-300 text-xs block">
               {link.text} →
@@ -228,7 +228,7 @@ export function RichTooltip({ title, description, link, children }: RichTooltipP
 export function InfoTooltip({ content, maxWidth }: { content: string; maxWidth?: number }) {
   return (
     <Tooltip content={content} maxWidth={maxWidth}>
-      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-200 text-[var(--theme-text-tertiary)] text-xs cursor-help">
+      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-200 styles.colors.text.tertiary text-xs cursor-help">
         i
       </span>
     </Tooltip>
@@ -317,15 +317,15 @@ export function ExpertTooltip({
         <div className="space-y-2">
           <div>
             <div className="font-semibold">{name}</div>
-            <div className="text-[var(--theme-text-secondary)] text-xs">{title}</div>
+            <div className="styles.colors.text.secondary text-xs">{title}</div>
           </div>
           <div>
-            <div className="text-[var(--theme-text-secondary)] text-xs mb-1">Expertise:</div>
+            <div className="styles.colors.text.secondary text-xs mb-1">Expertise:</div>
             <div className="flex flex-wrap gap-1">
               {expertise.slice(0, 3).map((exp, i) => (
                 <span
                   key={i}
-                  className="px-2 py-0.5 bg-gray-800 rounded text-xs text-[var(--theme-text-secondary)]"
+                  className="px-2 py-0.5 bg-gray-800 rounded text-xs styles.colors.text.secondary"
                 >
                   {exp}
                 </span>
@@ -361,7 +361,7 @@ export function StatTooltip({
       content={
         <div className="space-y-1">
           <div className="text-2xl font-bold">{value}</div>
-          <div className="text-[var(--theme-text-secondary)] text-xs">{label}</div>
+          <div className="styles.colors.text.secondary text-xs">{label}</div>
           {trend && (
             <div
               className={`text-xs ${

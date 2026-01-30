@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * DebatesLayout - Orchestrator Component
@@ -9,8 +9,7 @@
  * All state management is centralized in useDebatesLayout hook.
  */
 
-import { useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -22,7 +21,7 @@ import {
   Trash,
   X,
 } from 'lucide-react'
-import { AppHeader } from '@/components/layout/app-header'
+import { AppShell } from '@/components/layout'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useDebatesLayout } from './hooks/use-debates-layout'
 import {
@@ -31,6 +30,7 @@ import {
   EmptyDebatesState,
   EmptyDebateState,
   DebateListSkeleton,
+  EmbeddedDebateView,
 } from './components'
 
 interface DebatesLayoutProps {
@@ -38,7 +38,6 @@ interface DebatesLayoutProps {
 }
 
 function DebatesLayoutInner({ children }: DebatesLayoutProps) {
-  useRouter() // Keep for future navigation
   const {
     // Data
     filteredDebates,
@@ -78,38 +77,31 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
   } = useDebatesLayout()
 
   return (
-    <div className="flex h-screen flex-col relative bg-[var(--theme-bg-primary)] pt-16 pb-24">
-      {/* Animated gradient background */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
-      </div>
-
-      {/* Header Global */}
-      <AppHeader variant="app" />
-
+    <AppShell showGradient={true}>
       <div className={cn(
-        "relative flex flex-1 overflow-hidden"
+        "relative flex flex-1 overflow-hidden w-full"
       )}>
         {/* Debates List - Left Side */}
         {!isNewDebate && (
           <div
             className={cn(
-              'relative flex h-full flex-col border-r border-[var(--theme-border)] transition-all duration-300',
+              'relative flex h-full flex-col border-r styles.colors.border.default transition-all duration-300',
               isDebateSelected && 'hidden md:flex',
-              isLeftPanelCollapsed && 'overflow-hidden'
+              isLeftPanelCollapsed && 'overflow-hidden',
+              !isLeftPanelCollapsed
+                ? `w-[${leftColumnWidth}px] min-w-[300px] max-w-[600px]`
+                : 'w-[80px]'
             )}
-            style={!isLeftPanelCollapsed ? { width: `${leftColumnWidth}px`, minWidth: '300px', maxWidth: '600px' } : { width: '80px' }}
           >
             {/* Subheader */}
-            <div className="flex h-[60px] items-center justify-between border-b border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] px-4 flex-shrink-0">
+            <div className="flex h-[60px] items-center justify-between border-b styles.colors.border.default styles.colors.bg.tertiary px-4 flex-shrink-0">
               <div className="flex items-center gap-2">
                 {/* Collapse/Expand Button */}
                 {!isLeftPanelCollapsed ? (
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-9 w-9 p-0 text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-input)] hover:text-[var(--theme-text-primary)]"
+                    className={cn('h-9 w-9 p-0', styles.colors.text.secondary, styles.hoverState())}
                     onClick={toggleLeftPanel}
                     title="Ocultar panel de debates"
                   >
@@ -119,7 +111,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-9 w-9 p-0 text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-input)] hover:text-[var(--theme-text-primary)]"
+                    className={cn('h-9 w-9 p-0', styles.colors.text.secondary, styles.hoverState())}
                     onClick={toggleLeftPanel}
                     title="Mostrar panel de debates"
                   >
@@ -127,7 +119,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
                   </Button>
                 )}
                 {!isLeftPanelCollapsed && (
-                  <h2 className="text-lg font-semibold text-[var(--theme-text-primary)]">Debates</h2>
+                  <h2 className="text-lg font-semibold styles.colors.text.primary">Debates</h2>
                 )}
               </div>
 
@@ -150,7 +142,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-9 w-9 p-0 text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-input)] hover:text-[var(--theme-text-primary)]"
+                    className={cn('h-9 w-9 p-0', styles.colors.text.secondary, styles.hoverState())}
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     <Filter className="h-5 w-5" />
@@ -161,20 +153,27 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
 
             {/* Search & Filters */}
             {!isLeftPanelCollapsed && (
-              <div className="border-b border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] p-3 flex-shrink-0">
+              <div className={cn('border-b p-3 flex-shrink-0', styles.colors.border.default, styles.colors.bg.secondary)}>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--theme-text-secondary)]" />
+                  <Search className={cn('absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2', styles.colors.text.secondary)} />
                   <Input
                     type="text"
                     placeholder="Buscar debates..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="h-10 w-full rounded-lg border-0 bg-[var(--theme-bg-tertiary)] pl-10 pr-10 text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-1 focus-visible:ring-purple-500"
+                    className={cn(
+                      'h-10 w-full rounded-lg border-0 pl-10 pr-10 focus-visible:ring-1 focus-visible:ring-purple-500',
+                      styles.colors.bg.tertiary,
+                      styles.colors.text.primary,
+                      'placeholder:text-[var(--theme-text-tertiary)]'
+                    )}
                   />
                   {search && (
                     <button
                       onClick={handleClearSearch}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
+                      className={cn('absolute right-3 top-1/2 -translate-y-1/2', styles.colors.text.secondary, styles.hoverState())}
+                      title="Limpiar búsqueda"
+                      aria-label="Limpiar búsqueda"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -193,7 +192,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
                           'h-7 text-xs',
                           statusFilter === status
                             ? 'bg-purple-600 text-white'
-                            : 'border-[var(--theme-border)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-input)]'
+                            : cn(styles.colors.border.default, styles.colors.text.secondary, 'hover:bg-[var(--theme-bg-input)]')
                         )}
                         onClick={() => setStatusFilter(status)}
                       >
@@ -214,7 +213,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
                       onCheckedChange={handleSelectAll}
                       className="h-4 w-4 border-[#aebac1]/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                     />
-                    <span className="text-xs text-[var(--theme-text-secondary)]">
+                    <span className="text-xs styles.colors.text.secondary">
                       {selectedDebates.size > 0
                         ? `${selectedDebates.size} seleccionado${selectedDebates.size > 1 ? 's' : ''}`
                         : 'Seleccionar todos'}
@@ -263,9 +262,9 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
           <div
             className={cn(
               'absolute top-0 bottom-0 w-1 cursor-col-resize hover:bg-purple-500/50 transition-colors z-20 hidden md:block',
-              isResizing && 'bg-purple-500'
+              isResizing && 'bg-purple-500',
+              `left-[${leftColumnWidth}px]`
             )}
-            style={{ left: `${leftColumnWidth}px` }}
             onMouseDown={startResizing}
           />
         )}
@@ -277,8 +276,10 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
             !isDebateSelected && !isNewDebate && 'hidden md:flex'
           )}
         >
-          {isDebateSelected || isNewDebate ? (
+          {isNewDebate ? (
             children
+          ) : selectedDebateId ? (
+            <EmbeddedDebateView debateId={selectedDebateId} />
           ) : (
             <EmptyDebateState />
           )}
@@ -297,7 +298,41 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
         variant="destructive"
         isLoading={deleteDebateMutation.isPending}
       />
-    </div>
+      {selectedDebates.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
+          <div className="border styles.colors.border.default styles.colors.bg.secondary/95 backdrop-blur-xl shadow-2xl rounded-lg">
+            <div className="flex items-center gap-4 p-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={selectedDebates.size === filteredDebates.length && filteredDebates.length > 0}
+                  onCheckedChange={handleSelectAll}
+                  className="h-5 w-5"
+                />
+                <span className="styles.colors.text.primary font-medium">
+                  {selectedDebates.size} debate{selectedDebates.size > 1 ? 's' : ''} seleccionado{selectedDebates.size > 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="h-6 w-px bg-[var(--theme-border)]" />
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setBulkDeleteDialogOpen(true)}
+                disabled={deleteDebateMutation.isPending}
+              >
+                {deleteDebateMutation.isPending ? (
+                  'Eliminando...'
+                ) : (
+                  <>
+                    <Trash className="mr-2 h-4 w-4" />
+                    Eliminar
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </AppShell>
   )
 }
 

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -20,7 +20,7 @@ export default function CompanySetupPage() {
 
   // Mostrar loading mientras redirige
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--theme-bg-primary)]">
+    <div className="min-h-screen flex items-center justify-center styles.colors.bg.primary">
       <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
     </div>
   )

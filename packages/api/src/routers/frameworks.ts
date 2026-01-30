@@ -115,31 +115,29 @@ export const frameworksRouter = router({
       try {
         const aiClient = getAIClient();
 
-        const systemPrompt = `Eres un experto en frameworks de toma de decisiones.
-Analiza la pregunta del usuario y sugiere el framework más apropiado para estructurar la respuesta final del debate.
+        // Get user's performance level
+        const { profiles } = await import("@quoorum/db/schema");
+        const [userProfile] = await db
+          .select({ performanceLevel: profiles.performanceLevel })
+          .from(profiles)
+          .where(eq(profiles.id, ctx.userId))
+          .limit(1);
 
-Frameworks disponibles:
-${allFrameworks.map((f, i) => `${i + 1}. ${f.name} (${f.slug}): ${f.description}`).join('\n')}
+        const performanceLevel = (userProfile?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced';
 
-Responde SOLO con un JSON array de frameworks sugeridos, ordenados por relevancia (más relevante primero).
-Cada framework debe incluir:
-- slug: el slug del framework
-- matchScore: puntuación de 0-100 de qué tan apropiado es
-- reasoning: explicación breve de por qué es apropiado
+        // Get prompt template from new system
+        const { getPromptTemplate } = await import('@quoorum/quoorum/lib/prompt-manager');
+        const resolvedPrompt = await getPromptTemplate(
+          'suggest-framework',
+          {
+            question: input.question,
+            context: input.context || '',
+            frameworksInfo: allFrameworks.map((f, i) => `${i + 1}. ${f.name} (${f.slug}): ${f.description}`).join('\n'),
+          },
+          performanceLevel
+        );
 
-Ejemplo de respuesta:
-[
-  {
-    "slug": "swot-analysis",
-    "matchScore": 85,
-    "reasoning": "La pregunta requiere análisis de fortalezas, debilidades, oportunidades y amenazas"
-  },
-  {
-    "slug": "pros-and-cons",
-    "matchScore": 60,
-    "reasoning": "Alternativa válida para comparar opciones"
-  }
-]`;
+        const systemPrompt = resolvedPrompt.systemPrompt || resolvedPrompt.template;
 
         const userPrompt = `Pregunta del usuario: "${input.question}"
 ${input.context ? `Contexto adicional: "${input.context}"` : ''}
@@ -148,17 +146,18 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
 
         const response = await aiClient.generate(userPrompt, {
           systemPrompt,
-          modelId: "gemini-2.0-flash-exp",
-          temperature: 0.3,
-          maxTokens: 1000,
+          modelId: resolvedPrompt.model,
+          temperature: resolvedPrompt.temperature,
+          maxTokens: resolvedPrompt.maxTokens,
         });
 
         // Track AI cost
         void trackAICall({
           userId: ctx.userId,
           operationType: 'frameworks_suggestion',
-          provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          provider: resolvedPrompt.model.includes('gpt') ? 'openai' :
+                    resolvedPrompt.model.includes('claude') ? 'anthropic' : 'google',
+          modelId: resolvedPrompt.model,
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -228,7 +227,7 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
           userId: ctx.userId,
           operationType: 'frameworks_suggestion',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,

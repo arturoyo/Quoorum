@@ -7,80 +7,43 @@
 
 ---
 
-## 🐧 CONFIGURACIÓN ACTUAL DEL PROYECTO
+## 💻 CONFIGURACIÓN ACTUAL DEL PROYECTO
 
-**✅ ENTORNO DE DESARROLLO: WSL2 Ubuntu (NO Windows)**
+**✅ ENTORNO DE DESARROLLO: Windows (PowerShell)**
 
-### Estado Actual (29 Ene 2026)
-```bash
-# Servidor corriendo desde WSL2
-- Sistema: Ubuntu en WSL2
-- Node.js: 20.20.0 (instalado vía NVM)
-- npm: 10.8.2
+### Estado Actual (30 Ene 2026)
+```text
+- Sistema: Windows
+- Terminal: PowerShell
+- Node.js: 20.x
 - pnpm: 9.15.0
-- Ubicación proyecto: /mnt/c/Quoorum
+- Ubicación proyecto: C:\Quoorum
 ```
 
 ### Comandos para Desarrollar
-```bash
-# 1. Abrir terminal WSL2 en VS Code
+```powershell
+# 1. Abrir PowerShell en VS Code
 # 2. Navegar al proyecto
-cd /mnt/c/Quoorum/apps/web
+cd C:\Quoorum\apps\web
 
-# 3. Iniciar servidor (sin predev de PowerShell)
+# 3. Iniciar servidor (bloquea emojis antes de levantar)
 pnpm dev:no-fix
 
 # 4. Servidor escucha en:
-#    - Local WSL2: http://localhost:3000
-#    - Desde Windows directa: http://172.23.174.216:3000
-#      (IP puede cambiar, verificar con: wsl hostname -I)
+#    http://localhost:3005
 ```
-
-### 🔧 Port Forwarding para OAuth (REQUERIDO)
-
-**Problema:** OAuth de Google solo funciona con `localhost`, no con IP de WSL2.
-
-**Solución:** Configurar port forwarding de Windows → WSL2
-
-**1. Abrir PowerShell COMO ADMINISTRADOR**
-
-**2. Obtener IP actual de WSL2:**
-```powershell
-wsl hostname -I
-# Output: 172.23.174.216 (ejemplo)
-```
-
-**3. Configurar port forwarding:**
-```powershell
-# Reemplaza 172.23.174.216 con la IP de tu WSL2
-netsh interface portproxy add v4tov4 listenport=3000 listenaddress=127.0.0.1 connectport=3000 connectaddress=172.23.174.216
-```
-
-**4. Verificar configuración:**
-```powershell
-netsh interface portproxy show all
-```
-
-**5. Acceder desde Windows:** http://localhost:3000 ✅
-
-**Para eliminar port forwarding (si es necesario):**
-```powershell
-netsh interface portproxy delete v4tov4 listenport=3000 listenaddress=127.0.0.1
-```
-
-**⚠️ NOTA:** Si reinicias WSL2, la IP puede cambiar. Verifica con `wsl hostname -I` y reconfigura el port forwarding si es necesario.
 
 ### ⚠️ Configuraciones Críticas
 
 **apps/web/package.json:**
 ```json
-"dev:no-fix": "next dev -p 3000 --hostname 0.0.0.0"
+"dev:no-fix": "next dev -p 3005 --hostname 0.0.0.0"
 ```
-- `--hostname 0.0.0.0` permite acceso desde Windows a WSL2
 
-**NO usar en WSL2:**
-- `pnpm dev` (requiere PowerShell)
-- Scripts con `pwsh` (no disponible en Linux)
+**Reglas del entorno:**
+- WSL2 NO es entorno recomendado (generó inestabilidad en este proyecto)
+- Emojis en código bloquean el dev server en Windows → pre-checks obligatorios
+- Preferir `dev:no-fix` para evitar hooks pesados
 
 ### 👤 Usuario de Prueba en PostgreSQL Local
 
@@ -89,12 +52,10 @@ netsh interface portproxy delete v4tov4 listenport=3000 listenaddress=127.0.0.1
 - Role: `admin`
 - Autenticación: OAuth Google (no tiene password)
 
-### Ventajas de WSL2 vs Windows
-✅ No más errores UTF-8 (encoding nativo)
-✅ No más cache corrupto frecuente
-✅ Builds 2-3x más rápidos (I/O nativo)
-✅ File watching nativo de Linux
-✅ Mismo entorno que producción (Vercel usa Linux)
+### Ventajas de Windows (estado actual)
+✅ Compatible con scripts PowerShell existentes
+✅ Flujo validado con herramientas locales
+✅ Bloqueo preventivo de emojis antes de dev/build
 
 ---
 
@@ -130,10 +91,10 @@ Problema ocurre 3 vez → STOP: "Esto es estructural, sugiero [solución raíz]"
 
 | Problema repetitivo | ❌ Parche (malo) | ✅ Solución raíz (sugerir) |
 |---------------------|------------------|---------------------------|
-| Cache corrupto 3+ veces | "limpia .next cada vez" | "Usa WSL2, file watching mejor" |
-| Errores UTF-8 scripts | "reemplaza emojis" | "Usa WSL2, UTF-8 nativo" |
-| PowerShell falla | "arregla encoding" | "Usa bash en WSL2" |
-| Build lento | "espera" | "WSL2 es 2-3x más rápido" |
+| Cache corrupto 3+ veces | "limpia .next cada vez" | "Automatiza limpieza + checklist predev" |
+| Errores UTF-8 scripts | "reemplaza emojis" | "Bloqueo preventivo de emojis antes de dev/build" |
+| PowerShell falla | "arregla encoding" | "Estandariza scripts PowerShell + prechecks" |
+| Build lento | "espera" | "Reducir trabajo previo y usar dev:no-fix" |
 | Import errors 5+ veces | "arregla imports" | "Hay problema en structure?" |
 
 **Tu trabajo NO es solo ejecutar, es MEJORAR el sistema.**
@@ -346,6 +307,330 @@ pnpm test       # Tests pasan
 
 ---
 
+## 🎯 REGLAS DE EJECUCIÓN ESTRICTA
+
+### 🔇 Respuesta Atómica (No-Chatter)
+Si pides una función, la respuesta es **SOLO la función**. Sin "Aquí tienes el código", sin "Espero que esto te sirva" y sin explicaciones no solicitadas.
+
+```typescript
+// ✅ Si solicitas: "Crear función para validar email"
+export function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+// ❌ NO responder: "Aquí te dejo una función para validar... Espero que te sirva..."
+```
+
+---
+
+### 🛠️ Cero Refactorización Silenciosa
+No cambies el estilo de nombres o la arquitectura circundante si no se te ha pedido. Si el código usa `snake_case`, la IA mantiene `snake_case`.
+
+```typescript
+// ❌ PROHIBIDO cambiar nombres sin pedir
+- const user_name = "John"  →  const userName = "John"
+
+// ✅ CORRECTO: Mantener estilo consistente
+- const user_name = "John"  →  const user_name = getUserName()
+```
+
+---
+
+### 📍 Alcance Quirúrgico
+Si solicitas un parche para la línea 45, **NO reescribas el archivo completo**. Solo entrega el bloque afectado para evitar conflictos de merge.
+
+```typescript
+// ❌ NO: Reescribir 200 líneas
+// ✅ SÍ: Solo el bloque que cambió
+// Líneas 42-48 (cambio quirúrgico):
+if (isValid) {
+  return processData(input) // ← Cambio aquí
+}
+```
+
+---
+
+### 🚫 Prohibido el "Placeholdering"
+Nunca entregues código con comentarios tipo `// ... resto de la lógica aquí`. O se entrega el código funcional **completo** o se falla con un error explícito.
+
+```typescript
+// ❌ PROHIBIDO
+export async function createUser(data) {
+  validateInput(data)
+  // ... resto de la lógica aquí
+  return user
+}
+
+// ✅ CORRECTO: Código completo O error explícito
+export async function createUser(data: UserInput): Promise<User> {
+  const validated = userSchema.parse(data)
+  const user = await db.insert(users).values(validated)
+  await sendWelcomeEmail(user.email)
+  return user
+}
+```
+
+---
+
+### 🔍 Validación de Dependencias
+Antes de sugerir una librería nueva, verifica el `package.json` o el entorno existente. **No añadas Lodash si se puede resolver con JavaScript moderno nativo**.
+
+```typescript
+// ❌ NO: Sugerir Lodash si tenemos JavaScript moderno
+import { flatten } from 'lodash'
+const flat = flatten(nestedArray)
+
+// ✅ SÍ: Usar métodos nativos
+const flat = nestedArray.flat(Infinity)
+```
+
+---
+
+### 📉 Verbosidad Cero en Errores
+Si el código falla, devuelve el **stack trace analizado y la solución**, no una disculpa de tres párrafos.
+
+```
+❌ "Disculpa, parece que hubo un problema con el tipo de dato..."
+
+✅ "Error: TypeError: Cannot read property 'email' of undefined
+   Línea: services/user.ts:45
+   Causa: userProfile es null
+   Solución: Validar userProfile antes de acceder a .email"
+```
+
+---
+
+## 🏗️ ARQUITECTURA Y ESTABILIDAD
+
+### 🧩 Principio de Responsabilidad Única (SRP)
+Una función, una tarea. Si una función supera las **20 líneas**, sugiere su descomposición.
+
+```typescript
+// ❌ Demasiadas responsabilidades
+async function processOrder(orderId) {
+  const order = await db.getOrder(orderId)
+  validateOrder(order)
+  calculateTax(order)
+  applyDiscount(order)
+  processPayment(order)
+  sendConfirmation(order)
+  updateInventory(order)
+  // 30+ líneas
+}
+
+// ✅ Descompuesto
+async function processOrder(orderId: string): Promise<void> {
+  const order = await db.getOrder(orderId)
+  await validateAndPrepare(order)
+  await processPaymentAndNotify(order)
+}
+```
+
+---
+
+### 🛡️ Programación Defensiva
+Todo input externo (API, formularios, params) debe ser validado con esquemas como **Zod o Joi** antes de tocar la lógica de negocio.
+
+```typescript
+// ❌ Sin validación
+function createUser(data) {
+  const user = db.insert(users).values(data)
+}
+
+// ✅ Con validación
+const userSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1),
+  age: z.number().int().positive(),
+})
+
+function createUser(data: unknown): Promise<User> {
+  const validated = userSchema.parse(data)
+  return db.insert(users).values(validated)
+}
+```
+
+---
+
+### 📦 Inyección de Dependencias
+Evitar acoplamiento fuerte. Los servicios deben pasarse como argumentos o mediante contenedores para facilitar los Unit Tests.
+
+```typescript
+// ❌ Acoplamiento fuerte
+class UserService {
+  constructor() {
+    this.db = new Database()
+    this.email = new EmailService()
+  }
+}
+
+// ✅ Inyección de dependencias
+class UserService {
+  constructor(
+    private db: Database,
+    private email: EmailService
+  ) {}
+}
+```
+
+---
+
+### 🌑 Idempotencia en APIs
+Cualquier operación POST, PUT o DELETE debe diseñarse para que, si se ejecuta dos veces por error de red, el resultado sea el mismo **sin duplicar datos**.
+
+```typescript
+// ❌ No idempotente (duplica si falla la red)
+async function createSubscription(userId: string) {
+  return db.insert(subscriptions).values({ userId })
+}
+
+// ✅ Idempotente (usa upsert)
+async function createSubscription(userId: string) {
+  return db.insert(subscriptions).values({ userId })
+    .onConflictDoUpdate({ userId })
+}
+```
+
+---
+
+## ⚡ RENDIMIENTO Y RECURSOS
+
+### 🧵 Evitar Bloqueos del Event Loop
+En Node.js, **nunca** realizar operaciones síncronas (`fs.readFileSync`) en rutas críticas. Todo debe ser asíncrono.
+
+```typescript
+// ❌ Bloquea el event loop
+const data = fs.readFileSync('file.txt', 'utf8')
+
+// ✅ Asíncrono
+const data = await fs.readFile('file.txt', 'utf8')
+```
+
+---
+
+### 📉 Optimización de Consultas
+**Prohibido `SELECT *`**. Solo se piden los campos necesarios. Si hay un bucle que hace consultas, refactoriza a un JOIN o IN clause (evitar el problema **N+1**).
+
+```typescript
+// ❌ N+1 problem
+const users = await db.select().from(users)
+for (const user of users) {
+  const posts = await db.select().from(posts).where(eq(posts.userId, user.id))
+}
+
+// ✅ Una sola consulta
+const data = await db.select({
+  user: users,
+  posts: posts,
+}).from(users).leftJoin(posts, eq(users.id, posts.userId))
+```
+
+---
+
+### 🖼️ Lazy Loading por Defecto
+En Frontend, componentes pesados o rutas deben cargarse mediante **Code Splitting** para mantener un Lighthouse Score alto.
+
+```typescript
+// ✅ Cargar componente bajo demanda
+const HeavyComponent = lazy(() => import('./HeavyComponent'))
+
+<Suspense fallback={<Loading />}>
+  <HeavyComponent />
+</Suspense>
+```
+
+---
+
+## 🧹 LIMPIEZA Y MANTENIBILIDAD
+
+### Naming Semántico
+**Prohibidas** variables tipo `data`, `res` o `item`. Deben ser descriptivas: `userProfileResponse`, `filteredProductList`.
+
+```typescript
+// ❌ Nombres genéricos
+const data = await api.fetch()
+const res = processData(data)
+const items = res.items
+
+// ✅ Nombres semánticos
+const userProfiles = await api.fetchUserProfiles()
+const validatedProfiles = validateProfiles(userProfiles)
+const filteredUsers = validatedProfiles.activeUsers
+```
+
+---
+
+### Estado Inmutable
+**Nunca** mutar objetos o arrays directamente. Usar spread operators o métodos que retornen nuevas instancias para evitar **side-effects** impredecibles.
+
+```typescript
+// ❌ Mutación directa
+user.email = 'new@email.com'
+orders.push(newOrder)
+
+// ✅ Inmutable
+const updatedUser = { ...user, email: 'new@email.com' }
+const updatedOrders = [...orders, newOrder]
+```
+
+---
+
+### Errores Tipificados
+**No usar `throw new Error("error")`**. Definir clases de error personalizadas para un manejo profesional.
+
+```typescript
+// ❌ Genérico
+throw new Error("Authentication failed")
+
+// ✅ Tipificado
+class AuthError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'AuthError'
+  }
+}
+
+throw new AuthError("Invalid credentials")
+```
+
+---
+
+## 🔗 INTEGRACIÓN Y SEGURIDAD
+
+### 🔑 Secretos en Entorno
+**Nunca hardcodear credenciales**. Uso obligatorio de `.env` y verificación de que estas variables existen en el arranque del sistema (fail-fast).
+
+```typescript
+// ❌ NUNCA
+const apiKey = "sk_live_1234567890"
+
+// ✅ SIEMPRE
+const apiKey = process.env.STRIPE_API_KEY
+if (!apiKey) {
+  throw new Error('STRIPE_API_KEY is not defined')
+}
+```
+
+---
+
+### 📝 Logs Estructurados
+**No usar `console.log`**. Implementar logs con niveles (info, warn, error) y formato JSON para herramientas como Datadog o ELK Stack.
+
+```typescript
+// ❌ console.log
+console.log('User created', user)
+
+// ✅ Logger estructurado
+logger.info('User created', {
+  userId: user.id,
+  email: user.email,
+  timestamp: new Date().toISOString(),
+  level: 'INFO'
+})
+```
+
+---
+
 ## 📚 DOCUMENTACIÓN COMPLETA
 
 ### Para tareas específicas, consulta:
@@ -411,53 +696,43 @@ Remove-Item -Recurse -Force node_modules/.cache
 
 ---
 
-## 🐧 PARA DEVELOPERS EN WINDOWS: USA WSL2
+## 🪟 PARA DEVELOPERS EN WINDOWS: USA WINDOWS NATIVO
 
-**⚠️ IMPORTANTE:** Si estás en Windows, te ahorrarás HORAS de frustración usando WSL2 en lugar de Windows nativo.
+**⚠️ IMPORTANTE:** WSL2 no es recomendado para este repo por inestabilidad observada. El entorno soportado es Windows con PowerShell.
 
-### Por qué WSL2 > Windows nativo
+### Por qué Windows nativo es la opción estable aquí
 
-| Aspecto | Windows nativo | WSL2 (Ubuntu) |
-|---------|----------------|---------------|
-| **Emojis en código** | 🔴 Crash UTF-8 | ✅ Sin problemas |
-| **Cache Next.js** | 🔴 Corrupto frecuente | ✅ Raros |
-| **Build speed** | 🟡 Medio | ✅ 2-3x más rápido |
-| **Scripts bash** | 🔴 Necesita adaptar | ✅ Funcionan nativos |
-| **Mismo que producción** | ❌ No | ✅ Sí (Linux) |
+| Aspecto | Windows nativo |
+|---------|----------------|
+| **Emojis en código** | ✅ Bloqueo preventivo antes de dev/build |
+| **Cache Next.js** | 🟡 Controlable con limpieza guiada |
+| **Scripts PowerShell** | ✅ Integrados y probados |
+| **Tooling del repo** | ✅ Alineado con scripts existentes |
 
-### Setup WSL2 (15 minutos)
+### Setup Windows (5 minutos)
 
 ```powershell
-# 1. Instalar WSL2
-wsl --install
+# 1. Verificar Node.js 20+ instalado
+node -v
 
-# 2. Reiniciar PC
-
-# 3. Abrir Ubuntu
-wsl -d Ubuntu
-
-# 4. Instalar Node.js 20
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-source ~/.bashrc
-nvm install 20
+# 2. Instalar pnpm (si falta)
 npm install -g pnpm
 
-# 5. Ir a tu proyecto
-cd /mnt/c/Quoorum
+# 3. Instalar dependencias
+cd C:\Quoorum
 pnpm install
-pnpm dev
+
+# 4. Iniciar servidor (bloquea emojis antes de levantar)
+pnpm dev:no-fix
 ```
 
-**Guía completa:** [docs/claude/11-faq.md#wsl2-setup](./docs/claude/11-faq.md)
+**Guía completa:** [docs/claude/11-faq.md#windows-setup](./docs/claude/11-faq.md)
 
-### Ventajas inmediatas
+### Reglas prácticas
 
-- ✅ **No más errores UTF-8** - Puedes usar emojis en logs
-- ✅ **Menos cache corruption** - File watching mejor
-- ✅ **Builds más rápidos** - I/O nativo de Linux
-- ✅ **Mismo entorno que producción** - Vercel usa Linux
-
-**Regla de oro:** Si desarrollas en Windows + Node.js/React, usa WSL2. Es lo que usa el 90% de la industria.
+- ✅ Ejecuta `pnpm check:emoji` si sospechas de errores UTF-8
+- ✅ Usa `pnpm dev:no-fix` para evitar hooks pesados
+- ✅ Limpia cache con `Remove-Item -Recurse -Force .next` cuando HMR falle
 
 ---
 

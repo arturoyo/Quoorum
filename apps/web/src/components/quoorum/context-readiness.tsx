@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -131,7 +131,7 @@ export function ContextReadiness({
   return (
     <div className="space-y-6">
       {/* Main Score Card */}
-      <Card className="border-[#2a3942] bg-gradient-to-br from-[#111b21] to-[#1a2730]">
+      <Card className="styles.colors.border.default bg-gradient-to-br from-[#111b21] to-[#1a2730]">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export function ContextReadiness({
               {getReadinessLabel(assessment.readinessLevel).text}
             </Badge>
           </div>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardDescription className="styles.colors.text.secondary">
             {assessment.summary}
           </CardDescription>
         </CardHeader>
@@ -152,12 +152,12 @@ export function ContextReadiness({
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-[var(--theme-text-secondary)]">Nivel de contexto</span>
+              <span className="styles.colors.text.secondary">Nivel de contexto</span>
               <span className={`font-bold ${getScoreColor(assessment.overallScore)}`}>
                 {assessment.overallScore}%
               </span>
             </div>
-            <div className="relative h-3 w-full overflow-hidden rounded-full bg-[#2a3942]">
+            <div className="relative h-3 w-full overflow-hidden rounded-full styles.colors.bg.input">
               <motion.div
                 className={`h-full ${getProgressColor(assessment.overallScore)}`}
                 initial={{ width: 0 }}
@@ -166,12 +166,12 @@ export function ContextReadiness({
               />
               {/* Threshold markers */}
               <div className="absolute inset-0 flex">
-                <div className="w-[30%] border-r border-[var(--theme-border)]" />
-                <div className="w-[20%] border-r border-[var(--theme-border)]" />
-                <div className="w-[25%] border-r border-[var(--theme-border)]" />
+                <div className="w-[30%] border-r styles.colors.border.default" />
+                <div className="w-[20%] border-r styles.colors.border.default" />
+                <div className="w-[25%] border-r styles.colors.border.default" />
               </div>
             </div>
-            <div className="flex justify-between text-xs text-[var(--theme-text-tertiary)]">
+            <div className="flex justify-between text-xs styles.colors.text.tertiary">
               <span>Insuficiente</span>
               <span>Básico</span>
               <span>Bueno</span>
@@ -184,7 +184,7 @@ export function ContextReadiness({
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-between text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
+                className="w-full justify-between styles.colors.text.secondary hover:styles.colors.text.primary"
               >
                 <span className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
@@ -217,13 +217,13 @@ export function ContextReadiness({
                       <span className="text-sm text-[#e9edef]">{dim.name}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-16 overflow-hidden rounded-full bg-[#2a3942]">
+                      <div className="h-2 w-16 overflow-hidden rounded-full styles.colors.bg.input">
                         <div
                           className={`h-full ${getProgressColor(dim.score)}`}
                           style={{ width: `${dim.score}%` }}
                         />
                       </div>
-                      <span className="text-xs text-[var(--theme-text-secondary)] w-8">{dim.score}%</span>
+                      <span className="text-xs styles.colors.text.secondary w-8">{dim.score}%</span>
                     </div>
                   </div>
                 ))}
@@ -235,7 +235,7 @@ export function ContextReadiness({
 
       {/* Assumptions Section */}
       {assessment.assumptions.length > 0 && (
-        <Card className="border-[#2a3942] bg-[#111b21]">
+        <Card className="styles.colors.border.default styles.colors.bg.secondary">
           <CardHeader
             className="cursor-pointer"
             onClick={() => setActiveSection(activeSection === 'assumptions' ? null : 'assumptions')}
@@ -253,12 +253,12 @@ export function ContextReadiness({
                 )}
               </div>
               {activeSection === 'assumptions' ? (
-                <ChevronUp className="h-5 w-5 text-[var(--theme-text-secondary)]" />
+                <ChevronUp className="h-5 w-5 styles.colors.text.secondary" />
               ) : (
-                <ChevronDown className="h-5 w-5 text-[var(--theme-text-secondary)]" />
+                <ChevronDown className="h-5 w-5 styles.colors.text.secondary" />
               )}
             </div>
-            <CardDescription className="text-[var(--theme-text-secondary)]">
+            <CardDescription className="styles.colors.text.secondary">
               He hecho algunas suposiciones. ¿Son correctas?
             </CardDescription>
           </CardHeader>
@@ -290,7 +290,7 @@ export function ContextReadiness({
 
       {/* Questions Section */}
       {assessment.clarifyingQuestions.length > 0 && (
-        <Card className="border-[#2a3942] bg-[#111b21]">
+        <Card className="styles.colors.border.default styles.colors.bg.secondary">
           <CardHeader
             className="cursor-pointer"
             onClick={() => setActiveSection(activeSection === 'questions' ? null : 'questions')}
@@ -308,12 +308,12 @@ export function ContextReadiness({
                 )}
               </div>
               {activeSection === 'questions' ? (
-                <ChevronUp className="h-5 w-5 text-[var(--theme-text-secondary)]" />
+                <ChevronUp className="h-5 w-5 styles.colors.text.secondary" />
               ) : (
-                <ChevronDown className="h-5 w-5 text-[var(--theme-text-secondary)]" />
+                <ChevronDown className="h-5 w-5 styles.colors.text.secondary" />
               )}
             </div>
-            <CardDescription className="text-[var(--theme-text-secondary)]">
+            <CardDescription className="styles.colors.text.secondary">
               Responder estas preguntas mejorará la calidad del debate
             </CardDescription>
           </CardHeader>
@@ -344,12 +344,12 @@ export function ContextReadiness({
       )}
 
       {/* Additional Context */}
-      <Card className="border-[#2a3942] bg-[#111b21]">
+      <Card className="styles.colors.border.default styles.colors.bg.secondary">
         <CardHeader>
           <CardTitle className="text-base text-[#e9edef]">
             ¿Algo más que añadir?
           </CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardDescription className="styles.colors.text.secondary">
             Cualquier detalle adicional que pueda ser relevante
           </CardDescription>
         </CardHeader>
@@ -358,7 +358,7 @@ export function ContextReadiness({
             value={answers.additionalContext}
             onChange={(e) => handleAdditionalContext(e.target.value)}
             placeholder="Contexto adicional, detalles importantes, restricciones específicas..."
-            className="min-h-[100px] border-[#2a3942] bg-[#1a2730] text-[#e9edef] placeholder:text-[var(--theme-text-tertiary)]"
+            className="min-h-[100px] styles.colors.border.default bg-[#1a2730] text-[#e9edef] placeholder:styles.colors.text.tertiary"
           />
         </CardContent>
       </Card>
@@ -369,7 +369,7 @@ export function ContextReadiness({
           variant="outline"
           onClick={onRefine}
           disabled={isAnalyzing}
-          className="border-[#2a3942] text-[var(--theme-text-secondary)] hover:bg-[#1a2730]"
+          className="styles.colors.border.default styles.colors.text.secondary hover:bg-[#1a2730]"
         >
           {isAnalyzing ? (
             <>
@@ -404,7 +404,7 @@ export function ContextReadiness({
 
       {/* Recommendation message */}
       {assessment.recommendedAction !== 'proceed' && (
-        <p className="text-center text-sm text-[var(--theme-text-secondary)]">
+        <p className="text-center text-sm styles.colors.text.secondary">
           {assessment.recommendedAction === 'clarify' && (
             <>
               <AlertCircle className="mr-1 inline h-4 w-4 text-yellow-400" />
@@ -434,7 +434,7 @@ function AssumptionCard({
   onResponse: (confirmed: boolean) => void;
 }) {
   return (
-    <div className="rounded-lg border border-[#2a3942] bg-[#1a2730] p-4">
+    <div className="rounded-lg border styles.colors.border.default bg-[#1a2730] p-4">
       <p className="mb-3 text-sm text-[#e9edef]">
         "{assumption.assumption}"
       </p>
@@ -446,7 +446,7 @@ function AssumptionCard({
           className={
             response === true
               ? 'bg-green-600 hover:bg-green-700'
-              : 'border-[#2a3942] text-[var(--theme-text-secondary)] hover:bg-[#2a3942]'
+              : 'styles.colors.border.default styles.colors.text.secondary hover:styles.colors.bg.input'
           }
         >
           <CheckCircle className="mr-1 h-3 w-3" />
@@ -459,7 +459,7 @@ function AssumptionCard({
           className={
             response === false
               ? 'bg-red-600 hover:bg-red-700'
-              : 'border-[#2a3942] text-[var(--theme-text-secondary)] hover:bg-[#2a3942]'
+              : 'styles.colors.border.default styles.colors.text.secondary hover:styles.colors.bg.input'
           }
         >
           <AlertCircle className="mr-1 h-3 w-3" />
@@ -468,14 +468,14 @@ function AssumptionCard({
       </div>
       {response === false && assumption.alternatives && assumption.alternatives.length > 0 && (
         <div className="mt-3 space-y-2">
-          <p className="text-xs text-[var(--theme-text-secondary)]">¿Cuál aplica mejor?</p>
+          <p className="text-xs styles.colors.text.secondary">¿Cuál aplica mejor?</p>
           <RadioGroup className="gap-2">
             {assumption.alternatives.map((alt, i) => (
               <div key={i} className="flex items-center space-x-2">
                 <RadioGroupItem value={alt} id={`${assumption.id}-alt-${i}`} />
                 <Label
                   htmlFor={`${assumption.id}-alt-${i}`}
-                  className="text-sm text-[var(--theme-text-secondary)]"
+                  className="text-sm styles.colors.text.secondary"
                 >
                   {alt}
                 </Label>
@@ -507,7 +507,7 @@ function QuestionCard({
   const priorityBadge = {
     critical: { text: 'Crítica', color: 'bg-red-500/20 text-red-400' },
     important: { text: 'Importante', color: 'bg-yellow-500/20 text-yellow-400' },
-    'nice-to-have': { text: 'Opcional', color: 'bg-gray-500/20 text-[var(--theme-text-secondary)]' },
+    'nice-to-have': { text: 'Opcional', color: 'bg-gray-500/20 styles.colors.text.secondary' },
   };
 
   return (
@@ -530,7 +530,7 @@ function QuestionCard({
               <RadioGroupItem value={option} id={`${question.id}-opt-${i}`} />
               <Label
                 htmlFor={`${question.id}-opt-${i}`}
-                className="text-sm text-[var(--theme-text-secondary)]"
+                className="text-sm styles.colors.text.secondary"
               >
                 {option}
               </Label>
@@ -542,7 +542,7 @@ function QuestionCard({
           value={typeof response === 'string' ? response : ''}
           onChange={(e) => onResponse(e.target.value)}
           placeholder="Tu respuesta..."
-          className="min-h-[80px] border-[#2a3942] bg-[#1a2730] text-[#e9edef] placeholder:text-[var(--theme-text-tertiary)]"
+          className="min-h-[80px] styles.colors.border.default bg-[#1a2730] text-[#e9edef] placeholder:styles.colors.text.tertiary"
         />
       )}
     </div>

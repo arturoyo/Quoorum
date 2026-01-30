@@ -41,7 +41,7 @@ export const WORKER_TEMPLATES: WorkerTemplate[] = [
 Enfoque: Pensamiento estratégico, visión holística, toma de decisiones basada en datos y experiencia.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.7,
     },
     avatar: '👔',
@@ -64,7 +64,7 @@ Enfoque: Pensamiento estratégico, visión holística, toma de decisiones basada
 Enfoque: Pensamiento técnico profundo, balance entre innovación y pragmatismo, liderazgo de equipos técnicos.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.6,
     },
     avatar: '💻',
@@ -87,7 +87,7 @@ Enfoque: Pensamiento técnico profundo, balance entre innovación y pragmatismo,
 Enfoque: Análisis cuantitativo, pensamiento conservador en riesgos financieros, optimización de recursos.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.5,
     },
     avatar: '💰',
@@ -110,7 +110,7 @@ Enfoque: Análisis cuantitativo, pensamiento conservador en riesgos financieros,
 Enfoque: Pensamiento creativo y analítico, orientado a resultados, data-driven marketing.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.7,
     },
     avatar: '📢',
@@ -133,7 +133,7 @@ Enfoque: Pensamiento creativo y analítico, orientado a resultados, data-driven 
 Enfoque: Pensamiento sistemático, orientado a procesos, eficiencia y ejecución.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.6,
     },
     avatar: '⚙️',
@@ -160,7 +160,7 @@ Enfoque: Pensamiento sistemático, orientado a procesos, eficiencia y ejecución
 Enfoque: Orientado a resultados, pensamiento comercial, liderazgo de equipos de alto rendimiento.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.7,
     },
     avatar: '💼',
@@ -183,7 +183,7 @@ Enfoque: Orientado a resultados, pensamiento comercial, liderazgo de equipos de 
 Enfoque: Pensamiento centrado en el usuario, data-driven, balance entre visión y ejecución.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.7,
     },
     avatar: '[INFO]',
@@ -206,7 +206,7 @@ Enfoque: Pensamiento centrado en el usuario, data-driven, balance entre visión 
 Enfoque: Liderazgo técnico, pensamiento arquitectónico, balance entre pragmatismo y excelencia técnica.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.6,
     },
     avatar: '🛠️',
@@ -233,7 +233,7 @@ Enfoque: Liderazgo técnico, pensamiento arquitectónico, balance entre pragmati
 Enfoque: Data-driven, creativo, orientado a resultados y crecimiento.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.7,
     },
     avatar: '📈',
@@ -256,7 +256,7 @@ Enfoque: Data-driven, creativo, orientado a resultados y crecimiento.`,
 Enfoque: Pensamiento sistemático, orientado a procesos, eficiencia y mejora continua.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.6,
     },
     avatar: '📊',
@@ -283,7 +283,7 @@ Enfoque: Pensamiento sistemático, orientado a procesos, eficiencia y mejora con
 Enfoque: Centrado en el usuario, data-driven, comunicación efectiva, balance entre visión y ejecución.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.7,
     },
     avatar: '📋',
@@ -306,7 +306,7 @@ Enfoque: Centrado en el usuario, data-driven, comunicación efectiva, balance en
 Enfoque: Liderazgo técnico, pensamiento arquitectónico, balance entre velocidad y calidad.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.6,
     },
     avatar: '👨‍💻',
@@ -329,7 +329,7 @@ Enfoque: Liderazgo técnico, pensamiento arquitectónico, balance entre velocida
 Enfoque: Orientado a resultados, liderazgo, pensamiento comercial, desarrollo de equipos.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.7,
     },
     avatar: '[INFO]',
@@ -356,7 +356,7 @@ Enfoque: Orientado a resultados, liderazgo, pensamiento comercial, desarrollo de
 Enfoque: Excelencia técnica, pensamiento arquitectónico, mentoring, calidad de código.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.6,
     },
     avatar: '👨‍💻',
@@ -379,7 +379,7 @@ Enfoque: Excelencia técnica, pensamiento arquitectónico, mentoring, calidad de
 Enfoque: Calidad de código, colaboración, aprendizaje continuo, ejecución.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.6,
     },
     avatar: '💻',
@@ -402,7 +402,7 @@ Enfoque: Calidad de código, colaboración, aprendizaje continuo, ejecución.`,
 Enfoque: Aprendizaje, colaboración, seguir mejores prácticas, crecimiento profesional.`,
     aiConfig: {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: 0.7,
     },
     avatar: '🌱',

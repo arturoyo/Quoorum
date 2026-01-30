@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import {
   AlertDialog,
@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { cn, styles } from '@/lib/utils'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -36,17 +37,22 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+      <AlertDialogContent className={cn(styles.colors.border.default, styles.colors.bg.secondary, 'backdrop-blur-xl')}>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-[var(--theme-text-primary)]">{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-[var(--theme-text-secondary)]">
+          <AlertDialogTitle className={styles.colors.text.primary}>{title}</AlertDialogTitle>
+          <AlertDialogDescription className={styles.colors.text.secondary}>
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
             disabled={isLoading}
-            className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+            className={cn(
+              styles.colors.border.default,
+              styles.colors.bg.tertiary,
+              styles.colors.text.primary,
+              'hover:bg-[var(--theme-bg-tertiary)]'
+            )}
           >
             {cancelText}
           </AlertDialogCancel>

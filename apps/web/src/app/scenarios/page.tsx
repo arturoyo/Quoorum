@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * Scenarios Page
@@ -97,9 +97,9 @@ export default function ScenariosPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[var(--theme-bg-primary)]">
+      <div className="min-h-screen styles.colors.bg.primary">
         <AppHeader variant="app" />
-        <main className="container mx-auto px-4 pt-24 pb-12">
+        <main className="container mx-auto px-4 pt-20 pb-16">
           <div className="text-center">
             <p className="text-red-400">Error al cargar escenarios: {error.message}</p>
           </div>
@@ -109,7 +109,7 @@ export default function ScenariosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--theme-bg-primary)]">
+    <div className="min-h-screen styles.colors.bg.primary">
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[var(--theme-bg-primary)] to-blue-900/20" />
@@ -118,16 +118,16 @@ export default function ScenariosPage() {
 
       <AppHeader variant="app" />
 
-      <main className="container mx-auto px-4 pt-24 pb-12 max-w-7xl">
+      <main className="container mx-auto px-4 pt-20 pb-16 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <Sparkles className="h-8 w-8 text-purple-400" />
-            <h1 className="text-3xl font-bold text-[var(--theme-text-primary)]">
+            <h1 className="text-3xl font-bold styles.colors.text.primary">
               Escenarios
             </h1>
           </div>
-          <p className="text-[var(--theme-text-secondary)] max-w-2xl">
+          <p className="styles.colors.text.secondary max-w-2xl">
             Decision Playbooks preconfigurados que seleccionan expertos, frameworks y contextos
             para garantizar decisiones de alta calidad con un solo clic.
           </p>
@@ -137,13 +137,13 @@ export default function ScenariosPage() {
         <div className="mb-6 space-y-4">
           {/* Search */}
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--theme-text-secondary)]" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 styles.colors.text.secondary" />
             <Input
               type="text"
               placeholder="Buscar escenarios..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-10 w-full rounded-lg border-[var(--theme-border)] bg-[var(--theme-bg-input)] pl-10 text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+              className="h-10 w-full rounded-lg styles.colors.border.default styles.colors.bg.input pl-10 styles.colors.text.primary placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
             />
           </div>
 
@@ -155,7 +155,7 @@ export default function ScenariosPage() {
               className={
                 selectedSegment === 'all'
                   ? 'bg-purple-600 text-white'
-                  : 'border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-tertiary)]'
+                  : 'styles.colors.border.default styles.colors.bg.input styles.colors.text.secondary hover:styles.colors.bg.tertiary'
               }
               onClick={() => setSelectedSegment('all')}
             >
@@ -171,7 +171,7 @@ export default function ScenariosPage() {
                   className={
                     selectedSegment === segment
                       ? 'bg-purple-600 text-white'
-                      : 'border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-tertiary)]'
+                      : 'styles.colors.border.default styles.colors.bg.input styles.colors.text.secondary hover:styles.colors.bg.tertiary'
                   }
                   onClick={() => setSelectedSegment(segment)}
                 >
@@ -187,7 +187,7 @@ export default function ScenariosPage() {
         {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+              <Card key={i} className="styles.colors.bg.secondary styles.colors.border.default">
                 <CardHeader>
                   <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-full mt-2" />
@@ -200,7 +200,7 @@ export default function ScenariosPage() {
           </div>
         ) : scenarios.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-[var(--theme-text-secondary)]">
+            <p className="styles.colors.text.secondary">
               No se encontraron escenarios activos
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function ScenariosPage() {
               return (
                 <Card
                   key={scenario.id}
-                  className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] hover:border-purple-500/40 transition-all duration-300"
+                  className="styles.colors.bg.secondary styles.colors.border.default hover:border-purple-500/40 transition-all duration-300"
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
@@ -220,24 +220,24 @@ export default function ScenariosPage() {
                         {segmentLabels[scenario.segment]}
                       </Badge>
                       {scenario.usageCount > 0 && (
-                        <span className="text-xs text-[var(--theme-text-tertiary)]">
+                        <span className="text-xs styles.colors.text.tertiary">
                           {scenario.usageCount} usos
                         </span>
                       )}
                     </div>
-                    <CardTitle className="text-[var(--theme-text-primary)]">
+                    <CardTitle className="styles.colors.text.primary">
                       {scenario.name}
                     </CardTitle>
-                    <CardDescription className="text-[var(--theme-text-secondary)]">
+                    <CardDescription className="styles.colors.text.secondary">
                       {scenario.shortDescription || scenario.description.substring(0, 100)}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-[var(--theme-text-secondary)] mb-4 line-clamp-3">
+                    <p className="text-sm styles.colors.text.secondary mb-4 line-clamp-3">
                       {scenario.description}
                     </p>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-[var(--theme-text-tertiary)]">
+                      <div className="flex items-center gap-2 text-xs styles.colors.text.tertiary">
                         <Target className="h-3 w-3" />
                         <span>{scenario.expertIds?.length || 0} expertos</span>
                       </div>

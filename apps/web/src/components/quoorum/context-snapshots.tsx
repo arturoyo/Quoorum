@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { motion } from 'framer-motion'
 import { Save, History, Download, Trash2, Check } from 'lucide-react'
@@ -75,11 +75,11 @@ export function ContextSnapshots({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <History className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">
+              <h3 className="text-lg font-semibold styles.colors.text.primary">
                 ?? Context Snapshots
               </h3>
             </div>
-            <p className="mt-1 text-sm text-[#aebac1]">
+            <p className="mt-1 text-sm styles.colors.text.secondary">
               Guarda y restaura versiones de tu contexto para iterar r�pidamente
             </p>
           </div>
@@ -88,7 +88,7 @@ export function ContextSnapshots({
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-[var(--theme-text-primary)]"
+            className="styles.colors.text.tertiary hover:styles.colors.text.primary"
           >
             Cerrar
           </Button>
@@ -100,7 +100,7 @@ export function ContextSnapshots({
             value={snapshotName}
             onChange={(e) => setSnapshotName(e.target.value)}
             placeholder="Nombre del snapshot (ej: 'Primera versi�n')"
-            className="flex-1 border-[#2a3942] bg-[#111b21] text-[var(--theme-text-primary)] placeholder:text-[#8696a0]"
+            className="flex-1 styles.colors.border.default styles.colors.bg.secondary styles.colors.text.primary placeholder:styles.colors.text.tertiary"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSave()
@@ -122,28 +122,28 @@ export function ContextSnapshots({
         </div>
 
         {/* Current Score */}
-        <div className="mt-3 rounded border border-[#2a3942] bg-[#0b141a] p-3">
+        <div className="mt-3 rounded border styles.colors.border.default styles.colors.bg.primary p-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[#8696a0]">Score actual:</span>
-            <span className="font-semibold text-[var(--theme-text-primary)]">{currentScore}%</span>
+            <span className="styles.colors.text.tertiary">Score actual:</span>
+            <span className="font-semibold styles.colors.text.primary">{currentScore}%</span>
           </div>
         </div>
       </div>
 
       {/* Snapshots List */}
       {sortedSnapshots.length === 0 ? (
-        <Card className="border-[#2a3942] bg-[#111b21] p-8 text-center">
-          <History className="mx-auto h-12 w-12 text-[#8696a0] mb-4" />
-          <p className="text-sm text-[#aebac1]">
+        <Card className="styles.colors.border.default styles.colors.bg.secondary p-8 text-center">
+          <History className="mx-auto h-12 w-12 styles.colors.text.tertiary mb-4" />
+          <p className="text-sm styles.colors.text.secondary">
             No hay snapshots guardados a�n
           </p>
-          <p className="text-xs text-[#8696a0] mt-2">
+          <p className="text-xs styles.colors.text.tertiary mt-2">
             Guarda una versi�n para poder volver a ella m�s tarde
           </p>
         </Card>
       ) : (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-[var(--theme-text-primary)]">
+          <h4 className="text-sm font-semibold styles.colors.text.primary">
             ?? Snapshots Guardados ({sortedSnapshots.length})
           </h4>
           {sortedSnapshots.map((snapshot, index) => {
@@ -157,20 +157,20 @@ export function ContextSnapshots({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="border-[#2a3942] bg-[#111b21] p-4 transition-all hover:border-purple-500/40">
+                <Card className="styles.colors.border.default styles.colors.bg.secondary p-4 transition-all hover:border-purple-500/40">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h5 className="text-sm font-semibold text-[var(--theme-text-primary)]">
+                        <h5 className="text-sm font-semibold styles.colors.text.primary">
                           {snapshot.name}
                         </h5>
                         {isAuto && (
-                          <Badge variant="outline" className="border-[#2a3942] bg-[#0b141a] text-[#8696a0] text-xs">
+                          <Badge variant="outline" className="styles.colors.border.default styles.colors.bg.primary styles.colors.text.tertiary text-xs">
                             Auto
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-[#8696a0]">
+                      <p className="text-xs styles.colors.text.tertiary">
                         Guardado hace{' '}
                         {formatDistanceToNow(new Date(snapshot.createdAt), {
                           locale: es,
@@ -183,7 +183,7 @@ export function ContextSnapshots({
                         onClick={() => onRestore(snapshot.id)}
                         size="sm"
                         variant="outline"
-                        className="border-[#2a3942] text-[#aebac1] hover:bg-purple-600 hover:text-white hover:border-purple-600"
+                        className="styles.colors.border.default styles.colors.text.secondary hover:bg-purple-600 hover:text-white hover:border-purple-600"
                       >
                         <Download className="mr-1 h-3 w-3" />
                         Restaurar
@@ -201,20 +201,20 @@ export function ContextSnapshots({
 
                   {/* Snapshot Stats */}
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="rounded border border-[#2a3942] bg-[#0b141a] p-2">
-                      <p className="text-xs text-[#8696a0] mb-1">Score</p>
-                      <p className="text-lg font-bold text-[var(--theme-text-primary)]">{snapshot.score}%</p>
+                    <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-2">
+                      <p className="text-xs styles.colors.text.tertiary mb-1">Score</p>
+                      <p className="text-lg font-bold styles.colors.text.primary">{snapshot.score}%</p>
                     </div>
 
-                    <div className="rounded border border-[#2a3942] bg-[#0b141a] p-2">
-                      <p className="text-xs text-[#8696a0] mb-1">Cambio</p>
+                    <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-2">
+                      <p className="text-xs styles.colors.text.tertiary mb-1">Cambio</p>
                       <p
                         className={`text-lg font-bold ${
                           scoreChange > 0
                             ? 'text-green-400'
                             : scoreChange < 0
                             ? 'text-red-400'
-                            : 'text-[#8696a0]'
+                            : 'styles.colors.text.tertiary'
                         }`}
                       >
                         {scoreChange > 0 ? '+' : ''}
@@ -222,9 +222,9 @@ export function ContextSnapshots({
                       </p>
                     </div>
 
-                    <div className="rounded border border-[#2a3942] bg-[#0b141a] p-2">
-                      <p className="text-xs text-[#8696a0] mb-1">Dimensiones</p>
-                      <p className="text-lg font-bold text-[var(--theme-text-primary)]">
+                    <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-2">
+                      <p className="text-xs styles.colors.text.tertiary mb-1">Dimensiones</p>
+                      <p className="text-lg font-bold styles.colors.text.primary">
                         {snapshot.dimensions.filter((d) => d.score >= 70).length}/
                         {snapshot.dimensions.length}
                       </p>
@@ -251,7 +251,7 @@ export function ContextSnapshots({
                     {snapshot.dimensions.length > 5 && (
                       <Badge
                         variant="outline"
-                        className="border-[#2a3942] bg-[#0b141a] text-[#8696a0] text-xs"
+                        className="styles.colors.border.default styles.colors.bg.primary styles.colors.text.tertiary text-xs"
                       >
                         +{snapshot.dimensions.length - 5}
                       </Badge>
@@ -269,10 +269,10 @@ export function ContextSnapshots({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="rounded-lg border border-[#2a3942] bg-[#0b141a] p-3"
+        className="rounded-lg border styles.colors.border.default styles.colors.bg.primary p-3"
       >
-        <p className="text-xs text-[#8696a0]">
-          ?? <span className="text-[#aebac1]">Tip:</span> Guarda snapshots antes de hacer
+        <p className="text-xs styles.colors.text.tertiary">
+          ?? <span className="styles.colors.text.secondary">Tip:</span> Guarda snapshots antes de hacer
           cambios grandes. Puedes comparar versiones y volver atr�s si es necesario.
         </p>
       </motion.div>

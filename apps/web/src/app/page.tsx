@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from "next/link";
 import Image from "next/image";
@@ -19,7 +19,7 @@ import {
   Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { CTASection } from "@/components/ui/cta-section";
@@ -205,8 +205,8 @@ export default function HomePage() {
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[var(--theme-landing-bg)] to-cyan-900/20" />
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/30 dark:bg-purple-500/30 rounded-full blur-[128px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/30 dark:bg-cyan-500/30 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/20 dark:bg-pink-500/20 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/30 dark:bg-cyan-500/30 rounded-full blur-[128px] animate-pulse [animation-delay:1s]" />
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/20 dark:bg-pink-500/20 rounded-full blur-[128px] animate-pulse [animation-delay:2s]" />
       </div>
 
       {/* Grid pattern overlay */}
@@ -228,7 +228,7 @@ export default function HomePage() {
           </div>
 
           {/* Main headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-[var(--theme-text-primary)] max-w-5xl mx-auto leading-[1.1] mb-6 sm:mb-8 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold styles.colors.text.primary max-w-5xl mx-auto leading-[1.1] mb-6 sm:mb-8 tracking-tight">
             Inteligencia de Decisión
             <br />
             para tu{" "}
@@ -241,13 +241,13 @@ export default function HomePage() {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed">
             Plataforma de{" "}
-            <span className="text-[var(--theme-text-primary)] font-medium">
+            <span className="styles.colors.text.primary font-medium">
               Decision Intelligence
             </span>{" "}
             que transforma deliberaciones complejas en insights accionables. Con{" "}
-            <span className="text-[var(--theme-text-primary)] font-medium">
+            <span className="styles.colors.text.primary font-medium">
               93 expertos IA, algoritmos de consenso y certificados inmutables,
             </span>{" "}
             convierte cada decisión en evidencia auditable en minutos, no días.
@@ -261,7 +261,7 @@ export default function HomePage() {
               </GradientCTAButton>
             </Link>
             <Link href="#demo">
-              <Button size="lg" className="relative group overflow-hidden bg-[var(--theme-landing-card)] hover:bg-[var(--theme-landing-card-hover)] text-[var(--theme-text-primary)] border border-[var(--theme-landing-border)] hover:border-[var(--theme-landing-border-hover)] backdrop-blur-xl px-10 h-14 text-lg transition-all">
+              <Button size="lg" className="relative group overflow-hidden bg-[var(--theme-landing-card)] hover:bg-[var(--theme-landing-card-hover)] styles.colors.text.primary border border-[var(--theme-landing-border)] hover:border-[var(--theme-landing-border-hover)] backdrop-blur-xl px-10 h-14 text-lg transition-all">
                 <span className="relative z-10 flex items-center gap-2">
                   Ver Demo
                   <Layers className="w-5 h-5 group-hover:rotate-12 transition-transform" />
@@ -271,24 +271,24 @@ export default function HomePage() {
           </div>
 
           {/* Trust badges */}
-          <div className="flex items-center justify-center gap-8 mt-16 text-sm text-[var(--theme-text-tertiary)]">
+          <div className="flex items-center justify-center gap-8 mt-16 text-sm styles.colors.text.tertiary">
             <div className="flex items-center gap-2 group">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center border border-green-500/20 group-hover:border-green-500/40 transition-all">
                 <CheckCircle className="w-4 h-4 text-green-500 dark:text-green-400" />
               </div>
-              <span className="group-hover:text-[var(--theme-text-secondary)] transition-colors">No requiere tarjeta</span>
+              <span className="group-hover:styles.colors.text.secondary transition-colors">No requiere tarjeta</span>
             </div>
             <div className="flex items-center gap-2 group">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-purple-500/20 group-hover:border-purple-500/40 transition-all">
                 <CheckCircle className="w-4 h-4 text-purple-500 dark:text-purple-400" />
               </div>
-              <span className="group-hover:text-[var(--theme-text-secondary)] transition-colors">100 créditos gratis</span>
+              <span className="group-hover:styles.colors.text.secondary transition-colors">100 créditos gratis</span>
             </div>
             <div className="flex items-center gap-2 group">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center border border-cyan-500/20 group-hover:border-cyan-500/40 transition-all">
                 <CheckCircle className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
               </div>
-              <span className="group-hover:text-[var(--theme-text-secondary)] transition-colors">Setup en 2 minutos</span>
+              <span className="group-hover:styles.colors.text.secondary transition-colors">Setup en 2 minutos</span>
             </div>
           </div>
         </div>
@@ -321,7 +321,7 @@ export default function HomePage() {
                     <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-600 dark:text-red-300 font-semibold shrink-0">
                       {item.step}
                     </div>
-                    <p className="text-[var(--theme-text-secondary)] pt-1">{item.text}</p>
+                    <p className="styles.colors.text.secondary pt-1">{item.text}</p>
                   </div>
                 ))}
               </div>
@@ -347,7 +347,7 @@ export default function HomePage() {
                     <div className="w-8 h-8 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center justify-center text-green-600 dark:text-green-300 font-semibold shrink-0">
                       {item.step}
                     </div>
-                    <p className="text-[var(--theme-text-secondary)] pt-1">{item.text}</p>
+                    <p className="styles.colors.text.secondary pt-1">{item.text}</p>
                   </div>
                 ))}
               </div>
@@ -361,7 +361,7 @@ export default function HomePage() {
 
           {/* AI Specialties Grid */}
           <div className="max-w-5xl mx-auto">
-            <h3 className="text-2xl md:text-3xl font-bold text-[var(--theme-text-primary)] text-center mb-12">
+            <h3 className="text-2xl md:text-3xl font-bold styles.colors.text.primary text-center mb-12">
               93 expertos organizados en 8 categorías especializadas
             </h3>
             <div className="grid md:grid-cols-4 gap-4">
@@ -384,14 +384,14 @@ export default function HomePage() {
                     <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                       <category.icon className="w-6 h-6 text-white" />
                     </div>
-                    <h4 className="text-lg font-semibold text-[var(--theme-text-primary)] mb-1">{category.name}</h4>
+                    <h4 className="text-lg font-semibold styles.colors.text.primary mb-1">{category.name}</h4>
                     <p className="text-xs text-purple-400 font-medium mb-2">{category.count}</p>
-                    <p className="text-xs text-[var(--theme-text-tertiary)]">{category.examples}</p>
+                    <p className="text-xs styles.colors.text.tertiary">{category.examples}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <p className="text-center text-[var(--theme-text-secondary)] text-base mt-8 font-medium">
+            <p className="text-center styles.colors.text.secondary text-base mt-8 font-medium">
               Todos los expertos configurables con IA de última generación (GPT-4o, Claude Sonnet, Gemini, DeepSeek)
             </p>
           </div>
@@ -406,7 +406,7 @@ export default function HomePage() {
           </p>
           <div className="flex items-center justify-center gap-16 flex-wrap">
             {["TechCorp", "StartupX", "ConsultingCo", "InvestGroup", "StrategyFirm"].map((company) => (
-              <span key={company} className="text-[var(--theme-landing-social-text)] font-semibold text-xl hover:text-[var(--theme-text-secondary)] transition-colors cursor-default">
+              <span key={company} className="text-[var(--theme-landing-social-text)] font-semibold text-xl hover:styles.colors.text.secondary transition-colors cursor-default">
                 {company}
               </span>
             ))}
@@ -441,10 +441,10 @@ export default function HomePage() {
                 </div>
 
                 {/* Content */}
-                <h3 className="text-xl font-semibold text-[var(--theme-text-primary)] mb-3 transition-all">
+                <h3 className="text-xl font-semibold styles.colors.text.primary mb-3 transition-all">
                   {feature.title}
                 </h3>
-                <p className="text-[var(--theme-text-secondary)] text-sm leading-relaxed">
+                <p className="styles.colors.text.secondary text-sm leading-relaxed">
                   {feature.description}
                 </p>
 
@@ -481,10 +481,10 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <h3 className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-6">{useCase.title}</h3>
+                <h3 className="text-2xl font-semibold styles.colors.text.primary mb-6">{useCase.title}</h3>
                 <ul className="space-y-4">
                   {useCase.examples.map((example) => (
-                    <li key={example} className="flex items-start gap-3 text-[var(--theme-text-secondary)] group/item hover:text-[var(--theme-text-primary)] transition-colors">
+                    <li key={example} className="flex items-start gap-3 styles.colors.text.secondary group/item hover:styles.colors.text.primary transition-colors">
                       <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${useCase.gradient} flex items-center justify-center shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform`}>
                         <CheckCircle className="w-4 h-4 text-white" />
                       </div>
@@ -538,12 +538,12 @@ export default function HomePage() {
                     <item.icon className="w-12 h-12 text-white" />
                   </div>
                   <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-[var(--theme-landing-bg)] border-2 border-[var(--theme-landing-border)] flex items-center justify-center">
-                    <span className="text-2xl font-bold text-[var(--theme-text-primary)]">{item.step}</span>
+                    <span className="text-2xl font-bold styles.colors.text.primary">{item.step}</span>
                   </div>
                 </div>
 
-                <h3 className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4">{item.title}</h3>
-                <p className="text-[var(--theme-text-secondary)] leading-relaxed">{item.description}</p>
+                <h3 className="text-2xl font-semibold styles.colors.text.primary mb-4">{item.title}</h3>
+                <p className="styles.colors.text.secondary leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
@@ -572,7 +572,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Quote */}
-                <p className="text-[var(--theme-text-secondary)] mb-8 leading-relaxed text-lg">
+                <p className="styles.colors.text.secondary mb-8 leading-relaxed text-lg">
                   &quot;{testimonial.quote}&quot;
                 </p>
 
@@ -582,8 +582,8 @@ export default function HomePage() {
                     {testimonial.avatar}
                   </div>
                   <div>
-                    <p className="text-[var(--theme-text-primary)] font-medium text-lg">{testimonial.author}</p>
-                    <p className="text-[var(--theme-text-tertiary)] text-sm">{testimonial.role}</p>
+                    <p className="styles.colors.text.primary font-medium text-lg">{testimonial.author}</p>
+                    <p className="styles.colors.text.tertiary text-sm">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
@@ -621,17 +621,17 @@ export default function HomePage() {
                 )}
 
                 <div className="relative">
-                  <h3 className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-2">{plan.name}</h3>
-                  <p className="text-[var(--theme-text-secondary)] text-sm mb-8">{plan.description}</p>
+                  <h3 className="text-2xl font-semibold styles.colors.text.primary mb-2">{plan.name}</h3>
+                  <p className="styles.colors.text.secondary text-sm mb-8">{plan.description}</p>
 
                   <div className="mb-8">
-                    <span className="text-6xl font-bold text-[var(--theme-text-primary)]">${plan.price}</span>
-                    <span className="text-[var(--theme-text-secondary)] text-lg">/mes</span>
+                    <span className="text-6xl font-bold styles.colors.text.primary">${plan.price}</span>
+                    <span className="styles.colors.text.secondary text-lg">/mes</span>
                   </div>
 
                   <ul className="space-y-4 mb-10">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-3 text-[var(--theme-text-secondary)]">
+                      <li key={feature} className="flex items-center gap-3 styles.colors.text.secondary">
                         <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${plan.gradient} flex items-center justify-center shrink-0`}>
                           <CheckCircle className="w-4 h-4 text-white" />
                         </div>
@@ -645,7 +645,7 @@ export default function HomePage() {
                       className={`w-full h-14 text-lg ${
                         plan.popular
                           ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0"
-                          : "bg-[var(--theme-landing-card)] hover:bg-[var(--theme-landing-card-hover)] text-[var(--theme-text-primary)] border border-[var(--theme-landing-border)]"
+                          : "bg-[var(--theme-landing-card)] hover:bg-[var(--theme-landing-card-hover)] styles.colors.text.primary border border-[var(--theme-landing-border)]"
                       }`}
                     >
                       {plan.cta}
@@ -660,10 +660,10 @@ export default function HomePage() {
 
       {/* CTA */}
       <CTASection>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--theme-text-primary)] mb-6 tracking-tight">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold styles.colors.text.primary mb-6 tracking-tight">
           Empieza a tomar mejores decisiones hoy
         </h2>
-        <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+        <p className="text-xl styles.colors.text.secondary mb-10 max-w-2xl mx-auto">
           Únete a cientos de equipos que usan Quoorum para decisiones estratégicas.
           5 debates gratis, sin tarjeta de crédito.
         </p>

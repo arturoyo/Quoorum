@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/trpc/client'
@@ -29,7 +29,7 @@ import {
 import { Loader2, Sparkles, History, Info, Download, ExternalLink } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { SubscriptionManagementModal } from '../subscription-management-modal'
 import { AddCreditsModal } from '../add-credits-modal'
 import { createClient } from '@/lib/supabase/client'
@@ -154,24 +154,24 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
     <div className={cn('space-y-6', isInModal ? 'pb-8' : 'pb-0')}>
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-[var(--theme-text-primary)]">Panel de facturación</h1>
-        <p className="text-[var(--theme-text-secondary)]">
+        <h1 className="text-3xl font-bold mb-2 styles.colors.text.primary">Panel de facturación</h1>
+        <p className="styles.colors.text.secondary">
           Administra tu suscripción y créditos
         </p>
       </div>
 
       {/* Plan & Credits Section - Estilo Manus */}
       {currentPlan && (
-        <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)] backdrop-blur-xl border-[var(--theme-border)]">
+        <Card className="relative overflow-hidden styles.colors.bg.secondary backdrop-blur-xl styles.colors.border.default">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
           <CardHeader className="relative">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-semibold text-[var(--theme-text-primary)]">
+                <CardTitle className="text-xl font-semibold styles.colors.text.primary">
                   {planName}
                 </CardTitle>
                 {renewalDate && (
-                  <CardDescription className="text-[var(--theme-text-tertiary)]">
+                  <CardDescription className="styles.colors.text.tertiary">
                     Fecha de renovación: {renewalDate}
                   </CardDescription>
                 )}
@@ -202,13 +202,13 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-purple-400" />
-                <h4 className="text-lg font-semibold text-[var(--theme-text-primary)]">Créditos</h4>
+                <h4 className="text-lg font-semibold styles.colors.text.primary">Créditos</h4>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-[var(--theme-text-tertiary)] cursor-help" />
+                      <Info className="h-4 w-4 styles.colors.text.tertiary cursor-help" />
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-xs bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                    <TooltipContent className="max-w-xs styles.colors.bg.tertiary styles.colors.border.default styles.colors.text.primary">
                       <p className="text-sm">
                         Los créditos se usan para generar debates, análisis y síntesis de IA. 1 crédito = 0.01€.
                       </p>
@@ -219,12 +219,12 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <p className="text-sm text-[var(--theme-text-tertiary)]">Créditos gratis</p>
-                  <p className="text-2xl font-bold text-[var(--theme-text-primary)]">{freeCredits.toLocaleString()}</p>
+                  <p className="text-sm styles.colors.text.tertiary">Créditos gratis</p>
+                  <p className="text-2xl font-bold styles.colors.text.primary">{freeCredits.toLocaleString()}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-[var(--theme-text-tertiary)]">Créditos mensuales</p>
-                  <p className="text-2xl font-bold text-[var(--theme-text-primary)]">
+                  <p className="text-sm styles.colors.text.tertiary">Créditos mensuales</p>
+                  <p className="text-2xl font-bold styles.colors.text.primary">
                     {monthlyCredits.toLocaleString()} / {currentPlan?.credits?.toLocaleString() || '0'}
                   </p>
                 </div>
@@ -237,13 +237,13 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <History className="h-5 w-5 text-cyan-400" />
-                <h4 className="text-lg font-semibold text-[var(--theme-text-primary)]">Créditos de actualización diaria</h4>
+                <h4 className="text-lg font-semibold styles.colors.text.primary">Créditos de actualización diaria</h4>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-[var(--theme-text-tertiary)] cursor-help" />
+                      <Info className="h-4 w-4 styles.colors.text.tertiary cursor-help" />
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-xs bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                    <TooltipContent className="max-w-xs styles.colors.bg.tertiary styles.colors.border.default styles.colors.text.primary">
                       <p className="text-sm">
                         Créditos que se restauran automáticamente cada día para mantener tus datos actualizados.
                       </p>
@@ -251,8 +251,8 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <p className="text-2xl font-bold text-[var(--theme-text-primary)]">{currentPlan?.dailyCredits || 0}</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">Se actualizan automáticamente cada día a las 01:00 UTC</p>
+              <p className="text-2xl font-bold styles.colors.text.primary">{currentPlan?.credits || 0}</p>
+              <p className="text-sm styles.colors.text.tertiary">Se actualizan automáticamente cada día a las 01:00 UTC</p>
             </div>
           </CardContent>
         </Card>
@@ -262,15 +262,15 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
       {currentPlan && (
         <Card className="relative overflow-hidden bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-xl border-purple-500/30">
           <CardHeader className="relative">
-            <CardTitle className="text-xl font-semibold text-[var(--theme-text-primary)]">Recomendación de plan</CardTitle>
-            <CardDescription className="text-[var(--theme-text-tertiary)]">
+            <CardTitle className="text-xl font-semibold styles.colors.text.primary">Recomendación de plan</CardTitle>
+            <CardDescription className="styles.colors.text.tertiary">
               Basado en tu uso actual
             </CardDescription>
           </CardHeader>
           <CardContent className="relative space-y-4">
             {currentPlan.tier === 'free' && (
               <div className="space-y-3">
-                <p className="text-sm text-[var(--theme-text-secondary)]">
+                <p className="text-sm styles.colors.text.secondary">
                   Actualmente usas créditos rápidamente. Considera upgradearte al plan <span className="font-semibold text-purple-300">Starter</span> para obtener 300 créditos mensuales.
                 </p>
                 <Button
@@ -283,7 +283,7 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
             )}
             {currentPlan.tier === 'starter' && monthlyCredits > (currentPlan.credits || 0) * 0.8 && (
               <div className="space-y-3">
-                <p className="text-sm text-[var(--theme-text-secondary)]">
+                <p className="text-sm styles.colors.text.secondary">
                   Estás usando el {Math.round((monthlyCredits / (currentPlan.credits || 1)) * 100)}% de tus créditos mensuales. Considera upgradearte al plan <span className="font-semibold text-purple-300">Pro</span> para más flexibilidad.
                 </p>
                 <Button
@@ -296,7 +296,7 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
             )}
             {currentPlan.tier === 'pro' && monthlyCredits > (currentPlan.credits || 0) * 0.8 && (
               <div className="space-y-3">
-                <p className="text-sm text-[var(--theme-text-secondary)]">
+                <p className="text-sm styles.colors.text.secondary">
                   Tu consumo es alto. El plan <span className="font-semibold text-purple-300">Business</span> te ofrece ilimitados créditos mensuales.
                 </p>
                 <Button
@@ -309,7 +309,7 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
             )}
             {(currentPlan.tier === 'free' ? false : monthlyCredits <= (currentPlan.credits || 1) * 0.8) && currentPlan.tier !== 'business' && (
               <div className="space-y-3">
-                <p className="text-sm text-[var(--theme-text-secondary)]">
+                <p className="text-sm styles.colors.text.secondary">
                   Tu plan <span className="font-semibold text-green-300">{currentPlan.tier}</span> es perfecto para tu uso actual. ¡Sigue así!
                 </p>
               </div>
@@ -319,10 +319,10 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
       )}
 
       {/* Actividad Reciente - Estilo Manus */}
-      <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)] backdrop-blur-xl border-[var(--theme-border)]">
+      <Card className="relative overflow-hidden styles.colors.bg.secondary backdrop-blur-xl styles.colors.border.default">
         <CardHeader className="relative">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-semibold text-[var(--theme-text-primary)]">
+            <CardTitle className="text-xl font-semibold styles.colors.text.primary">
               Actividad reciente
             </CardTitle>
             {activeSubscription && (
@@ -354,26 +354,26 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
               <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
             </div>
           ) : invoices.length === 0 ? (
-            <div className="text-center py-8 text-[var(--theme-text-tertiary)]">
+            <div className="text-center py-8 styles.colors.text.tertiary">
               <p>No hay facturas registradas aún</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[var(--theme-border)]">
-                    <TableHead className="text-[var(--theme-text-secondary)]">Fecha</TableHead>
-                    <TableHead className="text-[var(--theme-text-secondary)]">Monto</TableHead>
-                    <TableHead className="text-[var(--theme-text-secondary)] text-right">Acción</TableHead>
+                  <TableRow className="styles.colors.border.default">
+                    <TableHead className="styles.colors.text.secondary">Fecha</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Monto</TableHead>
+                    <TableHead className="styles.colors.text.secondary text-right">Acción</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {invoices.map((invoice) => (
-                    <TableRow key={invoice.id} className="border-[var(--theme-border)] hover:bg-purple-500/5">
-                      <TableCell className="text-[var(--theme-text-primary)]">
+                    <TableRow key={invoice.id} className="styles.colors.border.default hover:bg-purple-500/5">
+                      <TableCell className="styles.colors.text.primary">
                         {format(invoice.date, 'd MMM yyyy', { locale: es })}
                       </TableCell>
-                      <TableCell className="text-[var(--theme-text-primary)] font-medium">
+                      <TableCell className="styles.colors.text.primary font-medium">
                         ${invoice.amount.toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right">
@@ -381,7 +381,7 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(invoice.invoicePdf, '_blank')}
+                            onClick={() => window.open(String(invoice.invoicePdf), '_blank')}
                             className="text-purple-300 hover:text-purple-200 hover:bg-purple-500/10"
                           >
                             <Download className="h-4 w-4 mr-1" />
@@ -391,7 +391,7 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(invoice.hostedInvoiceUrl, '_blank')}
+                            onClick={() => window.open(String(invoice.hostedInvoiceUrl), '_blank')}
                             className="text-purple-300 hover:text-purple-200 hover:bg-purple-500/10"
                           >
                             <Download className="h-4 w-4 mr-1" />

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
@@ -48,7 +48,7 @@ import {
   Clock,
   XCircle,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
 import {
@@ -159,7 +159,7 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
     }
     if (status === 'inactive') {
       return (
-        <Badge className="bg-gray-500/20 text-[var(--theme-text-secondary)] border-gray-500/30">
+        <Badge className="bg-gray-500/20 styles.colors.text.secondary border-gray-500/30">
           Inactivo
         </Badge>
       )
@@ -177,7 +177,7 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
       owner: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
       admin: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
       member: 'bg-green-500/20 text-green-400 border-green-500/30',
-      viewer: 'bg-gray-500/20 text-[var(--theme-text-secondary)] border-gray-500/30',
+      viewer: 'bg-gray-500/20 styles.colors.text.secondary border-gray-500/30',
     }
     return (
       <Badge className={cn('text-xs', roleColors[role as keyof typeof roleColors] || roleColors.member)}>
@@ -191,8 +191,8 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--theme-text-primary)]">Miembros del Equipo</h2>
-          <p className="text-sm text-[var(--theme-text-tertiary)] mt-1">
+          <h2 className="text-2xl font-bold styles.colors.text.primary">Miembros del Equipo</h2>
+          <p className="text-sm styles.colors.text.tertiary mt-1">
             Gestiona los miembros de tu equipo y sus permisos
           </p>
         </div>
@@ -203,16 +203,16 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
               Invitar miembro
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+          <DialogContent className="styles.colors.bg.secondary styles.colors.border.default">
             <DialogHeader>
-              <DialogTitle className="text-[var(--theme-text-primary)]">Invitar miembro al equipo</DialogTitle>
-              <DialogDescription className="text-[var(--theme-text-secondary)]">
+              <DialogTitle className="styles.colors.text.primary">Invitar miembro al equipo</DialogTitle>
+              <DialogDescription className="styles.colors.text.secondary">
                 Envía una invitación por email para añadir un nuevo miembro a tu equipo
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="inviteEmail" className="text-[var(--theme-text-primary)]">
+                <Label htmlFor="inviteEmail" className="styles.colors.text.primary">
                   Email
                 </Label>
                 <Input
@@ -221,28 +221,28 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
                   placeholder="usuario@ejemplo.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)]"
+                  className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="inviteRole" className="text-[var(--theme-text-primary)]">
+                <Label htmlFor="inviteRole" className="styles.colors.text.primary">
                   Rol
                 </Label>
                 <Select value={inviteRole} onValueChange={(value) => setInviteRole(value as typeof inviteRole)}>
                   <SelectTrigger
                     id="inviteRole"
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                    className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                   >
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
-                    <SelectItem value="admin" className="text-[var(--theme-text-primary)] hover:bg-purple-600/20">
+                  <SelectContent className="styles.colors.bg.secondary styles.colors.border.default">
+                    <SelectItem value="admin" className="styles.colors.text.primary hover:bg-purple-600/20">
                       Administrador
                     </SelectItem>
-                    <SelectItem value="member" className="text-[var(--theme-text-primary)] hover:bg-purple-600/20">
+                    <SelectItem value="member" className="styles.colors.text.primary hover:bg-purple-600/20">
                       Miembro
                     </SelectItem>
-                    <SelectItem value="viewer" className="text-[var(--theme-text-primary)] hover:bg-purple-600/20">
+                    <SelectItem value="viewer" className="styles.colors.text.primary hover:bg-purple-600/20">
                       Visualizador
                     </SelectItem>
                   </SelectContent>
@@ -253,7 +253,7 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
               <Button
                 variant="outline"
                 onClick={() => setIsInviteDialogOpen(false)}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600"
+                className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary hover:bg-purple-600 hover:border-purple-600"
               >
                 Cancelar
               </Button>
@@ -280,10 +280,10 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
       </div>
 
       {/* Members Table */}
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Miembros</CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardTitle className="styles.colors.text.primary">Miembros</CardTitle>
+          <CardDescription className="styles.colors.text.secondary">
             {members.length} {members.length === 1 ? 'miembro' : 'miembros'} en total
           </CardDescription>
         </CardHeader>
@@ -294,26 +294,26 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
             </div>
           ) : members.length === 0 ? (
             <div className="text-center py-12">
-              <UserPlus className="h-12 w-12 text-[var(--theme-text-tertiary)] mx-auto mb-4" />
-              <p className="text-[var(--theme-text-secondary)] mb-2">No hay miembros en tu equipo</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <UserPlus className="h-12 w-12 styles.colors.text.tertiary mx-auto mb-4" />
+              <p className="styles.colors.text.secondary mb-2">No hay miembros en tu equipo</p>
+              <p className="text-sm styles.colors.text.tertiary">
                 Invita a miembros para comenzar a colaborar
               </p>
             </div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-[var(--theme-border)] hover:bg-[var(--theme-bg-tertiary)]">
-                  <TableHead className="text-[var(--theme-text-secondary)]">Miembro</TableHead>
-                  <TableHead className="text-[var(--theme-text-secondary)]">Rol</TableHead>
-                  <TableHead className="text-[var(--theme-text-secondary)]">Estado</TableHead>
-                  <TableHead className="text-[var(--theme-text-secondary)]">Fecha</TableHead>
-                  <TableHead className="text-[var(--theme-text-secondary)] text-right">Acciones</TableHead>
+                <TableRow className="styles.colors.border.default hover:styles.colors.bg.tertiary">
+                  <TableHead className="styles.colors.text.secondary">Miembro</TableHead>
+                  <TableHead className="styles.colors.text.secondary">Rol</TableHead>
+                  <TableHead className="styles.colors.text.secondary">Estado</TableHead>
+                  <TableHead className="styles.colors.text.secondary">Fecha</TableHead>
+                  <TableHead className="styles.colors.text.secondary text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {members.map((member) => (
-                  <TableRow key={member.id} className="border-[var(--theme-border)] hover:bg-[var(--theme-bg-tertiary)]">
+                  <TableRow key={member.id} className="styles.colors.border.default hover:styles.colors.bg.tertiary">
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
@@ -330,16 +330,16 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-[var(--theme-text-primary)] font-medium">
+                          <p className="styles.colors.text.primary font-medium">
                             {member.name || 'Sin nombre'}
                           </p>
-                          <p className="text-sm text-[var(--theme-text-tertiary)]">{member.email}</p>
+                          <p className="text-sm styles.colors.text.tertiary">{member.email}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>{getRoleBadge(member.role)}</TableCell>
                     <TableCell>{getStatusBadge(member.status, member.isPending)}</TableCell>
-                    <TableCell className="text-[var(--theme-text-tertiary)]">
+                    <TableCell className="styles.colors.text.tertiary">
                       {member.joinedAt
                         ? new Date(member.joinedAt).toLocaleDateString('es-ES')
                         : member.isPending
@@ -353,19 +353,19 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                              className="styles.colors.text.tertiary hover:styles.colors.text.primary"
                             >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
                             align="end"
-                            className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]"
+                            className="styles.colors.bg.secondary styles.colors.border.default"
                           >
                             {member.role !== 'admin' && (
                               <DropdownMenuItem
                                 onClick={() => handleUpdateRole(member.id, 'admin')}
-                                className="text-[var(--theme-text-primary)] hover:bg-purple-600/20"
+                                className="styles.colors.text.primary hover:bg-purple-600/20"
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Cambiar a Administrador
@@ -374,7 +374,7 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
                             {member.role !== 'member' && (
                               <DropdownMenuItem
                                 onClick={() => handleUpdateRole(member.id, 'member')}
-                                className="text-[var(--theme-text-primary)] hover:bg-purple-600/20"
+                                className="styles.colors.text.primary hover:bg-purple-600/20"
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Cambiar a Miembro
@@ -383,7 +383,7 @@ export function TeamSection({ isInModal = false }: TeamSectionProps) {
                             {member.role !== 'viewer' && (
                               <DropdownMenuItem
                                 onClick={() => handleUpdateRole(member.id, 'viewer')}
-                                className="text-[var(--theme-text-primary)] hover:bg-purple-600/20"
+                                className="styles.colors.text.primary hover:bg-purple-600/20"
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Cambiar a Visualizador

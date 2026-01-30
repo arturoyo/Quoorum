@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * ShareDialog Component
@@ -66,10 +66,10 @@ export function ShareDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-[#2a3942] bg-[#202c33] text-[#e9edef]">
+      <DialogContent className="styles.colors.border.default styles.colors.bg.tertiary text-[#e9edef]">
         <DialogHeader>
           <DialogTitle>Compartir Informe</DialogTitle>
-          <DialogDescription className="text-[#8696a0]">
+          <DialogDescription className="styles.colors.text.tertiary">
             Genera un enlace para compartir este informe
           </DialogDescription>
         </DialogHeader>
@@ -79,11 +79,11 @@ export function ShareDialog({
             <div className="space-y-2">
               <Label>Enlace para compartir</Label>
               <div className="flex gap-2">
-                <Input readOnly value={shareUrl} className="border-[#2a3942] bg-[#111b21]" />
+                <Input readOnly value={shareUrl} className="styles.colors.border.default styles.colors.bg.secondary" />
                 <Button
                   variant="outline"
                   onClick={handleCopy}
-                  className="shrink-0 border-[#2a3942] bg-[#111b21]"
+                  className="shrink-0 styles.colors.border.default styles.colors.bg.secondary"
                 >
                   {copied ? (
                     <CheckCircle className="h-4 w-4 text-green-400" />
@@ -92,12 +92,12 @@ export function ShareDialog({
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-[#8696a0]">Este enlace expira en 7 días</p>
+              <p className="text-xs styles.colors.text.tertiary">Este enlace expira en 7 días</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#2a3942] py-8">
-              <Share2 className="h-10 w-10 text-[#8696a0]" />
-              <p className="mt-3 text-sm text-[#8696a0]">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed styles.colors.border.default py-8">
+              <Share2 className="h-10 w-10 styles.colors.text.tertiary" />
+              <p className="mt-3 text-sm styles.colors.text.tertiary">
                 Genera un enlace para compartir este informe
               </p>
               <Button
@@ -120,7 +120,7 @@ export function ShareDialog({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-[#2a3942] bg-[#111b21]"
+            className="styles.colors.border.default styles.colors.bg.secondary"
           >
             Cerrar
           </Button>

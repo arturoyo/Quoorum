@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Moon, Sun, Monitor } from "lucide-react";
 import { useTheme } from "./theme-provider";
@@ -33,9 +33,9 @@ export function ThemeToggle({
         onClick={cycleTheme}
         className={cn(
           "p-2 rounded-lg transition-all duration-200",
-          "bg-[var(--theme-bg-tertiary)] hover:bg-[var(--theme-bg-input)]",
-          "border border-[var(--theme-border)] hover:border-[var(--theme-accent-primary)]",
-          "text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]",
+          "styles.colors.bg.tertiary hover:styles.colors.bg.input",
+          "border styles.colors.border.default hover:border-[var(--theme-accent-primary)]",
+          "styles.colors.text.secondary hover:styles.colors.text.primary",
           "hover:shadow-md hover:scale-105",
           className
         )}
@@ -61,7 +61,7 @@ export function ThemeToggle({
     <div
       className={cn(
         "inline-flex rounded-lg p-1",
-        "bg-[var(--theme-bg-tertiary)] border border-[var(--theme-border)]",
+        "styles.colors.bg.tertiary border styles.colors.border.default",
         className
       )}
     >
@@ -77,7 +77,7 @@ export function ThemeToggle({
               "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all",
               isActive
                 ? "bg-purple-600 text-white shadow-sm"
-                : "text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-input)]"
+                : "styles.colors.text.secondary hover:styles.colors.text.primary hover:styles.colors.bg.input"
             )}
           >
             <Icon className="h-4 w-4" />
@@ -98,8 +98,8 @@ export function ThemeDropdown({ className }: { className?: string }) {
       <button
         className={cn(
           "p-2 rounded-lg transition-colors",
-          "hover:bg-[var(--theme-bg-tertiary)]",
-          "text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
+          "hover:styles.colors.bg.tertiary",
+          "styles.colors.text.secondary hover:styles.colors.text.primary"
         )}
       >
         {resolvedTheme === "dark" ? (
@@ -113,7 +113,7 @@ export function ThemeDropdown({ className }: { className?: string }) {
         className={cn(
           "absolute right-0 bottom-full mb-2 py-2 w-36 rounded-lg shadow-xl opacity-0 invisible",
           "group-hover:opacity-100 group-hover:visible transition-all duration-200",
-          "bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)]"
+          "styles.colors.bg.secondary border styles.colors.border.default"
         )}
       >
         {[
@@ -130,7 +130,7 @@ export function ThemeDropdown({ className }: { className?: string }) {
                 "w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors",
                 theme === option.value
                   ? "bg-purple-600/20 text-purple-400"
-                  : "text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-tertiary)] hover:text-[var(--theme-text-primary)]"
+                  : "styles.colors.text.secondary hover:styles.colors.bg.tertiary hover:styles.colors.text.primary"
               )}
             >
               <Icon className="h-4 w-4" />

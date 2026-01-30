@@ -4,7 +4,7 @@
  * Compatible with Vercel serverless (no WebSocket needed).
  */
 
-import { NextRequest } from 'next/server'
+import { type NextRequest } from 'next/server'
 import { db } from '@quoorum/db'
 import { debateSessions } from '@quoorum/db/schema'
 import { eq } from 'drizzle-orm'

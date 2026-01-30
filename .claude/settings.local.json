@@ -216,7 +216,18 @@
       "Bash(wsl -d Ubuntu -- bash -c \"which node && node --version || echo ''Node not installed''\")",
       "Bash(wsl -d Ubuntu -- bash -c \"curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash\")",
       "Bash(wsl:*)",
-      "Bash(wsl.exe:*)"
+      "Bash(wsl.exe:*)",
+      "Bash(netsh interface portproxy show all:*)",
+      "Bash(netsh interface portproxy delete:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh api:*)",
+      "Bash(start wsl -d Ubuntu bash -c \"export NVM_DIR=$HOME/.nvm && [ -s $NVM_DIR/nvm.sh ] && . $NVM_DIR/nvm.sh && cd /mnt/c/Quoorum/apps/web && pnpm dev:no-fix\")",
+      "Bash(docker-compose logs:*)",
+      "Bash(Select-String -Pattern \"Server Version|Containers|Running\")",
+      "Bash(del \"C:\\\\Users\\\\Usuario\\\\.claude\\\\plans\\\\eager-seeking-lollipop.md\")",
+      "Bash(git status:*)",
+      "Bash(powershell.exe -NoProfile -Command:*)",
+      "Bash(powershell.exe:*)"
     ]
   }
 }

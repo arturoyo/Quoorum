@@ -1,18 +1,19 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
-import { AppHeader } from "@/components/layout/app-header"
+import { AppHeader } from "@/components/layout"
 import {
   LayoutDashboard,
   CreditCard,
   FileText,
   Shield,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -27,6 +28,11 @@ const adminNavItems: NavItem[] = [
     href: "/admin",
     label: "Dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    href: "/admin/debate-flow",
+    label: "Flujo de Debates",
+    icon: Activity,
   },
   {
     href: "/admin/billing",
@@ -76,7 +82,7 @@ export default function AdminLayout({
         {/* Sidebar */}
         <aside
           className={cn(
-            "sticky top-16 h-[calc(100vh-4rem)] border-r border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/95 backdrop-blur-xl transition-all duration-300",
+            "fixed top-16 left-0 h-[calc(100vh-4rem)] border-r styles.colors.border.default styles.colors.bg.primary/95 backdrop-blur-xl transition-all duration-300 z-40",
             isCollapsed ? "w-16" : "w-64"
           )}
         >
@@ -93,7 +99,7 @@ export default function AdminLayout({
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="h-8 w-8 text-[var(--theme-text-secondary)] hover:text-white hover:bg-white/10"
+                className="h-8 w-8 styles.colors.text.secondary hover:text-white hover:bg-white/10"
               >
                 {isCollapsed ? (
                   <ChevronRight className="h-4 w-4" />
@@ -117,7 +123,7 @@ export default function AdminLayout({
                       "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
                       isActive
                         ? "bg-purple-600 text-white"
-                        : "text-[var(--theme-text-secondary)] hover:bg-white/10 hover:text-white"
+                        : "styles.colors.text.secondary hover:bg-white/10 hover:text-white"
                     )}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
@@ -136,7 +142,7 @@ export default function AdminLayout({
                   <p className="text-xs text-purple-300">
                     <strong>Panel de Administración</strong>
                   </p>
-                  <p className="text-xs text-[var(--theme-text-secondary)] mt-1">
+                  <p className="text-xs styles.colors.text.secondary mt-1">
                     Control total del sistema
                   </p>
                 </div>

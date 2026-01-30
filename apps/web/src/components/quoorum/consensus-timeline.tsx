@@ -14,6 +14,7 @@ import {
 } from 'recharts'
 import { api } from '@/lib/trpc/client'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn, styles } from '@/lib/utils'
 
 interface ConsensusTimelineProps {
   debateId: string
@@ -37,12 +38,12 @@ export function ConsensusTimeline({ debateId }: ConsensusTimelineProps) {
 
   if (isLoading) {
     return (
-      <Card className="border-[#2a3942] bg-[#111b21]">
+      <Card className={styles.card.base}>
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Evolución del Consenso</CardTitle>
+          <CardTitle className={styles.colors.text.primary}>Evolución del Consenso</CardTitle>
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[300px] w-full bg-[#202c33]" />
+          <Skeleton className={cn("h-[300px] w-full", styles.colors.bg.tertiary)} />
         </CardContent>
       </Card>
     )
@@ -53,41 +54,41 @@ export function ConsensusTimeline({ debateId }: ConsensusTimelineProps) {
   }
 
   return (
-    <Card className="border-[#2a3942] bg-[#111b21]">
+    <Card className={styles.card.base}>
       <CardHeader>
-        <CardTitle className="text-[var(--theme-text-primary)]">Evolución del Consenso</CardTitle>
-        <CardDescription className="text-[#aebac1]">
+        <CardTitle className={styles.colors.text.primary}>Evolución del Consenso</CardTitle>
+        <CardDescription className={styles.colors.text.secondary}>
           Cómo evoluciona el consenso a lo largo de las rondas
         </CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2a3942" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border)" />
             <XAxis
               dataKey="round"
-              stroke="#aebac1"
-              label={{ value: 'Ronda', position: 'insideBottom', offset: -5, fill: '#aebac1' }}
+              stroke="var(--theme-text-secondary)"
+              label={{ value: 'Ronda', position: 'insideBottom', offset: -5, fill: 'var(--theme-text-secondary)' }}
             />
             <YAxis
-              stroke="#aebac1"
+              stroke="var(--theme-text-secondary)"
               domain={[0, 100]}
               label={{
                 value: 'Consenso %',
                 angle: -90,
                 position: 'insideLeft',
-                fill: '#aebac1',
+                fill: 'var(--theme-text-secondary)',
               }}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#111b21',
-                border: '1px solid #2a3942',
-                color: '#aebac1',
+                backgroundColor: 'var(--theme-bg-secondary)',
+                border: '1px solid var(--theme-border)',
+                color: 'var(--theme-text-secondary)',
               }}
-              labelStyle={{ color: '#ffffff' }}
+              labelStyle={{ color: 'var(--theme-text-primary)' }}
             />
-            <Legend wrapperStyle={{ color: '#aebac1' }} />
+            <Legend wrapperStyle={{ color: 'var(--theme-text-secondary)' }} />
             <Line
               type="monotone"
               dataKey="consensus"
@@ -104,10 +105,15 @@ export function ConsensusTimeline({ debateId }: ConsensusTimelineProps) {
           {timeline.map((point, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-4 p-2 rounded border border-[#2a3942] bg-[#202c33]"
+              className={cn(
+                "flex items-center gap-4 p-2 rounded",
+                styles.colors.border.default,
+                styles.colors.bg.tertiary,
+                "border"
+              )}
             >
-              <span className="text-sm text-[#8696a0] w-16">Ronda {point.round}</span>
-              <span className="text-[var(--theme-text-primary)] font-medium flex-1">{point.topOption}</span>
+              <span className={cn("text-sm w-16", styles.colors.text.tertiary)}>Ronda {point.round}</span>
+              <span className={cn("font-medium flex-1", styles.colors.text.primary)}>{point.topOption}</span>
               <span className="text-purple-400 font-semibold">
                 {Math.round(point.consensusScore * 100)}%
               </span>

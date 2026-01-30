@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
@@ -57,9 +57,9 @@ export function DebateComments({ debateId, showHeader = true }: DebateCommentsPr
 
   if (isLoading) {
     return (
-      <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+      <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
         <CardContent className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-[var(--theme-text-secondary)]" />
+          <Loader2 className="h-6 w-6 animate-spin styles.colors.text.secondary" />
         </CardContent>
       </Card>
     )
@@ -89,12 +89,12 @@ export function DebateComments({ debateId, showHeader = true }: DebateCommentsPr
             placeholder="Añade un comentario..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)]"
+            className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary placeholder:styles.colors.text.tertiary"
             rows={2}
           />
           <div className="flex items-center justify-between gap-2">
             {rootComments.length === 0 && (
-              <span className="text-xs text-[var(--theme-text-tertiary)]">
+              <span className="text-xs styles.colors.text.tertiary">
                 No hay comentarios aún. Sé el primero en comentar!
               </span>
             )}
@@ -156,9 +156,9 @@ export function DebateComments({ debateId, showHeader = true }: DebateCommentsPr
   }
 
   return (
-    <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+    <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-[var(--theme-text-primary)]">
+        <CardTitle className="flex items-center gap-2 styles.colors.text.primary">
           <MessageCircle className="h-5 w-5" />
           Comentarios ({comments?.length || 0})
         </CardTitle>
@@ -180,31 +180,31 @@ function CommentItem({
   onReply: (parentId: string) => void
 }) {
   return (
-    <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] p-4">
+    <div className="rounded-lg border styles.colors.border.default styles.colors.bg.tertiary p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs text-[var(--theme-text-secondary)]">
+            <Badge variant="outline" className="text-xs styles.colors.text.secondary">
               {comment.userId.substring(0, 8)}...
             </Badge>
-            <span className="text-xs text-[var(--theme-text-tertiary)]">
+            <span className="text-xs styles.colors.text.tertiary">
               {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: es })}
             </span>
           </div>
-          <p className="text-sm text-[var(--theme-text-secondary)]">{comment.content}</p>
+          <p className="text-sm styles.colors.text.secondary">{comment.content}</p>
           {replies.length > 0 && (
-            <div className="ml-4 mt-3 space-y-2 border-l-2 border-[var(--theme-border)] pl-4">
+            <div className="ml-4 mt-3 space-y-2 border-l-2 styles.colors.border.default pl-4">
               {replies.map((reply) => (
                 <div key={reply.id} className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs text-[var(--theme-text-secondary)]">
+                    <Badge variant="outline" className="text-xs styles.colors.text.secondary">
                       {reply.userId.substring(0, 8)}...
                     </Badge>
-                    <span className="text-xs text-[var(--theme-text-tertiary)]">
+                    <span className="text-xs styles.colors.text.tertiary">
                       {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true, locale: es })}
                     </span>
                   </div>
-                  <p className="text-sm text-[var(--theme-text-secondary)]">{reply.content}</p>
+                  <p className="text-sm styles.colors.text.secondary">{reply.content}</p>
                 </div>
               ))}
             </div>
@@ -214,7 +214,7 @@ function CommentItem({
           variant="ghost"
           size="sm"
           onClick={() => onReply(comment.id)}
-          className="text-xs text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-secondary)]"
+          className="text-xs styles.colors.text.secondary hover:styles.colors.text.secondary"
         >
           Responder
         </Button>

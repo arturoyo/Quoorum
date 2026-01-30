@@ -56,7 +56,7 @@ const MODEL_COSTS: Record<string, CostConfig> = {
   },
 
   // Google Gemini
-  'gemini-2.0-flash-exp': { model: 'gemini-2.0-flash', promptCostPer1M: 0.0, completionCostPer1M: 0.0 }, // Free
+  'gemini-2.0-flash': { model: 'gemini-2.0-flash', promptCostPer1M: 0.0, completionCostPer1M: 0.0 }, // Free
   'gemini-1.5-flash': { model: 'gemini-1.5-flash', promptCostPer1M: 0.075, completionCostPer1M: 0.3 },
   'gemini-1.5-pro': { model: 'gemini-1.5-pro', promptCostPer1M: 1.25, completionCostPer1M: 5.0 },
 

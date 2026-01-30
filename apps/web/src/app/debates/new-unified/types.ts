@@ -38,6 +38,8 @@ export interface ContextEvaluation {
   score: number
   reasoning: string
   missingAspects: string[]
+  readinessLevel?: string
+  summary?: string
   contradictions?: string[] // Contradicciones detectadas entre respuestas
   duplicatedInfo?: string[] // Información duplicada o redundante
   qualityIssues?: string[] // Problemas de calidad detectados
@@ -52,7 +54,7 @@ export interface Message {
   id: string
   role: 'ai' | 'user'
   content: string
-  type?: 'question' | 'answer' | 'evaluation' | 'system' | 'validation'
+  type?: 'question' | 'answer' | 'evaluation' | 'system' | 'validation' | 'error' | 'warning'
   timestamp: Date
 }
 

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from "next/link"
 import { useState } from "react"
@@ -27,7 +27,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { AppHeader } from "@/components/layout/app-header"
+import { AppHeader } from "@/components/layout"
 import { LandingFooter } from "@/components/layout/landing-footer"
 import { cn } from "@/lib/utils"
 
@@ -223,7 +223,7 @@ function TableOfContents({
             "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all",
             activeSection === section.id
               ? "bg-purple-500/20 text-white border border-purple-500/30"
-              : "text-[var(--theme-text-secondary)] hover:text-white hover:bg-white/5"
+              : "styles.colors.text.secondary hover:text-white hover:bg-white/5"
           )}
         >
           <section.icon className="w-5 h-5 flex-shrink-0" />
@@ -259,7 +259,7 @@ export default function DocsPage() {
       <section className="pt-32 pb-16 px-4 border-b border-white/5">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm styles.colors.text.secondary mb-6">
               <BookOpen className="w-4 h-4 text-purple-400" />
               <span>Documentación</span>
             </div>
@@ -271,7 +271,7 @@ export default function DocsPage() {
               </span>
             </h1>
 
-            <p className="text-xl text-[var(--theme-text-secondary)] max-w-2xl mx-auto">
+            <p className="text-xl styles.colors.text.secondary max-w-2xl mx-auto">
               Todo lo que necesitas saber para tomar mejores decisiones con tu
               comité de expertos de IA.
             </p>
@@ -280,13 +280,13 @@ export default function DocsPage() {
           {/* Search */}
           <div className="max-w-xl mx-auto mb-12">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--theme-text-tertiary)]" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 styles.colors.text.tertiary" />
               <Input
                 type="text"
                 placeholder="Buscar en la documentación..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-14 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] rounded-2xl focus:border-purple-500/50 focus:ring-purple-500/20"
+                className="pl-12 h-14 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary rounded-2xl focus:border-purple-500/50 focus:ring-purple-500/20"
               />
             </div>
           </div>
@@ -309,9 +309,9 @@ export default function DocsPage() {
                     <h3 className="text-white font-semibold mb-1 group-hover:text-purple-400 transition-colors">
                       {link.title}
                     </h3>
-                    <p className="text-sm text-[var(--theme-text-tertiary)]">{link.description}</p>
+                    <p className="text-sm styles.colors.text.tertiary">{link.description}</p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-[var(--theme-text-tertiary)] group-hover:text-purple-400 group-hover:translate-x-1 transition-all ml-auto" />
+                  <ChevronRight className="w-5 h-5 styles.colors.text.tertiary group-hover:text-purple-400 group-hover:translate-x-1 transition-all ml-auto" />
                 </div>
               </Link>
             ))}
@@ -325,7 +325,7 @@ export default function DocsPage() {
           {/* Sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-32">
-              <h3 className="text-sm font-semibold text-[var(--theme-text-tertiary)] uppercase tracking-wider mb-4 px-4">
+              <h3 className="text-sm font-semibold styles.colors.text.tertiary uppercase tracking-wider mb-4 px-4">
                 Contenido
               </h3>
               <TableOfContents
@@ -347,7 +347,7 @@ export default function DocsPage() {
               </div>
 
               <div className="prose prose-invert max-w-none">
-                <p className="text-lg text-[var(--theme-text-secondary)] leading-relaxed mb-8">
+                <p className="text-lg styles.colors.text.secondary leading-relaxed mb-8">
                   <strong className="text-white">Quoorum</strong> es una plataforma que simula un
                   Comité Ejecutivo de expertos de IA para ayudarte a tomar decisiones estratégicas
                   complejas. En lugar de obtener una respuesta simple de un único modelo de IA,
@@ -361,7 +361,7 @@ export default function DocsPage() {
                     <h4 className="text-lg font-semibold text-white mb-2">
                       Pensamiento Multi-Perspectiva
                     </h4>
-                    <p className="text-[var(--theme-text-secondary)] text-sm">
+                    <p className="styles.colors.text.secondary text-sm">
                       Cada experto aporta su perspectiva única, identificando oportunidades
                       y riesgos que un análisis simple podría pasar por alto.
                     </p>
@@ -371,7 +371,7 @@ export default function DocsPage() {
                     <h4 className="text-lg font-semibold text-white mb-2">
                       Consenso Fundamentado
                     </h4>
-                    <p className="text-[var(--theme-text-secondary)] text-sm">
+                    <p className="styles.colors.text.secondary text-sm">
                       El debate continúa hasta que los expertos alcanzan un consenso,
                       proporcionando recomendaciones con justificación clara.
                     </p>
@@ -381,7 +381,7 @@ export default function DocsPage() {
                 <h3 className="text-xl font-semibold text-white mb-4">
                   ¿Para qué sirve Quoorum?
                 </h3>
-                <ul className="space-y-3 text-[var(--theme-text-secondary)]">
+                <ul className="space-y-3 styles.colors.text.secondary">
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                     <span>Validar estrategias de negocio antes de ejecutarlas</span>
@@ -411,7 +411,7 @@ export default function DocsPage() {
                 <h2 className="text-3xl font-bold text-white">Inicio Rápido</h2>
               </div>
 
-              <p className="text-lg text-[var(--theme-text-secondary)] mb-8">
+              <p className="text-lg styles.colors.text.secondary mb-8">
                 Crea tu primer debate en menos de 5 minutos siguiendo estas 4 fases:
               </p>
 
@@ -431,7 +431,7 @@ export default function DocsPage() {
                           {phase.title}
                         </h3>
                       </div>
-                      <p className="text-[var(--theme-text-secondary)]">{phase.description}</p>
+                      <p className="styles.colors.text.secondary">{phase.description}</p>
                     </div>
                   </div>
                 ))}
@@ -457,7 +457,7 @@ export default function DocsPage() {
                 <h2 className="text-3xl font-bold text-white">Expertos</h2>
               </div>
 
-              <p className="text-lg text-[var(--theme-text-secondary)] mb-8">
+              <p className="text-lg styles.colors.text.secondary mb-8">
                 Quoorum cuenta con más de <strong className="text-white">80 expertos</strong> en
                 diferentes áreas, cada uno con su perspectiva y metodología única.
               </p>
@@ -481,7 +481,7 @@ export default function DocsPage() {
                       {category.examples.map((expert) => (
                         <div
                           key={expert}
-                          className="text-sm text-[var(--theme-text-secondary)] flex items-center gap-2"
+                          className="text-sm styles.colors.text.secondary flex items-center gap-2"
                         >
                           <div className="w-1.5 h-1.5 rounded-full bg-gray-600" />
                           {expert}
@@ -499,7 +499,7 @@ export default function DocsPage() {
                     <h4 className="text-white font-semibold mb-2">
                       Consejo: Selección de expertos
                     </h4>
-                    <p className="text-[var(--theme-text-secondary)] text-sm">
+                    <p className="styles.colors.text.secondary text-sm">
                       Para obtener mejores resultados, selecciona expertos con perspectivas
                       diversas. Incluir un &quot;crítico&quot; junto con expertos optimistas
                       produce debates más equilibrados.
@@ -518,7 +518,7 @@ export default function DocsPage() {
                 <h2 className="text-3xl font-bold text-white">Sistema de Créditos</h2>
               </div>
 
-              <p className="text-lg text-[var(--theme-text-secondary)] mb-8">
+              <p className="text-lg styles.colors.text.secondary mb-8">
                 Los créditos son la moneda de Quoorum. Cada debate consume créditos
                 según su complejidad.
               </p>
@@ -527,21 +527,21 @@ export default function DocsPage() {
                 <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center">
                   <Clock className="w-8 h-8 text-green-400 mx-auto mb-4" />
                   <h4 className="text-2xl font-bold text-white mb-2">5-10</h4>
-                  <p className="text-[var(--theme-text-secondary)] text-sm">
+                  <p className="styles.colors.text.secondary text-sm">
                     Créditos para un debate simple (3-4 expertos, 5 rondas)
                   </p>
                 </div>
                 <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center">
                   <TrendingUp className="w-8 h-8 text-yellow-400 mx-auto mb-4" />
                   <h4 className="text-2xl font-bold text-white mb-2">20-30</h4>
-                  <p className="text-[var(--theme-text-secondary)] text-sm">
+                  <p className="styles.colors.text.secondary text-sm">
                     Créditos para un debate moderado (5-6 expertos, contexto adicional)
                   </p>
                 </div>
                 <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center">
                   <Zap className="w-8 h-8 text-purple-400 mx-auto mb-4" />
                   <h4 className="text-2xl font-bold text-white mb-2">50+</h4>
-                  <p className="text-[var(--theme-text-secondary)] text-sm">
+                  <p className="styles.colors.text.secondary text-sm">
                     Créditos para debates complejos (8+ expertos, múltiples documentos)
                   </p>
                 </div>
@@ -570,7 +570,7 @@ export default function DocsPage() {
                     <span className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm font-bold">1</span>
                     Formula preguntas específicas
                   </h4>
-                  <p className="text-[var(--theme-text-secondary)] mb-4">
+                  <p className="styles.colors.text.secondary mb-4">
                     En lugar de &quot;¿Debería expandir mi negocio?&quot;, pregunta
                     &quot;¿Debería expandir mi SaaS de $2M ARR al mercado español en Q2 2026,
                     dado que tenemos 50% de margen y 3 competidores locales?&quot;
@@ -586,7 +586,7 @@ export default function DocsPage() {
                     <span className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm font-bold">2</span>
                     Añade contexto relevante
                   </h4>
-                  <p className="text-[var(--theme-text-secondary)]">
+                  <p className="styles.colors.text.secondary">
                     Sube documentos, comparte métricas y proporciona background.
                     Cuanto más contexto, mejores serán las recomendaciones de los expertos.
                   </p>
@@ -597,7 +597,7 @@ export default function DocsPage() {
                     <span className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm font-bold">3</span>
                     Diversifica tus expertos
                   </h4>
-                  <p className="text-[var(--theme-text-secondary)]">
+                  <p className="styles.colors.text.secondary">
                     Incluye perspectivas opuestas: un optimista y un crítico,
                     un estratega y un operativo, un financiero y un de producto.
                   </p>
@@ -608,7 +608,7 @@ export default function DocsPage() {
                     <span className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm font-bold">4</span>
                     Usa las preguntas críticas
                   </h4>
-                  <p className="text-[var(--theme-text-secondary)]">
+                  <p className="styles.colors.text.secondary">
                     Responde las preguntas críticas que te hace el sistema en la fase de contexto.
                     Esto ayuda a los expertos a entender mejor tu situación.
                   </p>
@@ -633,7 +633,7 @@ export default function DocsPage() {
                     Próximamente
                   </span>
                 </div>
-                <p className="text-[var(--theme-text-secondary)] mb-4">
+                <p className="styles.colors.text.secondary mb-4">
                   Estamos trabajando en una API pública para que puedas integrar
                   Quoorum en tus aplicaciones y flujos de trabajo.
                 </p>
@@ -663,7 +663,7 @@ export default function DocsPage() {
                     <h4 className="text-lg font-semibold text-white mb-3">
                       {faq.question}
                     </h4>
-                    <p className="text-[var(--theme-text-secondary)]">{faq.answer}</p>
+                    <p className="styles.colors.text.secondary">{faq.answer}</p>
                   </div>
                 ))}
               </div>
@@ -672,7 +672,7 @@ export default function DocsPage() {
                 <h4 className="text-white font-semibold mb-2">
                   ¿Tienes más preguntas?
                 </h4>
-                <p className="text-[var(--theme-text-secondary)] text-sm mb-4">
+                <p className="styles.colors.text.secondary text-sm mb-4">
                   Nuestro equipo está aquí para ayudarte.
                 </p>
                 <Link href="/soporte">

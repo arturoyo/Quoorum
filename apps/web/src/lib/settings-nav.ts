@@ -50,8 +50,8 @@ export function getSettingsNav(currentPath: string): SettingsNavItem[] {
       label: 'Profesionales',
       icon: Users,
       subItems: [
-        { href: '/settings/workers', label: 'Nuevo' },
-        { href: '/settings/workers/library', label: 'Biblioteca' },
+        { href: '/settings/workers', label: 'Nuevo', active: false },
+        { href: '/settings/workers/library', label: 'Biblioteca', active: false },
       ],
     },
     { href: '/settings/integrations', label: 'Integraciones', icon: Link2 },
@@ -62,7 +62,7 @@ export function getSettingsNav(currentPath: string): SettingsNavItem[] {
   return navItems.map((item) => ({
     ...item,
     // Mark as active if pathname exactly matches the href or starts with it (for subItems)
-    active: currentPath === item.href || (item.subItems && item.subItems.some(sub => currentPath === sub.href)),
+    active: currentPath === item.href || (item.subItems ? item.subItems.some(sub => currentPath === sub.href) : false),
     // Mark subItems as active
     subItems: item.subItems?.map((subItem) => ({
       ...subItem,

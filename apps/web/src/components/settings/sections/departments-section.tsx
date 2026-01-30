@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -63,6 +63,11 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
       return
     }
 
+    if (!company?.id) {
+      toast.error('Primero configura tu empresa')
+      return
+    }
+
     createDepartment.mutate({
       companyId: company.id,
       name: formData.name,
@@ -70,7 +75,7 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
       departmentContext: formData.departmentContext,
       basePrompt: formData.basePrompt || undefined,
       customPrompt: formData.customPrompt || undefined,
-      agentRole: formData.agentRole,
+      agentRole: formData.agentRole as 'critic' | 'analyst' | 'synthesizer',
       temperature: formData.temperature,
       icon: formData.icon || undefined,
       type: 'custom',
@@ -82,8 +87,8 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
       {/* Header */}
       {!isInModal && (
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-[var(--theme-text-primary)]">Crear Departamento</h1>
-          <p className="text-[var(--theme-text-tertiary)]">
+          <h1 className="text-3xl font-bold tracking-tight styles.colors.text.primary">Crear Departamento</h1>
+          <p className="styles.colors.text.tertiary">
             Crea un departamento personalizado con contexto específico
           </p>
         </div>
@@ -91,15 +96,15 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
 
       {/* Info sobre empresa */}
       {company && (
-        <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+        <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2 text-[var(--theme-text-primary)]">
+                <CardTitle className="flex items-center gap-2 styles.colors.text.primary">
                   <Building2 className="h-5 w-5" />
                   {company.name}
                 </CardTitle>
-                <CardDescription className="text-[var(--theme-text-tertiary)]">
+                <CardDescription className="styles.colors.text.tertiary">
                   Creando departamento para esta empresa
                 </CardDescription>
               </div>
@@ -107,7 +112,7 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
                 variant="outline"
                 size="sm"
                 onClick={() => router.push('/settings/departments/library')}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:styles.colors.bg.tertiary"
               >
                 <BookOpen className="mr-2 h-4 w-4" />
                 Ver Plantillas
@@ -118,60 +123,60 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
       )}
 
       {/* Formulario de creación */}
-      <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+      <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Información Básica</CardTitle>
-          <CardDescription className="text-[var(--theme-text-tertiary)]">
+          <CardTitle className="styles.colors.text.primary">Información Básica</CardTitle>
+          <CardDescription className="styles.colors.text.tertiary">
             Define el nombre y contexto del departamento
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-[var(--theme-text-primary)]">Nombre del Departamento *</Label>
+              <Label htmlFor="name" className="styles.colors.text.primary">Nombre del Departamento *</Label>
               <Input
                 id="name"
                 placeholder="Ej: Ventas, Marketing, Producto"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="icon" className="text-[var(--theme-text-primary)]">Icono</Label>
+              <Label htmlFor="icon" className="styles.colors.text.primary">Icono</Label>
               <Input
                 id="icon"
                 placeholder="📊"
                 value={formData.icon}
                 onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-[var(--theme-text-primary)]">Descripción</Label>
+            <Label htmlFor="description" className="styles.colors.text.primary">Descripción</Label>
             <Textarea
               id="description"
               placeholder="Breve descripción del departamento..."
               rows={2}
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              className="resize-none border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="resize-none styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="departmentContext" className="text-[var(--theme-text-primary)]">Contexto del Departamento *</Label>
+            <Label htmlFor="departmentContext" className="styles.colors.text.primary">Contexto del Departamento *</Label>
             <Textarea
               id="departmentContext"
               placeholder="Describe el propósito, responsabilidades y enfoque de este departamento..."
               rows={4}
               value={formData.departmentContext}
               onChange={(e) => setFormData(prev => ({ ...prev, departmentContext: e.target.value }))}
-              className="resize-none border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="resize-none styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             />
-            <p className="text-xs text-[var(--theme-text-tertiary)]">
+            <p className="text-xs styles.colors.text.tertiary">
               Este contexto se inyectará en debates relacionados con este departamento
             </p>
           </div>
@@ -179,19 +184,19 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
       </Card>
 
       {/* Configuración avanzada */}
-      <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+      <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Configuración del Agente IA</CardTitle>
-          <CardDescription className="text-[var(--theme-text-tertiary)]">
+          <CardTitle className="styles.colors.text.primary">Configuración del Agente IA</CardTitle>
+          <CardDescription className="styles.colors.text.tertiary">
             Personaliza el comportamiento del agente para este departamento
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="agentRole" className="text-[var(--theme-text-primary)]">Rol del Agente</Label>
+              <Label htmlFor="agentRole" className="styles.colors.text.primary">Rol del Agente</Label>
               <Select value={formData.agentRole} onValueChange={(value) => setFormData(prev => ({ ...prev, agentRole: value }))}>
-                <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]">
+                <SelectTrigger className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -204,7 +209,7 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="temperature" className="text-[var(--theme-text-primary)]">Temperatura ({formData.temperature})</Label>
+              <Label htmlFor="temperature" className="styles.colors.text.primary">Temperatura ({formData.temperature})</Label>
               <Input
                 id="temperature"
                 type="range"
@@ -213,35 +218,35 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
                 step="0.1"
                 value={formData.temperature}
                 onChange={(e) => setFormData(prev => ({ ...prev, temperature: e.target.value }))}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)]"
+                className="styles.colors.border.default styles.colors.bg.input"
               />
-              <p className="text-xs text-[var(--theme-text-tertiary)]">
+              <p className="text-xs styles.colors.text.tertiary">
                 0.0 = Preciso y conservador | 1.0 = Creativo y exploratorio
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="basePrompt" className="text-[var(--theme-text-primary)]">Base Prompt (Template)</Label>
+            <Label htmlFor="basePrompt" className="styles.colors.text.primary">Base Prompt (Template)</Label>
             <Textarea
               id="basePrompt"
               placeholder="Prompt base del sistema para este departamento..."
               rows={3}
               value={formData.basePrompt}
               onChange={(e) => setFormData(prev => ({ ...prev, basePrompt: e.target.value }))}
-              className="resize-none border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="resize-none styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="customPrompt" className="text-[var(--theme-text-primary)]">Custom Prompt (Personalización)</Label>
+            <Label htmlFor="customPrompt" className="styles.colors.text.primary">Custom Prompt (Personalización)</Label>
             <Textarea
               id="customPrompt"
               placeholder="Personalización adicional del prompt..."
               rows={3}
               value={formData.customPrompt}
               onChange={(e) => setFormData(prev => ({ ...prev, customPrompt: e.target.value }))}
-              className="resize-none border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="resize-none styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             />
           </div>
         </CardContent>
@@ -262,7 +267,7 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
           <Button
             variant="outline"
             onClick={() => router.push('/settings/company')}
-            className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+            className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:styles.colors.bg.tertiary"
           >
             <Building2 className="mr-2 h-4 w-4" />
             Configurar Empresa Primero

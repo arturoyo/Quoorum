@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, Suspense } from "react";
 import Link from "next/link";
@@ -97,7 +97,7 @@ function LoginContent() {
         <CardTitle className="text-2xl font-bold text-white">
           Bienvenido de nuevo
         </CardTitle>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className="styles.colors.text.secondary">
           Inicia sesión para acceder a Quoorum
         </CardDescription>
       </CardHeader>
@@ -137,7 +137,7 @@ function LoginContent() {
             <Separator className="w-full bg-white/10" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-[var(--theme-text-tertiary)]">
+            <span className="bg-transparent px-2 styles.colors.text.tertiary">
               O continúa con email
             </span>
           </div>
@@ -146,11 +146,11 @@ function LoginContent() {
         {/* Email/Password Form */}
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="email" className="styles.colors.text.secondary">
               Email
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 styles.colors.text.tertiary" />
               <Input
                 id="email"
                 type="email"
@@ -159,14 +159,14 @@ function LoginContent() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-[var(--theme-text-secondary)]">
+              <Label htmlFor="password" className="styles.colors.text.secondary">
                 Contraseña
               </Label>
               <Link
@@ -177,7 +177,7 @@ function LoginContent() {
               </Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 styles.colors.text.tertiary" />
               <Input
                 id="password"
                 type="password"
@@ -186,7 +186,7 @@ function LoginContent() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary focus:border-purple-500"
               />
             </div>
           </div>
@@ -209,7 +209,7 @@ function LoginContent() {
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-6">
-        <p className="text-center text-sm text-[var(--theme-text-secondary)]">
+        <p className="text-center text-sm styles.colors.text.secondary">
           ¿No tienes cuenta?{" "}
           <Link
             href="/signup"

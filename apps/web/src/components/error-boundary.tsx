@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * ErrorBoundary Component - Reutilizable
@@ -67,7 +67,7 @@ function DefaultErrorFallback({
           <h3 className="mb-2 font-semibold text-white">
             Algo salió mal en este componente
           </h3>
-          <p className="mb-4 text-sm text-[var(--theme-text-secondary)]">
+          <p className="mb-4 text-sm styles.colors.text.secondary">
             Este componente encontró un error. Intenta recargarlo o contacta con soporte si persiste.
           </p>
 
@@ -100,7 +100,7 @@ function DefaultErrorFallback({
                       <p className="mb-2 text-xs font-medium text-orange-400">
                         Component Stack:
                       </p>
-                      <pre className="max-h-32 overflow-auto font-mono text-xs text-[var(--theme-text-secondary)]">
+                      <pre className="max-h-32 overflow-auto font-mono text-xs styles.colors.text.secondary">
                         {errorInfo.componentStack}
                       </pre>
                     </>

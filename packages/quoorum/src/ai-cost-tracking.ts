@@ -26,7 +26,7 @@ export const AI_PRICING = {
     'claude-3-5-haiku-20241022': { prompt: 0.8, completion: 4.0 },
   },
   google: {
-    'gemini-2.0-flash-exp': { prompt: 0, completion: 0 }, // FREE (for now)
+    'gemini-2.0-flash': { prompt: 0, completion: 0 }, // FREE (for now)
     'gemini-1.5-pro': { prompt: 1.25, completion: 5.0 },
     'gemini-1.5-flash': { prompt: 0.075, completion: 0.3 },
   },
@@ -140,7 +140,7 @@ export interface TrackAICallParams {
  *   userId: ctx.userId,
  *   operationType: 'context_assessment',
  *   provider: 'google',
- *   modelId: 'gemini-2.0-flash-exp',
+ *   modelId: 'gemini-2.0-flash',
  *   promptTokens: 1500,
  *   completionTokens: 800,
  *   latencyMs: Date.now() - startTime,

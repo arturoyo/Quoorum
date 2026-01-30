@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Costs Section
  * Analytics de costos y uso
  */
@@ -20,7 +20,7 @@ export function CostsSection({ isInModal = false }: { isInModal?: boolean }) {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-white">Costos y Analytics</h2>
-        <p className="text-sm text-[var(--theme-text-secondary)] mt-1">
+        <p className="text-sm styles.colors.text.secondary mt-1">
           Análisis de costos de debates y uso del sistema
         </p>
       </div>
@@ -78,7 +78,7 @@ export function CostsSection({ isInModal = false }: { isInModal?: boolean }) {
         <Card className="bg-slate-900/60 border-purple-500/20">
           <CardHeader>
             <CardTitle className="text-white">Costos por Usuario</CardTitle>
-            <CardDescription className="text-[var(--theme-text-secondary)]">
+            <CardDescription className="styles.colors.text.secondary">
               Top usuarios por costo total
             </CardDescription>
           </CardHeader>
@@ -91,11 +91,11 @@ export function CostsSection({ isInModal = false }: { isInModal?: boolean }) {
                 >
                   <div>
                     <p className="text-white font-medium">{user.name || user.email}</p>
-                    <p className="text-xs text-[var(--theme-text-secondary)]">{user.email}</p>
+                    <p className="text-xs styles.colors.text.secondary">{user.email}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-white font-bold">${user.totalCostUsd.toFixed(2)}</p>
-                    <p className="text-xs text-[var(--theme-text-secondary)]">
+                    <p className="text-xs styles.colors.text.secondary">
                       {user.totalDebates} debates
                     </p>
                   </div>

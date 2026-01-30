@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -202,7 +202,7 @@ export default function OnboardingPage() {
               <div
                 key={step.id}
                 className={`flex items-center gap-2 ${
-                  step.id <= currentStep ? "text-purple-400" : "text-[var(--theme-text-tertiary)]"
+                  step.id <= currentStep ? "text-purple-400" : "styles.colors.text.tertiary"
                 }`}
               >
                 <div
@@ -252,7 +252,7 @@ export default function OnboardingPage() {
                 <CardContent className="space-y-6">
                   {/* Company Name */}
                   <div className="space-y-2">
-                    <Label htmlFor="companyName" className="text-[var(--theme-text-secondary)]">
+                    <Label htmlFor="companyName" className="styles.colors.text.secondary">
                       Nombre de tu empresa
                     </Label>
                     <Input
@@ -262,13 +262,13 @@ export default function OnboardingPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, companyName: e.target.value })
                       }
-                      className="bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)]"
+                      className="bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary"
                     />
                   </div>
 
                   {/* Industry */}
                   <div className="space-y-2">
-                    <Label className="text-[var(--theme-text-secondary)]">Industria</Label>
+                    <Label className="styles.colors.text.secondary">Industria</Label>
                     <RadioGroup
                       value={formData.industry}
                       onValueChange={(value) =>
@@ -285,7 +285,7 @@ export default function OnboardingPage() {
                           />
                           <Label
                             htmlFor={industry.value}
-                            className="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-[var(--theme-text-secondary)] hover:bg-white/10 transition-colors"
+                            className="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 styles.colors.text.secondary hover:bg-white/10 transition-colors"
                           >
                             <span className="text-2xl mb-1">{industry.emoji}</span>
                             <span className="text-xs">{industry.label}</span>
@@ -297,7 +297,7 @@ export default function OnboardingPage() {
 
                   {/* Company Size */}
                   <div className="space-y-2">
-                    <Label className="text-[var(--theme-text-secondary)]">Tamaño del equipo</Label>
+                    <Label className="styles.colors.text.secondary">Tamaño del equipo</Label>
                     <RadioGroup
                       value={formData.companySize}
                       onValueChange={(value) =>
@@ -314,7 +314,7 @@ export default function OnboardingPage() {
                           />
                           <Label
                             htmlFor={size.value}
-                            className="flex items-center gap-2 p-3 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-[var(--theme-text-secondary)] hover:bg-white/10 transition-colors"
+                            className="flex items-center gap-2 p-3 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 styles.colors.text.secondary hover:bg-white/10 transition-colors"
                           >
                             <span className="text-xl">{size.emoji}</span>
                             <span className="text-sm">{size.label}</span>
@@ -326,7 +326,7 @@ export default function OnboardingPage() {
 
                   {/* Company Stage */}
                   <div className="space-y-2">
-                    <Label className="text-[var(--theme-text-secondary)]">Etapa de la empresa</Label>
+                    <Label className="styles.colors.text.secondary">Etapa de la empresa</Label>
                     <RadioGroup
                       value={formData.companyStage}
                       onValueChange={(value) =>
@@ -343,11 +343,11 @@ export default function OnboardingPage() {
                           />
                           <Label
                             htmlFor={stage.value}
-                            className="flex items-start gap-3 p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-[var(--theme-text-secondary)] hover:bg-white/10 transition-colors"
+                            className="flex items-start gap-3 p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 styles.colors.text.secondary hover:bg-white/10 transition-colors"
                           >
                             <div className="flex-1">
                               <div className="font-medium text-white">{stage.label}</div>
-                              <div className="text-xs text-[var(--theme-text-secondary)] mt-1">{stage.description}</div>
+                              <div className="text-xs styles.colors.text.secondary mt-1">{stage.description}</div>
                             </div>
                           </Label>
                         </div>
@@ -392,7 +392,7 @@ export default function OnboardingPage() {
                         />
                         <Label
                           htmlFor={role.value}
-                          className="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-[var(--theme-text-secondary)] hover:bg-white/10 transition-colors min-h-[100px]"
+                          className="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 styles.colors.text.secondary hover:bg-white/10 transition-colors min-h-[100px]"
                         >
                           <span className="text-2xl mb-2">{role.emoji}</span>
                           <span className="text-xs text-center">{role.label}</span>
@@ -438,12 +438,12 @@ export default function OnboardingPage() {
                         />
                         <Label
                           htmlFor={style.value}
-                          className="flex items-start gap-4 p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 text-[var(--theme-text-secondary)] hover:bg-white/10 transition-colors"
+                          className="flex items-start gap-4 p-4 rounded-lg border border-white/10 bg-white/5 cursor-pointer peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/20 styles.colors.text.secondary hover:bg-white/10 transition-colors"
                         >
                           <span className="text-3xl flex-shrink-0">{style.emoji}</span>
                           <div className="flex-1">
                             <div className="font-medium text-white text-base">{style.label}</div>
-                            <div className="text-sm text-[var(--theme-text-secondary)] mt-1">{style.description}</div>
+                            <div className="text-sm styles.colors.text.secondary mt-1">{style.description}</div>
                           </div>
                         </Label>
                       </div>
@@ -452,7 +452,7 @@ export default function OnboardingPage() {
 
                   {/* Additional Context */}
                   <div className="space-y-2 pt-4 border-t border-white/10">
-                    <Label htmlFor="additionalContext" className="text-[var(--theme-text-secondary)]">
+                    <Label htmlFor="additionalContext" className="styles.colors.text.secondary">
                       Contexto adicional (opcional)
                     </Label>
                     <Textarea
@@ -462,7 +462,7 @@ export default function OnboardingPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, additionalContext: e.target.value })
                       }
-                      className="bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] min-h-[100px]"
+                      className="bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary min-h-[100px]"
                     />
                   </div>
                 </CardContent>
@@ -497,15 +497,15 @@ export default function OnboardingPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
                       <div className="text-2xl mb-2">🧠</div>
-                      <div className="text-sm text-[var(--theme-text-secondary)]">4 expertos IA</div>
+                      <div className="text-sm styles.colors.text.secondary">4 expertos IA</div>
                     </div>
                     <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
                       <div className="text-2xl mb-2">⚡</div>
-                      <div className="text-sm text-[var(--theme-text-secondary)]">Análisis en 30s</div>
+                      <div className="text-sm styles.colors.text.secondary">Análisis en 30s</div>
                     </div>
                     <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
                       <div className="text-2xl mb-2">[INFO]</div>
-                      <div className="text-sm text-[var(--theme-text-secondary)]">Personalizado</div>
+                      <div className="text-sm styles.colors.text.secondary">Personalizado</div>
                     </div>
                   </div>
 
@@ -514,7 +514,7 @@ export default function OnboardingPage() {
                     <p className="text-white font-medium mb-1">
                       Tu primer debate es gratis
                     </p>
-                    <p className="text-[var(--theme-text-secondary)] text-sm">
+                    <p className="styles.colors.text.secondary text-sm">
                       Prueba Quoorum con cualquier decisión estratégica
                     </p>
                   </div>
@@ -529,7 +529,7 @@ export default function OnboardingPage() {
               <Button
                 variant="ghost"
                 onClick={handleBack}
-                className="text-[var(--theme-text-secondary)] hover:text-white hover:bg-white/5"
+                className="styles.colors.text.secondary hover:text-white hover:bg-white/5"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Atrás

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Test Mode Toggle Component
  * 
  * Permite habilitar/deshabilitar el modo test desde el dashboard
@@ -75,14 +75,14 @@ export function TestModeToggle() {
               <AlertCircle className="h-5 w-5 text-purple-400" />
               Modo Test (Desarrollo)
             </CardTitle>
-            <CardDescription className="text-[#aebac1] mt-1">
+            <CardDescription className="styles.colors.text.secondary mt-1">
               Permite acceder a rutas protegidas sin autenticación
             </CardDescription>
           </div>
           {isTestModeEnabled ? (
             <CheckCircle2 className="h-6 w-6 text-green-400" />
           ) : (
-            <XCircle className="h-6 w-6 text-[var(--theme-text-secondary)]" />
+            <XCircle className="h-6 w-6 styles.colors.text.secondary" />
           )}
         </div>
       </CardHeader>
@@ -92,7 +92,7 @@ export function TestModeToggle() {
             <p className="text-sm text-white font-medium">
               Estado: {isTestModeEnabled ? 'Habilitado' : 'Deshabilitado'}
             </p>
-            <p className="text-xs text-[#aebac1] mt-1">
+            <p className="text-xs styles.colors.text.secondary mt-1">
               {isTestModeEnabled 
                 ? 'Puedes acceder a /debates, /dashboard, etc. sin login'
                 : 'Necesitas autenticarte para acceder a rutas protegidas'

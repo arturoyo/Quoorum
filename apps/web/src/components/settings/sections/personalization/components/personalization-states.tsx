@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * Personalization State Components
@@ -32,11 +32,11 @@ interface EmptyContextFilesStateProps {
 
 export function EmptyContextFilesState({ onCreateClick }: EmptyContextFilesStateProps) {
   return (
-    <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+    <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
       <CardContent className="flex flex-col items-center justify-center py-16">
-        <FileText className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-4" />
-        <p className="text-[var(--theme-text-secondary)] mb-2">No tienes archivos de contexto aún</p>
-        <p className="text-sm text-[var(--theme-text-tertiary)] mb-4">
+        <FileText className="h-12 w-12 styles.colors.text.tertiary mb-4" />
+        <p className="styles.colors.text.secondary mb-2">No tienes archivos de contexto aún</p>
+        <p className="text-sm styles.colors.text.tertiary mb-4">
           Crea tu primer archivo de contexto para incluir información relevante en tus debates
         </p>
         <Button

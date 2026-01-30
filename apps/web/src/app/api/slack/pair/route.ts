@@ -4,7 +4,7 @@
  * Validates the pairing code and links the Slack workspace.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { db } from '@quoorum/db'
 import { integrationPairings } from '@quoorum/db/schema'
 import { eq, and, gt } from 'drizzle-orm'

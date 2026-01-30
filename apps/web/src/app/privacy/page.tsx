@@ -1,5 +1,6 @@
-﻿import { Shield, Database, Eye, Lock, UserCheck, Cookie, Clock, RefreshCw, Mail } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { Shield, Database, Eye, Lock, UserCheck, Cookie, Clock, RefreshCw, Mail } from "lucide-react";
+import { cn, styles } from '@/lib/utils'
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 
 export const metadata = {
@@ -17,7 +18,7 @@ export default function PrivacyPage() {
       <section className="pt-32 pb-16 px-4 border-b border-white/5">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm styles.colors.text.secondary mb-6">
               <Shield className="w-4 h-4 text-purple-400" />
               <span>Legal</span>
             </div>
@@ -29,7 +30,7 @@ export default function PrivacyPage() {
               </span>
             </h1>
 
-            <p className="text-xl text-[var(--theme-text-secondary)] max-w-2xl mx-auto">
+            <p className="text-xl styles.colors.text.secondary max-w-2xl mx-auto">
               Última actualización: {new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
@@ -48,7 +49,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">1. Información que Recopilamos</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   En Quoorum, recopilamos información que nos proporcionas directamente:
                 </p>
@@ -71,7 +72,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">2. Cómo Usamos tu Información</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>Utilizamos la información recopilada para:</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Proporcionar y mantener nuestros servicios</li>
@@ -93,7 +94,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">3. Compartir Información</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   No vendemos, alquilamos ni compartimos tu información personal con terceros
                   para fines de marketing sin tu consentimiento explícito.
@@ -117,7 +118,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">4. Seguridad de Datos</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Implementamos medidas de seguridad técnicas y organizativas para proteger
                   tu información:
@@ -153,7 +154,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">5. Tus Derechos</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>Tienes derecho a:</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Acceder a tus datos personales</li>
@@ -182,7 +183,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">6. Cookies</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Utilizamos cookies esenciales para el funcionamiento del servicio y cookies
                   analíticas para mejorar la experiencia. Puedes gestionar tus preferencias
@@ -201,7 +202,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">7. Retención de Datos</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Conservamos tus datos mientras tu cuenta esté activa o según sea necesario
                   para proporcionarte servicios. Puedes solicitar la eliminación de tu cuenta
@@ -220,7 +221,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">8. Cambios a esta Política</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Podemos actualizar esta política ocasionalmente. Te notificaremos sobre
                   cambios significativos por email o mediante un aviso destacado en nuestro
@@ -239,7 +240,7 @@ export default function PrivacyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">9. Contacto</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Si tienes preguntas sobre esta política de privacidad, puedes contactarnos:
                 </p>

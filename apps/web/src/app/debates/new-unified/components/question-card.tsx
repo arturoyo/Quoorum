@@ -1,4 +1,4 @@
-﻿/**
+/**
  * QuestionCard Component
  * 
  * Typeform-style question card: one question at a time, centered, visual.
@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { api } from '@/lib/trpc/client'
 import { ArrowRight, ArrowLeft, Loader2, Globe, Search, Sparkles, Eye, ChevronRight, ChevronDown } from 'lucide-react'
 import { SuggestedAnswerCard } from './suggested-answer-card'
@@ -313,7 +313,11 @@ export function QuestionCard({
     <Button
       variant="outline"
       onClick={onSkipToNextPhase}
-      className="border-purple-500/40 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/60 hover:text-[var(--theme-text-primary)] shrink-0"
+      className={cn(
+        "border-purple-500/40 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20",
+        "hover:border-purple-500/60 shrink-0",
+        styles.hoverState()
+      )}
     >
       Pasar a siguiente fase
       <ChevronRight className="ml-2 h-4 w-4" />
@@ -390,7 +394,11 @@ export function QuestionCard({
         Pregunta relevante
       </span>
     ) : question.priority === 'low' ? (
-      <span className="inline-flex items-center gap-1.5 text-sm text-[var(--theme-text-secondary)] px-3 py-1 rounded-full bg-gray-500/10 border border-gray-500/30">
+      <span className={cn(
+        "inline-flex items-center gap-1.5 text-sm px-3 py-1 rounded-full",
+        styles.colors.text.secondary,
+        "bg-gray-500/10 border border-gray-500/30"
+      )}>
         <span className="w-2 h-2 bg-gray-400 rounded-full" />
         Pregunta complementaria
       </span>
@@ -399,14 +407,19 @@ export function QuestionCard({
   const progressBar =
     contextProgress != null ? (
       <div className="flex items-center gap-4">
-        <div className="flex-1 min-w-0 h-4 bg-[var(--theme-bg-input)] rounded-full overflow-hidden relative">
+        <div className={cn(
+          "flex-1 min-w-0 h-4 rounded-full overflow-hidden relative",
+          styles.colors.bg.input
+        )}>
           <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 transition-all duration-500 ease-out rounded-full"
-            style={{ width: `${Math.max(contextProgress, 2)}%` }}
+            className={cn(
+              "absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 transition-all duration-500 ease-out rounded-full",
+              `w-[${Math.max(contextProgress, 2)}%]`
+            )}
           />
         </div>
         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-600 border-2 border-purple-400 flex items-center justify-center">
-          <span className="text-sm font-bold text-[var(--theme-text-primary)]" suppressHydrationWarning>
+          <span className={cn("text-sm font-bold", styles.colors.text.primary)} suppressHydrationWarning>
             {Math.round(contextProgress)}%
           </span>
         </div>
@@ -432,7 +445,11 @@ export function QuestionCard({
               variant="outline"
               size="sm"
               onClick={onShowSummary}
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 hover:border-purple-500/50 ml-auto"
+              className={cn(
+                styles.colors.text.secondary,
+                "border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 hover:border-purple-500/50 ml-auto",
+                styles.hoverState()
+              )}
             >
               <Eye className="mr-2 h-4 w-4" />
               Ver resumen ({answersCount} respuesta{answersCount !== 1 ? 's' : ''})
@@ -488,10 +505,14 @@ export function QuestionCard({
                     {[1, 2, 3].map((i) => (
                       <div
                         key={i}
-                        className="p-4 rounded-lg border-2 border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] animate-pulse"
+                        className={cn(
+                          "p-4 rounded-lg border-2 animate-pulse",
+                          styles.colors.border.default,
+                          styles.colors.bg.secondary
+                        )}
                       >
-                        <div className="h-4 bg-[var(--theme-bg-tertiary)] rounded w-3/4 mb-2" />
-                        <div className="h-3 bg-[var(--theme-bg-tertiary)] rounded w-1/2" />
+                        <div className={cn("h-4 rounded w-3/4 mb-2", styles.colors.bg.tertiary)} />
+                        <div className={cn("h-3 rounded w-1/2", styles.colors.bg.tertiary)} />
                       </div>
                     ))}
                   </div>
@@ -550,7 +571,10 @@ export function QuestionCard({
               variant="outline"
               className={cn(
                 'w-full h-14 text-base',
-                'border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] hover:bg-blue-600 hover:border-blue-600'
+                styles.colors.border.default,
+                styles.colors.bg.secondary,
+                styles.colors.text.primary,
+                'hover:bg-blue-600 hover:border-blue-600'
               )}
             >
               <Globe className="mr-2 h-4 w-4" />
@@ -561,7 +585,7 @@ export function QuestionCard({
               <p className="text-sm text-blue-300 flex items-center gap-2">
                 <Search className="h-4 w-4" />
                 <span>
-                  Esta búsqueda consumirá <strong className="text-[var(--theme-text-primary)]">1 crédito</strong> (~$0.01 USD)
+                  Esta búsqueda consumirá <strong className="styles.colors.text.primary">1 crédito</strong> (~$0.01 USD)
                 </span>
               </p>
               <p className="text-xs text-blue-400/80 mt-1">
@@ -577,7 +601,7 @@ export function QuestionCard({
             <div className="flex items-center gap-3">
               <Loader2 className="h-5 w-5 text-blue-400 animate-spin" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-[var(--theme-text-primary)]">Buscando en internet...</p>
+                <p className="text-sm font-medium styles.colors.text.primary">Buscando en internet...</p>
                 {searchQuery && (
                   <p className="text-xs text-blue-300 mt-1">Buscando: "{searchQuery}"</p>
                 )}
@@ -596,15 +620,17 @@ export function QuestionCard({
                 disabled={isLoading}
                 className={cn(
                   'w-full p-4 rounded-lg border-2 text-left transition-all',
-                  'bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
+                  styles.colors.bg.secondary,
+                  styles.colors.border.default,
+                  styles.colors.text.primary,
                   'hover:border-purple-500 hover:bg-purple-500/10',
-                  'focus:outline-none focus:ring-2 focus:ring-purple-500',
+                  styles.focusRing(),
                   isLoading && 'opacity-50 cursor-not-allowed'
                 )}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-lg">{option}</span>
-                  <ArrowRight className="h-5 w-5 text-[var(--theme-text-secondary)]" />
+                  <ArrowRight className="h-5 w-5 styles.colors.text.secondary" />
                 </div>
               </button>
             ))}
@@ -616,7 +642,7 @@ export function QuestionCard({
               <div className="space-y-4">
                 <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4">
                   <p className="text-sm text-green-300 mb-3">
-                    Has respondido <strong className="text-[var(--theme-text-primary)]">Sí</strong>. Puedes añadir más contexto para enriquecer la respuesta (opcional):
+                    Has respondido <strong className="styles.colors.text.primary">Sí</strong>. Puedes añadir más contexto para enriquecer la respuesta (opcional):
                   </p>
                   <Textarea
                     value={additionalContext}
@@ -624,9 +650,11 @@ export function QuestionCard({
                     placeholder="Explica más detalles... (opcional)"
                     disabled={isLoading}
                     className={cn(
-                      'min-h-[100px] text-base bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
-                      'placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500',
-                      'focus-visible:border-purple-500 resize-y'
+                      'min-h-[100px] text-base resize-y',
+                      styles.colors.bg.secondary,
+                      styles.colors.border.default,
+                      styles.colors.text.primary,
+                      'focus-visible:ring-purple-500 focus-visible:border-purple-500'
                     )}
                     autoFocus
                   />
@@ -645,7 +673,13 @@ export function QuestionCard({
                       onClick={handleYesWithoutContext}
                       variant="outline"
                       disabled={isLoading}
-                      className="h-12 border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+                      className={cn(
+                        "h-12",
+                        styles.colors.border.default,
+                        styles.colors.bg.secondary,
+                        styles.colors.text.primary,
+                        "hover:styles.colors.bg.tertiary"
+                      )}
                     >
                       Solo "Sí" sin contexto
                     </Button>
@@ -663,7 +697,12 @@ export function QuestionCard({
                     'p-6 rounded-lg border-2 text-lg font-medium transition-all',
                     answer === 'Sí' || (answer && answer.startsWith('Sí'))
                       ? 'bg-green-500/20 border-green-500 text-green-300'
-                      : 'bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)] hover:border-green-500 hover:bg-green-500/10',
+                      : cn(
+                          styles.colors.bg.secondary,
+                          styles.colors.border.default,
+                          styles.colors.text.primary,
+                          'hover:border-green-500 hover:bg-green-500/10'
+                        ),
                     isLoading && 'opacity-50 cursor-not-allowed'
                   )}
                 >
@@ -676,7 +715,12 @@ export function QuestionCard({
                     'p-6 rounded-lg border-2 text-lg font-medium transition-all',
                     answer === 'No'
                       ? 'bg-red-500/20 border-red-500 text-red-300'
-                      : 'bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)] hover:border-red-500 hover:bg-red-500/10',
+                      : cn(
+                          styles.colors.bg.secondary,
+                          styles.colors.border.default,
+                          styles.colors.text.primary,
+                          'hover:border-red-500 hover:bg-red-500/10'
+                        ),
                     isLoading && 'opacity-50 cursor-not-allowed'
                   )}
                 >
@@ -708,9 +752,11 @@ export function QuestionCard({
                 placeholder="Escribe tu respuesta... (Ctrl+Enter para enviar)"
                 disabled={isLoading}
                 className={cn(
-                  'min-h-[140px] text-base bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
-                  'placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500',
-                  'focus-visible:border-purple-500 resize-y',
+                  'min-h-[140px] text-base resize-y',
+                  styles.colors.bg.secondary,
+                  styles.colors.border.default,
+                  styles.colors.text.primary,
+                  'focus-visible:ring-purple-500 focus-visible:border-purple-500',
                   validationError && 'border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500'
                 )}
                 autoFocus
@@ -728,9 +774,11 @@ export function QuestionCard({
                 placeholder="Escribe tu respuesta..."
                 disabled={isLoading}
                 className={cn(
-                  'h-16 text-lg bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
-                  'placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500',
-                  'focus-visible:border-purple-500',
+                  'h-16 text-lg',
+                  styles.colors.bg.secondary,
+                  styles.colors.border.default,
+                  styles.colors.text.primary,
+                  'focus-visible:ring-purple-500 focus-visible:border-purple-500',
                   validationError && 'border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500'
                 )}
                 autoFocus
@@ -754,7 +802,11 @@ export function QuestionCard({
                   <Button
                     onClick={onBack}
                     variant="ghost"
-                    className="h-12 text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] shrink-0"
+                    className={cn(
+                      "h-12 shrink-0",
+                      styles.colors.text.tertiary,
+                      styles.hoverState()
+                    )}
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Atrás
@@ -790,7 +842,10 @@ export function QuestionCard({
           <Button
             onClick={onBack}
             variant="ghost"
-            className="text-[var(--theme-text-secondary)] hover:text-white"
+            className={cn(
+              styles.colors.text.secondary,
+              "hover:text-white"
+            )}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Atrás

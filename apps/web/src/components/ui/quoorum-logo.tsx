@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import React from "react";
+import { cn } from '@/lib/utils'
 
 interface QuoorumLogoProps {
   className?: string;
@@ -32,8 +33,11 @@ export function QuoorumLogo({
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center overflow-visible group ${className}`}
-      style={{ width: size, height: size, minWidth: size, minHeight: size }}
+      className={cn(
+        'relative inline-flex items-center justify-center overflow-visible group',
+        `w-[${size}px] h-[${size}px] min-w-[${size}px] min-h-[${size}px]`,
+        className
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -42,16 +46,11 @@ export function QuoorumLogo({
           {/* Glow real usando pseudo-elemento - solo visible en hover */}
           {isHovered && (
             <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: `radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%)`,
-                filter: 'blur(8px)',
-                WebkitFilter: 'blur(8px)',
-                transform: 'scale(1.3)',
-                zIndex: 0,
-                opacity: 1,
-                transition: 'opacity 0.3s ease-out',
-              }}
+              className={cn(
+                'absolute inset-0 pointer-events-none z-0 opacity-100 transition-opacity duration-300',
+                'blur-[8px] scale-[1.3]',
+                "[background:radial-gradient(circle,rgba(168,85,247,0.2)_0%,transparent_70%)]"
+              )}
             />
           )}
           {/* Logo principal con gradiente - sin efectos de sombra */}
@@ -59,13 +58,13 @@ export function QuoorumLogo({
             className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 z-10"
             style={{
               maskImage: `url('${logoSrc}')`,
-              maskSize: "contain",
-              maskRepeat: "no-repeat",
-              maskPosition: "center",
+              maskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              maskPosition: 'center',
               WebkitMaskImage: `url('${logoSrc}')`,
-              WebkitMaskSize: "contain",
-              WebkitMaskRepeat: "no-repeat",
-              WebkitMaskPosition: "center",
+              WebkitMaskSize: 'contain',
+              WebkitMaskRepeat: 'no-repeat',
+              WebkitMaskPosition: 'center',
             }}
           />
           {/* SVG invisible para mantener el espacio */}
@@ -74,8 +73,7 @@ export function QuoorumLogo({
             alt="Quoorum"
             width={size}
             height={size}
-            className="w-full h-full object-contain opacity-0 relative z-10 pointer-events-none"
-            style={{ objectFit: 'contain', objectPosition: 'center' }}
+            className="w-full h-full object-contain object-center opacity-0 relative z-10 pointer-events-none"
           />
         </>
       ) : (
@@ -84,12 +82,7 @@ export function QuoorumLogo({
           alt="Quoorum"
           width={size}
           height={size}
-          className="w-full h-full object-contain"
-          style={{
-            objectFit: 'contain',
-            objectPosition: 'center',
-            filter: 'brightness(0) invert(1)',
-          }}
+          className="w-full h-full object-contain object-center brightness-0 invert"
         />
       )}
     </div>

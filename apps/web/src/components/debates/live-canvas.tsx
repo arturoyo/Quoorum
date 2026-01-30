@@ -13,7 +13,7 @@ import {
   AlertCircle,
   CheckCircle2,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { useDebateSession } from '@/hooks/use-debate-session'
 
 interface LiveCanvasProps {
@@ -69,11 +69,11 @@ export function LiveCanvas({ debateId, className }: LiveCanvasProps) {
 
   return (
     <div className={cn(
-      'rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] overflow-hidden',
+      'rounded-lg border styles.colors.border.default styles.colors.bg.secondary overflow-hidden',
       className
     )}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)]">
+      <div className="flex items-center justify-between px-4 py-3 border-b styles.colors.border.default styles.colors.bg.tertiary">
         <div className="flex items-center gap-2">
           <div className={cn(
             'w-2 h-2 rounded-full',
@@ -82,7 +82,7 @@ export function LiveCanvas({ debateId, className }: LiveCanvasProps) {
             isTerminal ? 'bg-purple-400' :
             'bg-[var(--theme-text-tertiary)]'
           )} />
-          <span className="text-sm font-medium text-[var(--theme-text-primary)]">
+          <span className="text-sm font-medium styles.colors.text.primary">
             {isRunning ? `Ronda ${session?.currentRound ?? 0}/${session?.maxRounds ?? 10}` :
              isPaused ? 'En pausa' :
              isTerminal ? 'Completado' :
@@ -100,7 +100,7 @@ export function LiveCanvas({ debateId, className }: LiveCanvasProps) {
                 'flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors',
                 activeView === v.id
                   ? 'bg-purple-500/20 text-purple-300'
-                  : 'text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-secondary)]'
+                  : 'styles.colors.text.tertiary hover:styles.colors.text.secondary'
               )}
             >
               <v.icon className="w-3 h-3" />
@@ -113,7 +113,7 @@ export function LiveCanvas({ debateId, className }: LiveCanvasProps) {
       {/* Canvas Content */}
       <div className="p-4 min-h-[200px]">
         {!session && !error && (
-          <div className="flex items-center justify-center h-[200px] text-[var(--theme-text-tertiary)]">
+          <div className="flex items-center justify-center h-[200px] styles.colors.text.tertiary">
             <Loader2 className="w-5 h-5 animate-spin mr-2" />
             Esperando sesion...
           </div>
@@ -152,7 +152,7 @@ export function LiveCanvas({ debateId, className }: LiveCanvasProps) {
 
       {/* Controls */}
       {session && !isTerminal && (
-        <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--theme-border)]">
+        <div className="flex items-center gap-2 px-4 py-3 border-t styles.colors.border.default">
           {isRunning && (
             <button
               onClick={() => void pause('User paused')}
@@ -192,7 +192,7 @@ export function LiveCanvas({ debateId, className }: LiveCanvasProps) {
 
       {/* Terminal state */}
       {isTerminal && session && (
-        <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--theme-border)] bg-purple-500/10">
+        <div className="flex items-center gap-2 px-4 py-3 border-t styles.colors.border.default bg-purple-500/10">
           <CheckCircle2 className="w-4 h-4 text-purple-400" />
           <span className="text-sm text-purple-300">
             {session.state === 'consensus_reached' ? 'Consenso alcanzado' :
@@ -209,13 +209,13 @@ export function LiveCanvas({ debateId, className }: LiveCanvasProps) {
 
       {/* Context injection input */}
       {showContextInput && (
-        <div className="px-4 py-3 border-t border-[var(--theme-border)]">
+        <div className="px-4 py-3 border-t styles.colors.border.default">
           <div className="flex gap-2">
             <input
               value={contextInput}
               onChange={(e) => setContextInput(e.target.value)}
               placeholder="Nuevo contexto para el debate..."
-              className="flex-1 px-3 py-1.5 rounded-md text-sm bg-[var(--theme-bg-input)] border border-[var(--theme-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500 focus-visible:border-purple-500 focus:outline-none"
+              className="flex-1 px-3 py-1.5 rounded-md text-sm styles.colors.bg.input border styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500 focus:outline-none"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') void handleAddContext()
               }}
@@ -250,31 +250,30 @@ function ConsensusView({ score, dominant, round, maxRounds }: {
     <div className="space-y-4">
       {/* Score gauge */}
       <div className="text-center">
-        <div className="text-4xl font-bold text-[var(--theme-text-primary)]">
+        <div className="text-4xl font-bold styles.colors.text.primary">
           {Math.round(pct)}%
         </div>
-        <div className="text-sm text-[var(--theme-text-tertiary)] mt-1">Nivel de consenso</div>
+        <div className="text-sm styles.colors.text.tertiary mt-1">Nivel de consenso</div>
       </div>
 
       {/* Progress bar */}
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-[var(--theme-text-tertiary)]">
+        <div className="flex justify-between text-xs styles.colors.text.tertiary">
           <span>Ronda {round}</span>
           <span>Max {maxRounds}</span>
         </div>
-        <div className="w-full h-2 rounded-full bg-[var(--theme-bg-input)]">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 transition-all duration-500"
-            style={{ width: `${Math.min(progress, 100)}%` }}
-          />
-        </div>
+        <progress
+          className={cn("w-full h-2 rounded-full overflow-hidden", styles.colors.bg.input, "accent-cyan-500")}
+          value={Math.min(progress, 100)}
+          max={100}
+        />
       </div>
 
       {/* Dominant position */}
       {dominant && (
-        <div className="p-3 rounded-md bg-[var(--theme-bg-tertiary)] border border-[var(--theme-border)]">
-          <div className="text-xs text-[var(--theme-text-tertiary)] mb-1">Posicion dominante</div>
-          <div className="text-sm text-[var(--theme-text-primary)]">{dominant}</div>
+        <div className="p-3 rounded-md styles.colors.bg.tertiary border styles.colors.border.default">
+          <div className="text-xs styles.colors.text.tertiary mb-1">Posicion dominante</div>
+          <div className="text-sm styles.colors.text.primary">{dominant}</div>
         </div>
       )}
     </div>
@@ -289,7 +288,7 @@ function ExpertsView({ experts, lastSummary }: {
     <div className="space-y-4">
       {/* Active experts */}
       <div>
-        <div className="text-xs text-[var(--theme-text-tertiary)] mb-2">Expertos activos</div>
+        <div className="text-xs styles.colors.text.tertiary mb-2">Expertos activos</div>
         <div className="flex flex-wrap gap-2">
           {experts && experts.length > 0 ? experts.map((name) => (
             <span
@@ -299,16 +298,16 @@ function ExpertsView({ experts, lastSummary }: {
               {name}
             </span>
           )) : (
-            <span className="text-sm text-[var(--theme-text-tertiary)]">Sin datos</span>
+            <span className="text-sm styles.colors.text.tertiary">Sin datos</span>
           )}
         </div>
       </div>
 
       {/* Last round summary */}
       {lastSummary && (
-        <div className="p-3 rounded-md bg-[var(--theme-bg-tertiary)] border border-[var(--theme-border)]">
-          <div className="text-xs text-[var(--theme-text-tertiary)] mb-1">Resumen ultima ronda</div>
-          <div className="text-sm text-[var(--theme-text-secondary)] leading-relaxed">{lastSummary}</div>
+        <div className="p-3 rounded-md styles.colors.bg.tertiary border styles.colors.border.default">
+          <div className="text-xs styles.colors.text.tertiary mb-1">Resumen ultima ronda</div>
+          <div className="text-sm styles.colors.text.secondary leading-relaxed">{lastSummary}</div>
         </div>
       )}
     </div>
@@ -323,21 +322,21 @@ function FlowView({ argumentCount, contextItems }: {
     <div className="space-y-4">
       {/* Argument count */}
       <div className="text-center">
-        <div className="text-4xl font-bold text-[var(--theme-text-primary)]">
+        <div className="text-4xl font-bold styles.colors.text.primary">
           {argumentCount ?? 0}
         </div>
-        <div className="text-sm text-[var(--theme-text-tertiary)] mt-1">Argumentos generados</div>
+        <div className="text-sm styles.colors.text.tertiary mt-1">Argumentos generados</div>
       </div>
 
       {/* Injected context */}
       {contextItems && contextItems.length > 0 && (
         <div>
-          <div className="text-xs text-[var(--theme-text-tertiary)] mb-2">Contexto inyectado</div>
+          <div className="text-xs styles.colors.text.tertiary mb-2">Contexto inyectado</div>
           <div className="space-y-2 max-h-[150px] overflow-y-auto">
             {contextItems.map((item, i) => (
               <div
                 key={i}
-                className="p-2 rounded-md bg-[var(--theme-bg-tertiary)] border border-[var(--theme-border)] text-xs text-[var(--theme-text-secondary)]"
+                className="p-2 rounded-md styles.colors.bg.tertiary border styles.colors.border.default text-xs styles.colors.text.secondary"
               >
                 {item.text}
               </div>

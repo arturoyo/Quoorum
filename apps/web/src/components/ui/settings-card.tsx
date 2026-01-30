@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { Loader2, Edit, Save, X } from 'lucide-react'
 
 export interface SettingsCardProps {
@@ -57,15 +57,15 @@ export function SettingsCard({
   icon,
 }: SettingsCardProps) {
   return (
-    <Card className={cn('bg-[#111b21] border-[#2a3942]', className)}>
-      <CardHeader className="bg-[#202c33] border-b border-[#2a3942]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {icon && <div className="text-purple-400">{icon}</div>}
+    <Card className={cn(styles.card.base, className)}>
+      <CardHeader className={styles.card.header}>
+        <div className={styles.layout.flexBetween}>
+          <div className={styles.layout.flexRow}>
+            {icon && <div className={styles.text.accent}>{icon}</div>}
             <div>
-              <CardTitle className="text-[var(--theme-text-primary)]">{title}</CardTitle>
+              <CardTitle className={styles.colors.text.primary}>{title}</CardTitle>
               {description && (
-                <CardDescription className="text-[#aebac1]">
+                <CardDescription className={styles.colors.text.secondary}>
                   {description}
                 </CardDescription>
               )}
@@ -84,9 +84,9 @@ export function SettingsCard({
                       size="sm"
                       onClick={onCancel}
                       disabled={isSaving}
-                      className="border-[#2a3942] text-[var(--theme-text-secondary)] hover:bg-[#2a3942]"
+                      className={cn(styles.colors.border.default, styles.colors.text.secondary, styles.hoverState())}
                     >
-                      <X className="h-4 w-4 mr-1" />
+                      <X className={cn("h-4 w-4", styles.button.iconLeft)} />
                       Cancelar
                     </Button>
                   )}
@@ -116,7 +116,11 @@ export function SettingsCard({
                   variant="outline"
                   size="sm"
                   onClick={onEdit}
-                  className="border-[#2a3942] text-[var(--theme-text-secondary)] hover:bg-[#2a3942]"
+                  className={cn(
+                    styles.colors.border.default,
+                    styles.colors.text.secondary,
+                    'hover:bg-[var(--theme-bg-input)]'
+                  )}
                 >
                   <Edit className="h-4 w-4 mr-1" />
                   Editar

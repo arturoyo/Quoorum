@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * ReportCard Component
@@ -8,7 +8,7 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Clock, Download, FileText, Share2, Trash2 } from 'lucide-react'
@@ -36,7 +36,7 @@ export function ReportCard({ report, onDelete, onShare }: ReportCardProps) {
   })
 
   return (
-    <div className="rounded-lg border border-[#2a3942] bg-[#111b21] p-4">
+    <div className="rounded-lg border styles.colors.border.default styles.colors.bg.secondary p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -45,10 +45,10 @@ export function ReportCard({ report, onDelete, onShare }: ReportCardProps) {
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="border-[#2a3942] text-xs text-[#8696a0]">
+            <Badge variant="outline" className="styles.colors.border.default text-xs styles.colors.text.tertiary">
               {reportTypeLabels[report.type as ReportType]}
             </Badge>
-            <Badge variant="outline" className="border-[#2a3942] text-xs text-[#8696a0]">
+            <Badge variant="outline" className="styles.colors.border.default text-xs styles.colors.text.tertiary">
               {formatLabels[report.format as ReportFormat]?.label}
             </Badge>
             <Badge className={cn('text-xs', statusConfig[report.status]?.color)}>
@@ -60,20 +60,20 @@ export function ReportCard({ report, onDelete, onShare }: ReportCardProps) {
           </div>
 
           {report.description && (
-            <p className="mt-2 text-xs text-[#8696a0]">{report.description}</p>
+            <p className="mt-2 text-xs styles.colors.text.tertiary">{report.description}</p>
           )}
 
-          <div className="mt-2 flex items-center gap-4 text-xs text-[#8696a0]">
+          <div className="mt-2 flex items-center gap-4 text-xs styles.colors.text.tertiary">
             <span>{timeAgo}</span>
             {report.fileSize && <span>{formatFileSize(report.fileSize)}</span>}
           </div>
 
           {report.summary && report.summary.keyInsights && (
-            <div className="mt-3 rounded bg-[#202c33] p-2">
+            <div className="mt-3 rounded styles.colors.bg.tertiary p-2">
               <p className="text-xs font-medium text-[#e9edef]">Insights clave:</p>
               <ul className="mt-1 space-y-1">
                 {report.summary.keyInsights.slice(0, 2).map((insight, idx) => (
-                  <li key={idx} className="text-xs text-[#8696a0]">
+                  <li key={idx} className="text-xs styles.colors.text.tertiary">
                     • {insight}
                   </li>
                 ))}
@@ -93,7 +93,7 @@ export function ReportCard({ report, onDelete, onShare }: ReportCardProps) {
             <a
               href={report.fileUrl}
               download={report.fileName}
-              className="inline-flex h-8 items-center justify-center rounded-md border border-[#2a3942] bg-[#202c33] px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              className="inline-flex h-8 items-center justify-center rounded-md border styles.colors.border.default styles.colors.bg.tertiary px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
             >
               <Download className="mr-1 h-4 w-4" />
               Descargar
@@ -104,7 +104,7 @@ export function ReportCard({ report, onDelete, onShare }: ReportCardProps) {
               variant="ghost"
               size="sm"
               onClick={onShare}
-              className="h-8 text-[#8696a0] hover:text-[#e9edef]"
+              className="h-8 styles.colors.text.tertiary hover:text-[#e9edef]"
             >
               <Share2 className="mr-1 h-4 w-4" />
               Compartir
@@ -114,7 +114,7 @@ export function ReportCard({ report, onDelete, onShare }: ReportCardProps) {
             variant="ghost"
             size="sm"
             onClick={onDelete}
-            className="h-8 text-[#8696a0] hover:text-red-400"
+            className="h-8 styles.colors.text.tertiary hover:text-red-400"
           >
             <Trash2 className="mr-1 h-4 w-4" />
             Eliminar
