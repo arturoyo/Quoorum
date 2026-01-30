@@ -12,7 +12,7 @@ import { sql } from 'drizzle-orm'
 import { DEBATE_PROMPTS_DEFAULTS } from '@quoorum/quoorum/config/debate-prompts-config'
 
 async function seedDebatePrompts() {
-  console.log('🌱 Seeding debate prompts...')
+  console.log('[INFO] Seeding debate prompts...')
 
   const prompts = Object.values(DEBATE_PROMPTS_DEFAULTS)
   let inserted = 0
@@ -49,7 +49,7 @@ async function seedDebatePrompts() {
           WHERE key = ${prompt.slug}
         `)
         updated++
-        console.log(`  ✓ Updated: ${prompt.slug}`)
+        console.log(`  [OK] Updated: ${prompt.slug}`)
       } else {
         // Insert new prompt
         await db.execute(sql`
@@ -80,20 +80,20 @@ async function seedDebatePrompts() {
           )
         `)
         inserted++
-        console.log(`  ✓ Inserted: ${prompt.slug}`)
+        console.log(`  [OK] Inserted: ${prompt.slug}`)
       }
     } catch (error) {
-      console.error(`  ✗ Error processing ${prompt.slug}:`, error)
+      console.error(`  [ERROR] Error processing ${prompt.slug}:`, error)
       skipped++
     }
   }
 
-  console.log(`\n📊 Summary:`)
+  console.log(`\n[INFO] Summary:`)
   console.log(`   Inserted: ${inserted}`)
   console.log(`   Updated:  ${updated}`)
   console.log(`   Skipped:  ${skipped}`)
   console.log(`   Total:    ${prompts.length}`)
-  console.log('\n✅ Debate prompts seeded successfully!')
+  console.log('\n[OK] Debate prompts seeded successfully!')
 }
 
 export { seedDebatePrompts }

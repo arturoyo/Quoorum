@@ -299,7 +299,7 @@ function DebatesLayoutInner({ children }: DebatesLayoutProps) {
         isLoading={deleteDebateMutation.isPending}
       />
       {selectedDebates.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
+        <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-20 animate-in slide-in-from-bottom-4">
           <div className="border styles.colors.border.default styles.colors.bg.secondary/95 backdrop-blur-xl shadow-2xl rounded-lg">
             <div className="flex items-center gap-4 p-4">
               <div className="flex items-center gap-2">

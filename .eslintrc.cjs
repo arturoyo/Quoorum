@@ -24,12 +24,12 @@ module.exports = {
     '@typescript-eslint/no-unsafe-return': 'error',
     '@typescript-eslint/no-unsafe-argument': 'error',
 
-    // 🚨 Console.log - PROHIBIDO EN PRODUCCIÓN
+    // [ERROR] Console.log - PROHIBIDO EN PRODUCCION
     'no-console': 'error',
     'no-debugger': 'error',
     'no-alert': 'error',
 
-    // 🚨 Variables sin usar
+    // [ERROR] Variables sin usar
     '@typescript-eslint/no-unused-vars': [
       'error',
       {

@@ -16,7 +16,6 @@ import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles, Bell } from 'lucide-react'
 
-import { AppFooter } from '@/components/layout/app-footer'
 import type { User } from '@supabase/supabase-js'
 
 
@@ -615,7 +614,7 @@ export function AppHeader({
           {/* Bot�n para mostrar/ocultar panel de debug */}
           <button
             onClick={() => setShowDebugPanel(!showDebugPanel)}
-            className="fixed bottom-4 right-4 bg-black/80 hover:bg-black/90 styles.colors.text.primary p-2 rounded-full z-[9999] transition-all shadow-lg border styles.colors.border.default"
+            className="fixed bottom-32 right-4 bg-black/80 hover:bg-black/90 styles.colors.text.primary p-2 rounded-full z-20 transition-all shadow-lg border styles.colors.border.default"
             title={showDebugPanel ? 'Ocultar panel de debug' : 'Mostrar panel de debug'}
           >
             {showDebugPanel ? (
@@ -627,7 +626,7 @@ export function AppHeader({
           
           {/* Panel de debug (solo visible si showDebugPanel es true) */}
           {showDebugPanel && (
-            <div className="fixed bottom-16 right-4 bg-black/80 styles.colors.text.primary p-3 text-xs rounded z-[9999] max-w-xs shadow-lg border styles.colors.border.default">
+            <div className="fixed bottom-40 right-4 bg-black/80 styles.colors.text.primary p-3 text-xs rounded z-20 max-w-xs shadow-lg border styles.colors.border.default">
               <div className="space-y-1">
                 <div>Admin Modal: {adminModalOpen ? 'OPEN' : 'CLOSED'}</div>
                 <div>isAdmin: {currentUser?.isAdmin ? 'YES' : 'NO'}</div>
@@ -640,9 +639,6 @@ export function AppHeader({
           )}
         </>
       )}
-      
-      {/* Footer - Solo en p�ginas autenticadas (variant="app") */}
-      {variant === 'app' && <AppFooter />}
     </>
   )
 }

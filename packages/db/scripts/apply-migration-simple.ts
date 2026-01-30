@@ -2,11 +2,11 @@ import { db } from '../src'
 import { sql } from 'drizzle-orm'
 
 async function applyMigration() {
-  console.log('🚀 Aplicando migración manualmente...\n')
+  console.log('[INFO] Aplicando migracion manualmente...\n')
 
   try {
     // 1. Add new columns to system_prompts
-    console.log('1️⃣ Añadiendo columnas a system_prompts...')
+    console.log('[1/6] Anadiendo columnas a system_prompts...')
 
     const columns = [
       'ALTER TABLE system_prompts ADD COLUMN IF NOT EXISTS phase INTEGER CHECK (phase BETWEEN 1 AND 5)',
@@ -24,16 +24,16 @@ async function applyMigration() {
     for (const col of columns) {
       await db.execute(sql.raw(col))
     }
-    console.log('   ✓ Columnas añadidas\n')
+    console.log('   [OK] Columnas anadidas\n')
 
     // 2. Create indexes
-    console.log('2️⃣ Creando índices...')
+    console.log('[2/6] Creando indices...')
     await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_system_prompts_phase ON system_prompts(phase)`)
     await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_system_prompts_category_phase ON system_prompts(category, phase)`)
-    console.log('   ✓ Índices creados\n')
+    console.log('   [OK] Indices creados\n')
 
     // 3. Create system_prompt_versions table
-    console.log('3️⃣ Creando tabla system_prompt_versions...')
+    console.log('[3/6] Creando tabla system_prompt_versions...')
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS system_prompt_versions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -54,10 +54,10 @@ async function applyMigration() {
       )
     `)
     await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_system_prompt_versions_prompt_id ON system_prompt_versions(prompt_id)`)
-    console.log('   ✓ Tabla system_prompt_versions creada\n')
+    console.log('   [OK] Tabla system_prompt_versions creada\n')
 
     // 4. Create performance_profiles table
-    console.log('4️⃣ Creando tabla performance_profiles...')
+    console.log('[4/6] Creando tabla performance_profiles...')
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS performance_profiles (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -75,16 +75,16 @@ async function applyMigration() {
       )
     `)
     await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_performance_profiles_slug ON performance_profiles(slug)`)
-    console.log('   ✓ Tabla performance_profiles creada\n')
+    console.log('   [OK] Tabla performance_profiles creada\n')
 
     // 5. Seed performance profiles
-    console.log('5️⃣ Insertando perfiles de rendimiento...')
+    console.log('[5/6] Insertando perfiles de rendimiento...')
     await db.execute(sql`
       INSERT INTO performance_profiles (slug, name, description, cost_multiplier, badge_color, icon, is_active, is_default, model_rules) VALUES
       (
         'economic',
-        'Económico',
-        'Modelos más baratos en todas las operaciones. Ideal para pruebas o presupuestos limitados.',
+        'Economico',
+        'Modelos mas baratos en todas las operaciones. Ideal para pruebas o presupuestos limitados.',
         0.3,
         'green',
         'TrendingDown',
@@ -95,7 +95,7 @@ async function applyMigration() {
       (
         'balanced',
         'Equilibrado',
-        '80% operaciones con modelos económicos, 20% operaciones críticas con modelos premium. Mejor balance calidad/precio.',
+        '80% operaciones con modelos economicos, 20% operaciones criticas con modelos premium. Mejor balance calidad/precio.',
         1.0,
         'blue',
         'Scale',
@@ -106,7 +106,7 @@ async function applyMigration() {
       (
         'performance',
         'Alto Rendimiento',
-        'Modelos premium en todas las operaciones. Máxima calidad y precisión.',
+        'Modelos premium en todas las operaciones. Maxima calidad y precision.',
         3.0,
         'purple',
         'Zap',
@@ -116,17 +116,17 @@ async function applyMigration() {
       )
       ON CONFLICT (slug) DO NOTHING
     `)
-    console.log('   ✓ Perfiles insertados\n')
+    console.log('   [OK] Perfiles insertados\n')
 
     // 6. Add performance_level to profiles
-    console.log('6️⃣ Añadiendo columna performance_level a profiles...')
+    console.log('[6/6] Anadiendo columna performance_level a profiles...')
     await db.execute(sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS performance_level VARCHAR(50) DEFAULT 'balanced'`)
     await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_profiles_performance_level ON profiles(performance_level)`)
-    console.log('   ✓ Columna añadida\n')
+    console.log('   [OK] Columna anadida\n')
 
-    console.log('✅ ¡Migración completada exitosamente!')
+    console.log('[OK] Migracion completada exitosamente!')
   } catch (error: any) {
-    console.error('❌ Error:', error.message)
+    console.error('[ERROR] Error:', error.message)
     throw error
   }
 }

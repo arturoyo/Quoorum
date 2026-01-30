@@ -30,7 +30,7 @@ export function AppFooter({ className }: AppFooterProps) {
     <footer
       className={cn(
         'border-t styles.colors.border.default styles.colors.bg.primary/95 backdrop-blur-sm',
-        'fixed bottom-0 left-0 right-0 w-full z-40',
+        'fixed bottom-0 left-0 right-0 w-full z-30 h-20',
         className
       )}
     >

@@ -39,7 +39,7 @@ export function AppShell({
 }: AppShellProps) {
   return (
     <div className={cn(
-      'flex min-h-screen flex-col relative styles.colors.bg.primary',
+      'flex min-h-screen flex-col relative bg-[#0b141a]',
       className
     )}>
       {/* Animated gradient background */}
@@ -50,17 +50,20 @@ export function AppShell({
         </div>
       )}
 
-      {/* Global Header (fixed, z-50) */}
+      {/* Global Header (fixed, z-50) - ALWAYS 64px h-16 */}
       <AppHeader {...headerProps} />
 
       {/* Content Area with proper padding for fixed header/footer */}
+      {/* pt-16 = 64px for header, pb-20 = 80px for footer (with safety margin) */}
       <main className={cn(
-        'flex flex-1 pt-16 pb-16 overflow-hidden'
+        'flex flex-1 pt-16 pb-20 overflow-auto',
+        'relative z-0'
       )}>
         {children}
       </main>
 
-      {/* Global Footer (fixed, z-40) */}
+      {/* Global Footer (fixed, z-30) - Always at bottom, below content */}
+      {/* IMPORTANT: z-30 so it's below content but visible */}
       <AppFooter />
     </div>
   )
