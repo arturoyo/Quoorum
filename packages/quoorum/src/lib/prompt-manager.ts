@@ -118,10 +118,13 @@ export async function getPromptTemplate(
       logger.debug('[getPromptTemplate] Using DB prompt', { promptSlug })
     }
   } catch (error) {
-    logger.error('[getPromptTemplate] Error querying DB, will fallback to config', {
-      promptSlug,
-      error,
-    })
+    logger.error(
+      '[getPromptTemplate] Error querying DB, will fallback to config',
+      error instanceof Error ? error : undefined,
+      {
+        slug: promptSlug,
+      }
+    )
   }
 
   // 3. Fallback to config defaults

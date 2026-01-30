@@ -409,10 +409,13 @@ Output format:
       executionTimeMs,
     }
   } catch (error) {
-    quoorumLogger.error('Failed to run SWOT Analysis', {
-      errorMessage: error instanceof Error ? error.message : String(error),
-      question: input.question,
-    })
+    quoorumLogger.error(
+      'Failed to run SWOT Analysis',
+      error instanceof Error ? error : undefined,
+      {
+        question: input.question,
+      }
+    )
     throw error
   }
 }
