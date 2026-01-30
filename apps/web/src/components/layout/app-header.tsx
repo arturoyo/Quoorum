@@ -288,7 +288,7 @@ export function AppHeader({
   // App variant - for authenticated pages
   return (
     <>
-      <header className="border-b styles.colors.border.default styles.colors.bg.secondary/80 backdrop-blur-xl fixed top-0 left-0 right-0 w-full z-50 transition-colors duration-300">
+      <header className="border-b styles.colors.border.default styles.colors.bg.secondary/80 backdrop-blur-xl w-full h-full z-50 transition-colors duration-300 flex items-center">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 pointer-events-none" />
         <div className="container mx-auto px-4">
           <div className="relative flex h-16 items-center justify-between">

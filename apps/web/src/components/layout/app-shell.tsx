@@ -39,7 +39,7 @@ export function AppShell({
 }: AppShellProps) {
   return (
     <div className={cn(
-      'flex min-h-screen flex-col relative bg-[#0b141a]',
+      'flex h-screen flex-col relative bg-[#0b141a] overflow-hidden',
       className
     )}>
       {/* Animated gradient background */}
@@ -50,21 +50,24 @@ export function AppShell({
         </div>
       )}
 
-      {/* Global Header (fixed, z-50) - ALWAYS 64px h-16 */}
-      <AppHeader {...headerProps} />
+      {/* Global Header - 8% of viewport height (fixed, z-50) */}
+      <div className="h-[8vh] flex-shrink-0 relative z-50">
+        <AppHeader {...headerProps} />
+      </div>
 
-      {/* Content Area with proper padding for fixed header/footer */}
-      {/* pt-16 = 64px for header, pb-20 = 80px for footer (with safety margin) */}
+      {/* Content Area - takes remaining 89% minus footer */}
+      {/* Using flex-1 to take all available space, then footer takes its portion */}
       <main className={cn(
-        'flex flex-1 pt-16 pb-20 overflow-auto',
+        'flex flex-1 overflow-y-auto overflow-x-hidden',
         'relative z-0'
       )}>
         {children}
       </main>
 
-      {/* Global Footer (fixed, z-30) - Always at bottom, below content */}
-      {/* IMPORTANT: z-30 so it's below content but visible */}
-      <AppFooter />
+      {/* Global Footer - 3% of viewport height (fixed, z-30) */}
+      <div className="h-[3vh] flex-shrink-0 relative z-30">
+        <AppFooter />
+      </div>
     </div>
   )
 }

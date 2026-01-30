@@ -30,13 +30,13 @@ export function AppFooter({ className }: AppFooterProps) {
     <footer
       className={cn(
         'border-t styles.colors.border.default styles.colors.bg.primary/95 backdrop-blur-sm',
-        'fixed bottom-0 left-0 right-0 w-full z-30 h-20',
+        'w-full h-full z-30 flex items-center justify-center',
         className
       )}
     >
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-2 w-full h-full flex items-center justify-center">
         {/* Centered links with hover-expand effect */}
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center justify-center gap-1 h-full">
           {/* Theme Toggle */}
           <div className="mr-2">
             <ThemeDropdown />

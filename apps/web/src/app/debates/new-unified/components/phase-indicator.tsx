@@ -90,6 +90,7 @@ export function PhaseIndicator({
   return (
     <div className={cn(
       'fixed left-0 right-0 w-full border-t pt-4 pb-4 shadow-lg z-20 bottom-[90px]',
+        'fixed left-0 right-0 w-full border-t pt-4 pb-4 shadow-lg z-20 bottom-[calc(3vh+1rem)]',
       styles.colors.bg.secondary,
       styles.colors.border.default
     )}>

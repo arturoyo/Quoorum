@@ -58,7 +58,7 @@ export function FloatingActionBar({
   return (
     <div
       className={cn(
-        'fixed bottom-6 left-1/2 -translate-x-1/2 z-20',
+        'fixed bottom-[calc(3vh+1rem)] left-1/2 -translate-x-1/2 z-20',
         'animate-in slide-in-from-bottom-4 fade-in duration-200',
         className
       )}
