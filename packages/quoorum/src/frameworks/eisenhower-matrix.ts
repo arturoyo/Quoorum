@@ -148,13 +148,53 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 // ============================================================================
+// DYNAMIC PROMPT LOADING
+// ============================================================================
+
+/**
+ * Get Eisenhower Matrix agent configs with dynamic prompts from the system
+ * Falls back to hardcoded prompts if not found in DB
+ */
+async function getEisenhowerMatrixAgentConfigs(
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<{
+  classifier: FrameworkAgentConfig
+  priority: FrameworkAgentConfig
+}> {
+  try {
+    const { getPromptTemplate } = await import('../lib/prompt-manager');
+
+    const [classifierPrompt, priorityPrompt] =
+      await Promise.all([
+        getPromptTemplate('framework-eisenhower-classifier', {}, performanceLevel),
+        getPromptTemplate('framework-eisenhower-priority', {}, performanceLevel),
+      ]);
+
+    return {
+      classifier: { ...CLASSIFIER_AGENT_CONFIG, systemPrompt: classifierPrompt.template },
+      priority: { ...PRIORITY_AGENT_CONFIG, systemPrompt: priorityPrompt.template },
+    };
+  } catch {
+    // Fallback to hardcoded configs
+    return {
+      classifier: CLASSIFIER_AGENT_CONFIG,
+      priority: PRIORITY_AGENT_CONFIG,
+    };
+  }
+}
+
+// ============================================================================
 // MAIN FUNCTION
 // ============================================================================
 
 export async function runEisenhowerMatrix(
-  input: EisenhowerMatrixInput
+  input: EisenhowerMatrixInput,
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
 ): Promise<EisenhowerMatrixOutput> {
   const startTime = Date.now()
+
+  // Get dynamic agent configs
+  const agentConfigs = await getEisenhowerMatrixAgentConfigs(performanceLevel);
 
   quoorumLogger.info('Starting Eisenhower Matrix analysis', {
     question: input.question,
@@ -198,11 +238,11 @@ export async function runEisenhowerMatrix(
 
     // Step 1: Classify tasks
     const classificationResponse = await classifierClient.generateWithSystem(
-      CLASSIFIER_AGENT_CONFIG.systemPrompt,
+      agentConfigs.classifier.systemPrompt,
       `${contextPrompt}\n\nOutput format:\n{\n  "tasks": [\n    {\n      "task": "...",\n      "quadrant": "Q1" | "Q2" | "Q3" | "Q4",\n      "urgency": 85,\n      "importance": 90,\n      "rationale": "...",\n      "recommendedAction": "..."\n    }\n  ]\n}`,
       {
-        modelId: CLASSIFIER_AGENT_CONFIG.model,
-        temperature: CLASSIFIER_AGENT_CONFIG.temperature,
+        modelId: agentConfigs.classifier.model,
+        temperature: agentConfigs.classifier.temperature,
         maxTokens: 3000,
       }
     )
@@ -250,11 +290,11 @@ Output format:
 }`
 
     const priorityResponse = await priorityClient.generateWithSystem(
-      PRIORITY_AGENT_CONFIG.systemPrompt,
+      agentConfigs.priority.systemPrompt,
       priorityPrompt,
       {
-        modelId: PRIORITY_AGENT_CONFIG.model,
-        temperature: PRIORITY_AGENT_CONFIG.temperature,
+        modelId: agentConfigs.priority.model,
+        temperature: agentConfigs.priority.temperature,
         maxTokens: 1000,
       }
     )

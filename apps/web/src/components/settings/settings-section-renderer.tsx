@@ -22,10 +22,12 @@ import { DepartmentsLibrarySection } from './sections/departments-library-sectio
 import { TeamSection } from './sections/team-section'
 import { UsageSection } from './sections/usage-section'
 import { PersonalizationSection } from './sections/personalization-section'
+import { PreferencesSection } from './sections/preferences-section'
 
 interface SettingsSectionRendererProps {
   activePath: string
   isInModal?: boolean
+  isAdmin?: boolean
 }
 
 function SettingsSectionSkeleton() {
@@ -39,7 +41,7 @@ function SettingsSectionSkeleton() {
 /**
  * Renders the appropriate settings section based on activePath
  */
-export function SettingsSectionRenderer({ activePath, isInModal = false }: SettingsSectionRendererProps) {
+export function SettingsSectionRenderer({ activePath, isInModal = false, isAdmin = false }: SettingsSectionRendererProps) {
   // Extract the section path and subpath
   // Examples:
   // '/settings' -> section: 'account', subpath: ''
@@ -93,10 +95,12 @@ export function SettingsSectionRenderer({ activePath, isInModal = false }: Setti
         return <PersonalizationSection isInModal={isInModal} initialTab="company" />
       case 'billing':
         return <BillingSection isInModal={isInModal} />
+      case 'preferences':
+        return <PreferencesSection isInModal={isInModal} />
       case 'departments':
         return <DepartmentsUnifiedSection isInModal={isInModal} />
       case 'api-keys':
-        return <ApiKeysSection isInModal={isInModal} />
+        return isAdmin ? <ApiKeysSection isInModal={isInModal} /> : <PersonalizationSection isInModal={isInModal} />
       case 'security':
         return <SecuritySection isInModal={isInModal} />
       case 'notifications':
@@ -109,7 +113,7 @@ export function SettingsSectionRenderer({ activePath, isInModal = false }: Setti
         // Legacy route, redirect to profile
         return <PersonalizationSection isInModal={isInModal} />
       case 'team':
-        return <TeamSection isInModal={isInModal} />
+        return isAdmin ? <TeamSection isInModal={isInModal} /> : <PersonalizationSection isInModal={isInModal} />
       case 'usage':
         return <UsageSection isInModal={isInModal} />
       default:

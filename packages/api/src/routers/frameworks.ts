@@ -257,15 +257,28 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
     .input(prosAndConsInputSchema)
     .mutation(async ({ ctx, input }) => {
       try {
+        // Get user's performance level
+        const { profiles } = await import("@quoorum/db/schema");
+        const [userProfile] = await db
+          .select({ performanceLevel: profiles.performanceLevel })
+          .from(profiles)
+          .where(eq(profiles.id, ctx.userId))
+          .limit(1);
+
+        const performanceLevel = (userProfile?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced';
+
         // Get user backstory for context
         const userBackstory = input.userBackstory || undefined;
 
         // Run the framework
-        const result = await runProsAndCons({
-          question: input.question,
-          context: input.context,
-          userBackstory,
-        });
+        const result = await runProsAndCons(
+          {
+            question: input.question,
+            context: input.context,
+            userBackstory,
+          },
+          performanceLevel
+        );
 
         // Track framework usage (we'll create the debate record separately if needed)
         // For now, just return the result
@@ -289,15 +302,28 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
     .input(swotAnalysisInputSchema)
     .mutation(async ({ ctx, input }) => {
       try {
+        // Get user's performance level
+        const { profiles } = await import("@quoorum/db/schema");
+        const [userProfile] = await db
+          .select({ performanceLevel: profiles.performanceLevel })
+          .from(profiles)
+          .where(eq(profiles.id, ctx.userId))
+          .limit(1);
+
+        const performanceLevel = (userProfile?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced';
+
         // Get user backstory for context
         const userBackstory = input.userBackstory || undefined;
 
         // Run the framework
-        const result = await runSWOTAnalysis({
-          question: input.question,
-          context: input.context,
-          userBackstory,
-        });
+        const result = await runSWOTAnalysis(
+          {
+            question: input.question,
+            context: input.context,
+            userBackstory,
+          },
+          performanceLevel
+        );
 
         return result;
       } catch (error) {
@@ -318,16 +344,29 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
     .input(eisenhowerMatrixInputSchema)
     .mutation(async ({ ctx, input }) => {
       try {
+        // Get user's performance level
+        const { profiles } = await import("@quoorum/db/schema");
+        const [userProfile] = await db
+          .select({ performanceLevel: profiles.performanceLevel })
+          .from(profiles)
+          .where(eq(profiles.id, ctx.userId))
+          .limit(1);
+
+        const performanceLevel = (userProfile?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced';
+
         // Get user backstory for context
         const userBackstory = input.userBackstory || undefined;
 
         // Run the framework
-        const result = await runEisenhowerMatrix({
-          question: input.question,
-          tasks: input.tasks,
-          context: input.context,
-          userBackstory,
-        });
+        const result = await runEisenhowerMatrix(
+          {
+            question: input.question,
+            tasks: input.tasks,
+            context: input.context,
+            userBackstory,
+          },
+          performanceLevel
+        );
 
         return result;
       } catch (error) {

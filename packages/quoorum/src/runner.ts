@@ -50,12 +50,13 @@ export interface RunDebateOptions {
       customPrompt?: string // Layer 4: Personality/style customization
     }>
   }
+  performanceLevel?: 'economic' | 'balanced' | 'performance' // User's AI performance level
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
 }
 
 export async function runDebate(options: RunDebateOptions): Promise<DebateResult> {
-  const { sessionId, userId, question, context, corporateContext, onRoundComplete, onMessageGenerated } = options
+  const { sessionId, userId, question, context, corporateContext, performanceLevel = 'balanced', onRoundComplete, onMessageGenerated } = options
 
   const rounds: DebateRound[] = []
   let totalCost = 0
@@ -251,7 +252,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
 
     try {
       quoorumLogger.info('[Debate] Generating final synthesis...', { sessionId })
-      const synthesisResult = await generateFinalSynthesis(sessionId, question, rounds)
+      const synthesisResult = await generateFinalSynthesis(sessionId, question, rounds, performanceLevel)
 
       if (synthesisResult) {
         finalSynthesis = synthesisResult.synthesis
