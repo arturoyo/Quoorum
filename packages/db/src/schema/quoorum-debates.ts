@@ -58,6 +58,15 @@ export const quoorumDebates = pgTable('quoorum_debates', {
     [key: string]: unknown
   }>(),
 
+  // RAG Sources (documents used via vector search)
+  ragSources: jsonb('rag_sources').$type<
+    Array<{
+      documentName: string
+      similarity: number
+      chunkId?: string
+    }>
+  >(),
+
   // Results
   consensusScore: real('consensus_score'), // 0-1
   totalRounds: integer('total_rounds'),

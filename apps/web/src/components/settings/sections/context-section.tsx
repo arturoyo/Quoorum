@@ -352,6 +352,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej: Documentación Quoorum"
+                   aria-label="Context file name"
                   className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
                 />
               </div>
@@ -362,6 +363,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Breve descripción del archivo..."
+                   aria-label="Context file description"
                   className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
                 />
               </div>
