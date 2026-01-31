@@ -22,6 +22,7 @@
     "postinstall": "node scripts/copy-pdf-worker.js"
   },
   "dependencies": {
+    "@monaco-editor/react": "4.6.0",
     "@quoorum/api": "workspace:*",
     "@quoorum/core": "workspace:*",
     "@quoorum/db": "workspace:*",

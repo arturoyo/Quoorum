@@ -18,6 +18,7 @@ import { Slider } from '@/components/ui/slider'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
 import { type PromptData } from './debate-flow-timeline'
+import { MonacoPromptEditor } from '@/components/admin/monaco-prompt-editor'
 
 interface PromptEditorDialogProps {
   prompt: PromptData
@@ -106,9 +107,9 @@ export function PromptEditorDialog({
             />
           </div>
 
-          {/* Template */}
+          {/* Template - Monaco Editor */}
           <div>
-            <Label className="flex items-center gap-2">
+            <Label className="flex items-center gap-2 mb-2">
               Template del Prompt
               {prompt.variables && prompt.variables.length > 0 && (
                 <Badge variant="outline" className="text-xs">
@@ -116,23 +117,29 @@ export function PromptEditorDialog({
                 </Badge>
               )}
             </Label>
-            <Textarea
+            <MonacoPromptEditor
               value={formData.prompt}
-              onChange={(e) => setFormData({ ...formData, prompt: e.target.value })}
-              rows={10}
-              className="font-mono text-sm"
+              onChange={(value) => setFormData({ ...formData, prompt: value })}
+              height="300px"
+              placeholder="Escribe el template del prompt aquí..."
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Usa \${`{nombreVariable}`} para insertar variables dinámicas
+            </p>
           </div>
 
-          {/* System Prompt */}
+          {/* System Prompt - Monaco Editor */}
           <div>
-            <Label>System Prompt (Opcional)</Label>
-            <Textarea
+            <Label className="mb-2 block">System Prompt (Opcional)</Label>
+            <MonacoPromptEditor
               value={formData.system_prompt}
-              onChange={(e) => setFormData({ ...formData, system_prompt: e.target.value })}
-              rows={3}
+              onChange={(value) => setFormData({ ...formData, system_prompt: value })}
+              height="150px"
               placeholder="Ej: Eres un experto en..."
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Instrucciones de rol del agente (opcional)
+            </p>
           </div>
 
           {/* Models */}
