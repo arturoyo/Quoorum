@@ -20,6 +20,7 @@ import { systemLogger } from "../lib/system-logger";
 import { inngest } from "../lib/inngest-client";
 import { debateSequenceToResult } from "../lib/debate-orchestration-adapter";
 import { trackAICall } from "@quoorum/quoorum/ai-cost-tracking";
+import { injectRAGContext, extractSourceMetadata } from "../lib/rag-integration";
 
 // Import types from debates module
 import type { DebateContext, ContextQuestion, ContextEvaluation, CorporateContext, DebateRecord, DebateMetadata, AdditionalContextItem } from "./debates/types";
@@ -407,6 +408,7 @@ export const debatesRouter = router({
         scenarioId: z.string().uuid().optional(), // ID del escenario preconfigurado (Decision Playbook)
         scenarioVariables: z.record(z.string()).optional(), // Variables para el prompt template del escenario (ej: { user_input: "...", context: "..." })
         performanceLevel: z.enum(['economic', 'balanced', 'performance']).optional().default('balanced'), // Just-in-Time performance tier selection
+        enableRAG: z.boolean().optional().default(true), // Enable RAG document search (default: true)
         assessment: z
           .object({
             overallScore: z.number(),
@@ -553,15 +555,64 @@ export const debatesRouter = router({
         .join('\n\n---\n\n');
 
       // Combine user context with provided context
-      const combinedContext = userContextContent 
-        ? (input.context 
+      const combinedContext = userContextContent
+        ? (input.context
           ? `${userContextContent}\n\n---\n\n## Contexto Adicional del Usuario\n\n${input.context}`
           : userContextContent)
         : input.context || undefined;
 
+      // ============================================================================
+      // RAG INTEGRATION - Search for relevant documents
+      // ============================================================================
+      let ragSources: Array<{ documentName: string; similarity: number; chunkId?: string }> = [];
+      let finalContext = combinedContext;
+
+      if (input.enableRAG !== false) {
+        try {
+          logger.info('[debates.create] Injecting RAG context', {
+            question: finalQuestion.substring(0, 100),
+            userId: profileId,
+            companyId: profile.companyId,
+          });
+
+          const ragResult = await injectRAGContext(
+            finalQuestion,
+            combinedContext,
+            {
+              userId: profileId,
+              companyId: profile.companyId || undefined,
+              limit: 5,
+              minSimilarity: 0.5,
+              hybridSearch: true,
+              enabled: true,
+            }
+          );
+
+          if (ragResult.ragUsed && ragResult.sourcesCount > 0) {
+            finalContext = ragResult.enrichedContext;
+            ragSources = extractSourceMetadata(ragResult.ragContext);
+
+            logger.info('[debates.create] RAG context injected successfully', {
+              sourcesCount: ragResult.sourcesCount,
+              contextLength: finalContext.length,
+              searchDuration: ragResult.searchMetrics?.duration,
+            });
+          } else {
+            logger.info('[debates.create] No RAG sources found, using original context');
+          }
+        } catch (ragError) {
+          // RAG error - log but continue with original context
+          logger.warn('[debates.create] RAG injection failed, continuing without RAG', {
+            error: ragError instanceof Error ? ragError.message : String(ragError),
+          });
+        }
+      } else {
+        logger.info('[debates.create] RAG disabled for this debate');
+      }
+
       // Build context object
       const debateContext: DebateContext = {
-        background: combinedContext,
+        background: finalContext, // Use RAG-enriched context if available
         constraints: [],
       };
 
@@ -605,6 +656,7 @@ export const debatesRouter = router({
             context: debateContext,
             status: "pending",
             performanceLevel: input.performanceLevel || 'balanced', // Just-in-Time performance selection
+            ragSources: ragSources.length > 0 ? ragSources : null, // RAG sources used
             metadata: {
               expertCount: input.expertCount,
               maxRounds: input.maxRounds,
@@ -612,6 +664,8 @@ export const debatesRouter = router({
               title: existingTitle, // Preserve existing title
               createdViaContextAssessment: true,
               pattern: input.pattern || 'simple', // Save selected pattern
+              ragEnabled: input.enableRAG !== false,
+              ragSourcesCount: ragSources.length,
             },
             updatedAt: new Date(),
           })
@@ -644,12 +698,15 @@ export const debatesRouter = router({
             status: "pending",
             visibility: "private",
             performanceLevel: input.performanceLevel || 'balanced', // Just-in-Time performance selection
+            ragSources: ragSources.length > 0 ? ragSources : null, // RAG sources used
             metadata: {
               expertCount: input.expertCount,
               maxRounds: input.maxRounds,
               category: input.category,
               scenarioId: input.scenarioId, // Store scenario ID in metadata
               scenarioName: appliedScenario?.scenarioName,
+              ragEnabled: input.enableRAG !== false,
+              ragSourcesCount: ragSources.length,
             },
           })
           .returning();
