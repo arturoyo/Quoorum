@@ -8,6 +8,7 @@
 import { getRelevantContext } from './rag/search'
 import type { SearchOptions } from './rag/search'
 import { logger } from './logger'
+import { trackRAGUsage } from './rag/analytics-helper'
 
 export interface RAGIntegrationOptions {
   /** User ID for document search */
@@ -140,6 +141,23 @@ export async function injectRAGContext(
       sourcesCount,
       duration,
       contextLength: combinedContext.length,
+    })
+
+    // Track RAG usage analytics
+    await trackRAGUsage({
+      userId: options.userId,
+      companyId: options.companyId,
+      eventType: 'debate_injection',
+      debateId: options.debateId,
+      queryText: question.substring(0, 500), // Truncate for storage
+      resultsCount: sourcesCount,
+      avgSimilarity: null, // Could extract from ragContext metadata if needed
+      searchDurationMs: duration,
+      metadata: {
+        hybridSearch: options.hybridSearch,
+        provider: options.provider || 'default',
+        contextLength: combinedContext.length,
+      },
     })
 
     return {

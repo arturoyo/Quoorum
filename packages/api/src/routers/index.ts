@@ -77,3 +77,4 @@ export { debateSkillsRouter } from "./debate-skills";
 
 // RAG (Retrieval-Augmented Generation)
 export { ragRouter } from "./rag";
+export { ragAnalyticsRouter } from "./rag-analytics";

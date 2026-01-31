@@ -25,6 +25,7 @@ import { processDocument } from '../lib/rag/document-processor'
 import { chunkDocument } from '../lib/rag/chunking'
 import { generateEmbedding } from '@quoorum/ai/embeddings'
 import { semanticSearch, hybridSearch } from '../lib/rag/search'
+import { trackRAGUsage } from '../lib/rag/analytics-helper'
 
 // ============================================================================
 // DOCUMENTS
@@ -149,6 +150,22 @@ export const ragRouter = router({
           totalChunks: chunks.length,
           successCount,
           failCount,
+        })
+
+        // Track upload analytics
+        await trackRAGUsage({
+          userId: ctx.userId,
+          companyId: input.companyId,
+          eventType: 'document_upload',
+          documentId: document.id,
+          debateId: input.debateId,
+          metadata: {
+            fileName: input.fileName,
+            fileType: input.fileType,
+            fileSize: input.content.length,
+            chunksCreated: successCount,
+            chunksFailed: failCount,
+          },
         })
 
         return {
@@ -313,12 +330,38 @@ export const ragRouter = router({
       try {
         const searchFn = input.hybridMode ? hybridSearch : semanticSearch
 
+        const startTime = Date.now()
+
         const { results, metrics } = await searchFn(input.query, {
           userId: ctx.userId,
           companyId: input.companyId,
           debateId: input.debateId,
           limit: input.limit,
           minSimilarity: input.minSimilarity,
+        })
+
+        const duration = Date.now() - startTime
+
+        // Calculate average similarity
+        const avgSimilarity = results.length > 0
+          ? results.reduce((sum, r) => sum + r.similarity, 0) / results.length
+          : 0
+
+        // Track search analytics
+        await trackRAGUsage({
+          userId: ctx.userId,
+          companyId: input.companyId,
+          eventType: 'manual_search',
+          debateId: input.debateId,
+          queryText: input.query,
+          resultsCount: results.length,
+          avgSimilarity,
+          searchDurationMs: duration,
+          metadata: {
+            hybridMode: input.hybridMode,
+            minSimilarity: input.minSimilarity,
+            limit: input.limit,
+          },
         })
 
         return {

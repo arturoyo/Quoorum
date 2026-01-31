@@ -205,3 +205,21 @@ export type { VectorChunk, NewVectorChunk } from "./vector-chunks";
 
 export { ragQueries } from "./rag-queries";
 export type { RagQuery, NewRagQuery } from "./rag-queries";
+
+// RAG Analytics & Performance Tracking
+export {
+  ragUsageAnalytics,
+  ragQualityScores,
+  ragDocumentPerformance,
+  ragDocumentShares,
+} from "./rag-analytics";
+export type {
+  RAGUsageAnalytic,
+  NewRAGUsageAnalytic,
+  RAGQualityScore,
+  NewRAGQualityScore,
+  RAGDocumentPerformance,
+  NewRAGDocumentPerformance,
+  RAGDocumentShare,
+  NewRAGDocumentShare,
+} from "./rag-analytics";

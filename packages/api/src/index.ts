@@ -63,6 +63,7 @@ import {
   debateSkillsRouter,
   // RAG
   ragRouter,
+  ragAnalyticsRouter,
 } from "./routers/index";
 
 export const appRouter = router({
@@ -129,6 +130,7 @@ export const appRouter = router({
   debateSkills: debateSkillsRouter,
   // RAG (Retrieval-Augmented Generation)
   rag: ragRouter,
+  ragAnalytics: ragAnalyticsRouter,
 });
 
 export type AppRouter = typeof appRouter;

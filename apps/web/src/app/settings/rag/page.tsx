@@ -26,11 +26,13 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
+  TrendingUp,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
 export default function RAGPage() {
-  const [uploadFile, setUploadFile] = useState<File | null>(null)
+  const [uploadFiles, setUploadFiles] = useState<FileList | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
 
@@ -72,28 +74,52 @@ export default function RAGPage() {
 
   // Handlers
   const handleUpload = async () => {
-    if (!uploadFile) return
+    if (!uploadFiles || uploadFiles.length === 0) return
 
-    const reader = new FileReader()
-    reader.onload = async (e) => {
-      const content = e.target?.result as string
+    const filesArray = Array.from(uploadFiles)
 
-      const fileType = uploadFile.name.split('.').pop()?.toLowerCase() as 'pdf' | 'txt' | 'md' | 'docx'
+    for (const uploadFile of filesArray) {
+      const reader = new FileReader()
 
-      if (!['pdf', 'txt', 'md', 'docx'].includes(fileType)) {
-        toast.error('Unsupported file type. Use PDF, TXT, MD, or DOCX')
-        return
-      }
+      await new Promise((resolve, reject) => {
+        reader.onload = async (e) => {
+          try {
+            const content = e.target?.result as string
 
-      await uploadMutation.mutateAsync({
-        fileName: uploadFile.name,
-        fileType,
-        content,
-        tags: [],
+            const fileType = uploadFile.name.split('.').pop()?.toLowerCase() as
+              | 'pdf'
+              | 'txt'
+              | 'md'
+              | 'docx'
+
+            if (!['pdf', 'txt', 'md', 'docx'].includes(fileType)) {
+              toast.error(`Skipped ${uploadFile.name}: Unsupported file type`)
+              resolve(null)
+              return
+            }
+
+            await uploadMutation.mutateAsync({
+              fileName: uploadFile.name,
+              fileType,
+              content,
+              tags: [],
+            })
+
+            toast.success(`Uploaded ${uploadFile.name}`)
+            resolve(null)
+          } catch (error) {
+            toast.error(`Failed to upload ${uploadFile.name}`)
+            reject(error)
+          }
+        }
+
+        reader.onerror = reject
+        reader.readAsText(uploadFile)
       })
     }
 
-    reader.readAsText(uploadFile)
+    setUploadFiles(null)
+    refetchDocuments()
   }
 
   const handleDelete = async (documentId: string) => {
@@ -118,14 +144,22 @@ export default function RAGPage() {
   return (
     <div className="container mx-auto max-w-6xl p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Database className="h-8 w-8 text-purple-400" />
-          RAG Document Management
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Upload documents to enhance your debates with your own knowledge base
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Database className="h-8 w-8 text-purple-400" />
+            RAG Document Management
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Upload documents to enhance your debates with your own knowledge base
+          </p>
+        </div>
+        <Link href="/settings/rag/analytics">
+          <Button variant="outline" className="gap-2">
+            <TrendingUp className="h-4 w-4" />
+            View Analytics
+          </Button>
+        </Link>
       </div>
 
       {/* Stats */}
@@ -184,24 +218,29 @@ export default function RAGPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="file">Select File</Label>
+            <Label htmlFor="file">Select Files (supports multiple)</Label>
             <Input
               id="file"
               type="file"
               accept=".pdf,.txt,.md,.docx"
-              onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+              multiple
+              onChange={(e) => setUploadFiles(e.target.files)}
               className="mt-1"
             />
-            {uploadFile && (
+            {uploadFiles && uploadFiles.length > 0 && (
               <p className="text-sm text-muted-foreground mt-2">
-                Selected: {uploadFile.name} ({(uploadFile.size / 1024).toFixed(1)} KB)
+                Selected: {uploadFiles.length} file(s) (
+                {(
+                  Array.from(uploadFiles).reduce((sum, f) => sum + f.size, 0) / 1024
+                ).toFixed(1)}{' '}
+                KB total)
               </p>
             )}
           </div>
 
           <Button
             onClick={handleUpload}
-            disabled={!uploadFile || uploadMutation.isPending}
+            disabled={!uploadFiles || uploadFiles.length === 0 || uploadMutation.isPending}
             className="w-full md:w-auto"
           >
             {uploadMutation.isPending ? (
@@ -212,7 +251,7 @@ export default function RAGPage() {
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
-                Upload Document
+                Upload {uploadFiles && uploadFiles.length > 1 ? `${uploadFiles.length} Documents` : 'Document'}
               </>
             )}
           </Button>
