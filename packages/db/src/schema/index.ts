@@ -189,3 +189,19 @@ export type {
   AIOperationType,
   AIProvider,
 } from "./ai-cost-tracking";
+
+// RAG System (Retrieval-Augmented Generation)
+export { embeddingProviders } from "./embedding-providers";
+export type { EmbeddingProvider, NewEmbeddingProvider } from "./embedding-providers";
+
+export { embeddingPreferences } from "./embedding-preferences";
+export type { EmbeddingPreference, NewEmbeddingPreference } from "./embedding-preferences";
+
+export { vectorDocuments } from "./vector-documents";
+export type { VectorDocument, NewVectorDocument } from "./vector-documents";
+
+export { vectorChunks } from "./vector-chunks";
+export type { VectorChunk, NewVectorChunk } from "./vector-chunks";
+
+export { ragQueries } from "./rag-queries";
+export type { RagQuery, NewRagQuery } from "./rag-queries";

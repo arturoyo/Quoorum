@@ -180,6 +180,9 @@ export const quoorumDebates = pgTable('quoorum_debates', {
     timestamp: string // ISO date
   }>(),
 
+  // Performance tier for this debate (Just-in-Time selection)
+  performanceLevel: varchar('performance_level', { length: 50 }).default('balanced'),
+
   // Timestamps
   startedAt: timestamp('started_at', { withTimezone: true }),
   completedAt: timestamp('completed_at', { withTimezone: true }),
@@ -193,6 +196,7 @@ export const quoorumDebates = pgTable('quoorum_debates', {
   visibilityIdx: index('idx_quoorum_debates_visibility').on(table.visibility),
   companyIdIdx: index('idx_quoorum_debates_company').on(table.companyId),
   departmentIdIdx: index('idx_quoorum_debates_department').on(table.departmentId),
+  performanceLevelIdx: index('idx_quoorum_debates_performance_level').on(table.performanceLevel),
   createdAtIdx: index('idx_quoorum_debates_created').on(table.createdAt),
   // Composite indexes for common query patterns
   userStatusIdx: index('idx_quoorum_debates_user_status').on(table.userId, table.status),
