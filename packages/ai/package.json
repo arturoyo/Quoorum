@@ -11,6 +11,10 @@
     "./providers": {
       "types": "./dist/providers/index.d.ts",
       "import": "./dist/providers/index.js"
+    },
+    "./embeddings": {
+      "types": "./dist/embeddings/index.d.ts",
+      "import": "./dist/embeddings/index.js"
     }
   },
   "scripts": {
@@ -25,6 +29,7 @@
     "@ai-sdk/groq": "^1.0.0",
     "@ai-sdk/openai": "^1.0.0",
     "ai": "^4.0.0",
+    "openai": "^4.77.3",
     "zod": "^3.24.0"
   },
   "devDependencies": {
