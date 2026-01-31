@@ -992,17 +992,17 @@ export function useUnifiedDebateState(urlSessionId?: string) {
   }, [])
   
   // Create debate
-  const handleCreateDebate = useCallback(async () => {
+  const handleCreateDebate = useCallback(async (performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced') => {
     setIsCreatingDebate(true)
-    
+
     try {
       // Construir contexto completo y estructurado con toda la información
       const buildFullContext = () => {
         const sections: string[] = []
-        
+
         // 1. Pregunta principal
         sections.push(`# PREGUNTA PRINCIPAL DEL DEBATE\n\n${contexto.mainQuestion}\n`)
-        
+
         // 2. Metadatos del contexto
         sections.push(`## METADATOS DEL CONTEXTO\n`)
         sections.push(`- Puntuación de contexto: ${contexto.contextScore}/100`)
@@ -1013,11 +1013,11 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           sections.push(`- Resumen de evaluación: ${contexto.evaluation.summary}`)
         }
         sections.push('')
-        
+
         // 3. Preguntas y respuestas detalladas
         if (Object.keys(contexto.answers).length > 0) {
           sections.push(`## PREGUNTAS Y RESPUESTAS DE CONTEXTO\n`)
-          
+
           // Ordenar preguntas por su índice en el array original para mantener el orden
           const answeredQuestions = contexto.questions
             .filter(q => contexto.answers[q.id])
@@ -1027,11 +1027,11 @@ export function useUnifiedDebateState(urlSessionId?: string) {
               index: contexto.questions.indexOf(q)
             }))
             .sort((a, b) => a.index - b.index)
-          
+
           answeredQuestions.forEach(({ question, answer }, index) => {
             sections.push(`### Pregunta ${index + 1}: ${question.content}`)
             sections.push(`\n**Respuesta:**\n${answer}\n`)
-            
+
             // Añadir tipo de pregunta si es relevante
             if (question.questionType === 'yes_no') {
               sections.push(`*Tipo: Sí/No*\n`)
@@ -1042,12 +1042,12 @@ export function useUnifiedDebateState(urlSessionId?: string) {
             }
           })
         }
-        
+
         // 4. Contexto de internet (si está disponible)
         if (contexto.internetSearch?.context) {
           sections.push(`\n## CONTEXTO ADICIONAL DE INTERNET\n`)
           sections.push(contexto.internetSearch.context)
-          
+
           // Añadir información sobre los resultados seleccionados si están disponibles
           if (contexto.internetSearch.results && contexto.internetSearch.results.length > 0) {
             const selectedResults = contexto.internetSearch.results.filter(r => r.selected)
@@ -1060,7 +1060,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           }
           sections.push('')
         }
-        
+
         // 5. Resumen final
         sections.push(`## RESUMEN EJECUTIVO\n`)
         sections.push(`Este debate aborda la siguiente pregunta: "${contexto.mainQuestion}"`)
@@ -1069,19 +1069,20 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           sections.push(`Adicionalmente, se ha incluido contexto relevante obtenido de búsquedas en internet.`)
         }
         sections.push(`\nEl nivel de preparación del contexto es: ${contexto.contextScore}/100 (${contexto.contextScore >= 70 ? 'Alto' : contexto.contextScore >= 40 ? 'Medio' : 'Bajo'}).`)
-        
+
         return sections.join('\n')
       }
-      
+
       const fullContext = buildFullContext()
-      
-      logger.info('Creating debate...', {
+
+      logger.info('Creating debate with performance level...', {
         question: contexto.mainQuestion.substring(0, 50),
         expertCount: expertos.selectedExpertIds.length,
         departmentCount: expertos.selectedDepartmentIds.length,
         workerCount: expertos.selectedWorkerIds.length,
+        performanceLevel,
       })
-      
+
       const newDebate = await createDebate.mutateAsync({
         draftId: contexto.draftId, // Si existe un draft, actualizarlo en lugar de crear uno nuevo
         question: contexto.mainQuestion,
@@ -1091,6 +1092,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         selectedWorkerIds: expertos.selectedWorkerIds.length > 0 ? expertos.selectedWorkerIds : undefined,
         frameworkId: estrategia.selectedFrameworkId || undefined, // Framework de decisión seleccionado
         context: fullContext, // Pass as string, not object
+        performanceLevel, // Pass the selected performance level
       })
       
       logger.info('Debate created successfully', {
