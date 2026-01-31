@@ -5,7 +5,7 @@
  */
 
 import { Badge } from '@/components/ui/badge'
-import { Loader2, CheckCircle2, AlertTriangle, Clock, Users } from 'lucide-react'
+import { Loader2, CheckCircle2, AlertTriangle, Clock, Users, TrendingDown, Scale, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { InteractiveControls } from '@/components/quoorum'
 import { DebateTagsManager } from './debate-tags-manager'
@@ -22,12 +22,35 @@ const statusConfig: Record<DebateStatus, StatusConfig> = {
   cancelled: { label: 'Cancelado', color: 'bg-gray-500', icon: AlertTriangle },
 }
 
+// Performance level config
+const performanceConfig = {
+  economic: {
+    label: 'Económico',
+    icon: TrendingDown,
+    color: 'border-green-500/30 bg-green-500/10 text-green-300',
+    description: 'Modo económico (0.3x coste)',
+  },
+  balanced: {
+    label: 'Equilibrado',
+    icon: Scale,
+    color: 'border-blue-500/30 bg-blue-500/10 text-blue-300',
+    description: 'Modo equilibrado (1.0x coste)',
+  },
+  performance: {
+    label: 'Alto Rendimiento',
+    icon: Zap,
+    color: 'border-purple-500/30 bg-purple-500/10 text-purple-300',
+    description: 'Modo alto rendimiento (3.0x coste)',
+  },
+}
+
 interface DebateHeaderProps {
   debate: {
     id: string
     question: string
     status: string
     consensusScore?: number | null
+    performanceLevel?: string | null
     metadata?: {
       title?: string
       pattern?: string
@@ -78,6 +101,25 @@ export function DebateHeader({ debate }: DebateHeaderProps) {
               {StatusIcon && <StatusIcon className="h-3 w-3" />}
               {statusConfig[status]?.label}
             </Badge>
+            {debate.performanceLevel && performanceConfig[debate.performanceLevel as keyof typeof performanceConfig] && (
+              <>
+                <span>•</span>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    'flex items-center gap-1 text-xs',
+                    performanceConfig[debate.performanceLevel as keyof typeof performanceConfig].color
+                  )}
+                  title={performanceConfig[debate.performanceLevel as keyof typeof performanceConfig].description}
+                >
+                  {(() => {
+                    const PerformanceIcon = performanceConfig[debate.performanceLevel as keyof typeof performanceConfig].icon
+                    return <PerformanceIcon className="h-3 w-3" />
+                  })()}
+                  {performanceConfig[debate.performanceLevel as keyof typeof performanceConfig].label}
+                </Badge>
+              </>
+            )}
             {debate.metadata?.pattern && (
               <>
                 <span>•</span>
