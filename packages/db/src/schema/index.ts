@@ -223,3 +223,12 @@ export type {
   RAGDocumentShare,
   NewRAGDocumentShare,
 } from "./rag-analytics";
+
+// RAG Templates
+export { ragTemplates, ragTemplateUsage } from "./rag-templates";
+export type {
+  RAGTemplate,
+  NewRAGTemplate,
+  RAGTemplateUsage,
+  NewRAGTemplateUsage,
+} from "./rag-templates";

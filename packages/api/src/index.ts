@@ -64,6 +64,8 @@ import {
   // RAG
   ragRouter,
   ragAnalyticsRouter,
+  ragTemplatesRouter,
+  ragSuggestionsRouter,
 } from "./routers/index";
 
 export const appRouter = router({
@@ -131,6 +133,8 @@ export const appRouter = router({
   // RAG (Retrieval-Augmented Generation)
   rag: ragRouter,
   ragAnalytics: ragAnalyticsRouter,
+  ragTemplates: ragTemplatesRouter,
+  ragSuggestions: ragSuggestionsRouter,
 });
 
 export type AppRouter = typeof appRouter;

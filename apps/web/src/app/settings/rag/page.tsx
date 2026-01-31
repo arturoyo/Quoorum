@@ -39,6 +39,7 @@ export default function RAGPage() {
   // Queries
   const { data: documents, refetch: refetchDocuments } = api.rag.listDocuments.useQuery()
   const { data: stats } = api.rag.getStats.useQuery()
+  const { data: suggestions } = api.ragSuggestions.getSuggestions.useQuery()
 
   // Mutations
   const uploadMutation = api.rag.uploadDocument.useMutation({
@@ -154,12 +155,20 @@ export default function RAGPage() {
             Upload documents to enhance your debates with your own knowledge base
           </p>
         </div>
-        <Link href="/settings/rag/analytics">
-          <Button variant="outline" className="gap-2">
-            <TrendingUp className="h-4 w-4" />
-            View Analytics
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/settings/rag/templates">
+            <Button variant="outline" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Templates
+            </Button>
+          </Link>
+          <Link href="/settings/rag/analytics">
+            <Button variant="outline" className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Analytics
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
@@ -203,6 +212,58 @@ export default function RAGPage() {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* Smart Suggestions */}
+      {suggestions && suggestions.suggestions && suggestions.suggestions.length > 0 && (
+        <Card className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-purple-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-400" />
+              Smart Suggestions
+              {suggestions.analysisUsed && (
+                <Badge className="ml-2 bg-purple-500/30 text-purple-200">
+                  AI-Powered
+                </Badge>
+              )}
+            </CardTitle>
+            <CardDescription>
+              Based on your debate history, we recommend uploading these documents
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {suggestions.suggestions.map((suggestion: any, index: number) => (
+                <div
+                  key={index}
+                  className="p-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-medium">{suggestion.title}</h4>
+                    <Badge
+                      variant="outline"
+                      className={
+                        suggestion.priority === 'high'
+                          ? 'bg-red-500/20 text-red-300 border-red-500/30'
+                          : suggestion.priority === 'medium'
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                          : 'bg-green-500/20 text-green-300 border-green-500/30'
+                      }
+                    >
+                      {suggestion.priority}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {suggestion.description}
+                  </p>
+                  <div className="text-xs text-purple-300 bg-purple-500/10 rounded p-2">
+                    {suggestion.reasoning}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Upload Section */}
