@@ -74,3 +74,6 @@ export { integrationPairingsRouter } from "./integration-pairings";
 
 // Debate Skills
 export { debateSkillsRouter } from "./debate-skills";
+
+// RAG (Retrieval-Augmented Generation)
+export { ragRouter } from "./rag";
