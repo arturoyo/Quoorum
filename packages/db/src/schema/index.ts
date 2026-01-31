@@ -160,6 +160,22 @@ export type {
   NewPricingChangeHistory,
 } from "./pricing-config";
 
+// Debate Sessions (Gateway Control Plane)
+export { debateSessions, debateSessionsRelations, debateSessionStateEnum } from "./debate-sessions";
+export type { DebateSession, NewDebateSession } from "./debate-sessions";
+
+// Debate Routing
+export { debateRoutingConfigs, debateRoutingConfigsRelations, agentSelectionModeEnum } from "./debate-routing";
+export type { DebateRoutingConfig, NewDebateRoutingConfig } from "./debate-routing";
+
+// Debate Skills
+export { debateSkills, debateSkillsRelations, companySkills, companySkillsRelations, skillCategoryEnum, skillVisibilityEnum } from "./debate-skills";
+export type { DebateSkill, NewDebateSkill, CompanySkill, NewCompanySkill } from "./debate-skills";
+
+// Integration Pairings (DM Security)
+export { integrationPairings, integrationPairingsRelations, pairingPlatformEnum, pairingStatusEnum } from "./integration-pairings";
+export type { IntegrationPairing, NewIntegrationPairing } from "./integration-pairings";
+
 // AI Cost Tracking
 export {
   aiCostTracking,
@@ -173,3 +189,46 @@ export type {
   AIOperationType,
   AIProvider,
 } from "./ai-cost-tracking";
+
+// RAG System (Retrieval-Augmented Generation)
+export { embeddingProviders } from "./embedding-providers";
+export type { EmbeddingProvider, NewEmbeddingProvider } from "./embedding-providers";
+
+export { embeddingPreferences } from "./embedding-preferences";
+export type { EmbeddingPreference, NewEmbeddingPreference } from "./embedding-preferences";
+
+export { vectorDocuments } from "./vector-documents";
+export type { VectorDocument, NewVectorDocument } from "./vector-documents";
+
+export { vectorChunks } from "./vector-chunks";
+export type { VectorChunk, NewVectorChunk } from "./vector-chunks";
+
+export { ragQueries } from "./rag-queries";
+export type { RagQuery, NewRagQuery } from "./rag-queries";
+
+// RAG Analytics & Performance Tracking
+export {
+  ragUsageAnalytics,
+  ragQualityScores,
+  ragDocumentPerformance,
+  ragDocumentShares,
+} from "./rag-analytics";
+export type {
+  RAGUsageAnalytic,
+  NewRAGUsageAnalytic,
+  RAGQualityScore,
+  NewRAGQualityScore,
+  RAGDocumentPerformance,
+  NewRAGDocumentPerformance,
+  RAGDocumentShare,
+  NewRAGDocumentShare,
+} from "./rag-analytics";
+
+// RAG Templates
+export { ragTemplates, ragTemplateUsage } from "./rag-templates";
+export type {
+  RAGTemplate,
+  NewRAGTemplate,
+  RAGTemplateUsage,
+  NewRAGTemplateUsage,
+} from "./rag-templates";

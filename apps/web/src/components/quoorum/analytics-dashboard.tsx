@@ -12,6 +12,7 @@ import {
   FileText,
   Bell,
   Loader2,
+  DollarSign,
 } from 'lucide-react'
 
 import { api } from '@/lib/trpc/client'
@@ -31,7 +32,7 @@ export function AnalyticsDashboard() {
   if (isLoadingAnalytics || isLoadingExperts) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-[#8696a0]" />
+        <Loader2 className="h-8 w-8 animate-spin styles.colors.text.tertiary" />
       </div>
     )
   }
@@ -40,13 +41,13 @@ export function AnalyticsDashboard() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-[#e9edef]">Analytics</h2>
-        <p className="text-sm text-[#8696a0]">
+        <p className="text-sm styles.colors.text.tertiary">
           Insights sobre debates, expertos y rendimiento del sistema
         </p>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="flex-wrap bg-[#202c33]">
+        <TabsList className="flex-wrap styles.colors.bg.tertiary">
           <TabsTrigger value="overview" className="data-[state=active]:bg-[#00a884]">
             Overview
           </TabsTrigger>
@@ -75,56 +76,56 @@ export function AnalyticsDashboard() {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#8696a0]">Total Debates</CardTitle>
-                <MessageCircle className="h-4 w-4 text-[#8696a0]" />
+                <CardTitle className="text-sm font-medium styles.colors.text.tertiary">Total Debates</CardTitle>
+                <MessageCircle className="h-4 w-4 styles.colors.text.tertiary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-[#e9edef]">127</div>
-                <p className="text-xs text-[#8696a0]">+12% desde el mes pasado</p>
+                <p className="text-xs styles.colors.text.tertiary">+12% desde el mes pasado</p>
               </CardContent>
             </Card>
 
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#8696a0]">Avg Quality</CardTitle>
-                <Award className="h-4 w-4 text-[#8696a0]" />
+                <CardTitle className="text-sm font-medium styles.colors.text.tertiary">Avg Quality</CardTitle>
+                <Award className="h-4 w-4 styles.colors.text.tertiary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-[#e9edef]">85%</div>
-                <p className="text-xs text-[#8696a0]">+3% desde el mes pasado</p>
+                <p className="text-xs styles.colors.text.tertiary">+3% desde el mes pasado</p>
               </CardContent>
             </Card>
 
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#8696a0]">Avg Consensus</CardTitle>
-                <Target className="h-4 w-4 text-[#8696a0]" />
+                <CardTitle className="text-sm font-medium styles.colors.text.tertiary">Avg Consensus</CardTitle>
+                <Target className="h-4 w-4 styles.colors.text.tertiary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-[#e9edef]">78%</div>
-                <p className="text-xs text-[#8696a0]">+5% desde el mes pasado</p>
+                <p className="text-xs styles.colors.text.tertiary">+5% desde el mes pasado</p>
               </CardContent>
             </Card>
 
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#8696a0]">Total Cost</CardTitle>
-                <DollarSign className="h-4 w-4 text-[#8696a0]" />
+                <CardTitle className="text-sm font-medium styles.colors.text.tertiary">Total Cost</CardTitle>
+                <DollarSign className="h-4 w-4 styles.colors.text.tertiary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-[#e9edef]">$42.50</div>
-                <p className="text-xs text-[#8696a0]">$0.33 por debate</p>
+                <p className="text-xs styles.colors.text.tertiary">$0.33 por debate</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Trends Chart Placeholder */}
-          <Card className="border-[#2a3942] bg-[#202c33]">
+          <Card className="styles.colors.border.default styles.colors.bg.tertiary">
             <CardHeader>
               <CardTitle className="text-[#e9edef]">Tendencias</CardTitle>
-              <CardDescription className="text-[#8696a0]">
+              <CardDescription className="styles.colors.text.tertiary">
                 Debates y calidad en los últimos 30 días
               </CardDescription>
             </CardHeader>
@@ -144,10 +145,10 @@ export function AnalyticsDashboard() {
 
         {/* Experts Tab */}
         <TabsContent value="experts" className="space-y-4">
-          <Card className="border-[#2a3942] bg-[#202c33]">
+          <Card className="styles.colors.border.default styles.colors.bg.tertiary">
             <CardHeader>
               <CardTitle className="text-[#e9edef]">Expert Leaderboard</CardTitle>
-              <CardDescription className="text-[#8696a0]">
+              <CardDescription className="styles.colors.text.tertiary">
                 Top expertos por rendimiento
               </CardDescription>
             </CardHeader>
@@ -162,24 +163,24 @@ export function AnalyticsDashboard() {
                 ].map((expert, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between rounded-lg bg-[#111b21] p-3"
+                    className="flex items-center justify-between rounded-lg styles.colors.bg.secondary p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00a884] font-bold text-white">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00a884] font-bold styles.colors.text.primary">
                         {idx + 1}
                       </div>
                       <div>
                         <div className="font-medium text-[#e9edef]">{expert.name}</div>
-                        <div className="text-xs text-[#8696a0]">{expert.debates} debates</div>
+                        <div className="text-xs styles.colors.text.tertiary">{expert.debates} debates</div>
                       </div>
                     </div>
                     <div className="flex gap-4 text-sm">
                       <div>
-                        <div className="text-[#8696a0]">Quality</div>
+                        <div className="styles.colors.text.tertiary">Quality</div>
                         <div className="font-medium text-[#e9edef]">{expert.quality}%</div>
                       </div>
                       <div>
-                        <div className="text-[#8696a0]">Win Rate</div>
+                        <div className="styles.colors.text.tertiary">Win Rate</div>
                         <div className="font-medium text-[#e9edef]">
                           {expert.winRate > 0 ? `${expert.winRate}%` : 'N/A'}
                         </div>
@@ -192,10 +193,10 @@ export function AnalyticsDashboard() {
           </Card>
 
           {/* Best Combinations */}
-          <Card className="border-[#2a3942] bg-[#202c33]">
+          <Card className="styles.colors.border.default styles.colors.bg.tertiary">
             <CardHeader>
               <CardTitle className="text-[#e9edef]">Mejores Combinaciones</CardTitle>
-              <CardDescription className="text-[#8696a0]">
+              <CardDescription className="styles.colors.text.tertiary">
                 Expertos que trabajan bien juntos
               </CardDescription>
             </CardHeader>
@@ -210,14 +211,14 @@ export function AnalyticsDashboard() {
                   { experts: ['April Dunford', 'Steli Efti'], quality: 91, debates: 8 },
                   { experts: ['Rahul Vohra', 'Lenny Rachitsky'], quality: 89, debates: 6 },
                 ].map((combo, idx) => (
-                  <div key={idx} className="rounded-lg bg-[#111b21] p-3">
+                  <div key={idx} className="rounded-lg styles.colors.bg.secondary p-3">
                     <div className="mb-1 flex items-center justify-between">
                       <div className="text-sm font-medium text-[#e9edef]">
                         {combo.experts.join(' + ')}
                       </div>
                       <div className="text-sm text-[#00a884]">{combo.quality}% quality</div>
                     </div>
-                    <div className="text-xs text-[#8696a0]">{combo.debates} debates juntos</div>
+                    <div className="text-xs styles.colors.text.tertiary">{combo.debates} debates juntos</div>
                   </div>
                 ))}
               </div>
@@ -232,59 +233,59 @@ export function AnalyticsDashboard() {
 
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-4">
-          <NotificationsCenter showPreferences={true} />
+          <NotificationsCenter />
         </TabsContent>
 
         {/* Quality Tab */}
         <TabsContent value="quality" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#8696a0]">
+                <CardTitle className="text-sm font-medium styles.colors.text.tertiary">
                   Avg Depth Score
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-[#e9edef]">82</div>
-                <div className="mt-2 h-2 w-full rounded-full bg-[#111b21]">
+                <div className="mt-2 h-2 w-full rounded-full styles.colors.bg.secondary">
                   <div className="h-2 w-[82%] rounded-full bg-[#00a884]" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#8696a0]">
+                <CardTitle className="text-sm font-medium styles.colors.text.tertiary">
                   Avg Diversity Score
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-[#e9edef]">76</div>
-                <div className="mt-2 h-2 w-full rounded-full bg-[#111b21]">
+                <div className="mt-2 h-2 w-full rounded-full styles.colors.bg.secondary">
                   <div className="h-2 w-[76%] rounded-full bg-[#00a884]" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#8696a0]">
+                <CardTitle className="text-sm font-medium styles.colors.text.tertiary">
                   Avg Originality Score
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-[#e9edef]">88</div>
-                <div className="mt-2 h-2 w-full rounded-full bg-[#111b21]">
+                <div className="mt-2 h-2 w-full rounded-full styles.colors.bg.secondary">
                   <div className="h-2 w-[88%] rounded-full bg-[#00a884]" />
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="border-[#2a3942] bg-[#202c33]">
+          <Card className="styles.colors.border.default styles.colors.bg.tertiary">
             <CardHeader>
               <CardTitle className="text-[#e9edef]">Intervenciones del Meta-Moderador</CardTitle>
-              <CardDescription className="text-[#8696a0]">
+              <CardDescription className="styles.colors.text.tertiary">
                 Frecuencia y tipos de intervenciones
               </CardDescription>
             </CardHeader>
@@ -298,11 +299,11 @@ export function AnalyticsDashboard() {
                   <div key={idx} className="space-y-1">
                     <div className="flex justify-between text-sm">
                       <span className="text-[#e9edef]">{intervention.type}</span>
-                      <span className="text-[#8696a0]">
+                      <span className="styles.colors.text.tertiary">
                         {intervention.count} ({intervention.percentage}%)
                       </span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-[#111b21]">
+                    <div className="h-2 w-full rounded-full styles.colors.bg.secondary">
                       <div
                         className="h-2 rounded-full bg-[#00a884]"
                         style={{ width: `${intervention.percentage}%` }}
@@ -318,10 +319,10 @@ export function AnalyticsDashboard() {
         {/* Costs Tab */}
         <TabsContent value="costs" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader>
                 <CardTitle className="text-[#e9edef]">Cost Breakdown</CardTitle>
-                <CardDescription className="text-[#8696a0]">Por tipo de debate</CardDescription>
+                <CardDescription className="styles.colors.text.tertiary">Por tipo de debate</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -329,12 +330,12 @@ export function AnalyticsDashboard() {
                     { mode: 'Dynamic', cost: 28.5, debates: 85, avg: 0.34 },
                     { mode: 'Static', cost: 14.0, debates: 42, avg: 0.33 },
                   ].map((item, idx) => (
-                    <div key={idx} className="rounded-lg bg-[#111b21] p-3">
+                    <div key={idx} className="rounded-lg styles.colors.bg.secondary p-3">
                       <div className="mb-1 flex items-center justify-between">
                         <span className="font-medium text-[#e9edef]">{item.mode}</span>
                         <span className="text-[#00a884]">${item.cost.toFixed(2)}</span>
                       </div>
-                      <div className="text-xs text-[#8696a0]">
+                      <div className="text-xs styles.colors.text.tertiary">
                         {item.debates} debates • ${item.avg.toFixed(2)} avg
                       </div>
                     </div>
@@ -343,33 +344,33 @@ export function AnalyticsDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardHeader>
                 <CardTitle className="text-[#e9edef]">Cache Performance</CardTitle>
-                <CardDescription className="text-[#8696a0]">Ahorro por caching</CardDescription>
+                <CardDescription className="styles.colors.text.tertiary">Ahorro por caching</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
                     <div className="mb-1 flex justify-between text-sm">
-                      <span className="text-[#8696a0]">Hit Rate</span>
+                      <span className="styles.colors.text.tertiary">Hit Rate</span>
                       <span className="text-[#e9edef]">42%</span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-[#111b21]">
+                    <div className="h-2 w-full rounded-full styles.colors.bg.secondary">
                       <div className="h-2 w-[42%] rounded-full bg-[#00a884]" />
                     </div>
                   </div>
-                  <div className="rounded-lg bg-[#111b21] p-3">
-                    <div className="mb-1 text-sm text-[#8696a0]">Total Saved</div>
+                  <div className="rounded-lg styles.colors.bg.secondary p-3">
+                    <div className="mb-1 text-sm styles.colors.text.tertiary">Total Saved</div>
                     <div className="text-2xl font-bold text-[#00a884]">$8.20</div>
-                    <div className="text-xs text-[#8696a0]">En los últimos 30 días</div>
+                    <div className="text-xs styles.colors.text.tertiary">En los últimos 30 días</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="border-[#2a3942] bg-[#202c33]">
+          <Card className="styles.colors.border.default styles.colors.bg.tertiary">
             <CardHeader>
               <CardTitle className="text-[#e9edef]">Optimization Recommendations</CardTitle>
             </CardHeader>
@@ -380,7 +381,7 @@ export function AnalyticsDashboard() {
                   'Static mode is cost-effective for simple questions (< complexity 5)',
                   'Enable caching for expert responses to save ~$0.05 per debate',
                 ].map((rec, idx) => (
-                  <div key={idx} className="flex items-start gap-2 rounded-lg bg-[#111b21] p-3">
+                  <div key={idx} className="flex items-start gap-2 rounded-lg styles.colors.bg.secondary p-3">
                     <Zap className="mt-0.5 h-4 w-4 shrink-0 text-[#00a884]" />
                     <span className="text-sm text-[#e9edef]">{rec}</span>
                   </div>

@@ -10,9 +10,9 @@ import React, { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sparkles, Target, ArrowRight, AlertCircle, Coins } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { StrategySelector } from '@/components/quoorum/strategy-selector'
-import { FrameworkSelector } from '@/components/quoorum/framework-selector'
+import { StrategySelector, FrameworkSelector } from '@/components/quoorum'
 import { DebateStickyHeader } from './debate-sticky-header'
+import { useBackstoryHeader } from '../hooks/use-backstory-header'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import type { EstrategiaState, ContextoState } from '../types'
 import type { PhaseCostEstimate } from '@quoorum/quoorum/analytics/phase-cost-estimator'
@@ -41,7 +41,8 @@ export function PhaseEstrategia({
   estimatedDebateCost,
 }: PhaseEstrategiaProps) {
   const router = useRouter()
-  
+  const backstoryHeader = useBackstoryHeader()
+
   // Calcular coste total estimado
   const totalEstimatedCredits = useMemo(() => {
     let total = accumulatedCosts.reduce((sum, phase) => sum + phase.costCredits, 0)
@@ -63,18 +64,19 @@ export function PhaseEstrategia({
       <DebateStickyHeader
         phaseNumber={3}
         title="Selecciona la Estrategia"
+        subtitle={backstoryHeader.subtitle}
       />
       <div className="mt-4 mb-6 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-500/20 mb-4">
           <Target className="h-8 w-8 text-purple-400" />
         </div>
-        <p className="text-[var(--theme-text-secondary)]">
+        <p className="styles.colors.text.secondary">
           Elige cómo quieres que se desarrolle el debate
         </p>
       </div>
       <div className="space-y-6">
         {/* Strategy Selection */}
-        <div className="bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg p-6">
+        <div className="styles.colors.bg.secondary border styles.colors.border.default rounded-lg p-6">
           <StrategySelector
             question={contexto.mainQuestion}
             onStrategySelect={onStrategySelect}
@@ -84,7 +86,7 @@ export function PhaseEstrategia({
 
         {/* Framework Selection */}
         {onFrameworkSelect && (
-          <div className="bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg p-6">
+          <div className="styles.colors.bg.secondary border styles.colors.border.default rounded-lg p-6">
             <FrameworkSelector
               selectedFrameworkId={state.selectedFrameworkId || null}
               onSelectionChange={onFrameworkSelect}

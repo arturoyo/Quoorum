@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Debate States Components
  *
  * Various state displays for the debate detail page:

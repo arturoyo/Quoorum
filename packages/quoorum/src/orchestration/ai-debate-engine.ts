@@ -141,9 +141,12 @@ export class AIDebateEngine {
    * UNIQUE FEATURE - Not duplicated in core runner
    */
   async executeDevilsAdvocate(
-    question: string, userPreference: string, context: DebateContext
+    question: string,
+    userPreference: string,
+    context: DebateContext,
+    performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
   ): Promise<DevilsAdvocateResult> {
-    const prompt = buildDevilsAdvocatePrompt(question, userPreference, context)
+    const prompt = await buildDevilsAdvocatePrompt(question, userPreference, context, performanceLevel)
     const response = await this.provider.generateResponse(prompt, {
       systemPrompt: DEVILS_ADVOCATE_SYSTEM, temperature: 0.7, maxTokens: 1500,
     })
@@ -158,8 +161,12 @@ export class AIDebateEngine {
    * Execute Pre-Mortem analysis
    * UNIQUE FEATURE - Not duplicated in core runner
    */
-  async executePreMortem(question: string, context: DebateContext): Promise<PreMortemResult> {
-    const prompt = buildPreMortemPrompt(question, context)
+  async executePreMortem(
+    question: string,
+    context: DebateContext,
+    performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+  ): Promise<PreMortemResult> {
+    const prompt = await buildPreMortemPrompt(question, context, performanceLevel)
     const response = await this.provider.generateResponse(prompt, {
       systemPrompt: PRE_MORTEM_SYSTEM, temperature: 0.6, maxTokens: 1500,
     })
@@ -171,8 +178,11 @@ export class AIDebateEngine {
    * Execute Gut Check (30-second version)
    * UNIQUE FEATURE - Not duplicated in core runner
    */
-  async executeGutCheck(question: string): Promise<GutCheckResult> {
-    const prompt = buildGutCheckPrompt(question)
+  async executeGutCheck(
+    question: string,
+    performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+  ): Promise<GutCheckResult> {
+    const prompt = await buildGutCheckPrompt(question, performanceLevel)
     const response = await this.provider.generateResponse(prompt, {
       systemPrompt: GUT_CHECK_SYSTEM, temperature: 0.5, maxTokens: 150,
     })

@@ -7,7 +7,7 @@
  */
 
 import { Upload, UploadCloud } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface FileUploadZoneProps {
   isDragging: boolean
@@ -16,7 +16,7 @@ interface FileUploadZoneProps {
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void
   onClick: () => void
-  inputRef: React.RefObject<HTMLInputElement>
+  inputRef: React.RefObject<HTMLInputElement | null>
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   variant?: 'default' | 'compact' | 'dialog'
 }
@@ -44,7 +44,7 @@ export function FileUploadZone({
           'relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200 ease-in-out',
           isDragging
             ? 'border-purple-500 bg-purple-500/10 scale-[1.02]'
-            : 'border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] hover:border-purple-500/50 hover:bg-[var(--theme-bg-input)]'
+            : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-purple-500/50 hover:styles.colors.bg.input'
         )}
       >
         <input
@@ -52,6 +52,8 @@ export function FileUploadZone({
           type="file"
           accept=".txt,.md,text/*"
           onChange={onFileChange}
+          aria-label="Subir archivo de contexto"
+          title="Subir archivo de contexto"
           className="hidden"
         />
         <div className="flex flex-col items-center justify-center gap-3">
@@ -66,10 +68,10 @@ export function FileUploadZone({
             )}
           </div>
           <div>
-            <p className="text-sm font-medium text-[var(--theme-text-primary)] mb-1">
+            <p className="text-sm font-medium styles.colors.text.primary mb-1">
               {isDragging ? '¡Suelta el archivo aquí!' : 'Arrastra un archivo o haz clic para seleccionar'}
             </p>
-            <p className="text-xs text-[var(--theme-text-tertiary)]">
+            <p className="text-xs styles.colors.text.tertiary">
               Solo archivos de texto (.txt, .md). Máximo 500KB.
             </p>
           </div>
@@ -90,7 +92,7 @@ export function FileUploadZone({
         'mb-6 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200 ease-in-out',
         isDragging
           ? 'border-purple-500 bg-purple-500/10 scale-[1.01]'
-          : 'border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] hover:border-purple-500/50 hover:bg-[var(--theme-bg-input)]'
+          : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-purple-500/50 hover:styles.colors.bg.input'
       )}
     >
       <input
@@ -98,6 +100,8 @@ export function FileUploadZone({
         type="file"
         accept=".txt,.md,text/*"
         onChange={onFileChange}
+        aria-label="Subir archivo de contexto"
+        title="Subir archivo de contexto"
         className="hidden"
       />
       <div className="flex flex-col items-center justify-center gap-2">
@@ -112,10 +116,10 @@ export function FileUploadZone({
           )}
         </div>
         <div>
-          <p className="text-sm font-medium text-[var(--theme-text-primary)]">
+          <p className="text-sm font-medium styles.colors.text.primary">
             {isDragging ? '¡Suelta para subir!' : 'Arrastra archivos aquí para añadirlos rápidamente'}
           </p>
-          <p className="text-xs text-[var(--theme-text-tertiary)]">
+          <p className="text-xs styles.colors.text.tertiary">
             O haz clic para seleccionar • Solo .txt, .md • Máx 500KB
           </p>
         </div>

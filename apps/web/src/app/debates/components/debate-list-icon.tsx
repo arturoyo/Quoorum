@@ -4,7 +4,7 @@
  * Shows only the icon when the sidebar is collapsed.
  */
 
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { getContextualIcon } from '@/lib/icons/contextual-icons'
 
 interface DebateListIconOnlyProps {
@@ -39,10 +39,11 @@ export function DebateListIconOnly({
     <div
       onClick={onClick}
       className={cn(
-        'relative w-full border-b border-[#2a3942] p-4 transition-all cursor-pointer group',
+        'relative w-full border-b p-4 transition-all cursor-pointer group',
+        styles.colors.border.default,
         isSelected
           ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-l-4 border-l-purple-500 shadow-lg shadow-purple-500/10'
-          : 'hover:bg-[#2a3942]'
+          : 'hover:bg-[var(--theme-bg-input)]'
       )}
       title={debate.metadata?.title || debate.question}
     >
@@ -54,11 +55,11 @@ export function DebateListIconOnly({
           'h-6 w-6',
           isSelected
             ? 'text-purple-400'
-            : 'text-[#aebac1] group-hover:text-purple-400'
+            : cn(styles.colors.text.secondary, 'group-hover:text-purple-400')
         )} />
       </div>
       {/* Invisible container to maintain same height as expanded */}
-      <div className="pl-12 opacity-0 pointer-events-none" style={{ minHeight: '40px' }}>
+      <div className="pl-12 opacity-0 pointer-events-none min-h-[40px]">
         <div className="text-sm font-medium">Placeholder</div>
         <div className="mt-1 flex items-center gap-2">
           <span className="h-2 w-2 rounded-full" />

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewUnifiedDebatePage
  * 
  * Main component for the unified Typeform-style debate creation flow.
@@ -22,7 +22,20 @@ export default function NewUnifiedDebatePage() {
       return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
     }
 
-    const sessionId = generateSessionId()
+    const getLastSessionId = () => {
+      if (typeof window === 'undefined') return null
+      return localStorage.getItem('quoorum-debate-creation-last-session')
+    }
+
+    const hasSavedState = (sessionId: string) => {
+      if (typeof window === 'undefined') return false
+      return localStorage.getItem(`quoorum-debate-creation-state-${sessionId}`) !== null
+    }
+
+    const lastSessionId = getLastSessionId()
+    const sessionId = lastSessionId && hasSavedState(lastSessionId)
+      ? lastSessionId
+      : generateSessionId()
     let search = typeof window !== 'undefined' ? window.location.search : ''
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(search)

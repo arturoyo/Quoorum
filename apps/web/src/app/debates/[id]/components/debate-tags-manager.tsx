@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateTagsManager Component
  *
  * Allows users to add, remove, and manage tags for a debate.

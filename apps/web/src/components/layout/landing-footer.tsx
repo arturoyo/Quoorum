@@ -26,19 +26,19 @@ export function LandingFooter() {
                 className="transition-opacity group-hover:opacity-80"
               />
             </Link>
-            <p className="text-[var(--theme-text-tertiary)] text-sm leading-relaxed">
+            <p className="styles.colors.text.tertiary text-sm leading-relaxed">
               Tu comité ejecutivo de IA para tomar mejores decisiones estratégicas.
             </p>
           </div>
 
           {/* Product Links */}
           <div>
-            <h4 className="text-[var(--theme-text-primary)] font-semibold mb-4">Producto</h4>
+            <h4 className="styles.colors.text.primary font-semibold mb-4">Producto</h4>
             <ul className="space-y-2">
               <li>
                 <Link
                   href="/docs"
-                  className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
+                  className="styles.colors.text.tertiary hover:styles.colors.text.primary text-sm transition-colors"
                 >
                   Documentación
                 </Link>
@@ -46,7 +46,7 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/soporte"
-                  className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
+                  className="styles.colors.text.tertiary hover:styles.colors.text.primary text-sm transition-colors"
                 >
                   Soporte
                 </Link>
@@ -56,12 +56,12 @@ export function LandingFooter() {
 
           {/* Company Links */}
           <div>
-            <h4 className="text-[var(--theme-text-primary)] font-semibold mb-6">Empresa</h4>
+            <h4 className="styles.colors.text.primary font-semibold mb-6">Empresa</h4>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/about"
-                  className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
+                  className="styles.colors.text.tertiary hover:styles.colors.text.primary text-sm transition-colors"
                 >
                   Sobre Nosotros
                 </Link>
@@ -69,7 +69,7 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/blog"
-                  className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
+                  className="styles.colors.text.tertiary hover:styles.colors.text.primary text-sm transition-colors"
                 >
                   Blog
                 </Link>
@@ -77,7 +77,7 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/soporte"
-                  className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
+                  className="styles.colors.text.tertiary hover:styles.colors.text.primary text-sm transition-colors"
                 >
                   Contacto
                 </Link>
@@ -87,12 +87,12 @@ export function LandingFooter() {
 
           {/* Legal Links */}
           <div>
-            <h4 className="text-[var(--theme-text-primary)] font-semibold mb-4">Legal</h4>
+            <h4 className="styles.colors.text.primary font-semibold mb-4">Legal</h4>
             <ul className="space-y-2">
               <li>
                 <Link
                   href="/privacy"
-                  className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
+                  className="styles.colors.text.tertiary hover:styles.colors.text.primary text-sm transition-colors"
                 >
                   Privacidad
                 </Link>
@@ -100,7 +100,7 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/terms"
-                  className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] text-sm transition-colors"
+                  className="styles.colors.text.tertiary hover:styles.colors.text.primary text-sm transition-colors"
                 >
                   Términos
                 </Link>
@@ -110,7 +110,7 @@ export function LandingFooter() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-[var(--theme-landing-border)] pt-4 text-center text-[var(--theme-text-tertiary)] text-sm">
+        <div className="border-t border-[var(--theme-landing-border)] pt-4 text-center styles.colors.text.tertiary text-sm">
           <p>&copy; {currentYear} Quoorum. Todos los derechos reservados.</p>
         </div>
       </div>

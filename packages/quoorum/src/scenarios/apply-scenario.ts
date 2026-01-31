@@ -7,6 +7,7 @@
 
 import type { ScenarioConfig, ScenarioVariableValues, AppliedScenario } from './types'
 import type { RunDebateOptions } from '../runner-dynamic'
+import type { ContextSourceType } from '../types'
 import { getExpert } from '../expert-database'
 
 // ============================================================================
@@ -59,7 +60,7 @@ export function applyScenario(
 export function appliedScenarioToRunOptions(
   applied: AppliedScenario,
   sessionId: string,
-  context: { sources: Array<{ type: string; content: string }>; combinedContext: string },
+  context: { sources: Array<{ type: ContextSourceType; content: string }>; combinedContext: string },
   corporateContext?: {
     companyContext?: string
     departmentContexts?: Array<{

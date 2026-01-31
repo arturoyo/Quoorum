@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { HelpCircle, FileText, Shield, BookOpen, ExternalLink } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { HelpCircle, FileText, Shield, BookOpen } from 'lucide-react'
+import { cn, styles } from '@/lib/utils'
 import { ThemeDropdown } from '@/components/theme/theme-toggle'
 
 interface AppFooterProps {
@@ -11,67 +11,67 @@ interface AppFooterProps {
 
 /**
  * App Footer Component
- * 
- * Minimalist footer for authenticated dashboard pages.
- * Focused on useful links for logged-in users.
+ *
+ * Minimalist footer with centered icons that expand on hover.
+ * Icons only by default, text appears on hover with smooth animation.
  * Always positioned at the bottom of the screen.
  */
 export function AppFooter({ className }: AppFooterProps) {
   const currentYear = new Date().getFullYear()
 
+  const links = [
+    { href: '/soporte', icon: HelpCircle, label: 'Soporte' },
+    { href: '/docs', icon: BookOpen, label: 'Docs' },
+    { href: '/privacy', icon: Shield, label: 'Privacidad' },
+    { href: '/terms', icon: FileText, label: 'Terminos' },
+  ]
+
   return (
     <footer
       className={cn(
-        'border-t border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/95 backdrop-blur-sm',
-        'fixed bottom-0 left-0 right-0 z-40', // Always at bottom, below PhaseIndicator (z-50)
+        'border-t styles.colors.border.default styles.colors.bg.primary/95 backdrop-blur-sm',
+        'w-full h-full z-30 flex items-center justify-center',
         className
       )}
     >
-      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
-          {/* Left: Links - Only icons on small screens, icons + text on larger */}
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-6 text-xs sm:text-sm">
-            {/* Theme Toggle */}
+      <div className="container mx-auto px-4 py-2 w-full h-full flex items-center justify-center">
+        {/* Centered links with hover-expand effect */}
+        <div className="flex items-center justify-center gap-1 h-full">
+          {/* Theme Toggle */}
+          <div className="mr-2">
             <ThemeDropdown />
-            <Link
-              href="/soporte"
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1"
-              title="Soporte"
-            >
-              <HelpCircle className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-              <span className="hidden sm:inline">Soporte</span>
-            </Link>
-            <Link
-              href="/docs"
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1"
-              title="Documentacion"
-            >
-              <BookOpen className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-              <span className="hidden sm:inline">Documentacion</span>
-            </Link>
-            <Link
-              href="/privacy"
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1"
-              title="Privacidad"
-            >
-              <Shield className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-              <span className="hidden sm:inline">Privacidad</span>
-            </Link>
-            <Link
-              href="/terms"
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors flex items-center gap-1"
-              title="Terminos"
-            >
-              <FileText className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-              <span className="hidden sm:inline">Terminos</span>
-            </Link>
           </div>
 
-          {/* Right: Copyright */}
-          <div className="text-xs text-[var(--theme-text-tertiary)] hidden sm:block">
-            <p>
-              &copy; {currentYear} Quoorum. Todos los derechos reservados.
-            </p>
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                'group flex items-center gap-0 px-2 py-1.5 rounded-full',
+                'styles.colors.text.secondary hover:styles.colors.text.primary',
+                'hover:styles.colors.bg.secondary transition-all duration-300 ease-out'
+              )}
+              title={link.label}
+            >
+              <link.icon className="h-4 w-4 flex-shrink-0" />
+              <span
+                className={cn(
+                  'max-w-0 overflow-hidden whitespace-nowrap',
+                  'group-hover:max-w-[100px] group-hover:ml-1.5',
+                  'transition-all duration-300 ease-out',
+                  'text-xs font-medium'
+                )}
+              >
+                {link.label}
+              </span>
+            </Link>
+          ))}
+
+          {/* Copyright - only on larger screens */}
+          <div className="hidden sm:flex items-center ml-4 pl-4 border-l styles.colors.border.default">
+            <span className="text-xs styles.colors.text.tertiary">
+              &copy; {currentYear} Quoorum
+            </span>
           </div>
         </div>
       </div>

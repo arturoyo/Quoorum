@@ -154,13 +154,13 @@ function SignupContent() {
           <CardTitle className="text-2xl font-bold text-white">
             ¡Revisa tu email!
           </CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardDescription className="styles.colors.text.secondary">
             Te hemos enviado un enlace de confirmación a{" "}
             <span className="text-white font-medium">{email}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-center text-sm text-[var(--theme-text-secondary)]">
+          <p className="text-center text-sm styles.colors.text.secondary">
             Haz clic en el enlace del email para activar tu cuenta y comenzar a
             usar Quoorum.
           </p>
@@ -182,7 +182,7 @@ function SignupContent() {
         <CardTitle className="text-2xl font-bold text-white">
           Crea tu cuenta
         </CardTitle>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className="styles.colors.text.secondary">
           Comienza gratis con 5 debates al mes
         </CardDescription>
       </CardHeader>
@@ -253,7 +253,7 @@ function SignupContent() {
             <Separator className="w-full bg-white/10" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-[var(--theme-text-tertiary)]">
+            <span className="bg-transparent px-2 styles.colors.text.tertiary">
               O continúa con email
             </span>
           </div>
@@ -262,11 +262,11 @@ function SignupContent() {
         {/* Email/Password Form */}
         <form onSubmit={handleEmailSignup} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="name" className="styles.colors.text.secondary">
               Nombre
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+              <User className="absolute left-3 top-3 h-4 w-4 styles.colors.text.tertiary" />
               <Input
                 id="name"
                 type="text"
@@ -275,17 +275,17 @@ function SignupContent() {
                 onChange={(e) => setName(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="email" className="styles.colors.text.secondary">
               Email
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 styles.colors.text.tertiary" />
               <Input
                 id="email"
                 type="email"
@@ -294,17 +294,17 @@ function SignupContent() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="password" className="styles.colors.text.secondary">
               Contraseña
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 styles.colors.text.tertiary" />
               <Input
                 id="password"
                 type="password"
@@ -314,7 +314,7 @@ function SignupContent() {
                 required
                 minLength={8}
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary focus:border-purple-500"
               />
             </div>
           </div>
@@ -328,7 +328,7 @@ function SignupContent() {
             />
             <label
               htmlFor="terms"
-              className="text-sm text-[var(--theme-text-secondary)] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm styles.colors.text.secondary leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Acepto los{" "}
               <Link href="/terms" className="text-purple-400 hover:text-purple-300">
@@ -359,7 +359,7 @@ function SignupContent() {
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-6">
-        <p className="text-center text-sm text-[var(--theme-text-secondary)]">
+        <p className="text-center text-sm styles.colors.text.secondary">
           ¿Ya tienes cuenta?{" "}
           <Link
             href="/login"

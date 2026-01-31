@@ -6,10 +6,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Edit, Plus, Trash2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { RouterOutputs } from '@quoorum/api'
-
-type Department = RouterOutputs['departments']['list'][number]
+import { cn, styles } from '@/lib/utils'
+interface Department {
+  id: string
+  name: string
+  description?: string | null
+  departmentContext?: string | null
+  icon?: string | null
+  isActive?: boolean
+  type?: string | null
+  agentRole?: string | null
+  isPredefined?: boolean
+  parentId?: string | null
+}
 
 interface DepartmentHierarchyViewProps {
   departments: Department[]
@@ -96,31 +105,32 @@ function DepartmentNodeComponent({
     ? 'rounded-full' // Level 1: circle
     : 'rounded-t-lg rounded-b-none' // Level 2+: rounded top only
 
+  const levelIndentClass = {
+    0: 'ml-0',
+    1: 'ml-16',
+    2: 'ml-32',
+    3: 'ml-48',
+    4: 'ml-64',
+    5: 'ml-80',
+    6: 'ml-96',
+  }[node.level] ?? 'ml-0'
+
   return (
     <div className="relative">
       {/* Department Card with Geometric Shape */}
-      <div
-        className={cn('relative mb-6 transition-all')}
-        style={{ marginLeft: `${node.level * 64}px` }}
-      >
+      <div className={cn('relative mb-6 transition-all', levelIndentClass)}>
         {/* Connection Line (vertical from parent) */}
         {!isRoot && (
-          <div
-            className="absolute left-[-32px] top-[-20px] w-0.5 bg-gradient-to-b from-purple-500/60 via-purple-500/40 to-transparent"
-            style={{ height: '40px', zIndex: 0 }}
-          />
+          <div className="absolute left-[-32px] top-[-20px] w-0.5 h-10 bg-gradient-to-b from-purple-500/60 via-purple-500/40 to-transparent z-0" />
         )}
 
         {/* Connection Line (horizontal to parent) */}
         {!isRoot && (
-          <div
-            className="absolute left-[-32px] top-0 w-8 h-0.5 bg-gradient-to-r from-purple-500/60 via-purple-500/40 to-transparent"
-            style={{ zIndex: 0 }}
-          />
+          <div className="absolute left-[-32px] top-0 w-8 h-0.5 bg-gradient-to-r from-purple-500/60 via-purple-500/40 to-transparent z-0" />
         )}
 
         {/* Geometric Shape Container */}
-        <div className="relative" style={{ zIndex: 1 }}>
+        <div className="relative z-10">
           <Card
             className={cn(
               'relative border-2 backdrop-blur-xl hover:border-purple-500/50 transition-all shadow-lg',
@@ -137,14 +147,14 @@ function DepartmentNodeComponent({
               // Circular layout for level 1
               <CardContent className="flex flex-col items-center justify-center p-6 h-full">
                 <div className="text-6xl mb-4">{node.department.icon || '📦'}</div>
-                <CardTitle className="text-xl font-bold text-[var(--theme-text-primary)] text-center mb-2">
+                <CardTitle className="text-xl font-bold styles.colors.text.primary text-center mb-2">
                   {node.department.name}
                 </CardTitle>
-                <CardDescription className="text-[var(--theme-text-secondary)] text-center text-sm line-clamp-2">
+                <CardDescription className="styles.colors.text.secondary text-center text-sm line-clamp-2">
                   {node.department.description || node.department.departmentContext?.substring(0, 60) + '...'}
                 </CardDescription>
                 {!node.department.isActive && (
-                  <Badge variant="outline" className="mt-2 border-gray-500/50 text-[var(--theme-text-secondary)] bg-gray-500/10 text-xs">
+                  <Badge variant="outline" className="mt-2 border-gray-500/50 styles.colors.text.secondary bg-gray-500/10 text-xs">
                     Inactivo
                   </Badge>
                 )}
@@ -152,7 +162,7 @@ function DepartmentNodeComponent({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] text-xs"
+                    className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:styles.colors.bg.tertiary text-xs"
                     onClick={() => router.push(`/settings/company/departments/${node.department.id}`)}
                   >
                     <Edit className="mr-1 h-3 w-3" />
@@ -176,16 +186,16 @@ function DepartmentNodeComponent({
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-1">
-                      <CardTitle className="flex items-center gap-2 text-lg text-[var(--theme-text-primary)]">
+                      <CardTitle className="flex items-center gap-2 text-lg styles.colors.text.primary">
                         {node.department.icon && <span className="text-2xl">{node.department.icon}</span>}
                         {node.department.name}
                         {!node.department.isActive && (
-                          <Badge variant="outline" className="border-gray-500/50 text-[var(--theme-text-secondary)] bg-gray-500/10 text-xs">
+                          <Badge variant="outline" className="border-gray-500/50 styles.colors.text.secondary bg-gray-500/10 text-xs">
                             Inactivo
                           </Badge>
                         )}
                       </CardTitle>
-                      <CardDescription className="line-clamp-2 text-[var(--theme-text-tertiary)] text-sm">
+                      <CardDescription className="line-clamp-2 styles.colors.text.tertiary text-sm">
                         {node.department.description || node.department.departmentContext?.substring(0, 80) + '...'}
                       </CardDescription>
                     </div>
@@ -197,7 +207,7 @@ function DepartmentNodeComponent({
                     <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10 text-xs">
                       {node.department.type}
                     </Badge>
-                    <Badge variant="secondary" className="bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-secondary)] text-xs">
+                    <Badge variant="secondary" className="styles.colors.bg.tertiary styles.colors.text.secondary text-xs">
                       {node.department.agentRole}
                     </Badge>
                     {node.department.isPredefined && (
@@ -206,11 +216,11 @@ function DepartmentNodeComponent({
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2 pt-2 border-t border-[var(--theme-border)]">
+                  <div className="flex gap-2 pt-2 border-t styles.colors.border.default">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] text-xs"
+                      className="flex-1 styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:styles.colors.bg.tertiary text-xs"
                       onClick={() => router.push(`/settings/company/departments/${node.department.id}`)}
                     >
                       <Edit className="mr-1 h-3 w-3" />
@@ -235,10 +245,7 @@ function DepartmentNodeComponent({
 
         {/* Connection Line (vertical continuation to children) */}
         {hasChildren && (
-          <div
-            className="absolute left-[-32px] top-[100%] w-0.5 bg-gradient-to-b from-purple-500/60 via-purple-500/40 to-transparent"
-            style={{ height: '24px', zIndex: 0 }}
-          />
+          <div className="absolute left-[-32px] top-[100%] w-0.5 h-6 bg-gradient-to-b from-purple-500/60 via-purple-500/40 to-transparent z-0" />
         )}
       </div>
 
@@ -281,9 +288,9 @@ export function DepartmentHierarchyView({
 
   if (departments.length === 0) {
     return (
-      <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+      <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <p className="text-[var(--theme-text-tertiary)] mb-4">No hay departamentos configurados</p>
+          <p className="styles.colors.text.tertiary mb-4">No hay departamentos configurados</p>
           {onCreate && (
             <Button onClick={onCreate} className="bg-purple-600 hover:bg-purple-700">
               <Plus className="mr-2 h-4 w-4" />
@@ -299,8 +306,8 @@ export function DepartmentHierarchyView({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-semibold text-[var(--theme-text-primary)]">Estructura Organizacional</h3>
-          <p className="text-sm text-[var(--theme-text-tertiary)]">
+          <h3 className="text-xl font-semibold styles.colors.text.primary">Estructura Organizacional</h3>
+          <p className="text-sm styles.colors.text.tertiary">
             Visualiza la jerarquía y dependencias entre departamentos
           </p>
         </div>
@@ -314,15 +321,12 @@ export function DepartmentHierarchyView({
 
       <div className="relative min-h-[500px] p-8 bg-gradient-to-br from-[var(--theme-bg-secondary)]/40 via-[var(--theme-bg-tertiary)]/30 to-[var(--theme-bg-secondary)]/40 rounded-xl border-2 border-purple-500/20 shadow-2xl">
         {/* Decorative background pattern */}
-        <div className="absolute inset-0 opacity-10" style={{ zIndex: 0 }}>
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(168, 85, 247, 0.3) 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }} />
+        <div className="absolute inset-0 opacity-10 z-0">
+          <div className="absolute inset-0 dept-hierarchy-pattern" />
         </div>
 
         {/* Department Nodes */}
-        <div className="relative" style={{ zIndex: 1 }}>
+        <div className="relative z-10">
           {hierarchy.map((root) => (
             <DepartmentNodeComponent
               key={root.department.id}

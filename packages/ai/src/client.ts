@@ -9,7 +9,7 @@ import { getFallbackChain } from "./lib/fallback-config";
 import { logger } from "./lib/logger";
 import type { AIClient, AIResponse, GenerateOptions } from "./types";
 
-const DEFAULT_MODEL_ID = "gemini-2.0-flash-exp"; // Using Gemini free tier to avoid OpenAI quota issues
+const DEFAULT_MODEL_ID = "gemini-2.0-flash"; // Using Gemini free tier to avoid OpenAI quota issues
 
 class ForumAIClient implements AIClient {
   async generate(prompt: string, options?: GenerateOptions): Promise<AIResponse> {

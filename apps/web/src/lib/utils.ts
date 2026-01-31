@@ -1,9 +1,17 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+/**
+ * Combines class names with tailwind-merge
+ * Handles conditional classes and ensures no conflicts
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+// Re-export styles for easy access
+export { styles } from './styles'
+export type { ClassValue }
 
 export function formatDate(date: Date | string, options?: Intl.DateTimeFormatOptions): string {
   const d = typeof date === "string" ? new Date(date) : date;

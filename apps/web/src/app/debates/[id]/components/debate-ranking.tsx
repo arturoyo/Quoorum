@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateRanking Component
  *
  * Shows the final ranking of options at the bottom of the debate.

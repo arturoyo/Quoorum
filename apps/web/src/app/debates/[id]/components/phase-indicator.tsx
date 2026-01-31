@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PhaseIndicator Component
  *
  * Shows the 3-phase progress indicator at the top of the debate detail page.

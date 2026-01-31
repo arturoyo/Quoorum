@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure, publicProcedure, adminProcedure } from "../trpc";
 import { db } from "@quoorum/db";
-import { systemLogs } from "@quoorum/db/schema";
+import { systemLogs, users } from "@quoorum/db/schema";
 import { desc, and, eq, gte, lte, like, or } from "drizzle-orm";
 
 // ═══════════════════════════════════════════════════════════
@@ -74,6 +74,20 @@ export const systemLogsRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (input.length === 0) return [];
 
+      // Verify user exists in local DB to avoid FK violation
+      // Logger should never fail - if user doesn't exist, log without userId
+      let validUserId: string | null = ctx.userId;
+      if (ctx.userId) {
+        const userExists = await db
+          .select({ id: users.id })
+          .from(users)
+          .where(eq(users.id, ctx.userId))
+          .limit(1);
+        if (userExists.length === 0) {
+          validUserId = null;
+        }
+      }
+
       const logs = await db
         .insert(systemLogs)
         .values(
@@ -83,7 +97,7 @@ export const systemLogsRouter = router({
             metadata: log.metadata
               ? JSON.parse(JSON.stringify(log.metadata))
               : undefined,
-            userId: ctx.userId, // Now requires authenticated user
+            userId: validUserId,
           }))
         )
         .returning();

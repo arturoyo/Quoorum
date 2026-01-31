@@ -523,5 +523,5 @@ export type {
   PricingConfig,
   TierConfig,
   ProfitMarginAnalysis,
-  ValidationResult,
+  ValidationResult as PricingValidationResult,
 } from './pricing/helpers'

@@ -44,55 +44,9 @@ export interface AIDepartmentMatchingOptions {
     description?: string
     context?: string
   }
+  /** Performance level for AI model selection */
+  performanceLevel?: 'economic' | 'balanced' | 'performance'
 }
-
-/**
- * Prompt del sistema para matching inteligente de departamentos
- */
-const AI_DEPARTMENT_MATCHER_PROMPT = `Eres un experto en análisis organizacional y selección de departamentos corporativos para debates estratégicos.
-
-Tu tarea es analizar una pregunta de negocio y el contexto de una empresa, y seleccionar los departamentos más relevantes que deberían estar involucrados en la decisión.
-
-CRITERIOS DE SELECCIÓN:
-1. **Relevancia directa**: El departamento debe tener responsabilidades que se relacionen directamente con la pregunta
-2. **Contexto de empresa**: Considera la industria, tamaño, etapa y situación específica de la empresa
-3. **Impacto en el departamento**: Evalúa cómo la decisión afectará a cada departamento
-4. **Sinergia entre departamentos**: Los departamentos deben trabajar juntos de forma complementaria
-5. **Complejidad de la pregunta**: Para decisiones complejas, incluye más departamentos con perspectivas diversas
-
-TIPOS DE DEPARTAMENTOS Y SUS RESPONSABILIDADES:
-- **Finanzas**: Presupuestos, costos, ROI, viabilidad económica, análisis financiero
-- **Marketing**: Brand, adquisición de clientes, posicionamiento, canales, mensajes
-- **Operaciones**: Procesos, eficiencia, escalabilidad, logística, ejecución
-- **Recursos Humanos**: Equipo, cultura, talento, contratación, retención
-- **Ventas**: Pipeline, deals, revenue, prospección, cierre
-- **Producto**: Roadmap, features, user experience, product-market fit
-- **Ingeniería**: Viabilidad técnica, arquitectura, escalabilidad, deuda técnica
-- **Customer Success**: Satisfacción, retención, churn, expansion revenue
-- **Legal**: Compliance, riesgos legales, contratos, regulaciones
-
-IMPORTANTE:
-- Selecciona 3-5 departamentos en total (no todos, solo los relevantes)
-- Prioriza departamentos con impacto directo sobre la pregunta
-- Considera el contexto de la empresa (startup vs enterprise, SaaS vs e-commerce, etc.)
-- Calcula un porcentaje de afinidad (0-100%) para cada departamento
-- Explica claramente por qué cada departamento es relevante
-
-Responde SOLO con un JSON válido con esta estructura:
-{
-  "selectedDepartments": [
-    {
-      "departmentId": "string (ID del departamento)",
-      "matchScore": number (0-100, porcentaje de afinidad),
-      "reasons": ["razón 1", "razón 2"],
-      "synergy": ["departmentId1", "departmentId2"] // IDs de departamentos con los que tiene sinergia
-    }
-  ],
-  "reasoning": "Explicación general de por qué se seleccionaron estos departamentos",
-  "teamComposition": "Descripción de cómo estos departamentos trabajan juntos"
-}
-
-NO incluyas markdown, solo JSON puro.`
 
 /**
  * Hace matching inteligente de departamentos usando IA
@@ -115,6 +69,7 @@ export async function matchDepartmentsWithAI(
     minDepartments = 3,
     maxDepartments = 5,
     companyContext,
+    performanceLevel = 'balanced',
   } = options
 
   try {
@@ -162,12 +117,25 @@ Selecciona los ${minDepartments}-${maxDepartments} departamentos más relevantes
 Calcula un porcentaje de afinidad (0-100%) para cada departamento basado en qué tan directamente se relaciona con la pregunta.
 `
 
+    // Get prompt template from new system
+    const { getPromptTemplate } = await import('@quoorum/quoorum/lib/prompt-manager');
+    const resolvedPrompt = await getPromptTemplate(
+      'match-departments',
+      {
+        question,
+        questionAnalysis: JSON.stringify(questionAnalysis),
+        companyContext: companyContext ? JSON.stringify(companyContext) : '',
+        departmentsInfo: JSON.stringify(departmentsInfo),
+      },
+      performanceLevel
+    );
+
     const aiClient = getAIClient()
     const response = await aiClient.generate(userPrompt, {
-      systemPrompt: AI_DEPARTMENT_MATCHER_PROMPT,
-      modelId: 'gemini-2.0-flash-exp', // Free tier, sin cuota
-      temperature: 0.7, // Creativo pero consistente
-      maxTokens: 2000,
+      systemPrompt: resolvedPrompt.systemPrompt || resolvedPrompt.template,
+      modelId: resolvedPrompt.model,
+      temperature: resolvedPrompt.temperature,
+      maxTokens: resolvedPrompt.maxTokens,
     })
 
     logger.info('[AI Department Matcher] AI response received', {

@@ -72,9 +72,12 @@ export interface ScheduledReport {
 // Includes: 'single_debate' | 'weekly_summary' | 'monthly_summary' | 'deal_analysis' | 'expert_performance' | 'custom'
 export type ReportType = (typeof quoorumReportTypeEnum.enumValues)[number]
 
-export type ReportFormat = 'pdf' | 'html' | 'markdown'
+// Frontend-only enums (not in DB)
+const REPORT_FORMATS = ['pdf', 'html', 'markdown'] as const
+export type ReportFormat = (typeof REPORT_FORMATS)[number]
 
-export type ScheduleFrequency = 'daily' | 'weekly' | 'monthly'
+const SCHEDULE_FREQUENCIES = ['daily', 'weekly', 'monthly'] as const
+export type ScheduleFrequency = (typeof SCHEDULE_FREQUENCIES)[number]
 
 // ═══════════════════════════════════════════════════════════
 // CONSTANTS

@@ -230,7 +230,7 @@ export default function AdminUsersPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[var(--theme-bg-primary)] flex items-center justify-center">
+      <div className="min-h-screen styles.colors.bg.primary flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
       </div>
     );
@@ -241,23 +241,23 @@ export default function AdminUsersPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-[var(--theme-text-primary)] flex items-center gap-3">
+          <h1 className="text-3xl font-bold styles.colors.text.primary flex items-center gap-3">
             <Users className="h-8 w-8 text-purple-400" />
             Gestión de Usuarios
           </h1>
-          <p className="mt-2 text-[var(--theme-text-secondary)]">
+          <p className="mt-2 styles.colors.text.secondary">
             Busca, filtra y gestiona usuarios, créditos, tiers y roles
           </p>
         </div>
 
         {/* User Management */}
-        <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/60 backdrop-blur-xl">
+        <Card className="styles.colors.border.default styles.colors.bg.primary/60 backdrop-blur-xl">
           <CardHeader>
-            <CardTitle className="text-[var(--theme-text-primary)] flex items-center gap-2">
+            <CardTitle className="styles.colors.text.primary flex items-center gap-2">
               <Users className="h-5 w-5 text-purple-400" />
               Gestión de Usuarios
             </CardTitle>
-            <CardDescription className="text-[var(--theme-text-secondary)]">
+            <CardDescription className="styles.colors.text.secondary">
               Busca usuarios y gestiona sus créditos, tier y rol
             </CardDescription>
           </CardHeader>
@@ -265,20 +265,20 @@ export default function AdminUsersPage() {
             {/* Search and Filters */}
             <div className="flex gap-2 flex-wrap">
               <div className="flex-1 min-w-[200px] relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--theme-text-secondary)]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 styles.colors.text.secondary" />
                 <Input
                   placeholder="Buscar por email o nombre (mínimo 3 caracteres)..."
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  className="pl-10 border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                  className="pl-10 styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
                 />
               </div>
               
               <Select value={tierFilter} onValueChange={setTierFilter}>
-                <SelectTrigger className="w-[130px] border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]">
+                <SelectTrigger className="w-[130px] styles.colors.border.default styles.colors.bg.input styles.colors.text.primary">
                   <SelectValue placeholder="Tier" />
                 </SelectTrigger>
-                <SelectContent className="bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)]">
+                <SelectContent className="styles.colors.bg.tertiary styles.colors.border.default">
                   <SelectItem value="all">Todos los Tiers</SelectItem>
                   <SelectItem value="free">Free</SelectItem>
                   <SelectItem value="starter">Starter</SelectItem>
@@ -288,10 +288,10 @@ export default function AdminUsersPage() {
               </Select>
 
               <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-[130px] border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]">
+                <SelectTrigger className="w-[130px] styles.colors.border.default styles.colors.bg.input styles.colors.text.primary">
                   <SelectValue placeholder="Rol" />
                 </SelectTrigger>
-                <SelectContent className="bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)]">
+                <SelectContent className="styles.colors.bg.tertiary styles.colors.border.default">
                   <SelectItem value="all">Todos los Roles</SelectItem>
                   <SelectItem value="member">Member</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
@@ -309,7 +309,7 @@ export default function AdminUsersPage() {
 
             {/* No Results */}
             {!usersLoading && userSearch.length >= 3 && users && users.length === 0 && (
-              <div className="text-center py-8 text-[var(--theme-text-secondary)]">
+              <div className="text-center py-8 styles.colors.text.secondary">
                 No se encontraron usuarios
               </div>
             )}
@@ -320,19 +320,19 @@ export default function AdminUsersPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-white/10">
-                      <TableHead className="text-[var(--theme-text-secondary)]">Email</TableHead>
-                      <TableHead className="text-[var(--theme-text-secondary)]">Nombre</TableHead>
-                      <TableHead className="text-[var(--theme-text-secondary)]">Tier</TableHead>
-                      <TableHead className="text-[var(--theme-text-secondary)]">Créditos</TableHead>
-                      <TableHead className="text-[var(--theme-text-secondary)]">Rol</TableHead>
-                      <TableHead className="text-[var(--theme-text-secondary)]">Acciones</TableHead>
+                      <TableHead className="styles.colors.text.secondary">Email</TableHead>
+                      <TableHead className="styles.colors.text.secondary">Nombre</TableHead>
+                      <TableHead className="styles.colors.text.secondary">Tier</TableHead>
+                      <TableHead className="styles.colors.text.secondary">Créditos</TableHead>
+                      <TableHead className="styles.colors.text.secondary">Rol</TableHead>
+                      <TableHead className="styles.colors.text.secondary">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {users.map((user) => (
                       <TableRow key={user.id} className="border-white/10 hover:bg-white/5">
                         <TableCell className="text-white font-medium">{user.email}</TableCell>
-                        <TableCell className="text-[var(--theme-text-secondary)]">{user.name}</TableCell>
+                        <TableCell className="styles.colors.text.secondary">{user.name}</TableCell>
                         <TableCell>
                           <Badge 
                             variant="outline" 
@@ -343,7 +343,7 @@ export default function AdminUsersPage() {
                             <ChevronDown className="h-3 w-3 ml-1" />
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-[var(--theme-text-primary)] font-mono font-bold">
+                        <TableCell className="styles.colors.text.primary font-mono font-bold">
                           {user.credits.toLocaleString()}
                         </TableCell>
                         <TableCell>
@@ -367,24 +367,24 @@ export default function AdminUsersPage() {
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)]">
+                            <DropdownMenuContent align="end" className="styles.colors.bg.tertiary styles.colors.border.default">
                               <DropdownMenuItem 
                                 onClick={() => openDialog("add-credits", user)}
-                                className="text-[var(--theme-text-primary)] cursor-pointer"
+                                className="styles.colors.text.primary cursor-pointer"
                               >
                                 <Plus className="h-4 w-4 mr-2 text-green-400" />
                                 Añadir Créditos
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => openDialog("deduct-credits", user)}
-                                className="text-[var(--theme-text-primary)] cursor-pointer"
+                                className="styles.colors.text.primary cursor-pointer"
                               >
                                 <Minus className="h-4 w-4 mr-2 text-red-400" />
                                 Deducir Créditos
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => openDialog("set-credits", user)}
-                                className="text-[var(--theme-text-primary)] cursor-pointer"
+                                className="styles.colors.text.primary cursor-pointer"
                               >
                                 <Plus className="h-4 w-4 mr-2 text-blue-400" />
                                 Establecer Créditos
@@ -392,7 +392,7 @@ export default function AdminUsersPage() {
                               <DropdownMenuSeparator className="bg-white/10" />
                               <DropdownMenuItem 
                                 onClick={() => openDialog("view-details", user)}
-                                className="text-[var(--theme-text-primary)] cursor-pointer"
+                                className="styles.colors.text.primary cursor-pointer"
                               >
                                 Detalles
                               </DropdownMenuItem>
@@ -407,7 +407,7 @@ export default function AdminUsersPage() {
             )}
 
             {userSearch.length < 3 && (
-              <div className="text-center py-8 text-[var(--theme-text-secondary)] text-sm">
+              <div className="text-center py-8 styles.colors.text.secondary text-sm">
                 Escribe al menos 3 caracteres para buscar usuarios
               </div>
             )}
@@ -421,13 +421,13 @@ export default function AdminUsersPage() {
         <DialogContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl text-white">
           <DialogHeader>
             <DialogTitle>Añadir Créditos</DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-secondary)]">
+            <DialogDescription className="styles.colors.text.secondary">
               Añadir créditos a <strong>{selectedUser?.email}</strong>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="p-3 rounded-lg bg-[var(--theme-bg-tertiary)]/50 border border-[var(--theme-border)]">
-              <p className="text-xs text-[var(--theme-text-secondary)] mb-1">Saldo Actual</p>
+            <div className="p-3 rounded-lg styles.colors.bg.tertiary/50 border styles.colors.border.default">
+              <p className="text-xs styles.colors.text.secondary mb-1">Saldo Actual</p>
               <p className="text-xl font-bold text-white">{selectedUser?.credits.toLocaleString() || 0} créditos</p>
             </div>
             <div className="space-y-2">
@@ -437,7 +437,7 @@ export default function AdminUsersPage() {
                 min="1"
                 value={creditsAmount}
                 onChange={(e) => setCreditsAmount(parseInt(e.target.value) || 0)}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
               />
             </div>
             <div className="space-y-2">
@@ -446,11 +446,11 @@ export default function AdminUsersPage() {
                 placeholder="Ej: Créditos de bienvenida, soporte técnico..."
                 value={creditReason}
                 onChange={(e) => setCreditReason(e.target.value)}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
               />
             </div>
             <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30">
-              <p className="text-xs text-[var(--theme-text-secondary)]">
+              <p className="text-xs styles.colors.text.secondary">
                 Nuevo saldo: <strong className="text-white">{(selectedUser?.credits || 0) + creditsAmount}</strong> créditos
               </p>
             </div>
@@ -459,7 +459,7 @@ export default function AdminUsersPage() {
             <Button
               variant="outline"
               onClick={resetDialog}
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             >
               Cancelar
             </Button>
@@ -483,13 +483,13 @@ export default function AdminUsersPage() {
         <DialogContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl text-white">
           <DialogHeader>
             <DialogTitle>Deducir Créditos</DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-secondary)]">
+            <DialogDescription className="styles.colors.text.secondary">
               Deducir créditos de <strong>{selectedUser?.email}</strong>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="p-3 rounded-lg bg-[var(--theme-bg-tertiary)]/50 border border-[var(--theme-border)]">
-              <p className="text-xs text-[var(--theme-text-secondary)] mb-1">Saldo Actual</p>
+            <div className="p-3 rounded-lg styles.colors.bg.tertiary/50 border styles.colors.border.default">
+              <p className="text-xs styles.colors.text.secondary mb-1">Saldo Actual</p>
               <p className="text-xl font-bold text-white">{selectedUser?.credits.toLocaleString() || 0} créditos</p>
             </div>
             <div className="space-y-2">
@@ -500,7 +500,7 @@ export default function AdminUsersPage() {
                 max={selectedUser?.credits || 0}
                 value={creditsAmount}
                 onChange={(e) => setCreditsAmount(parseInt(e.target.value) || 0)}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
               />
             </div>
             <div className="space-y-2">
@@ -509,11 +509,11 @@ export default function AdminUsersPage() {
                 placeholder="Ej: Error de sistema, cambio de plan..."
                 value={creditReason}
                 onChange={(e) => setCreditReason(e.target.value)}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
               />
             </div>
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30">
-              <p className="text-xs text-[var(--theme-text-secondary)]">
+              <p className="text-xs styles.colors.text.secondary">
                 Nuevo saldo: <strong className="text-white">{Math.max(0, (selectedUser?.credits || 0) - creditsAmount)}</strong> créditos
               </p>
             </div>
@@ -522,7 +522,7 @@ export default function AdminUsersPage() {
             <Button
               variant="outline"
               onClick={resetDialog}
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             >
               Cancelar
             </Button>
@@ -546,13 +546,13 @@ export default function AdminUsersPage() {
         <DialogContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl text-white">
           <DialogHeader>
             <DialogTitle>Establecer Créditos</DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-secondary)]">
+            <DialogDescription className="styles.colors.text.secondary">
               Establecer valor exacto de créditos para <strong>{selectedUser?.email}</strong>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="p-3 rounded-lg bg-[var(--theme-bg-tertiary)]/50 border border-[var(--theme-border)]">
-              <p className="text-xs text-[var(--theme-text-secondary)] mb-1">Saldo Actual</p>
+            <div className="p-3 rounded-lg styles.colors.bg.tertiary/50 border styles.colors.border.default">
+              <p className="text-xs styles.colors.text.secondary mb-1">Saldo Actual</p>
               <p className="text-xl font-bold text-white">{selectedUser?.credits.toLocaleString() || 0} créditos</p>
             </div>
             <div className="space-y-2">
@@ -562,11 +562,11 @@ export default function AdminUsersPage() {
                 min="0"
                 value={creditsAmount}
                 onChange={(e) => setCreditsAmount(parseInt(e.target.value) || 0)}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
               />
             </div>
             <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
-              <p className="text-xs text-[var(--theme-text-secondary)]">
+              <p className="text-xs styles.colors.text.secondary">
                 Se establecerá el saldo a: <strong className="text-white">{creditsAmount}</strong> créditos
               </p>
             </div>
@@ -575,7 +575,7 @@ export default function AdminUsersPage() {
             <Button
               variant="outline"
               onClick={resetDialog}
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             >
               Cancelar
             </Button>
@@ -599,22 +599,22 @@ export default function AdminUsersPage() {
         <DialogContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl text-white">
           <DialogHeader>
             <DialogTitle>Cambiar Tier</DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-secondary)]">
+            <DialogDescription className="styles.colors.text.secondary">
               Cambiar plan para <strong>{selectedUser?.email}</strong>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="p-3 rounded-lg bg-[var(--theme-bg-tertiary)]/50 border border-[var(--theme-border)]">
-              <p className="text-xs text-[var(--theme-text-secondary)] mb-1">Tier Actual</p>
+            <div className="p-3 rounded-lg styles.colors.bg.tertiary/50 border styles.colors.border.default">
+              <p className="text-xs styles.colors.text.secondary mb-1">Tier Actual</p>
               <p className="text-xl font-bold text-white">{selectedUser?.tier}</p>
             </div>
             <div className="space-y-2">
               <Label>Seleccionar Nuevo Tier</Label>
               <Select value={selectedTier} onValueChange={setSelectedTier}>
-                <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]">
+                <SelectTrigger className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)]">
+                <SelectContent className="styles.colors.bg.tertiary styles.colors.border.default">
                   <SelectItem value="free">Free (10 créditos/día)</SelectItem>
                   <SelectItem value="starter">Starter (25 créditos/día)</SelectItem>
                   <SelectItem value="pro">Pro (50 créditos/día)</SelectItem>
@@ -622,7 +622,7 @@ export default function AdminUsersPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30 text-xs text-[var(--theme-text-secondary)]">
+            <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30 text-xs styles.colors.text.secondary">
               El usuario recibirá créditos diarios según su nuevo tier a partir del próximo refresh.
             </div>
           </div>
@@ -630,7 +630,7 @@ export default function AdminUsersPage() {
             <Button
               variant="outline"
               onClick={resetDialog}
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             >
               Cancelar
             </Button>
@@ -654,29 +654,29 @@ export default function AdminUsersPage() {
         <DialogContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl text-white">
           <DialogHeader>
             <DialogTitle>Cambiar Rol</DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-secondary)]">
+            <DialogDescription className="styles.colors.text.secondary">
               Cambiar permisos de <strong>{selectedUser?.email}</strong>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="p-3 rounded-lg bg-[var(--theme-bg-tertiary)]/50 border border-[var(--theme-border)]">
-              <p className="text-xs text-[var(--theme-text-secondary)] mb-1">Rol Actual</p>
+            <div className="p-3 rounded-lg styles.colors.bg.tertiary/50 border styles.colors.border.default">
+              <p className="text-xs styles.colors.text.secondary mb-1">Rol Actual</p>
               <p className="text-xl font-bold text-white">{selectedUser?.role}</p>
             </div>
             <div className="space-y-2">
               <Label>Seleccionar Nuevo Rol</Label>
               <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]">
+                <SelectTrigger className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)]">
+                <SelectContent className="styles.colors.bg.tertiary styles.colors.border.default">
                   <SelectItem value="member">Member (usuario regular)</SelectItem>
                   <SelectItem value="admin">Admin (acceso a panel)</SelectItem>
                   <SelectItem value="super_admin">Super Admin (control total)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-[var(--theme-text-secondary)]">
+            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs styles.colors.text.secondary">
               ⚠️ Cambiar a admin/super_admin otorgará acceso al panel de administración.
             </div>
           </div>
@@ -684,7 +684,7 @@ export default function AdminUsersPage() {
             <Button
               variant="outline"
               onClick={resetDialog}
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+              className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
             >
               Cancelar
             </Button>
@@ -708,7 +708,7 @@ export default function AdminUsersPage() {
         <DialogContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl text-white max-w-2xl">
           <DialogHeader>
             <DialogTitle>Detalles del Usuario</DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-secondary)]">
+            <DialogDescription className="styles.colors.text.secondary">
               Información completa de <strong>{selectedUser?.email}</strong>
             </DialogDescription>
           </DialogHeader>
@@ -718,19 +718,19 @@ export default function AdminUsersPage() {
               <h3 className="font-semibold text-sm text-purple-400">Información Básica</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <p className="text-xs text-[var(--theme-text-secondary)]">Email</p>
+                  <p className="text-xs styles.colors.text.secondary">Email</p>
                   <p className="text-sm text-white font-mono">{selectedUser?.email}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-[var(--theme-text-secondary)]">Nombre</p>
+                  <p className="text-xs styles.colors.text.secondary">Nombre</p>
                   <p className="text-sm text-white">{selectedUser?.name}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-[var(--theme-text-secondary)]">Tier</p>
+                  <p className="text-xs styles.colors.text.secondary">Tier</p>
                   <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/40">{selectedUser?.tier}</Badge>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-[var(--theme-text-secondary)]">Rol</p>
+                  <p className="text-xs styles.colors.text.secondary">Rol</p>
                   <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40">{selectedUser?.role}</Badge>
                 </div>
               </div>
@@ -747,11 +747,11 @@ export default function AdminUsersPage() {
               <h3 className="font-semibold text-sm text-purple-400">Historial</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <p className="text-xs text-[var(--theme-text-secondary)]">Creado el</p>
+                  <p className="text-xs styles.colors.text.secondary">Creado el</p>
                   <p className="text-sm text-white">{new Date(selectedUser?.createdAt).toLocaleDateString('es-ES')}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-[var(--theme-text-secondary)]">Última actualización</p>
+                  <p className="text-xs styles.colors.text.secondary">Última actualización</p>
                   <p className="text-sm text-white">{new Date(selectedUser?.updatedAt).toLocaleDateString('es-ES')}</p>
                 </div>
               </div>

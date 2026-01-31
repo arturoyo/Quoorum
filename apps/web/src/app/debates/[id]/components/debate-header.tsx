@@ -1,13 +1,13 @@
-/**
+﻿/**
  * DebateHeader Component
  *
  * Shows breadcrumbs, title, status badge, consensus score, and interactive controls.
  */
 
 import { Badge } from '@/components/ui/badge'
-import { Loader2, CheckCircle2, AlertTriangle, Clock, Users } from 'lucide-react'
+import { Loader2, CheckCircle2, AlertTriangle, Clock, Users, TrendingDown, Scale, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { InteractiveControls } from '@/components/quoorum/interactive-controls'
+import { InteractiveControls } from '@/components/quoorum'
 import { DebateTagsManager } from './debate-tags-manager'
 import { getPatternLabel } from '../types'
 import type { DebateStatus, StatusConfig } from '../types'
@@ -19,6 +19,29 @@ const statusConfig: Record<DebateStatus, StatusConfig> = {
   in_progress: { label: 'En progreso', color: 'bg-blue-500', icon: Loader2 },
   completed: { label: 'Completado', color: 'bg-green-500', icon: CheckCircle2 },
   failed: { label: 'Fallido', color: 'bg-red-500', icon: AlertTriangle },
+  cancelled: { label: 'Cancelado', color: 'bg-gray-500', icon: AlertTriangle },
+}
+
+// Performance level config
+const performanceConfig = {
+  economic: {
+    label: 'Económico',
+    icon: TrendingDown,
+    color: 'border-green-500/30 bg-green-500/10 text-green-300',
+    description: 'Modo económico (0.3x coste)',
+  },
+  balanced: {
+    label: 'Equilibrado',
+    icon: Scale,
+    color: 'border-blue-500/30 bg-blue-500/10 text-blue-300',
+    description: 'Modo equilibrado (1.0x coste)',
+  },
+  performance: {
+    label: 'Alto Rendimiento',
+    icon: Zap,
+    color: 'border-purple-500/30 bg-purple-500/10 text-purple-300',
+    description: 'Modo alto rendimiento (3.0x coste)',
+  },
 }
 
 interface DebateHeaderProps {
@@ -27,6 +50,7 @@ interface DebateHeaderProps {
     question: string
     status: string
     consensusScore?: number | null
+    performanceLevel?: string | null
     metadata?: {
       title?: string
       pattern?: string
@@ -48,7 +72,7 @@ export function DebateHeader({ debate }: DebateHeaderProps) {
   const shortTitle = displayTitle.length > 140 ? `${displayTitle.slice(0, 140)}…` : displayTitle
 
   return (
-    <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/60 backdrop-blur-xl px-4 relative">
+    <div className="sticky top-0 z-10 border-b border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/60 backdrop-blur-xl px-4">
       <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
       <div className="relative flex min-h-16 py-3 items-start md:items-center justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -77,6 +101,25 @@ export function DebateHeader({ debate }: DebateHeaderProps) {
               {StatusIcon && <StatusIcon className="h-3 w-3" />}
               {statusConfig[status]?.label}
             </Badge>
+            {debate.performanceLevel && performanceConfig[debate.performanceLevel as keyof typeof performanceConfig] && (
+              <>
+                <span>•</span>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    'flex items-center gap-1 text-xs',
+                    performanceConfig[debate.performanceLevel as keyof typeof performanceConfig].color
+                  )}
+                  title={performanceConfig[debate.performanceLevel as keyof typeof performanceConfig].description}
+                >
+                  {(() => {
+                    const PerformanceIcon = performanceConfig[debate.performanceLevel as keyof typeof performanceConfig].icon
+                    return <PerformanceIcon className="h-3 w-3" />
+                  })()}
+                  {performanceConfig[debate.performanceLevel as keyof typeof performanceConfig].label}
+                </Badge>
+              </>
+            )}
             {debate.metadata?.pattern && (
               <>
                 <span>•</span>
@@ -133,7 +176,7 @@ export function DebateHeader({ debate }: DebateHeaderProps) {
       {/* Interactive Controls */}
       <InteractiveControls
         debateId={debate.id}
-        status={debate.status}
+        status={status}
         isPaused={debate.metadata?.paused === true}
         className="px-4 pb-3 border-t border-white/10 pt-3"
       />

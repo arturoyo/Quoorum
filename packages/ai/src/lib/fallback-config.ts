@@ -27,7 +27,7 @@ export interface FallbackModel {
 export const FALLBACK_ORDER: FallbackModel[] = [
   {
     provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    modelId: 'gemini-2.0-flash',
     displayName: 'Gemini 2.0 Flash',
     costPerMillion: 0,
     isFree: true,

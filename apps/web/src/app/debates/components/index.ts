@@ -9,3 +9,5 @@ export {
   EmptyDebateState,
   DebateListSkeleton,
 } from './debate-list-states'
+export { EmbeddedDebateView } from './embedded-debate-view'
+export { DebatesInProgressSection } from './debates-in-progress-section'

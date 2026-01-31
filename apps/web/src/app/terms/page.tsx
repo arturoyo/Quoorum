@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { cn, styles } from '@/lib/utils'
 import { FileText, Scale, Shield, CreditCard, Users, AlertTriangle, Lock, XCircle, RefreshCw, Gavel, Mail } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 
 export const metadata = {
@@ -33,7 +34,7 @@ export default function TermsPage() {
       <section className="pt-32 pb-16 px-4 border-b border-white/5">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm styles.colors.text.secondary mb-6">
               <Scale className="w-4 h-4 text-purple-400" />
               <span>Legal</span>
             </div>
@@ -45,7 +46,7 @@ export default function TermsPage() {
               </span>
             </h1>
 
-            <p className="text-xl text-[var(--theme-text-secondary)] max-w-2xl mx-auto">
+            <p className="text-xl styles.colors.text.secondary max-w-2xl mx-auto">
               Última actualización: {new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
@@ -64,7 +65,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">1. Aceptación de los Términos</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Al acceder y utilizar Quoorum (&quot;el Servicio&quot;), aceptas estar vinculado por estos
                   Términos de Servicio. Si no estás de acuerdo con alguna parte de los términos,
@@ -83,7 +84,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">2. Descripción del Servicio</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Quoorum es la única plataforma que simula un Comité Ejecutivo de expertos de IA
                   (la Capa de Inteligencia Corporativa) para debatir, criticar y sintetizar la mejor
@@ -111,7 +112,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">3. Registro y Cuenta</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>Para usar el Servicio debes:</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Tener al menos 18 años de edad</li>
@@ -135,7 +136,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">4. Planes y Pagos</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Ofrecemos diferentes planes de suscripción. Al seleccionar un plan de pago:
                 </p>
@@ -159,7 +160,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">5. Uso Aceptable</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>Te comprometes a NO usar el Servicio para:</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Violar leyes o regulaciones aplicables</li>
@@ -183,7 +184,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">6. Propiedad Intelectual</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   El Servicio y su contenido original, características y funcionalidad son
                   propiedad de Quoorum y están protegidos por leyes de propiedad intelectual.
@@ -205,7 +206,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">7. Limitación de Responsabilidad</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   El Servicio proporciona recomendaciones basadas en IA. Estas recomendaciones
                   son orientativas y NO constituyen asesoramiento profesional.
@@ -234,7 +235,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">8. Privacidad</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Tu uso del Servicio está sujeto a nuestra{" "}
                   <Link href="/privacy" className="text-purple-400 hover:text-purple-300 underline underline-offset-4">
@@ -255,7 +256,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">9. Terminación</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Podemos suspender o terminar tu acceso al Servicio inmediatamente, sin previo
                   aviso, por cualquier razón, incluyendo violación de estos Términos.
@@ -277,7 +278,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">10. Modificaciones</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Nos reservamos el derecho de modificar estos Términos en cualquier momento.
                   Los cambios significativos serán notificados por email o mediante aviso en
@@ -300,7 +301,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">11. Ley Aplicable</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Estos Términos se regirán e interpretarán de acuerdo con las leyes de España,
                   sin tener en cuenta sus disposiciones sobre conflictos de leyes.
@@ -321,7 +322,7 @@ export default function TermsPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">12. Contacto</h2>
               </div>
-              <div className="text-[var(--theme-text-secondary)] space-y-4">
+              <div className="styles.colors.text.secondary space-y-4">
                 <p>
                   Para cualquier pregunta sobre estos Términos, contacta con nosotros:
                 </p>

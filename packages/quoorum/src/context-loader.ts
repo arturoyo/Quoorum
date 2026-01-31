@@ -217,7 +217,7 @@ ${question}`
 
   // Generate optimized search query using AI
   const queryResponse = await client.generate(enhancedPrompt, {
-    modelId: 'gemini-2.0-flash-exp', // Free tier, más eficiente
+    modelId: 'gemini-2.0-flash', // Free tier, más eficiente
     systemPrompt: 'You are an expert search agent. Transform business questions into highly optimized search queries that retrieve precise, actionable data. Focus on extracting specific entities, metrics, locations, and industry terms.',
     temperature: 0.2, // Más determinístico para queries consistentes
     maxTokens: 50, // Queries deben ser cortas

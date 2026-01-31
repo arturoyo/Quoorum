@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 export function CompanyTab() {
   const [isEditing, setIsEditing] = useState(false)
@@ -106,13 +106,13 @@ export function CompanyTab() {
   }
 
   return (
-    <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)] backdrop-blur-xl border-[var(--theme-border)]">
+    <Card className="relative overflow-hidden styles.colors.bg.secondary backdrop-blur-xl styles.colors.border.default">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-[var(--theme-text-primary)]">
+        <CardTitle className="flex items-center gap-2 styles.colors.text.primary">
           <Building2 className="h-5 w-5" />
           Empresa
         </CardTitle>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className="styles.colors.text.secondary">
           Configura tu empresa para debates con contexto corporativo
         </CardDescription>
       </CardHeader>
@@ -122,7 +122,7 @@ export function CompanyTab() {
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="company-name" className="text-[var(--theme-text-primary)]">
+                <Label htmlFor="company-name" className="styles.colors.text.primary">
                   Nombre de la Empresa *
                 </Label>
                 <Input
@@ -130,11 +130,11 @@ export function CompanyTab() {
                   placeholder="Ej: Acme Corp"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                  className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="company-industry" className="text-[var(--theme-text-primary)]">
+                <Label htmlFor="company-industry" className="styles.colors.text.primary">
                   Industria
                 </Label>
                 <Input
@@ -142,12 +142,12 @@ export function CompanyTab() {
                   placeholder="Ej: SaaS B2B, E-commerce, Fintech"
                   value={companyIndustry}
                   onChange={(e) => setCompanyIndustry(e.target.value)}
-                  className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                  className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="company-size" className="text-[var(--theme-text-primary)]">
+              <Label htmlFor="company-size" className="styles.colors.text.primary">
                 Tamaño
               </Label>
               <Input
@@ -155,11 +155,11 @@ export function CompanyTab() {
                 placeholder="Ej: 1-10, 11-50, 51-200, 200+"
                 value={companySize}
                 onChange={(e) => setCompanySize(e.target.value)}
-                className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="company-description" className="text-[var(--theme-text-primary)]">
+              <Label htmlFor="company-description" className="styles.colors.text.primary">
                 Descripción
               </Label>
               <Textarea
@@ -168,11 +168,11 @@ export function CompanyTab() {
                 rows={2}
                 value={companyDescription}
                 onChange={(e) => setCompanyDescription(e.target.value)}
-                className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="company-context" className="text-[var(--theme-text-primary)]">
+              <Label htmlFor="company-context" className="styles.colors.text.primary">
                 Contexto Maestro *
               </Label>
               <Textarea
@@ -181,17 +181,17 @@ export function CompanyTab() {
                 rows={6}
                 value={companyContext}
                 onChange={(e) => setCompanyContext(e.target.value)}
-                className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
               />
               <div className="flex items-center justify-between">
-                <p className="text-xs text-[var(--theme-text-tertiary)]">
+                <p className="text-xs styles.colors.text.tertiary">
                   Este contexto se inyectará en todos los debates para alinear las decisiones con la identidad de tu empresa
                 </p>
                 <p className={cn(
                   'text-xs',
                   companyContext.length < 10
                     ? 'text-red-400'
-                    : 'text-[var(--theme-text-tertiary)]'
+                    : 'styles.colors.text.tertiary'
                 )}>
                   {companyContext.length} / 10 caracteres mínimos
                 </p>
@@ -222,31 +222,31 @@ export function CompanyTab() {
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label className="text-sm text-[var(--theme-text-tertiary)]">Nombre</Label>
-                <p className="text-lg font-medium text-[var(--theme-text-primary)]">{company?.name}</p>
+                <Label className="text-sm styles.colors.text.tertiary">Nombre</Label>
+                <p className="text-lg font-medium styles.colors.text.primary">{company?.name}</p>
               </div>
               {company?.industry && (
                 <div>
-                  <Label className="text-sm text-[var(--theme-text-tertiary)]">Industria</Label>
-                  <p className="text-lg font-medium text-[var(--theme-text-primary)]">{company.industry}</p>
+                  <Label className="text-sm styles.colors.text.tertiary">Industria</Label>
+                  <p className="text-lg font-medium styles.colors.text.primary">{company.industry}</p>
                 </div>
               )}
             </div>
             {company?.size && (
               <div>
-                <Label className="text-sm text-[var(--theme-text-tertiary)]">Tamaño</Label>
-                <p className="text-[var(--theme-text-primary)]">{company.size}</p>
+                <Label className="text-sm styles.colors.text.tertiary">Tamaño</Label>
+                <p className="styles.colors.text.primary">{company.size}</p>
               </div>
             )}
             {company?.description && (
               <div>
-                <Label className="text-sm text-[var(--theme-text-tertiary)]">Descripción</Label>
-                <p className="text-sm text-[var(--theme-text-secondary)]">{company.description}</p>
+                <Label className="text-sm styles.colors.text.tertiary">Descripción</Label>
+                <p className="text-sm styles.colors.text.secondary">{company.description}</p>
               </div>
             )}
             <div>
-              <Label className="text-sm text-[var(--theme-text-tertiary)]">Contexto Maestro (Misión, Visión, Valores)</Label>
-              <p className="whitespace-pre-wrap text-sm text-[var(--theme-text-secondary)]">{company?.context}</p>
+              <Label className="text-sm styles.colors.text.tertiary">Contexto Maestro (Misión, Visión, Valores)</Label>
+              <p className="whitespace-pre-wrap text-sm styles.colors.text.secondary">{company?.context}</p>
             </div>
           </div>
         )}

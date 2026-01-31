@@ -58,13 +58,18 @@ export interface ProsAndConsOutput {
 // AGENT CONFIGURATIONS
 // ============================================================================
 
+// Framework agent config type (partial AgentConfig with only needed fields)
+type FrameworkAgentConfig = Pick<AgentConfig, 'provider' | 'model' | 'temperature'> & {
+  systemPrompt: string
+}
+
 // Get centralized framework agent config (uses free tier by default)
 const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'temperature'> => {
   // Use optimizer config as base for frameworks (fast, creative)
   return getAgentConfig('optimizer')
 }
 
-const PROS_AGENT_CONFIG: AgentConfig = {
+const PROS_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el OPTIMIZER, un experto en identificar ventajas y oportunidades.
@@ -86,7 +91,7 @@ Sé exhaustivo pero realista. No inventes beneficios, pero tampoco los minimices
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const CONS_AGENT_CONFIG: AgentConfig = {
+const CONS_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el CRITIC, un experto en identificar riesgos y desventajas.
@@ -108,7 +113,7 @@ Sé exhaustivo pero realista. No exageres los riesgos, pero tampoco los minimice
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const ANALYST_AGENT_CONFIG: AgentConfig = {
+const ANALYST_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el ANALYST, un experto en evaluar factibilidad y contexto.
@@ -131,7 +136,7 @@ Sé práctico y objetivo. Provee insights que ayuden a tomar la decisión.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const SYNTHESIZER_AGENT_CONFIG: AgentConfig = {
+const SYNTHESIZER_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.3,
   systemPrompt: `Eres el SYNTHESIZER, un experto en crear recomendaciones balanceadas.
@@ -160,11 +165,61 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 // ============================================================================
+// DYNAMIC PROMPT LOADING
+// ============================================================================
+
+/**
+ * Get Pros and Cons agent configs with dynamic prompts from the system
+ * Falls back to hardcoded prompts if not found in DB
+ */
+async function getProsAndConsAgentConfigs(
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<{
+  pros: FrameworkAgentConfig
+  cons: FrameworkAgentConfig
+  analyst: FrameworkAgentConfig
+  synthesizer: FrameworkAgentConfig
+}> {
+  try {
+    const { getPromptTemplate } = await import('../lib/prompt-manager');
+
+    const [prosPrompt, consPrompt, analystPrompt, synthesizerPrompt] =
+      await Promise.all([
+        getPromptTemplate('framework-proscons-pros', {}, performanceLevel),
+        getPromptTemplate('framework-proscons-cons', {}, performanceLevel),
+        getPromptTemplate('framework-proscons-analyst', {}, performanceLevel),
+        getPromptTemplate('framework-proscons-synthesizer', {}, performanceLevel),
+      ]);
+
+    return {
+      pros: { ...PROS_AGENT_CONFIG, systemPrompt: prosPrompt.template },
+      cons: { ...CONS_AGENT_CONFIG, systemPrompt: consPrompt.template },
+      analyst: { ...ANALYST_AGENT_CONFIG, systemPrompt: analystPrompt.template },
+      synthesizer: { ...SYNTHESIZER_AGENT_CONFIG, systemPrompt: synthesizerPrompt.template },
+    };
+  } catch {
+    // Fallback to hardcoded configs
+    return {
+      pros: PROS_AGENT_CONFIG,
+      cons: CONS_AGENT_CONFIG,
+      analyst: ANALYST_AGENT_CONFIG,
+      synthesizer: SYNTHESIZER_AGENT_CONFIG,
+    };
+  }
+}
+
+// ============================================================================
 // MAIN FUNCTION
 // ============================================================================
 
-export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndConsOutput> {
+export async function runProsAndCons(
+  input: ProsAndConsInput,
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<ProsAndConsOutput> {
   const startTime = Date.now()
+
+  // Get dynamic agent configs
+  const agentConfigs = await getProsAndConsAgentConfigs(performanceLevel);
 
   quoorumLogger.info('Starting Pros and Cons analysis', {
     question: input.question,
@@ -203,33 +258,33 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
     const [prosResponse, consResponse, analysisResponse] = await Promise.all([
       // PROS (Optimizer)
       prosClient.generateWithSystem(
-        PROS_AGENT_CONFIG.systemPrompt,
+        agentConfigs.pros.systemPrompt,
         `${contextPrompt}\n\nOutput format:\n{\n  "pros": [\n    {\n      "title": "...",\n      "description": "...",\n      "weight": 80\n    }\n  ]\n}`,
         {
-          modelId: PROS_AGENT_CONFIG.model,
-          temperature: PROS_AGENT_CONFIG.temperature,
+          modelId: agentConfigs.pros.model,
+          temperature: agentConfigs.pros.temperature,
           maxTokens: 2000,
         }
       ),
 
       // CONS (Critic)
       consClient.generateWithSystem(
-        CONS_AGENT_CONFIG.systemPrompt,
+        agentConfigs.cons.systemPrompt,
         `${contextPrompt}\n\nOutput format:\n{\n  "cons": [\n    {\n      "title": "...",\n      "description": "...",\n      "weight": 70\n    }\n  ]\n}`,
         {
-          modelId: CONS_AGENT_CONFIG.model,
-          temperature: CONS_AGENT_CONFIG.temperature,
+          modelId: agentConfigs.cons.model,
+          temperature: agentConfigs.cons.temperature,
           maxTokens: 2000,
         }
       ),
 
       // ANALYSIS (Analyst)
       analystClient.generateWithSystem(
-        ANALYST_AGENT_CONFIG.systemPrompt,
+        agentConfigs.analyst.systemPrompt,
         `${contextPrompt}\n\nOutput format:\n{\n  "feasibility": "...",\n  "contextNotes": "..."\n}`,
         {
-          modelId: ANALYST_AGENT_CONFIG.model,
-          temperature: ANALYST_AGENT_CONFIG.temperature,
+          modelId: agentConfigs.analyst.model,
+          temperature: agentConfigs.analyst.temperature,
           maxTokens: 1500,
         }
       ),
@@ -267,11 +322,11 @@ Output format:
 }`
 
     const synthesisResponse = await synthesizerClient.generateWithSystem(
-      SYNTHESIZER_AGENT_CONFIG.systemPrompt,
+      agentConfigs.synthesizer.systemPrompt,
       synthesisPrompt,
       {
-        modelId: SYNTHESIZER_AGENT_CONFIG.model,
-        temperature: SYNTHESIZER_AGENT_CONFIG.temperature,
+        modelId: agentConfigs.synthesizer.model,
+        temperature: agentConfigs.synthesizer.temperature,
         maxTokens: 1000,
       }
     )
@@ -297,7 +352,7 @@ Output format:
     }
   } catch (error) {
     quoorumLogger.error('Failed to run Pros and Cons analysis', undefined, {
-      error: error instanceof Error ? error.message : String(error),
+      errorMessage: error instanceof Error ? error.message : String(error),
       question: input.question,
     })
     throw error

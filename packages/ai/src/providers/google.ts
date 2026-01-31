@@ -3,7 +3,7 @@ import type { LanguageModelV1 } from "ai";
 import type { AIConfig, ProviderFactory } from "../types";
 
 const SUPPORTED_MODELS = [
-  "gemini-2.0-flash-exp",
+  "gemini-2.0-flash",
   "gemini-1.5-pro",
   "gemini-1.5-pro-latest",
   "gemini-1.5-flash",

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -90,12 +90,10 @@ export default function EditDepartmentPage() {
       setCustomPrompt(department.customPrompt || '')
       setAgentRole(department.agentRole || 'analyst')
       setTemperature(department.temperature || '0.7')
-      // @ts-expect-error - description field may not be in type yet after migration
-      setDescription(department.description || '')
-      // @ts-expect-error - icon field may not be in type yet after migration
-      setIcon(department.icon || '')
-      // @ts-expect-error - parentId field may not be in type yet after migration
-      setParentId(department.parentId || null)
+      const extra = department
+      setDescription(extra.description || '')
+      setIcon(extra.icon || '')
+      setParentId(extra.parentId || null)
     }
   }, [department])
 

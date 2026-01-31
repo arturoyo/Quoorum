@@ -53,58 +53,25 @@ export interface QuestionAnalysis {
 }
 
 /**
- * Prompt del sistema para análisis de preguntas
- */
-const QUESTION_ANALYZER_PROMPT = `Eres un analizador experto de preguntas estratégicas.
-
-Tu tarea es analizar una pregunta y identificar:
-1. Áreas de conocimiento necesarias (pricing, marketing, product, technical, etc.)
-2. Temáticas específicas (SaaS, B2B, España, etc.)
-3. Complejidad estimada (1-10)
-4. Tipo de decisión (strategic, tactical, operational)
-5. Expertos recomendados para responder
-
-IMPORTANTE:
-- Sé específico y preciso
-- Asigna pesos realistas a las áreas
-- Identifica todas las temáticas relevantes
-- Estima la complejidad basándote en:
-  * Número de variables involucradas
-  * Impacto potencial de la decisión
-  * Reversibilidad de la decisión
-  * Incertidumbre inherente
-
-Responde SOLO con un JSON válido con esta estructura:
-{
-  "areas": [
-    {
-      "area": "string",
-      "weight": number,
-      "reasoning": "string"
-    }
-  ],
-  "topics": [
-    {
-      "name": "string",
-      "relevance": number
-    }
-  ],
-  "complexity": number,
-  "decisionType": "strategic" | "tactical" | "operational",
-  "recommendedExperts": ["string"],
-  "reasoning": "string"
-}
-
-NO incluyas markdown, solo JSON puro.`
-
-/**
  * Analiza una pregunta para identificar áreas, temáticas y complejidad
  */
 export async function analyzeQuestion(
   question: string,
-  context?: string
+  context?: string,
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
 ): Promise<QuestionAnalysis> {
-  const fullPrompt = `${QUESTION_ANALYZER_PROMPT}
+  // Get prompt template from new system
+  const { getPromptTemplate } = await import('@quoorum/quoorum/lib/prompt-manager');
+  const resolvedPrompt = await getPromptTemplate(
+    'analyze-question',
+    {
+      question,
+      context: context || '',
+    },
+    performanceLevel
+  );
+
+  const fullPrompt = `${resolvedPrompt.systemPrompt || resolvedPrompt.template}
 
 Pregunta: ${question}
 
@@ -112,9 +79,9 @@ ${context ? `Contexto:\n${context}\n\n` : ''}Analiza esta pregunta e identifica 
 
   const client = getAIClient()
   const response = await client.generate(fullPrompt, {
-    modelId: 'gpt-4o-mini',
-    temperature: 0.3, // Determinístico para análisis consistente
-    maxTokens: 1000,
+    modelId: resolvedPrompt.model,
+    temperature: resolvedPrompt.temperature,
+    maxTokens: resolvedPrompt.maxTokens,
   })
 
   // Parse JSON response

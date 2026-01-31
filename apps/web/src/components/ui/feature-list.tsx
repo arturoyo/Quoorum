@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface FeatureListProps {
   features: string[]
@@ -25,7 +25,7 @@ export function FeatureList({
       {features.map((feature) => (
         <li
           key={feature}
-          className="flex items-center gap-3 text-[var(--theme-text-secondary)]"
+          className={cn('flex items-center gap-3', styles.colors.text.secondary)}
         >
           <CheckCircle className={cn('w-5 h-5 shrink-0', iconColor)} />
           <span>{feature}</span>

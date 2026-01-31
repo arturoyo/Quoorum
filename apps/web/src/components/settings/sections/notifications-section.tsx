@@ -75,26 +75,26 @@ export function NotificationsSection({ isInModal = false }: NotificationsSection
     <div className="space-y-6">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-[var(--theme-text-primary)]">Notificaciones</h1>
-        <p className="text-[var(--theme-text-secondary)]">
+        <h1 className="text-3xl font-bold mb-2 styles.colors.text.primary">Notificaciones</h1>
+        <p className="styles.colors.text.secondary">
           Configura cómo y cuándo quieres recibir notificaciones
         </p>
       </div>
 
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Notificaciones por Email</CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardTitle className="styles.colors.text.primary">Notificaciones por Email</CardTitle>
+          <CardDescription className="styles.colors.text.secondary">
             Gestiona qué notificaciones recibes por correo
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="emailNotifications" className="text-[var(--theme-text-primary)] font-medium">
+              <Label htmlFor="emailNotifications" className="styles.colors.text.primary font-medium">
                 Notificaciones por email
               </Label>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <p className="text-sm styles.colors.text.tertiary">
                 Recibir notificaciones importantes por correo
               </p>
             </div>
@@ -108,10 +108,10 @@ export function NotificationsSection({ isInModal = false }: NotificationsSection
 
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="debateUpdates" className="text-[var(--theme-text-primary)] font-medium">
+              <Label htmlFor="debateUpdates" className="styles.colors.text.primary font-medium">
                 Actualizaciones de debates
               </Label>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <p className="text-sm styles.colors.text.tertiary">
                 Notificaciones cuando tus debates tengan actualizaciones
               </p>
             </div>
@@ -125,10 +125,10 @@ export function NotificationsSection({ isInModal = false }: NotificationsSection
 
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="weeklyDigest" className="text-[var(--theme-text-primary)] font-medium">
+              <Label htmlFor="weeklyDigest" className="styles.colors.text.primary font-medium">
                 Resumen semanal
               </Label>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <p className="text-sm styles.colors.text.tertiary">
                 Recibe un resumen semanal de tus debates y actividad
               </p>
             </div>
@@ -142,20 +142,20 @@ export function NotificationsSection({ isInModal = false }: NotificationsSection
         </CardContent>
       </Card>
 
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Notificaciones Push</CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardTitle className="styles.colors.text.primary">Notificaciones Push</CardTitle>
+          <CardDescription className="styles.colors.text.secondary">
             Notificaciones en tu navegador o dispositivo móvil
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="pushNotifications" className="text-[var(--theme-text-primary)] font-medium">
+              <Label htmlFor="pushNotifications" className="styles.colors.text.primary font-medium">
                 Notificaciones push
               </Label>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <p className="text-sm styles.colors.text.tertiary">
                 Recibir notificaciones instantáneas en tu dispositivo
               </p>
             </div>
@@ -169,20 +169,20 @@ export function NotificationsSection({ isInModal = false }: NotificationsSection
         </CardContent>
       </Card>
 
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Seguridad y Marketing</CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardTitle className="styles.colors.text.primary">Seguridad y Marketing</CardTitle>
+          <CardDescription className="styles.colors.text.secondary">
             Alertas de seguridad y comunicaciones de marketing
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="securityAlerts" className="text-[var(--theme-text-primary)] font-medium">
+              <Label htmlFor="securityAlerts" className="styles.colors.text.primary font-medium">
                 Alertas de seguridad
               </Label>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <p className="text-sm styles.colors.text.tertiary">
                 Notificaciones importantes sobre la seguridad de tu cuenta
               </p>
             </div>
@@ -196,10 +196,10 @@ export function NotificationsSection({ isInModal = false }: NotificationsSection
 
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="marketingEmails" className="text-[var(--theme-text-primary)] font-medium">
+              <Label htmlFor="marketingEmails" className="styles.colors.text.primary font-medium">
                 Emails de marketing
               </Label>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <p className="text-sm styles.colors.text.tertiary">
                 Novedades, actualizaciones y ofertas especiales
               </p>
             </div>
@@ -214,7 +214,7 @@ export function NotificationsSection({ isInModal = false }: NotificationsSection
       </Card>
 
       {updateSettings.isLoading && (
-        <div className="flex items-center gap-2 text-sm text-[var(--theme-text-tertiary)]">
+        <div className="flex items-center gap-2 text-sm styles.colors.text.tertiary">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span>Guardando cambios...</span>
         </div>
