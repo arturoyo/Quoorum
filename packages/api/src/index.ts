@@ -66,6 +66,8 @@ import {
   ragAnalyticsRouter,
   ragTemplatesRouter,
   ragSuggestionsRouter,
+  // Strategic Profiles
+  strategicProfilesRouter,
 } from "./routers/index";
 
 export const appRouter = router({
@@ -135,6 +137,8 @@ export const appRouter = router({
   ragAnalytics: ragAnalyticsRouter,
   ragTemplates: ragTemplatesRouter,
   ragSuggestions: ragSuggestionsRouter,
+  // Strategic Intelligence Profiles (Unified)
+  strategicProfiles: strategicProfilesRouter,
 });
 
 export type AppRouter = typeof appRouter;

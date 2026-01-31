@@ -232,3 +232,38 @@ export type {
   RAGTemplateUsage,
   NewRAGTemplateUsage,
 } from "./rag-templates";
+
+// Strategic Intelligence Profiles (Unified)
+export {
+  strategicProfiles,
+  profileRagDocuments,
+  strategicProfileVersions,
+  profileRelationships,
+  profileTypeEnum,
+  toneStyleEnum,
+  maturityLevelEnum,
+  contextRelevanceEnum,
+  relationshipTypeEnum,
+  strategicProfilesRelations,
+  profileRagDocumentsRelations,
+  strategicProfileVersionsRelations,
+  profileRelationshipsRelations,
+} from "./strategic-profiles";
+export type {
+  StrategicProfile,
+  NewStrategicProfile,
+  ProfileRagDocument,
+  NewProfileRagDocument,
+  StrategicProfileVersion,
+  NewStrategicProfileVersion,
+  ProfileRelationship,
+  NewProfileRelationship,
+  ProfileType,
+  ToneStyle,
+  MaturityLevel,
+  ContextRelevance,
+  RelationshipType,
+  AIConfig,
+  Firmographics,
+  Psychographics,
+} from "./strategic-profiles";

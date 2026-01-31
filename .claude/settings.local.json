@@ -228,7 +228,8 @@
       "Bash(git status:*)",
       "Bash(powershell.exe -NoProfile -Command:*)",
       "Bash(powershell.exe:*)",
-      "Bash(Set-Location \"C:\\\\quoorum\\\\packages\\\\api\")"
+      "Bash(Set-Location \"C:\\\\quoorum\\\\packages\\\\api\")",
+      "Bash(gh pr create:*)"
     ]
   }
 }
