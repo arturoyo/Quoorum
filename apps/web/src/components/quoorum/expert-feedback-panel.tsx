@@ -37,7 +37,8 @@ interface ExpertFeedbackPanelProps {
   onComplete?: () => void
 }
 
-type Sentiment = 'positive' | 'neutral' | 'negative'
+const SENTIMENTS = ['positive', 'neutral', 'negative'] as const
+type Sentiment = (typeof SENTIMENTS)[number]
 
 interface ExpertFeedback {
   rating: number

@@ -16,7 +16,8 @@ const BATCH_INTERVAL_MS = 10000; // 10 segundos (más largo que backend)
 // ═══════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════
-type LogLevel = "debug" | "info" | "warn" | "error" | "fatal";
+const LOG_LEVELS = ["debug", "info", "warn", "error", "fatal"] as const;
+type LogLevel = (typeof LOG_LEVELS)[number];
 
 interface LogEntry {
   level: LogLevel;

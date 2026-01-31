@@ -17,7 +17,8 @@ import { Loader2, Trash2, Edit, Search, Copy, CheckCircle2, X } from 'lucide-rea
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
 
-type Category = 'debates' | 'context' | 'experts' | 'departments' | 'frameworks' | 'narrative'
+const PROMPT_CATEGORIES = ['debates', 'context', 'experts', 'departments', 'frameworks', 'narrative'] as const
+type Category = (typeof PROMPT_CATEGORIES)[number]
 
 const CATEGORIES: { value: Category; label: string; color: string }[] = [
   { value: 'debates', label: 'Debates', color: 'bg-blue-100 text-blue-800' },

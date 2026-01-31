@@ -52,7 +52,8 @@ interface Notification {
 }
 
 // Unified item type for the combined list
-type ActivityItemType = 'notification' | 'debate' | 'process'
+const ACTIVITY_ITEM_TYPES = ['notification', 'debate', 'process'] as const
+type ActivityItemType = (typeof ACTIVITY_ITEM_TYPES)[number]
 
 interface UnifiedActivityItem {
   id: string

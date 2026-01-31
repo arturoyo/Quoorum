@@ -9,8 +9,9 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
+import { debateStatusEnum } from '@quoorum/db/schema'
 
-type StatusFilter = 'all' | 'draft' | 'pending' | 'in_progress' | 'completed'
+type StatusFilter = 'all' | (typeof debateStatusEnum.enumValues)[number]
 
 export function useDebatesLayout() {
   const router = useRouter()

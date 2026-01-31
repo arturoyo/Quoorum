@@ -6,7 +6,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { cn, styles } from '@/lib/utils'
 import { AlertCircle, RefreshCw, WifiOff, ServerCrash } from 'lucide-react'
 
-export type ErrorType = 'generic' | 'network' | 'server' | 'not_found'
+const ERROR_TYPES = ['generic', 'network', 'server', 'not_found'] as const
+export type ErrorType = (typeof ERROR_TYPES)[number]
 
 export interface ErrorStateCardProps {
   /** Error type for pre-configured styling */

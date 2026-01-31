@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { planTierEnum } from "@quoorum/db/schema";
 
 // Lazy initialization to avoid build-time errors
 let stripeInstance: Stripe | null = null;
@@ -30,8 +31,10 @@ export const STRIPE_PRICES = {
   },
 } as const;
 
-export type PlanId = "free" | "pro" | "business";
-export type BillingInterval = "monthly" | "yearly";
+export type PlanId = (typeof planTierEnum.enumValues)[number];
+
+const BILLING_INTERVALS = ["monthly", "yearly"] as const;
+export type BillingInterval = (typeof BILLING_INTERVALS)[number];
 
 export function getPriceId(planId: PlanId, interval: BillingInterval): string | null {
   if (planId === "free") return null;

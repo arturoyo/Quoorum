@@ -21,7 +21,8 @@ interface LiveCanvasProps {
   className?: string
 }
 
-type CanvasView = 'consensus' | 'experts' | 'flow'
+const CANVAS_VIEWS = ['consensus', 'experts', 'flow'] as const
+type CanvasView = (typeof CANVAS_VIEWS)[number]
 
 /**
  * Live Canvas Component

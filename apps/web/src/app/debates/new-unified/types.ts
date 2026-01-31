@@ -10,9 +10,10 @@
 export type UnifiedPhase = 1 | 2 | 3 | 4 | 5
 
 /**
- * Phase names
+ * Phase names (UI-specific, Spanish labels)
  */
-export type PhaseName = 'contexto' | 'expertos' | 'estrategia' | 'revision' | 'debate'
+const PHASE_NAMES = ['contexto', 'expertos', 'estrategia', 'revision', 'debate'] as const
+export type PhaseName = (typeof PHASE_NAMES)[number]
 
 /**
  * Question in the guided chat
