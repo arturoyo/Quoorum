@@ -8,6 +8,7 @@
 import {
   Bell,
   CreditCard,
+  Database,
   Key,
   Shield,
   Sparkles,
@@ -41,6 +42,7 @@ export function getSettingsNav(currentPath: string, isAdmin: boolean): SettingsN
   const navItems: Omit<SettingsNavItem, 'active'>[] = [
     { href: '/settings', label: 'Perfil', icon: User },
     { href: '/settings/preferences', label: 'Preferencias IA', icon: Zap },
+    { href: '/settings/rag', label: 'Documentos RAG', icon: Database },
     { href: '/settings/usage', label: 'Uso', icon: BarChart3 },
     { href: '/settings/billing', label: 'Facturación', icon: CreditCard },
     { href: '/settings/team', label: 'Equipo', icon: Users, adminOnly: true },
