@@ -323,6 +323,51 @@ transition-all duration-500  // Lento
 
 ---
 
+## 🏷️ LOGO - TAMAÑOS ESTÁNDAR
+
+**Componente:** `QuoorumLogo` (en `apps/web/src/components/ui/quoorum-logo.tsx`)
+
+### Tamaños Oficiales
+
+| Contexto | Tamaño | Uso |
+|----------|--------|-----|
+| **Navbar/Header** | 40px | Logo principal en navegación |
+| **Sidebar/Menu** | 32px | Logo en paneles laterales |
+| **Cards/Modales** | 48px | Logo destacado en contenido |
+| **Iconografía** | 24px | Logo en contextos pequeños (settings, botones) |
+| **Footer** | 56px | Logo en pie de página |
+
+### Uso
+
+```typescript
+// ✅ Navbar
+<QuoorumLogo size={40} showGradient={true} />
+
+// ✅ Sidebar
+<QuoorumLogo size={32} showGradient={true} />
+
+// ✅ Cards prominentes
+<QuoorumLogo size={48} showGradient={true} className="mx-auto mb-4" />
+
+// ✅ Contextos pequeños
+<QuoorumLogo size={24} showGradient={true} />
+
+// ✅ Sin gradiente (fondo claro o necesidad de contraste)
+<QuoorumLogo size={40} showGradient={false} />
+```
+
+### Props
+
+```typescript
+interface QuoorumLogoProps {
+  className?: string;        // Clases Tailwind adicionales
+  size?: number;             // Tamaño en pixels (default: 40)
+  showGradient?: boolean;    // Mostrar logo con gradiente (default: true)
+}
+```
+
+---
+
 ## 💡 MANTRA DEL EQUIPO
 
 ```

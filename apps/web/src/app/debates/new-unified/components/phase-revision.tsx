@@ -18,6 +18,7 @@ import { DebateStickyHeader } from './debate-sticky-header'
 import { useBackstoryHeader } from '../hooks/use-backstory-header'
 import { RealCreditsTracker } from './real-credits-tracker'
 import { CreditCounter } from '@/components/quoorum'
+import { PerformanceSelectorCard } from './performance-selector-card'
 import {
   estimateContextPhaseCost,
   estimateExpertSelectionPhaseCost,
@@ -33,7 +34,7 @@ interface PhaseRevisionProps {
   expertos: ExpertosState
   estrategia: EstrategiaState
   onEditPhase: (phase: 1 | 2 | 3) => void
-  onCreateDebate: () => void
+  onCreateDebate: (performanceLevel: 'economic' | 'balanced' | 'performance') => void
   isCreating: boolean
   creditBalance?: number
 }
@@ -50,6 +51,11 @@ export function PhaseRevision({
 }: PhaseRevisionProps) {
   const router = useRouter()
   const backstoryHeader = useBackstoryHeader()
+
+  // Local state for Just-in-Time performance selection
+  const [selectedPerformanceLevel, setSelectedPerformanceLevel] = React.useState<'economic' | 'balanced' | 'performance'>(
+    state.performanceLevel || 'balanced'
+  )
   const { data: expertsList } = api.experts.getByIds.useQuery(
     { ids: expertos.selectedExpertIds },
     { enabled: expertos.selectedExpertIds.length > 0 }
@@ -365,6 +371,17 @@ export function PhaseRevision({
           showBreakdown={true}
         />
 
+        {/* Just-in-Time Performance Selector */}
+        <PerformanceSelectorCard
+          numExperts={expertos.selectedExpertIds.length + expertos.selectedDepartmentIds.length + expertos.selectedWorkerIds.length}
+          framework={estrategia.selectedFramework?.name}
+          numContextQuestions={contexto.questions.length}
+          hasInternetSearch={false}
+          value={selectedPerformanceLevel}
+          onChange={setSelectedPerformanceLevel}
+          className="mt-6"
+        />
+
         {/* Alerta de créditos insuficientes */}
         {!hasSufficientCredits && (
           <Alert className="mt-6 border-red-500/50 bg-red-500/10">
@@ -408,7 +425,7 @@ export function PhaseRevision({
             </p>
           )}
           <Button
-            onClick={onCreateDebate}
+            onClick={() => onCreateDebate(selectedPerformanceLevel)}
             disabled={!state.canProceed || !hasSufficientCredits || isCreating}
             className="w-full h-14 bg-purple-600 hover:bg-purple-700 text-white text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >

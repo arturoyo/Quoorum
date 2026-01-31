@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { planTierEnum } from "@quoorum/db/schema";
+import { type planTierEnum } from "@quoorum/db/schema";
 
 // Lazy initialization to avoid build-time errors
 let stripeInstance: Stripe | null = null;

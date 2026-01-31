@@ -23,3 +23,12 @@ export {
   type ProcessedDocument,
   type DocumentMetadata,
 } from './document-processor'
+
+export {
+  semanticSearch,
+  hybridSearch,
+  getRelevantContext,
+  type SearchOptions,
+  type SearchResult,
+  type SearchMetrics,
+} from './search'

@@ -32,7 +32,7 @@ import { api } from '@/lib/trpc/client'
 import { Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { type ReportFormat, type ScheduleFrequency, dayLabels } from '../types'
-import { quoorumReportTypeEnum } from '@quoorum/db/schema'
+import { type quoorumReportTypeEnum } from '@quoorum/db/schema'
 
 interface CreateScheduleDialogProps {
   onSuccess: () => void

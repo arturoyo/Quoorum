@@ -406,6 +406,7 @@ export const debatesRouter = router({
         frameworkId: z.string().uuid().optional(), // ID del framework de decisión seleccionado (FODA, ROI, Delphi, etc.)
         scenarioId: z.string().uuid().optional(), // ID del escenario preconfigurado (Decision Playbook)
         scenarioVariables: z.record(z.string()).optional(), // Variables para el prompt template del escenario (ej: { user_input: "...", context: "..." })
+        performanceLevel: z.enum(['economic', 'balanced', 'performance']).optional().default('balanced'), // Just-in-Time performance tier selection
         assessment: z
           .object({
             overallScore: z.number(),
@@ -603,6 +604,7 @@ export const debatesRouter = router({
           .set({
             context: debateContext,
             status: "pending",
+            performanceLevel: input.performanceLevel || 'balanced', // Just-in-Time performance selection
             metadata: {
               expertCount: input.expertCount,
               maxRounds: input.maxRounds,
@@ -641,6 +643,7 @@ export const debatesRouter = router({
             mode: "dynamic",
             status: "pending",
             visibility: "private",
+            performanceLevel: input.performanceLevel || 'balanced', // Just-in-Time performance selection
             metadata: {
               expertCount: input.expertCount,
               maxRounds: input.maxRounds,
@@ -3809,6 +3812,15 @@ async function runDebateAsync(
   let refundIssued = false
 
   try {
+    // Fetch debate's performance level (Just-in-Time selection)
+    const [debateRecord] = await db
+      .select({ performanceLevel: quoorumDebates.performanceLevel })
+      .from(quoorumDebates)
+      .where(eq(quoorumDebates.id, debateId))
+      .limit(1)
+
+    const performanceLevel = (debateRecord?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced'
+
     logger.info("Starting debate execution", {
       debateId,
       userId,
@@ -3816,6 +3828,7 @@ async function runDebateAsync(
       hasContext: !!context,
       executionStrategy,
       pattern,
+      performanceLevel, // Log selected performance level
       selectedExpertIds: selectedExpertIds?.length || 0,
       selectedDepartmentIds: selectedDepartmentIds?.length || 0,
     });
@@ -3961,6 +3974,7 @@ async function runDebateAsync(
       sessionId: debateId,
       question,
       context: loadedContext,
+      performanceLevel, // Just-in-Time performance tier selection
       executionStrategy: finalExecutionStrategy, // Pass execution strategy (sequential: agents see each other, parallel: faster but no same-round responses)
       selectedExpertIds: selectedExpertIds, // Pass selected custom experts if provided
       corporateContext: corporateContext, // Pass corporate intelligence (4-layer context injection)

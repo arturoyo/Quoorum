@@ -145,6 +145,7 @@ export interface EstrategiaState {
  */
 export interface RevisionState {
   canProceed: boolean
+  performanceLevel: 'economic' | 'balanced' | 'performance' // Just-in-Time performance selection
   summary: {
     question: string
     expertCount: number

@@ -227,7 +227,8 @@
       "Bash(del \"C:\\\\Users\\\\Usuario\\\\.claude\\\\plans\\\\eager-seeking-lollipop.md\")",
       "Bash(git status:*)",
       "Bash(powershell.exe -NoProfile -Command:*)",
-      "Bash(powershell.exe:*)"
+      "Bash(powershell.exe:*)",
+      "Bash(Set-Location \"C:\\\\quoorum\\\\packages\\\\api\")"
     ]
   }
 }
