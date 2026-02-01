@@ -17,7 +17,8 @@
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
     "studio": "drizzle-kit studio",
-    "seed:prompts": "tsx scripts/seed-debate-prompts.ts"
+    "seed:prompts": "tsx scripts/seed-debate-prompts.ts",
+    "seed:buyer-personas": "node scripts/seed-buyer-personas.mjs"
   },
   "dependencies": {
     "drizzle-orm": "^0.38.0",

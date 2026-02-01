@@ -14,7 +14,7 @@ import { logger } from '@/lib/logger'
 import { classifyTRPCError } from '@/lib/trpc/error-handler'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
-import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles, Bell } from 'lucide-react'
+import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles, Bell, Activity } from 'lucide-react'
 
 import type { User } from '@supabase/supabase-js'
 
@@ -425,6 +425,26 @@ export function AppHeader({
                 </span>
               </Link>
 
+              <Link
+                href="/market-simulator/new"
+                className={cn(
+                  'group hidden sm:flex items-center gap-0 px-2 py-1.5 rounded-full',
+                  'styles.colors.text.secondary hover:styles.colors.text.primary',
+                  'hover:styles.colors.bg.tertiary transition-all duration-300 ease-out'
+                )}
+                title="Simulador de Mercado"
+              >
+                <Activity className="h-4 w-4 flex-shrink-0" />
+                <span className={cn(
+                  'max-w-0 overflow-hidden whitespace-nowrap',
+                  'group-hover:max-w-[100px] group-hover:ml-1.5',
+                  'transition-all duration-300 ease-out',
+                  'text-xs font-medium'
+                )}>
+                  Simulador
+                </span>
+              </Link>
+
               <button
                 onClick={handleSettingsClick}
                 className={cn(
@@ -570,6 +590,15 @@ export function AppHeader({
                     >
                       <Sparkles className="mr-2 h-4 w-4" />
                       Escenarios
+                    </Button>
+                  </Link>
+                  <Link href="/market-simulator/new" onClick={() => setMobileMenuOpen(false)}>
+                    <Button
+                      variant="ghost"
+                      className="w-full styles.colors.text.secondary hover:styles.colors.text.primary hover:styles.colors.bg.tertiary justify-start"
+                    >
+                      <Activity className="mr-2 h-4 w-4" />
+                      Simulador de Mercado
                     </Button>
                   </Link>
                   <Button
