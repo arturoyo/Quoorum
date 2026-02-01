@@ -68,6 +68,8 @@ import {
   ragSuggestionsRouter,
   // Strategic Profiles
   strategicProfilesRouter,
+  // Market Simulator
+  marketSimulatorRouter,
 } from "./routers/index";
 
 export const appRouter = router({
@@ -139,6 +141,8 @@ export const appRouter = router({
   ragSuggestions: ragSuggestionsRouter,
   // Strategic Intelligence Profiles (Unified)
   strategicProfiles: strategicProfilesRouter,
+  // Market Simulator (Focus Group de IA)
+  marketSimulator: marketSimulatorRouter,
 });
 
 export type AppRouter = typeof appRouter;

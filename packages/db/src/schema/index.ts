@@ -267,3 +267,14 @@ export type {
   Firmographics,
   Psychographics,
 } from "./strategic-profiles";
+
+// Market Simulations (Focus Group de IA)
+export {
+  marketSimulations,
+  marketSimulationsRelations,
+} from "./market-simulations";
+export type {
+  MarketSimulation,
+  NewMarketSimulation,
+  FrictionScore,
+} from "./market-simulations";

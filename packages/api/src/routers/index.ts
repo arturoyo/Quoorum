@@ -83,3 +83,6 @@ export { ragSuggestionsRouter } from "./rag-suggestions";
 
 // Strategic Intelligence Profiles (Unified)
 export { strategicProfilesRouter } from "./strategic-profiles";
+
+// Market Simulator (Focus Group de IA)
+export { marketSimulatorRouter } from "./market-simulator";
