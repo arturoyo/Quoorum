@@ -164,7 +164,10 @@ export function CategoryDistributionChart({
           cx="50%"
           cy="50%"
           labelLine={false}
-          label={({ category, percentage }) => `${category}: ${percentage}%`}
+          label={({ payload }) => {
+            const data = payload as { category?: string; percentage?: number } | undefined
+            return `${data?.category ?? ''}: ${data?.percentage ?? 0}%`
+          }}
           outerRadius={100}
           fill="#8884d8"
           dataKey="count"
@@ -301,7 +304,7 @@ export function ActivityHeatmap({
           {/* Day labels */}
           <div className="flex flex-col justify-around gap-1 py-8">
             {days.map((day) => (
-              <div key={day} className="flex h-6 items-center text-xs text-[var(--theme-text-tertiary)]">
+              <div key={day} className="flex h-6 items-center text-xs styles.colors.text.tertiary">
                 {day}
               </div>
             ))}
@@ -314,7 +317,7 @@ export function ActivityHeatmap({
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="flex-1 text-center text-xs text-[var(--theme-text-tertiary)]"
+                  className="flex-1 text-center text-xs styles.colors.text.tertiary"
                   style={{ minWidth: '20px' }}
                 >
                   {hour % 3 === 0 ? hour : ''}
@@ -347,7 +350,7 @@ export function ActivityHeatmap({
         </div>
 
         {/* Legend */}
-        <div className="mt-4 flex items-center gap-2 text-xs text-[var(--theme-text-tertiary)]">
+        <div className="mt-4 flex items-center gap-2 text-xs styles.colors.text.tertiary">
           <span>Less</span>
           <div className="flex gap-1">
             {[0, 2, 5, 8, 12].map((val) => (
@@ -399,8 +402,8 @@ export function MetricCardWithSparkline({
     <div className="rounded-xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
       <div className="mb-4 flex items-start justify-between">
         <div>
-          <p className="mb-1 text-sm text-[var(--theme-text-tertiary)]">{title}</p>
-          <p className="text-3xl font-bold text-[var(--theme-text-primary)]">{formatValue(value)}</p>
+          <p className="mb-1 text-sm styles.colors.text.tertiary">{title}</p>
+          <p className="text-3xl font-bold styles.colors.text.primary">{formatValue(value)}</p>
         </div>
         <div
           className={`rounded px-2 py-1 text-sm font-medium ${

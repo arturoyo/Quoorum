@@ -142,6 +142,25 @@ export const AGENT_ORDER: string[] = ['optimizer', 'critic', 'analyst', 'synthes
 // AGENT HELPERS
 // ============================================================================
 
+/**
+ * Get agent prompt from the new prompt management system
+ * Falls back to hardcoded prompt if not found in DB
+ */
+export async function getAgentPrompt(
+  agentKey: 'optimizer' | 'critic' | 'analyst' | 'synthesizer',
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<string> {
+  try {
+    const { getPromptTemplate } = await import('./lib/prompt-manager');
+    const promptSlug = `core-agent-${agentKey}`;
+    const resolvedPrompt = await getPromptTemplate(promptSlug, {}, performanceLevel);
+    return resolvedPrompt.template;
+  } catch (error) {
+    // Fallback to hardcoded prompt if not found in DB
+    return QUOORUM_AGENTS[agentKey]?.prompt ?? '';
+  }
+}
+
 export function getAgent(key: string): AgentConfig | undefined {
   return QUOORUM_AGENTS[key]
 }
@@ -164,7 +183,7 @@ export function getAgentName(key: string): string {
 
 /**
  * Get agents configured for a specific user tier
- * Free/Starter: Free tier models (gemini-2.0-flash-exp)
+ * Free/Starter: Free tier models (gemini-2.0-flash)
  * Pro/Business: Premium models (Claude 3.5 Sonnet for synthesis)
  * 
  * @param userTier - User subscription tier
@@ -220,7 +239,7 @@ const COST_PER_MILLION_TOKENS: Record<string, number> = {
   'claude-sonnet-4-20250514': 3.0,
   'gpt-4o': 2.5,
   'gpt-4o-mini': 0.15,
-  'gemini-2.0-flash-exp': 0.0, // Free tier
+  'gemini-2.0-flash': 0.0, // Free tier
   'gemini-1.5-flash': 0.075,
   'gemini-1.5-pro': 1.25,
 }

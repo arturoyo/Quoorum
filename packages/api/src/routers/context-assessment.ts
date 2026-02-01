@@ -207,7 +207,7 @@ async function detectDebateType(input: string): Promise<"business_decision" | "s
 
       Responde SOLO con una palabra: product, strategy, business_decision o general`,
       {
-        modelId: "gemini-2.0-flash-exp",
+        modelId: "gemini-2.0-flash",
         temperature: 0.1,
         maxTokens: 50,
       }
@@ -403,7 +403,7 @@ Analiza el contexto y devuelve el JSON con tu evaluación.`;
   try {
     const response = await aiClient.generate(userPrompt, {
       systemPrompt,
-      modelId: "gemini-2.0-flash-exp", // Usar Gemini en lugar de OpenAI (sin cuota)
+      modelId: "gemini-2.0-flash", // Usar Gemini en lugar de OpenAI (sin cuota)
       temperature: 0.5, // Más creativo para suposiciones inteligentes
       maxTokens: 2500, // Más tokens para suposiciones detalladas
     });
@@ -413,7 +413,7 @@ Analiza el contexto y devuelve el JSON con tu evaluación.`;
       userId,
       operationType: 'context_assessment',
       provider: 'google',
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       promptTokens: response.usage?.promptTokens || 0,
       completionTokens: response.usage?.completionTokens || 0,
       latencyMs: Date.now() - startTime,
@@ -455,7 +455,7 @@ Analiza el contexto y devuelve el JSON con tu evaluación.`;
       userId,
       operationType: 'context_assessment',
       provider: 'google',
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       promptTokens: 0,
       completionTokens: 0,
       latencyMs: Date.now() - startTime,
@@ -771,7 +771,7 @@ Responde SOLO con el JSON.`;
 
       try {
         const response = await aiClient.generate(refinementPrompt, {
-          modelId: "gemini-2.0-flash-exp",
+          modelId: "gemini-2.0-flash",
           temperature: 0.4, // Menos creativo, más directo en refinamiento
           maxTokens: 2000,
         });
@@ -1370,7 +1370,7 @@ Genera el JSON con el resumen memorable.`;
       try {
         const response = await aiClient.generate(userPrompt, {
           systemPrompt,
-          modelId: "gemini-2.0-flash-exp",
+          modelId: "gemini-2.0-flash",
           temperature: 0.3, // Bajo para ser fiel a los datos
           maxTokens: 1000,
         });
@@ -1380,7 +1380,7 @@ Genera el JSON con el resumen memorable.`;
           userId: ctx.userId,
           operationType: 'memorable_summary',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -1423,7 +1423,7 @@ Genera el JSON con el resumen memorable.`;
           userId: ctx.userId,
           operationType: 'memorable_summary',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,

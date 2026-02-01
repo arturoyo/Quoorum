@@ -63,13 +63,18 @@ export interface SWOTAnalysisOutput {
 // AGENT CONFIGURATIONS
 // ============================================================================
 
+// Framework agent config type (partial AgentConfig with only needed fields)
+type FrameworkAgentConfig = Pick<AgentConfig, 'provider' | 'model' | 'temperature'> & {
+  systemPrompt: string
+}
+
 // Get centralized framework agent config (uses free tier by default)
 const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'temperature'> => {
   // Use optimizer config as base for frameworks (fast, creative)
   return getAgentConfig('optimizer')
 }
 
-const STRENGTHS_AGENT_CONFIG: AgentConfig = {
+const STRENGTHS_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el STRENGTHS ANALYST, un experto en identificar fortalezas internas.
@@ -92,7 +97,7 @@ Sé exhaustivo pero realista. No inventes fortalezas.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const WEAKNESSES_AGENT_CONFIG: AgentConfig = {
+const WEAKNESSES_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el WEAKNESSES ANALYST, un experto en identificar debilidades internas.
@@ -115,7 +120,7 @@ Sé exhaustivo pero constructivo. El objetivo es mejorar.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const OPPORTUNITIES_AGENT_CONFIG: AgentConfig = {
+const OPPORTUNITIES_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el OPPORTUNITIES ANALYST, un experto en identificar oportunidades externas.
@@ -138,7 +143,7 @@ Sé visionario pero pragmático.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const THREATS_AGENT_CONFIG: AgentConfig = {
+const THREATS_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el THREATS ANALYST, un experto en identificar amenazas externas.
@@ -161,7 +166,7 @@ Sé realista pero no catastrófico.
 Output SOLO JSON válido sin texto adicional.`,
 }
 
-const STRATEGIST_AGENT_CONFIG: AgentConfig = {
+const STRATEGIST_AGENT_CONFIG: FrameworkAgentConfig = {
   ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el STRATEGIST, un experto en crear estrategias SWOT accionables.
@@ -191,11 +196,65 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 // ============================================================================
+// DYNAMIC PROMPT LOADING
+// ============================================================================
+
+/**
+ * Get SWOT agent configs with dynamic prompts from the system
+ * Falls back to hardcoded prompts if not found in DB
+ */
+async function getSWOTAgentConfigs(
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<{
+  strengths: FrameworkAgentConfig
+  weaknesses: FrameworkAgentConfig
+  opportunities: FrameworkAgentConfig
+  threats: FrameworkAgentConfig
+  strategist: FrameworkAgentConfig
+}> {
+  try {
+    const { getPromptTemplate } = await import('../lib/prompt-manager');
+
+    const [strengthsPrompt, weaknessesPrompt, opportunitiesPrompt, threatsPrompt, strategistPrompt] =
+      await Promise.all([
+        getPromptTemplate('framework-swot-strengths', {}, performanceLevel),
+        getPromptTemplate('framework-swot-weaknesses', {}, performanceLevel),
+        getPromptTemplate('framework-swot-opportunities', {}, performanceLevel),
+        getPromptTemplate('framework-swot-threats', {}, performanceLevel),
+        getPromptTemplate('framework-swot-strategist', {}, performanceLevel),
+      ]);
+
+    return {
+      strengths: { ...STRENGTHS_AGENT_CONFIG, systemPrompt: strengthsPrompt.template },
+      weaknesses: { ...WEAKNESSES_AGENT_CONFIG, systemPrompt: weaknessesPrompt.template },
+      opportunities: { ...OPPORTUNITIES_AGENT_CONFIG, systemPrompt: opportunitiesPrompt.template },
+      threats: { ...THREATS_AGENT_CONFIG, systemPrompt: threatsPrompt.template },
+      strategist: { ...STRATEGIST_AGENT_CONFIG, systemPrompt: strategistPrompt.template },
+    };
+  } catch {
+    // Fallback to hardcoded configs
+    return {
+      strengths: STRENGTHS_AGENT_CONFIG,
+      weaknesses: WEAKNESSES_AGENT_CONFIG,
+      opportunities: OPPORTUNITIES_AGENT_CONFIG,
+      threats: THREATS_AGENT_CONFIG,
+      strategist: STRATEGIST_AGENT_CONFIG,
+    };
+  }
+}
+
+// ============================================================================
 // MAIN FUNCTION
 // ============================================================================
 
-export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAnalysisOutput> {
+export async function runSWOTAnalysis(
+  input: SWOTAnalysisInput,
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<SWOTAnalysisOutput> {
   const startTime = Date.now()
+
+  // Get dynamic agent configs
+  const agentConfigs = await getSWOTAgentConfigs(performanceLevel);
 
   quoorumLogger.info('Starting SWOT Analysis', {
     question: input.question,
@@ -236,48 +295,44 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
       await Promise.all([
         // STRENGTHS
         strengthsClient.generateWithSystem(
-          STRENGTHS_AGENT_CONFIG.systemPrompt,
+          agentConfigs.strengths.systemPrompt,
           `${contextPrompt}\n\nOutput format:\n{\n  "strengths": [\n    {\n      "title": "...",\n      "description": "...",\n      "impact": 85\n    }\n  ]\n}`,
           {
-            modelId: STRENGTHS_AGENT_CONFIG.model,
-            provider: STRENGTHS_AGENT_CONFIG.provider,
-            temperature: STRENGTHS_AGENT_CONFIG.temperature,
+            modelId: agentConfigs.strengths.model,
+            temperature: agentConfigs.strengths.temperature,
             maxTokens: 2000,
           }
         ),
 
         // WEAKNESSES
         weaknessesClient.generateWithSystem(
-          WEAKNESSES_AGENT_CONFIG.systemPrompt,
+          agentConfigs.weaknesses.systemPrompt,
           `${contextPrompt}\n\nOutput format:\n{\n  "weaknesses": [\n    {\n      "title": "...",\n      "description": "...",\n      "severity": 70\n    }\n  ]\n}`,
           {
-            modelId: WEAKNESSES_AGENT_CONFIG.model,
-            provider: WEAKNESSES_AGENT_CONFIG.provider,
-            temperature: WEAKNESSES_AGENT_CONFIG.temperature,
+            modelId: agentConfigs.weaknesses.model,
+            temperature: agentConfigs.weaknesses.temperature,
             maxTokens: 2000,
           }
         ),
 
         // OPPORTUNITIES
         opportunitiesClient.generateWithSystem(
-          OPPORTUNITIES_AGENT_CONFIG.systemPrompt,
+          agentConfigs.opportunities.systemPrompt,
           `${contextPrompt}\n\nOutput format:\n{\n  "opportunities": [\n    {\n      "title": "...",\n      "description": "...",\n      "potential": 80\n    }\n  ]\n}`,
           {
-            modelId: OPPORTUNITIES_AGENT_CONFIG.model,
-            provider: OPPORTUNITIES_AGENT_CONFIG.provider,
-            temperature: OPPORTUNITIES_AGENT_CONFIG.temperature,
+            modelId: agentConfigs.opportunities.model,
+            temperature: agentConfigs.opportunities.temperature,
             maxTokens: 2000,
           }
         ),
 
         // THREATS
         threatsClient.generateWithSystem(
-          THREATS_AGENT_CONFIG.systemPrompt,
+          agentConfigs.threats.systemPrompt,
           `${contextPrompt}\n\nOutput format:\n{\n  "threats": [\n    {\n      "title": "...",\n      "description": "...",\n      "risk": 65\n    }\n  ]\n}`,
           {
-            modelId: THREATS_AGENT_CONFIG.model,
-            provider: THREATS_AGENT_CONFIG.provider,
-            temperature: THREATS_AGENT_CONFIG.temperature,
+            modelId: agentConfigs.threats.model,
+            temperature: agentConfigs.threats.temperature,
             maxTokens: 2000,
           }
         ),
@@ -323,12 +378,11 @@ Output format:
 }`
 
     const strategiesResponse = await strategistClient.generateWithSystem(
-      STRATEGIST_AGENT_CONFIG.systemPrompt,
+      agentConfigs.strategist.systemPrompt,
       strategiesPrompt,
       {
-        modelId: STRATEGIST_AGENT_CONFIG.model,
-        provider: STRATEGIST_AGENT_CONFIG.provider,
-        temperature: STRATEGIST_AGENT_CONFIG.temperature,
+        modelId: agentConfigs.strategist.model,
+        temperature: agentConfigs.strategist.temperature,
         maxTokens: 1500,
       }
     )
@@ -355,10 +409,13 @@ Output format:
       executionTimeMs,
     }
   } catch (error) {
-    quoorumLogger.error('Failed to run SWOT Analysis', {
-      error: error instanceof Error ? error.message : String(error),
-      question: input.question,
-    })
+    quoorumLogger.error(
+      'Failed to run SWOT Analysis',
+      error instanceof Error ? error : undefined,
+      {
+        question: input.question,
+      }
+    )
     throw error
   }
 }

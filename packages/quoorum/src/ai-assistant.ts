@@ -332,7 +332,11 @@ export function getExpertCombinationSuggestions(question: string): {
   reasoning: string
 }[] {
   // Analyze question and suggest expert combinations
-  const combinations = []
+  const combinations: {
+    name: string
+    experts: string[]
+    reasoning: string
+  }[] = []
 
   if (question.toLowerCase().includes('pricing') || question.toLowerCase().includes('price')) {
     combinations.push({

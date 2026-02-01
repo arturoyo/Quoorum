@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 export interface FormFieldGroupProps {
   /** Field label text */
@@ -63,15 +63,14 @@ export function FormFieldGroup({
   const fieldId = id || generatedId
 
   const baseInputClasses = cn(
-    'bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0]',
-    'focus-visible:ring-purple-500 focus-visible:border-purple-500',
+    styles.input.base,
     error && 'border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500',
     inputClassName
   )
 
   return (
     <div className={cn('space-y-2', className)}>
-      <Label htmlFor={fieldId} className="text-[#aebac1]">
+      <Label htmlFor={fieldId} className={styles.colors.text.secondary}>
         {label}
         {required && <span className="text-red-400 ml-1">*</span>}
       </Label>
@@ -102,7 +101,7 @@ export function FormFieldGroup({
       )}
 
       {description && !error && (
-        <p className="text-xs text-[#8696a0]">{description}</p>
+        <p className={cn('text-xs', styles.colors.text.tertiary)}>{description}</p>
       )}
 
       {error && (

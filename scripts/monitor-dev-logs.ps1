@@ -3,7 +3,7 @@
 
 param(
     [string]$LogFile = "",
-    [int]$CheckInterval = 5, # seconds
+    [int]$CheckInterval = [EMOJI], # seconds
     [switch]$Watch = $false
 )
 
@@ -15,17 +15,17 @@ if ([string]::IsNullOrEmpty($LogFile)) {
     if (Test-Path $TerminalDir) {
         $LatestLog = Get-ChildItem -Path $TerminalDir -Filter "*.txt" | 
             Sort-Object LastWriteTime -Descending | 
-            Select-Object -First 1
+            Select-Object -First [EMOJI]
         if ($LatestLog) {
             $LogFile = $LatestLog.FullName
-            Write-Host "📋 Monitoring log file: $LogFile" -ForegroundColor Cyan
+            Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Monitoring log file: $LogFile" -ForegroundColor Cyan
         }
     }
 }
 
 if ([string]::IsNullOrEmpty($LogFile) -or -not (Test-Path $LogFile)) {
     Write-Host "[ERROR] No log file found. Make sure dev server is running." -ForegroundColor Red
-    exit 1
+    exit [EMOJI]
 }
 
 # Error patterns to detect
@@ -54,7 +54,7 @@ function Check-ForErrors {
         $Matches = [regex]::Matches($Content, $Pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
         foreach ($Match in $Matches) {
             $LineNumber = ($Content.Substring(0, $Match.Index) -split "`n").Count
-            $Context = Get-Context -Content $Content -Position $Match.Index -LinesBefore 3 -LinesAfter 5
+            $Context = Get-Context -Content $Content -Position $Match.Index -LinesBefore [EMOJI] -LinesAfter [EMOJI]
             $Errors += @{
                 Pattern = $Pattern
                 Line = $LineNumber
@@ -71,20 +71,20 @@ function Get-Context {
     param(
         [string]$Content,
         [int]$Position,
-        [int]$LinesBefore = 3,
-        [int]$LinesAfter = 5
+        [int]$LinesBefore = [EMOJI],
+        [int]$LinesAfter = [EMOJI]
     )
     
-    $Before = $Content.Substring([Math]::Max(0, $Position - 500), [Math]::Min(500, $Position))
-    $After = $Content.Substring($Position, [Math]::Min(500, $Content.Length - $Position))
+    $Before = $Content.Substring([Math]::Max(0, $Position - [EMOJI]00), [Math]::Min([EMOJI]00, $Position))
+    $After = $Content.Substring($Position, [Math]::Min([EMOJI]00, $Content.Length - $Position))
     
-    $BeforeLines = ($Before -split "`n")[-$LinesBefore..-1]
+    $BeforeLines = ($Before -split "`n")[-$LinesBefore..-[EMOJI]]
     $AfterLines = ($After -split "`n")[0..$LinesAfter]
     
     return ($BeforeLines + $AfterLines) -join "`n"
 }
 
-Write-Host "🔍 Starting log monitoring..." -ForegroundColor Green
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Starting log monitoring..." -ForegroundColor Green
 Write-Host "   Check interval: ${CheckInterval}s" -ForegroundColor Gray
 Write-Host "   Press Ctrl+C to stop`n" -ForegroundColor Gray
 
@@ -111,7 +111,7 @@ while ($true) {
                     }
                     
                     Write-Host ("`n" + ("=" * 60)) -ForegroundColor DarkGray
-                    Write-Host "📊 Total errors found: $ErrorCount`n" -ForegroundColor Yellow
+                    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Total errors found: $ErrorCount`n" -ForegroundColor Yellow
                 }
             }
         }

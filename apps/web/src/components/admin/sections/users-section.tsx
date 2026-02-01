@@ -183,7 +183,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
         name: user.name,
         credits: user.credits,
         tier: user.tier,
-        role: user.role as any,
+        role: user.role,
       })
       setIsCreateDialogOpen(true)
     }
@@ -220,7 +220,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
       case 'starter':
         return 'bg-green-500/20 text-green-300 border-green-500/30'
       default:
-        return 'bg-gray-500/20 text-[var(--theme-text-secondary)] border-gray-500/30'
+        return 'bg-gray-500/20 styles.colors.text.secondary border-gray-500/30'
     }
   }
 
@@ -231,7 +231,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
       case 'admin':
         return 'bg-orange-500/20 text-orange-300 border-orange-500/30'
       default:
-        return 'bg-gray-500/20 text-[var(--theme-text-secondary)] border-gray-500/30'
+        return 'bg-gray-500/20 styles.colors.text.secondary border-gray-500/30'
     }
   }
 
@@ -241,7 +241,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Gestión de Usuarios</h2>
-          <p className="text-sm text-[var(--theme-text-secondary)] mt-1">
+          <p className="text-sm styles.colors.text.secondary mt-1">
             Administra usuarios, créditos, tiers y roles
           </p>
         </div>
@@ -262,9 +262,9 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
         <CardContent className="p-4">
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-2">
-              <Label className="text-[var(--theme-text-secondary)]">Buscar</Label>
+              <Label className="styles.colors.text.secondary">Buscar</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--theme-text-secondary)]" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 styles.colors.text.secondary" />
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -274,7 +274,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-[var(--theme-text-secondary)]">Tier</Label>
+              <Label className="styles.colors.text.secondary">Tier</Label>
               <Select value={tierFilter} onValueChange={setTierFilter}>
                 <SelectTrigger className="bg-slate-800/60 border-purple-500/30 text-white">
                   <SelectValue />
@@ -289,7 +289,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-[var(--theme-text-secondary)]">Rol</Label>
+              <Label className="styles.colors.text.secondary">Rol</Label>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger className="bg-slate-800/60 border-purple-500/30 text-white">
                   <SelectValue />
@@ -326,7 +326,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
           <CardTitle className="text-white">
             Usuarios ({usersData?.total || 0})
           </CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardDescription className="styles.colors.text.secondary">
             Lista completa de usuarios del sistema
           </CardDescription>
         </CardHeader>
@@ -336,7 +336,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
               <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
             </div>
           ) : !usersData?.users || usersData.users.length === 0 ? (
-            <div className="text-center py-8 text-[var(--theme-text-secondary)]">
+            <div className="text-center py-8 styles.colors.text.secondary">
               No se encontraron usuarios
             </div>
           ) : (
@@ -344,13 +344,13 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
               <Table>
                 <TableHeader>
                   <TableRow className="border-purple-500/20 hover:bg-purple-500/5">
-                    <TableHead className="text-[var(--theme-text-secondary)]">Email</TableHead>
-                    <TableHead className="text-[var(--theme-text-secondary)]">Nombre</TableHead>
-                    <TableHead className="text-[var(--theme-text-secondary)]">Créditos</TableHead>
-                    <TableHead className="text-[var(--theme-text-secondary)]">Tier</TableHead>
-                    <TableHead className="text-[var(--theme-text-secondary)]">Rol</TableHead>
-                    <TableHead className="text-[var(--theme-text-secondary)]">Estado</TableHead>
-                    <TableHead className="text-[var(--theme-text-secondary)]">Acciones</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Email</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Nombre</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Créditos</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Tier</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Rol</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Estado</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -360,7 +360,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
                       className="border-purple-500/10 hover:bg-purple-500/5"
                     >
                       <TableCell className="text-white">{user.email}</TableCell>
-                      <TableCell className="text-[var(--theme-text-secondary)]">{user.name}</TableCell>
+                      <TableCell className="styles.colors.text.secondary">{user.name}</TableCell>
                       <TableCell className="text-white font-mono">
                         {user.credits.toLocaleString()}
                       </TableCell>
@@ -391,7 +391,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-[var(--theme-text-secondary)] hover:text-white"
+                              className="styles.colors.text.secondary hover:text-white"
                             >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
@@ -430,7 +430,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
             <DialogTitle className="text-white">
               {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
             </DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-secondary)]">
+            <DialogDescription className="styles.colors.text.secondary">
               {editingUser
                 ? 'Modifica la información del usuario'
                 : 'Crea un nuevo usuario en el sistema'}
@@ -440,7 +440,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
           <DialogBody className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="email" className="styles.colors.text.secondary">
                   Email *
                 </Label>
                 <Input
@@ -454,7 +454,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="name" className="styles.colors.text.secondary">
                   Nombre *
                 </Label>
                 <Input
@@ -469,7 +469,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
 
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="credits" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="credits" className="styles.colors.text.secondary">
                   Créditos
                 </Label>
                 <Input
@@ -483,7 +483,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="tier" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="tier" className="styles.colors.text.secondary">
                   Tier
                 </Label>
                 <Select
@@ -505,7 +505,7 @@ export function UsersSection({ isInModal = false }: UsersSectionProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="role" className="styles.colors.text.secondary">
                   Rol
                 </Label>
                 <Select

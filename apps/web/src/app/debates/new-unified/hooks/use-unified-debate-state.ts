@@ -18,12 +18,14 @@ import type {
   RevisionState,
   DebateState,
   ContextEvaluation,
+  InternetSearchResult,
+  Message,
 } from '../types'
 
 const INITIAL_INTERNET_SEARCH = {
   enabled: false,
   isSearching: false,
-  results: [] as Array<{ id: string; title: string; url?: string; summary: string; selected: boolean }>,
+  results: [] as InternetSearchResult[],
   context: null as string | null,
   customText: null as string | null,
   error: null as string | null,
@@ -122,6 +124,7 @@ function saveStateToStorage(state: {
       }
       
       const storageKey = getStorageKey(state.sessionId)
+      localStorage.setItem('quoorum-debate-creation-last-session', state.sessionId)
       localStorage.setItem(storageKey, JSON.stringify({
         sessionId: state.sessionId, // Incluir sessionId único
         currentPhase: state.currentPhase,
@@ -283,6 +286,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
   const [debate, setDebate] = useState<DebateState>(INITIAL_DEBATE)
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false)
   const [isEvaluating, setIsEvaluating] = useState(false)
+  const [isValidating, setIsValidating] = useState(false)
   const [isCreatingDebate, setIsCreatingDebate] = useState(false)
   const [_currentValidationError, setCurrentValidationError] = useState<string | null>(null)
   
@@ -529,6 +533,16 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         }
       })
 
+      const introMessage: Message | null = questions.length > 0
+        ? {
+            id: `ai-${Date.now()}`,
+            role: 'ai',
+            content: questions[0]!.content,
+            type: 'question',
+            timestamp: new Date(),
+          }
+        : null
+
       setContexto((prev) => ({
         ...prev,
         questions,
@@ -537,17 +551,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         realCreditsDeducted: prev.realCreditsDeducted + (response.creditsDeducted ?? 0),
         messages: [
           ...prev.messages,
-          ...(questions.length > 0
-            ? [
-                {
-                  id: `ai-${Date.now()}`,
-                  role: 'ai',
-                  content: questions[0]!.content,
-                  type: 'question',
-                  timestamp: new Date(),
-                },
-              ]
-            : []),
+          ...(introMessage ? [introMessage] : []),
         ],
       }))
 
@@ -644,11 +648,22 @@ export function useUnifiedDebateState(urlSessionId?: string) {
 
       // Actualizar créditos reales deducidos si la evaluación retornó créditos deducidos
       const creditsDeducted = (result as { creditsDeducted?: number }).creditsDeducted || 0
+
+      const normalizedEvaluation: ContextEvaluation = {
+        score: result.score,
+        reasoning: result.reasoning,
+        missingAspects: result.missingAspects ?? [],
+        contradictions: result.contradictions,
+        duplicatedInfo: result.duplicatedInfo,
+        qualityIssues: result.qualityIssues,
+        shouldContinue: result.shouldContinue,
+        followUpQuestions: followUpWithIds,
+      }
       
       setContexto((prev) => ({
         ...prev,
-        evaluation: result,
-        contextScore: result.score,
+        evaluation: normalizedEvaluation,
+        contextScore: normalizedEvaluation.score,
         phase: nextPhase,
         questions: allowMore ? followUpWithIds : prev.questions,
         currentQuestionIndex: allowMore ? 0 : prev.currentQuestionIndex,
@@ -658,7 +673,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           {
             id: `eval-${Date.now()}`,
             role: 'ai',
-            content: buildEvaluationMessage(result),
+            content: buildEvaluationMessage(normalizedEvaluation),
             type: 'evaluation',
             timestamp: new Date(),
           },
@@ -707,11 +722,14 @@ export function useUnifiedDebateState(urlSessionId?: string) {
     }
   }, [contexto.mainQuestion, contexto.phase, evaluateContext, updatePhaseProgress])
   
-  const handleAnswer = useCallback(async (answer: string) => {
-    const currentQ = contexto.questions[contexto.currentQuestionIndex]
+  const handleAnswer = useCallback(async (answer: string, questionId?: string) => {
+    const currentQ = questionId
+      ? contexto.questions.find((q) => q.id === questionId)
+      : contexto.questions[contexto.currentQuestionIndex]
     if (!currentQ) return
-    
+
     // Validar relevancia de la respuesta antes de aceptarla
+    setIsValidating(true)
     try {
       const validation = await validateAnswer.mutateAsync({
         question: currentQ.content,
@@ -790,14 +808,18 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           description: validation.suggestion || validation.reasoning,
           duration: 6000,
         })
-        
+
+        // Terminar validación
+        setIsValidating(false)
+
         // No avanzar hasta que la respuesta sea válida
         // El usuario puede editar su respuesta o proporcionar explicación
         return
       }
-      
+
       // Respuesta válida, limpiar error de validación
       setCurrentValidationError(null)
+      setIsValidating(false)
       
       // Actualizar créditos reales deducidos si la validación retornó créditos deducidos
       if (validation.creditsDeducted) {
@@ -807,11 +829,71 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         }))
       }
     } catch (error) {
-      // Si falla la validación, continuar de todas formas (no bloquear al usuario)
+      // Si falla la validación por error de red o servidor, avisar al usuario
       logger.error('Error validating answer', { error })
+
+      // Mostrar error al usuario
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido al validar la respuesta'
+
+      // Si es error de créditos, mostrar mensaje específico y BLOQUEAR
+      if (errorMessage.includes('insuficientes') || errorMessage.includes('PAYMENT_REQUIRED')) {
+        toast.error('Créditos insuficientes', {
+          description: 'No tienes suficientes créditos para validar esta respuesta. Recarga créditos para continuar.',
+          duration: 8000,
+        })
+
+        setContexto((prev) => ({
+          ...prev,
+          messages: [
+            ...prev.messages,
+            {
+              id: `user-${Date.now()}`,
+              role: 'user',
+              content: answer,
+              type: 'answer',
+              timestamp: new Date(),
+            },
+            {
+              id: `error-${Date.now()}`,
+              role: 'ai',
+              content: '**⚠️ Créditos insuficientes**\n\nNo puedo validar tu respuesta porque no tienes créditos suficientes. Por favor, recarga créditos para continuar con el debate.',
+              type: 'error',
+              timestamp: new Date(),
+            },
+          ],
+        }))
+
+        // Terminar validación
+        setIsValidating(false)
+
+        // NO CONTINUAR - bloquear hasta que recargue créditos
+        return
+      }
+
+      // Para otros errores (red, servidor), avisar pero permitir continuar
+      setIsValidating(false)
+
+      toast.warning('No se pudo validar la respuesta', {
+        description: 'Hubo un problema al validar tu respuesta. Continuamos sin validar, pero por favor revisa que sea relevante.',
+        duration: 6000,
+      })
+
+      setContexto((prev) => ({
+        ...prev,
+        messages: [
+          ...prev.messages,
+          {
+            id: `warning-${Date.now()}`,
+            role: 'ai',
+            content: '⚠️ **No se pudo validar tu respuesta** (error de conexión). Continuamos sin validar, pero asegúrate de que sea relevante y útil para el debate.',
+            type: 'warning',
+            timestamp: new Date(),
+          },
+        ],
+      }))
     }
-    
-    // Respuesta válida, proceder normalmente
+
+    // Respuesta válida (o no validada por error de conexión), proceder normalmente
     const newAnswers = { ...contexto.answers, [currentQ.id]: answer }
     const newIndex = contexto.currentQuestionIndex + 1
     
@@ -910,17 +992,17 @@ export function useUnifiedDebateState(urlSessionId?: string) {
   }, [])
   
   // Create debate
-  const handleCreateDebate = useCallback(async () => {
+  const handleCreateDebate = useCallback(async (performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced') => {
     setIsCreatingDebate(true)
-    
+
     try {
       // Construir contexto completo y estructurado con toda la información
       const buildFullContext = () => {
         const sections: string[] = []
-        
+
         // 1. Pregunta principal
         sections.push(`# PREGUNTA PRINCIPAL DEL DEBATE\n\n${contexto.mainQuestion}\n`)
-        
+
         // 2. Metadatos del contexto
         sections.push(`## METADATOS DEL CONTEXTO\n`)
         sections.push(`- Puntuación de contexto: ${contexto.contextScore}/100`)
@@ -931,11 +1013,11 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           sections.push(`- Resumen de evaluación: ${contexto.evaluation.summary}`)
         }
         sections.push('')
-        
+
         // 3. Preguntas y respuestas detalladas
         if (Object.keys(contexto.answers).length > 0) {
           sections.push(`## PREGUNTAS Y RESPUESTAS DE CONTEXTO\n`)
-          
+
           // Ordenar preguntas por su índice en el array original para mantener el orden
           const answeredQuestions = contexto.questions
             .filter(q => contexto.answers[q.id])
@@ -945,11 +1027,11 @@ export function useUnifiedDebateState(urlSessionId?: string) {
               index: contexto.questions.indexOf(q)
             }))
             .sort((a, b) => a.index - b.index)
-          
+
           answeredQuestions.forEach(({ question, answer }, index) => {
             sections.push(`### Pregunta ${index + 1}: ${question.content}`)
             sections.push(`\n**Respuesta:**\n${answer}\n`)
-            
+
             // Añadir tipo de pregunta si es relevante
             if (question.questionType === 'yes_no') {
               sections.push(`*Tipo: Sí/No*\n`)
@@ -960,12 +1042,12 @@ export function useUnifiedDebateState(urlSessionId?: string) {
             }
           })
         }
-        
+
         // 4. Contexto de internet (si está disponible)
         if (contexto.internetSearch?.context) {
           sections.push(`\n## CONTEXTO ADICIONAL DE INTERNET\n`)
           sections.push(contexto.internetSearch.context)
-          
+
           // Añadir información sobre los resultados seleccionados si están disponibles
           if (contexto.internetSearch.results && contexto.internetSearch.results.length > 0) {
             const selectedResults = contexto.internetSearch.results.filter(r => r.selected)
@@ -978,7 +1060,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           }
           sections.push('')
         }
-        
+
         // 5. Resumen final
         sections.push(`## RESUMEN EJECUTIVO\n`)
         sections.push(`Este debate aborda la siguiente pregunta: "${contexto.mainQuestion}"`)
@@ -987,19 +1069,20 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           sections.push(`Adicionalmente, se ha incluido contexto relevante obtenido de búsquedas en internet.`)
         }
         sections.push(`\nEl nivel de preparación del contexto es: ${contexto.contextScore}/100 (${contexto.contextScore >= 70 ? 'Alto' : contexto.contextScore >= 40 ? 'Medio' : 'Bajo'}).`)
-        
+
         return sections.join('\n')
       }
-      
+
       const fullContext = buildFullContext()
-      
-      logger.info('Creating debate...', {
+
+      logger.info('Creating debate with performance level...', {
         question: contexto.mainQuestion.substring(0, 50),
         expertCount: expertos.selectedExpertIds.length,
         departmentCount: expertos.selectedDepartmentIds.length,
         workerCount: expertos.selectedWorkerIds.length,
+        performanceLevel,
       })
-      
+
       const newDebate = await createDebate.mutateAsync({
         draftId: contexto.draftId, // Si existe un draft, actualizarlo en lugar de crear uno nuevo
         question: contexto.mainQuestion,
@@ -1009,6 +1092,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         selectedWorkerIds: expertos.selectedWorkerIds.length > 0 ? expertos.selectedWorkerIds : undefined,
         frameworkId: estrategia.selectedFrameworkId || undefined, // Framework de decisión seleccionado
         context: fullContext, // Pass as string, not object
+        performanceLevel, // Pass the selected performance level
       })
       
       logger.info('Debate created successfully', {
@@ -1452,8 +1536,9 @@ export function useUnifiedDebateState(urlSessionId?: string) {
     debate,
     isGeneratingQuestions,
     isEvaluating,
+    isValidating,
     isCreatingDebate,
-    
+
     // Navigation
     canGoNext: canGoNext(),
     canGoBack: canGoBack(),

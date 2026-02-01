@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { motion } from 'framer-motion'
 import { Bot, AlertTriangle, Info, Lightbulb, ChevronRight, Plus } from 'lucide-react'
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
+import { cn, styles } from '@/lib/utils'
 
 // ============================================================================
 // TYPES
@@ -83,15 +84,15 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
     >
       {/* Header */}
       <div className="rounded-lg border border-purple-500/30 bg-purple-900/20 p-4">
-        <div className="flex items-start justify-between">
+        <div className={styles.layout.flexBetween}>
           <div className="flex-1">
-            <div className="flex items-center gap-2">
+            <div className={styles.layout.flexRow}>
               <Bot className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">
-                🤖 AI Coaching Proactivo
+              <h3 className={cn(styles.text.h3, "text-lg")}>
+                AI Coaching Proactivo
               </h3>
             </div>
-            <p className="mt-1 text-sm text-[#aebac1]">
+            <p className={cn(styles.text.bodySecondary, "mt-1")}>
               He detectado {suggestions.length} áreas de mejora basadas en debates exitosos.
               {criticalCount > 0 && (
                 <span className="ml-1 font-medium text-red-400">
@@ -105,7 +106,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
             onClick={onDismiss}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-white"
+            className={cn(styles.colors.text.tertiary, styles.hoverState())}
           >
             Cerrar
           </Button>
@@ -166,18 +167,18 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                       >
                         {config.label}
                       </Badge>
-                      <h4 className="text-sm font-semibold text-white">
+                      <h4 className={cn("text-sm font-semibold", styles.colors.text.primary)}>
                         {suggestion.dimensionName}
                       </h4>
                     </div>
-                    <p className="mt-2 text-sm text-[#aebac1]">{suggestion.suggestion}</p>
+                    <p className={cn("mt-2 text-sm", styles.colors.text.secondary)}>{suggestion.suggestion}</p>
                   </div>
 
                   <motion.div
                     animate={{ rotate: isExpanded ? 90 : 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ChevronRight className="h-5 w-5 text-[#8696a0]" />
+                    <ChevronRight className={cn("h-5 w-5", styles.colors.text.tertiary)} />
                   </motion.div>
                 </button>
 
@@ -191,22 +192,22 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                     className="mt-4 space-y-3"
                   >
                     {/* Stats */}
-                    <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
-                      <p className="text-xs text-[#8696a0]">
-                        📊{' '}
+                    <div className={cn("rounded p-3", styles.colors.bg.primary, styles.colors.border.default, "border")}>
+                      <p className={cn("text-xs", styles.colors.text.tertiary)}>
+                        ??{' '}
                         <span className="font-medium text-purple-300">
                           {suggestion.percentageOfSuccessfulDebates}%
                         </span>{' '}
-                        de debates exitosos incluyen esta dimensión
+                        de debates exitosos incluyen esta dimensi�n
                       </p>
                     </div>
 
                     {/* Example */}
-                    <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
-                      <p className="mb-1 text-xs font-medium text-[#aebac1]">
+                    <div className={cn("rounded p-3", styles.colors.bg.primary, styles.colors.border.default, "border")}>
+                      <p className={cn("mb-1 text-xs font-medium", styles.colors.text.secondary)}>
                         Ejemplo sugerido:
                       </p>
-                      <p className="text-sm text-white">{suggestion.example}</p>
+                      <p className={cn("text-sm", styles.colors.text.primary)}>{suggestion.example}</p>
                     </div>
 
                     {/* Actions */}
@@ -219,13 +220,13 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
                         className="bg-purple-600 hover:bg-purple-700 text-white"
                       >
                         <Plus className="mr-2 h-4 w-4" />
-                        Añadir al contexto
+                        A�adir al contexto
                       </Button>
                       <Button
                         onClick={() => setExpandedId(null)}
                         size="sm"
                         variant="outline"
-                        className="border-[#2a3942] text-[#aebac1] hover:bg-[#2a3942]"
+                        className={cn(styles.colors.border.default, styles.colors.text.secondary, styles.hoverState())}
                       >
                         Cerrar
                       </Button>
@@ -235,11 +236,11 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
 
                 {/* Bottom Bar (collapsed state) */}
                 {!isExpanded && (
-                  <div className="mt-2 flex items-center justify-between text-xs text-[#8696a0]">
+                  <div className={cn("mt-2 flex items-center justify-between text-xs", styles.colors.text.tertiary)}>
                     <span>
                       {suggestion.percentageOfSuccessfulDebates}% de debates exitosos
                     </span>
-                    <span className="text-purple-400">Click para ver más</span>
+                    <span className="text-purple-400">Click para ver m�s</span>
                   </div>
                 )}
               </Card>
@@ -264,7 +265,7 @@ export function AICoaching({ suggestions, onAddContext, onDismiss }: AICoachingP
             className="w-full bg-red-600 hover:bg-red-700 text-white"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Añadir todas las críticas ({criticalCount})
+            A�adir todas las cr�ticas ({criticalCount})
           </Button>
         </motion.div>
       )}

@@ -62,3 +62,24 @@ export { adminPricingRouter } from "./admin-pricing";
 
 // Admin Prompts Management
 export { adminPromptsRouter } from "./admin-prompts";
+
+// Debate Routing
+export { debateRoutingRouter } from "./debate-routing";
+
+// Debate Sessions (Gateway Control Plane)
+export { debateSessionsRouter } from "./debate-sessions";
+
+// Integration Pairings (DM Security)
+export { integrationPairingsRouter } from "./integration-pairings";
+
+// Debate Skills
+export { debateSkillsRouter } from "./debate-skills";
+
+// RAG (Retrieval-Augmented Generation)
+export { ragRouter } from "./rag";
+export { ragAnalyticsRouter } from "./rag-analytics";
+export { ragTemplatesRouter } from "./rag-templates";
+export { ragSuggestionsRouter } from "./rag-suggestions";
+
+// Strategic Intelligence Profiles (Unified)
+export { strategicProfilesRouter } from "./strategic-profiles";

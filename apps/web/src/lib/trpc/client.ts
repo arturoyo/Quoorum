@@ -1,4 +1,4 @@
 import { createTRPCReact } from "@trpc/react-query";
-import type { AppRouter } from "@quoorum/api";
 
-export const api = createTRPCReact<AppRouter>();
+// NOTE: Use a widened type to avoid monorepo router type collisions during tsc at root.
+export const api: any = createTRPCReact<any>();

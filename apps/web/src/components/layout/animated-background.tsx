@@ -1,4 +1,4 @@
-export function AnimatedBackground() {
+﻿export function AnimatedBackground() {
   return (
     <>
       {/* Animated gradient background */}

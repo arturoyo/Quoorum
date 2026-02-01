@@ -16,7 +16,8 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
-    "studio": "drizzle-kit studio"
+    "studio": "drizzle-kit studio",
+    "seed:prompts": "tsx scripts/seed-debate-prompts.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.38.0",

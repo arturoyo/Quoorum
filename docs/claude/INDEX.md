@@ -1,7 +1,7 @@
 # 📚 Claude Documentation - Índice de Navegación
 
 > **Sistema modular de documentación para IA**
-> **Versión:** 1.0.0 | **Fecha:** 26 Ene 2026
+> **Versión:** 1.1.0 | **Fecha:** 31 Ene 2026
 
 ---
 
@@ -57,11 +57,14 @@
 | 09 | **Testing** | [09-testing.md](./09-testing.md) | Unit, E2E, coverage |
 | 10 | **Seguridad** | [10-security.md](./10-security.md) | Validación, autorización, sanitización |
 
-### 🔧 Referencia
+### 🔧 Referencia y Sistemas Especializados
 
 | # | Módulo | Archivo | Contenido |
 |---|--------|---------|-----------|
 | 11 | **FAQ y Comandos** | [11-faq.md](./11-faq.md) | Comandos útiles, troubleshooting |
+| 12 | **AI Systems** | [12-ai-systems.md](./12-ai-systems.md) | Rate limiting, fallback, cost tracking |
+| 13 | **Debate Flow** | [13-debate-flow.md](./13-debate-flow.md) | Flujo de creación de debates (5 fases) |
+| 14 | **AI Prompt Management** | [14-ai-prompt-management.md](./14-ai-prompt-management.md) | Sistema de gestión de prompts IA |
 
 ---
 
@@ -142,6 +145,41 @@
 
 ---
 
+### 🤖 Implementar Features de IA
+
+**Lee (15 min):**
+1. [CLAUDE-CORE.md](../../CLAUDE-CORE.md) - Reglas críticas
+2. [12-ai-systems.md](./12-ai-systems.md) - Rate limiting y fallback
+3. [14-ai-prompt-management.md](./14-ai-prompt-management.md) - Prompts dinámicos
+
+**Verifica:**
+- [ ] Usar getPromptTemplate() (no hardcodear prompts)
+- [ ] Obtener performanceLevel del usuario
+- [ ] Trackear costes de AI
+- [ ] Implementar fallback chains
+
+**Ejemplo:**
+```typescript
+const [userProfile] = await db
+  .select({ performanceLevel: profiles.performanceLevel })
+  .from(profiles)
+  .where(eq(profiles.id, ctx.userId))
+  .limit(1)
+
+const resolved = await getPromptTemplate(
+  'my-prompt',
+  { question, context },
+  userProfile?.performanceLevel || 'balanced'
+)
+
+const response = await aiClient.chat({
+  model: resolved.model,
+  messages: [{ role: 'user', content: resolved.template }]
+})
+```
+
+---
+
 ### 🐛 Debugging / Troubleshooting
 
 **Lee (5 min):**
@@ -184,8 +222,10 @@ Grep pattern="keyword" path="CLAUDE.md" output_mode="content"
 
 ## 📊 ESTADÍSTICAS DEL PROYECTO
 
-**Estado actual (26 Ene 2026):**
+**Estado actual (31 Ene 2026):**
 - ✅ **CLAUDE.md:** 4810 líneas, 56K tokens
+- ✅ **Módulos:** 14 módulos especializados
+- ✅ **AI Prompts:** 60+ prompts dinámicos (3 performance tiers)
 - ✅ **Deuda técnica IA:** 0 (configuración centralizada)
 - ✅ **Tests:** 328 passing (369 total)
 - ✅ **Documentación:** Completa y modularizada
@@ -223,4 +263,4 @@ Grep pattern="keyword" path="CLAUDE.md" output_mode="content"
 
 ---
 
-_Sistema modular de documentación v1.0.0 - 26 Ene 2026_
+_Sistema modular de documentación v1.1.0 - 31 Ene 2026_

@@ -1,4 +1,5 @@
 import { type Metadata } from "next";
+import { cn, styles } from '@/lib/utils'
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,7 @@ import {
   Sparkles,
   Layers,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { CTASection } from "@/components/ui/cta-section";
@@ -150,7 +151,7 @@ export default function FrameworksOverviewPage() {
       <section className="pt-40 pb-24 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm styles.colors.text.secondary mb-8">
               <Layers className="w-4 h-4 text-purple-400" />
               <span>3 Frameworks - 100% Gratis</span>
             </div>
@@ -162,12 +163,12 @@ export default function FrameworksOverviewPage() {
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed mb-8">
+            <p className="text-xl md:text-2xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed mb-8">
               Toma mejores decisiones con frameworks probados y análisis de IA experta.
               Elige el framework adecuado para tu tipo de decisión.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-[var(--theme-text-secondary)]">
+            <div className="flex flex-wrap items-center justify-center gap-8 text-sm styles.colors.text.secondary">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-purple-400" />
                 <span>2-4 minutos</span>
@@ -223,16 +224,16 @@ export default function FrameworksOverviewPage() {
                     <h3 className="text-2xl font-bold text-white mb-3">
                       {framework.name}
                     </h3>
-                    <p className="text-[var(--theme-text-secondary)] mb-6 leading-relaxed">
+                    <p className="styles.colors.text.secondary mb-6 leading-relaxed">
                       {framework.description}
                     </p>
 
                     {/* Features */}
                     <div className="mb-6">
-                      <div className="text-sm font-medium text-[var(--theme-text-secondary)] mb-3">Características:</div>
+                      <div className="text-sm font-medium styles.colors.text.secondary mb-3">Características:</div>
                       <ul className="space-y-2">
                         {framework.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-sm text-[var(--theme-text-secondary)]">
+                          <li key={idx} className="flex items-start gap-2 text-sm styles.colors.text.secondary">
                             <CheckCircle2 className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
                             <span>{feature}</span>
                           </li>
@@ -242,12 +243,12 @@ export default function FrameworksOverviewPage() {
 
                     {/* Use Cases */}
                     <div className="mb-6">
-                      <div className="text-sm font-medium text-[var(--theme-text-secondary)] mb-3">Casos de uso:</div>
+                      <div className="text-sm font-medium styles.colors.text.secondary mb-3">Casos de uso:</div>
                       <div className="flex flex-wrap gap-2">
                         {framework.useCases.map((useCase, idx) => (
                           <span
                             key={idx}
-                            className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-[var(--theme-text-secondary)]"
+                            className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs styles.colors.text.secondary"
                           >
                             {useCase}
                           </span>
@@ -256,7 +257,7 @@ export default function FrameworksOverviewPage() {
                     </div>
 
                     {/* Time */}
-                    <div className="flex items-center gap-2 text-sm text-[var(--theme-text-tertiary)] mb-6">
+                    <div className="flex items-center gap-2 text-sm styles.colors.text.tertiary mb-6">
                       <Clock className="h-4 w-4" />
                       <span>Tiempo promedio: {framework.time}</span>
                     </div>
@@ -285,7 +286,7 @@ export default function FrameworksOverviewPage() {
                       ) : (
                         <Button
                           variant="outline"
-                          className="w-full border-white/10 text-[var(--theme-text-tertiary)]"
+                          className="w-full border-white/10 styles.colors.text.tertiary"
                           disabled
                         >
                           Próximamente
@@ -316,9 +317,9 @@ export default function FrameworksOverviewPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="p-6 text-left text-sm font-semibold text-[var(--theme-text-secondary)]">Situación</th>
-                    <th className="p-6 text-left text-sm font-semibold text-[var(--theme-text-secondary)]">Framework</th>
-                    <th className="p-6 text-left text-sm font-semibold text-[var(--theme-text-secondary)]">Por qué</th>
+                    <th className="p-6 text-left text-sm font-semibold styles.colors.text.secondary">Situación</th>
+                    <th className="p-6 text-left text-sm font-semibold styles.colors.text.secondary">Framework</th>
+                    <th className="p-6 text-left text-sm font-semibold styles.colors.text.secondary">Por qué</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -330,7 +331,7 @@ export default function FrameworksOverviewPage() {
                           {row.framework}
                         </span>
                       </td>
-                      <td className="p-6 text-[var(--theme-text-secondary)] text-sm">{row.reason}</td>
+                      <td className="p-6 styles.colors.text.secondary text-sm">{row.reason}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -345,7 +346,7 @@ export default function FrameworksOverviewPage() {
         <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
           ¿Listo para tomar mejores decisiones?
         </h2>
-        <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+        <p className="text-xl styles.colors.text.secondary mb-10 max-w-2xl mx-auto">
           Elige un framework y obtén análisis de IA experta en minutos. 100% gratis.
         </p>
         <Link href="/debates/new-unified?new=1">

@@ -117,7 +117,6 @@ async function sendInAppNotification(userId: string, debate: DebateResult): Prom
 
   // Save to database using unified notification system
   try {
-    // @ts-expect-error - Dynamic import to avoid circular dependency. Module exists at runtime.
     const { sendForumNotification } = await import('@quoorum/api')
 
     await sendForumNotification({
@@ -393,7 +392,6 @@ export async function notifyQualityIssue(
 
   // Save quality issue notification using unified system
   try {
-    // @ts-expect-error - Dynamic import to avoid circular dependency. Module exists at runtime.
     const { sendForumNotification } = await import('@quoorum/api')
 
     await sendForumNotification({
@@ -440,7 +438,6 @@ export async function notifyIntervention(
 ): Promise<void> {
   // Save intervention notification using unified system
   try {
-    // @ts-expect-error - Dynamic import to avoid circular dependency. Module exists at runtime.
     const { sendForumNotification } = await import('@quoorum/api')
 
     await sendForumNotification({

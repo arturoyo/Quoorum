@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { AnimatedBackground } from "@/components/layout/animated-background";
 import { QuoorumLogoWithText } from "@/components/ui/quoorum-logo";
 

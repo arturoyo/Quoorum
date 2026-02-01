@@ -42,7 +42,7 @@ export default function SettingsPage() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen relative bg-[var(--theme-bg-primary)] flex items-center justify-center">
+      <div className="min-h-screen relative styles.colors.bg.primary flex items-center justify-center">
         <div className="fixed inset-0 -z-10">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10" />
         </div>
@@ -55,7 +55,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-[var(--theme-bg-primary)]">
+    <div className="min-h-screen relative styles.colors.bg.primary">
       {/* Subtle gradient background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5" />

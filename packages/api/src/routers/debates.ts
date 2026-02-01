@@ -20,6 +20,7 @@ import { systemLogger } from "../lib/system-logger";
 import { inngest } from "../lib/inngest-client";
 import { debateSequenceToResult } from "../lib/debate-orchestration-adapter";
 import { trackAICall } from "@quoorum/quoorum/ai-cost-tracking";
+import { injectRAGContext, extractSourceMetadata } from "../lib/rag-integration";
 
 // Import types from debates module
 import type { DebateContext, ContextQuestion, ContextEvaluation, CorporateContext, DebateRecord, DebateMetadata, AdditionalContextItem } from "./debates/types";
@@ -406,6 +407,8 @@ export const debatesRouter = router({
         frameworkId: z.string().uuid().optional(), // ID del framework de decisión seleccionado (FODA, ROI, Delphi, etc.)
         scenarioId: z.string().uuid().optional(), // ID del escenario preconfigurado (Decision Playbook)
         scenarioVariables: z.record(z.string()).optional(), // Variables para el prompt template del escenario (ej: { user_input: "...", context: "..." })
+        performanceLevel: z.enum(['economic', 'balanced', 'performance']).optional().default('balanced'), // Just-in-Time performance tier selection
+        enableRAG: z.boolean().optional().default(true), // Enable RAG document search (default: true)
         assessment: z
           .object({
             overallScore: z.number(),
@@ -552,15 +555,64 @@ export const debatesRouter = router({
         .join('\n\n---\n\n');
 
       // Combine user context with provided context
-      const combinedContext = userContextContent 
-        ? (input.context 
+      const combinedContext = userContextContent
+        ? (input.context
           ? `${userContextContent}\n\n---\n\n## Contexto Adicional del Usuario\n\n${input.context}`
           : userContextContent)
         : input.context || undefined;
 
+      // ============================================================================
+      // RAG INTEGRATION - Search for relevant documents
+      // ============================================================================
+      let ragSources: Array<{ documentName: string; similarity: number; chunkId?: string }> = [];
+      let finalContext = combinedContext;
+
+      if (input.enableRAG !== false) {
+        try {
+          logger.info('[debates.create] Injecting RAG context', {
+            question: finalQuestion.substring(0, 100),
+            userId: profileId,
+            companyId: profile.companyId,
+          });
+
+          const ragResult = await injectRAGContext(
+            finalQuestion,
+            combinedContext,
+            {
+              userId: profileId,
+              companyId: profile.companyId || undefined,
+              limit: 5,
+              minSimilarity: 0.5,
+              hybridSearch: true,
+              enabled: true,
+            }
+          );
+
+          if (ragResult.ragUsed && ragResult.sourcesCount > 0) {
+            finalContext = ragResult.enrichedContext;
+            ragSources = extractSourceMetadata(ragResult.ragContext);
+
+            logger.info('[debates.create] RAG context injected successfully', {
+              sourcesCount: ragResult.sourcesCount,
+              contextLength: finalContext.length,
+              searchDuration: ragResult.searchMetrics?.duration,
+            });
+          } else {
+            logger.info('[debates.create] No RAG sources found, using original context');
+          }
+        } catch (ragError) {
+          // RAG error - log but continue with original context
+          logger.warn('[debates.create] RAG injection failed, continuing without RAG', {
+            error: ragError instanceof Error ? ragError.message : String(ragError),
+          });
+        }
+      } else {
+        logger.info('[debates.create] RAG disabled for this debate');
+      }
+
       // Build context object
       const debateContext: DebateContext = {
-        background: combinedContext,
+        background: finalContext, // Use RAG-enriched context if available
         constraints: [],
       };
 
@@ -603,6 +655,8 @@ export const debatesRouter = router({
           .set({
             context: debateContext,
             status: "pending",
+            performanceLevel: input.performanceLevel || 'balanced', // Just-in-Time performance selection
+            ragSources: ragSources.length > 0 ? ragSources : null, // RAG sources used
             metadata: {
               expertCount: input.expertCount,
               maxRounds: input.maxRounds,
@@ -610,6 +664,8 @@ export const debatesRouter = router({
               title: existingTitle, // Preserve existing title
               createdViaContextAssessment: true,
               pattern: input.pattern || 'simple', // Save selected pattern
+              ragEnabled: input.enableRAG !== false,
+              ragSourcesCount: ragSources.length,
             },
             updatedAt: new Date(),
           })
@@ -641,12 +697,16 @@ export const debatesRouter = router({
             mode: "dynamic",
             status: "pending",
             visibility: "private",
+            performanceLevel: input.performanceLevel || 'balanced', // Just-in-Time performance selection
+            ragSources: ragSources.length > 0 ? ragSources : null, // RAG sources used
             metadata: {
               expertCount: input.expertCount,
               maxRounds: input.maxRounds,
               category: input.category,
               scenarioId: input.scenarioId, // Store scenario ID in metadata
               scenarioName: appliedScenario?.scenarioName,
+              ragEnabled: input.enableRAG !== false,
+              ragSourcesCount: ragSources.length,
             },
           })
           .returning();
@@ -1377,7 +1437,7 @@ export const debatesRouter = router({
         systemPrompt: '',
         temperature: 0.7,
         provider: 'google' as const,
-        modelId: 'gemini-2.0-flash-exp',
+        modelId: 'gemini-2.0-flash',
       })) || []
 
       // Export
@@ -2088,7 +2148,7 @@ export const debatesRouter = router({
         const response = await aiClient.generate(
           `Imagina que tienes que crear un prompt para deliberar sobre lo siguiente:\n\n${input.contextInfo}\n\nCrea un prompt claro, conciso y bien estructurado que capture toda la información esencial para que los expertos puedan deliberar efectivamente. El prompt debe ser directo y enfocado en la pregunta principal y el contexto clave.`,
           {
-            modelId: "gemini-2.0-flash-exp", // Free tier
+            modelId: "gemini-2.0-flash", // Free tier
             temperature: 0.7,
             maxTokens: 500,
           }
@@ -2101,7 +2161,7 @@ export const debatesRouter = router({
           userId: ctx.userId,
           operationType: 'debate_phase_estrategia',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -2122,7 +2182,7 @@ export const debatesRouter = router({
           userId: ctx.userId,
           operationType: 'debate_phase_estrategia',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,
@@ -2242,30 +2302,28 @@ export const debatesRouter = router({
         // Use provided context or build it fresh
         const fullContext = input.contextText || (await buildFullUserContext(ctx.userId));
 
-        // Construir mensaje de contexto para la IA
-        const contextMessage = fullContext
-          ? `\n\n[WARN] CONTEXTO EXISTENTE DEL USUARIO (NO PREGUNTES ESTO):
+        // Get user's performance level
+        const [userProfile] = await db
+          .select({ performanceLevel: profiles.performanceLevel })
+          .from(profiles)
+          .where(eq(profiles.id, ctx.userId))
+          .limit(1);
 
-${fullContext}
+        const performanceLevel = (userProfile?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced';
 
-IMPORTANTE: NO generes preguntas sobre información que YA está en el contexto existente. En su lugar, PROFUNDIZA en aspectos específicos relacionados con la pregunta del usuario que NO estén cubiertos en el contexto.`
-          : "";
+        // Get prompt template from new system
+        const { getPromptTemplate } = await import('@quoorum/quoorum/lib/prompt-manager');
+        const resolvedPrompt = await getPromptTemplate(
+          'suggest-initial-questions',
+          {
+            question: input.question,
+            context: fullContext || 'Sin contexto adicional disponible',
+          },
+          performanceLevel
+        );
 
-        // Get prompt from DB or use fallback
-        const fallbackPrompt = `Eres un experto en recopilar contexto para decisiones estratégicas.
-
-OBJETIVO: Generar 3-4 preguntas ESPECÍFICAS, DINÁMICAS y ÚNICAS basadas en la pregunta concreta del usuario.
-
-[WARN] REGLAS CRÍTICAS:
-1. Las preguntas DEBEN ser ESPECÍFICAS a la pregunta del usuario, NO genéricas
-2. Cada pregunta debe ser ÚNICA y diferente de las otras (no repetir el mismo concepto)
-3. Varía el enfoque: una puede ser sobre recursos, otra sobre timing, otra sobre métricas
-4. NO uses la misma pregunta con diferentes palabras`;
-        
-        const systemPrompt = await getSystemPrompt(
-          'debates.generateCriticalQuestions',
-          fallbackPrompt
-        ) + `
+        const systemPrompt = resolvedPrompt.systemPrompt || resolvedPrompt.template.split('\n\n')[0];
+        const userPrompt = resolvedPrompt.template + `
 
 OBJETIVO: Generar 3-4 preguntas ESPECÍFICAS, DINÁMICAS y ÚNICAS basadas en la pregunta concreta del usuario.
 
@@ -2346,9 +2404,9 @@ RESPONDE JSON (sin markdown):
     "options": ["Op1", "Op2"], // Solo si questionType === "multiple_choice"
     "expectedAnswerType": "short" | "long" // Solo si questionType === "free_text"
   }
-]`;
+]
 
-        const userPrompt = `Pregunta del usuario: "${input.question}"${contextMessage}
+Pregunta del usuario: "${input.question}"${contextMessage}
 
 ANÁLISIS REQUERIDO:
 1. Analiza la pregunta del usuario para entender qué tipo de decisión es
@@ -2361,9 +2419,9 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
           systemPrompt,
           userPrompt,
           {
-            modelId: "gemini-2.0-flash-exp",
-            temperature: 0.9, // Aumentado para más creatividad y especificidad
-            maxTokens: 1200, // Aumentado para permitir preguntas más detalladas
+            modelId: resolvedPrompt.model,
+            temperature: resolvedPrompt.temperature,
+            maxTokens: resolvedPrompt.maxTokens,
             responseFormat: "json",
           }
         );
@@ -2374,8 +2432,9 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
         void trackAICall({
           userId: ctx.userId,
           operationType: 'context_assessment',
-          provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          provider: resolvedPrompt.model.includes('gpt') ? 'openai' :
+                    resolvedPrompt.model.includes('claude') ? 'anthropic' : 'google',
+          modelId: resolvedPrompt.model,
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -2404,7 +2463,7 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,
@@ -2511,7 +2570,28 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
         const { getAIClient } = await import("@quoorum/ai");
         const aiClient = getAIClient();
 
-        const systemPrompt = `Eres un validador experto de respuestas en contexto de decisiones estratégicas.
+        // Get user's performance level
+        const [userProfile] = await db
+          .select({ performanceLevel: profiles.performanceLevel })
+          .from(profiles)
+          .where(eq(profiles.id, ctx.userId))
+          .limit(1);
+
+        const performanceLevel = (userProfile?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced';
+
+        // Get prompt template from new system
+        const { getPromptTemplate } = await import('@quoorum/quoorum/lib/prompt-manager');
+        const resolvedPrompt = await getPromptTemplate(
+          'validate-answer',
+          {
+            question: input.question,
+            answer: input.answer,
+            previousAnswers: input.previousAnswers ? JSON.stringify(input.previousAnswers) : '',
+          },
+          performanceLevel
+        );
+
+        const systemPrompt = resolvedPrompt.systemPrompt || `Eres un validador experto de respuestas en contexto de decisiones estratégicas.
 
 TAREA: Evaluar si una respuesta es RELEVANTE y ÚTIL para la pregunta. Sé permisivo con respuestas que expresan análisis o búsqueda de información.
 
@@ -2557,9 +2637,9 @@ RESPONDE JSON:
           systemPrompt,
           `Pregunta: "${input.question}"\n\nRespuesta del usuario: "${input.answer}"${previousContext}\n\nEvalúa la relevancia, utilidad y calidad de esta respuesta.`,
           {
-            modelId: "gemini-2.0-flash-exp",
-            temperature: 0.3, // Baja temperatura para validación más estricta
-            maxTokens: 600,
+            modelId: resolvedPrompt.model,
+            temperature: resolvedPrompt.temperature,
+            maxTokens: resolvedPrompt.maxTokens,
             responseFormat: "json",
           }
         );
@@ -2599,8 +2679,9 @@ RESPONDE JSON:
         void trackAICall({
           userId: ctx.userId,
           operationType: 'context_assessment',
-          provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          provider: resolvedPrompt.model.includes('gpt') ? 'openai' :
+                    resolvedPrompt.model.includes('claude') ? 'anthropic' : 'google',
+          modelId: resolvedPrompt.model,
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -2633,7 +2714,7 @@ RESPONDE JSON:
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,
@@ -2749,6 +2830,10 @@ RESPONDE JSON:
 
       const startTime = Date.now();
 
+      // Declare model info outside try/catch for error tracking
+      let modelId = 'gemini-2.0-flash'; // fallback
+      let modelProvider: 'openai' | 'anthropic' | 'google' = 'google';
+
       try {
         const { getAIClient } = await import("@quoorum/ai");
         const aiClient = getAIClient();
@@ -2761,7 +2846,35 @@ RESPONDE JSON:
           ? `${contextSummary}\n\n--- CONTEXTO DE INTERNET ---\n${input.internetContext}`
           : contextSummary;
 
-        const systemPrompt = `Eres evaluador experto de contexto para decisiones estratégicas.
+        // Get user's performance level
+        const [userProfile] = await db
+          .select({ performanceLevel: profiles.performanceLevel })
+          .from(profiles)
+          .where(eq(profiles.id, ctx.userId))
+          .limit(1);
+
+        const performanceLevel = (userProfile?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced';
+
+        // Get prompt template from new system
+        const { getPromptTemplate } = await import('@quoorum/quoorum/lib/prompt-manager');
+        const resolvedPrompt = await getPromptTemplate(
+          'evaluate-context-quality',
+          {
+            question: input.question,
+            answers: fullContextSummary,
+            currentPhase: input.currentPhase,
+            internetContext: input.internetContext || '',
+            totalAnswers: String(totalAnswers),
+          },
+          performanceLevel
+        );
+
+        // Store model info for error tracking
+        modelId = resolvedPrompt.model;
+        modelProvider = resolvedPrompt.model.includes('gpt') ? 'openai' :
+                        resolvedPrompt.model.includes('claude') ? 'anthropic' : 'google';
+
+        const systemPrompt = resolvedPrompt.systemPrompt || `Eres evaluador experto de contexto para decisiones estratégicas.
 
 TAREA:
 1. Evalúa calidad del contexto (score 0-100)
@@ -2801,9 +2914,9 @@ RESPONDE JSON:
           systemPrompt,
           `Pregunta: "${input.question}"\n\nContexto:\n${fullContextSummary}\n\nEvalúa y genera 2-3 follow-ups solo si es necesario.`,
           {
-            modelId: "gemini-2.0-flash-exp",
-            temperature: 0.6,
-            maxTokens: 1000,
+            modelId: resolvedPrompt.model,
+            temperature: resolvedPrompt.temperature,
+            maxTokens: resolvedPrompt.maxTokens,
             responseFormat: "json",
           }
         );
@@ -2822,8 +2935,9 @@ RESPONDE JSON:
         void trackAICall({
           userId: ctx.userId,
           operationType: 'context_assessment',
-          provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          provider: resolvedPrompt.model.includes('gpt') ? 'openai' :
+                    resolvedPrompt.model.includes('claude') ? 'anthropic' : 'google',
+          modelId: resolvedPrompt.model,
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -2847,8 +2961,8 @@ RESPONDE JSON:
         void trackAICall({
           userId: ctx.userId,
           operationType: 'context_assessment',
-          provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          provider: modelProvider,
+          modelId: modelId,
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,
@@ -2944,7 +3058,7 @@ ${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes l
           systemPrompt,
           userPrompt,
           {
-            modelId: "gemini-2.0-flash-exp",
+            modelId: "gemini-2.0-flash",
             temperature: 0.7,
             maxTokens: 1000,
             responseFormat: "json",
@@ -3008,7 +3122,7 @@ ${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes l
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -3029,7 +3143,7 @@ ${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes l
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,
@@ -3116,7 +3230,7 @@ IMPORTANTE:
           systemPrompt,
           userPrompt,
           {
-            modelId: "gemini-2.0-flash-exp",
+            modelId: "gemini-2.0-flash",
             temperature: 0.9, // Alta creatividad para respuestas únicas
             maxTokens: 800,
             responseFormat: "json",
@@ -3174,7 +3288,7 @@ IMPORTANTE:
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -3195,7 +3309,7 @@ IMPORTANTE:
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,
@@ -3413,7 +3527,7 @@ RESPONDE JSON (sin markdown):
           systemPrompt,
           "Genera un prompt personalizado basado en el contexto del usuario.",
           {
-            modelId: "gemini-2.0-flash-exp",
+            modelId: "gemini-2.0-flash",
             temperature: 0.8,
             maxTokens: 200,
           }
@@ -3430,7 +3544,7 @@ RESPONDE JSON (sin markdown):
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -3455,7 +3569,7 @@ RESPONDE JSON (sin markdown):
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,
@@ -3562,7 +3676,7 @@ NOTA: No hay contexto específico disponible. El usuario debe configurar su Perf
           systemPrompt,
           userPrompt,
           {
-            modelId: "gemini-2.0-flash-exp", // Free tier
+            modelId: "gemini-2.0-flash", // Free tier
             temperature: 0.8, // Creative but focused
             maxTokens: 1000,
           }
@@ -3594,7 +3708,7 @@ NOTA: No hay contexto específico disponible. El usuario debe configurar su Perf
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: response.usage?.promptTokens || 0,
           completionTokens: response.usage?.completionTokens || 0,
           latencyMs: Date.now() - startTime,
@@ -3615,7 +3729,7 @@ NOTA: No hay contexto específico disponible. El usuario debe configurar su Perf
           userId: ctx.userId,
           operationType: 'context_assessment',
           provider: 'google',
-          modelId: 'gemini-2.0-flash-exp',
+          modelId: 'gemini-2.0-flash',
           promptTokens: 0,
           completionTokens: 0,
           latencyMs: Date.now() - startTime,
@@ -3755,6 +3869,15 @@ async function runDebateAsync(
   let refundIssued = false
 
   try {
+    // Fetch debate's performance level (Just-in-Time selection)
+    const [debateRecord] = await db
+      .select({ performanceLevel: quoorumDebates.performanceLevel })
+      .from(quoorumDebates)
+      .where(eq(quoorumDebates.id, debateId))
+      .limit(1)
+
+    const performanceLevel = (debateRecord?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced'
+
     logger.info("Starting debate execution", {
       debateId,
       userId,
@@ -3762,6 +3885,7 @@ async function runDebateAsync(
       hasContext: !!context,
       executionStrategy,
       pattern,
+      performanceLevel, // Log selected performance level
       selectedExpertIds: selectedExpertIds?.length || 0,
       selectedDepartmentIds: selectedDepartmentIds?.length || 0,
     });
@@ -3907,6 +4031,7 @@ async function runDebateAsync(
       sessionId: debateId,
       question,
       context: loadedContext,
+      performanceLevel, // Just-in-Time performance tier selection
       executionStrategy: finalExecutionStrategy, // Pass execution strategy (sequential: agents see each other, parallel: faster but no same-round responses)
       selectedExpertIds: selectedExpertIds, // Pass selected custom experts if provided
       corporateContext: corporateContext, // Pass corporate intelligence (4-layer context injection)
@@ -4152,7 +4277,7 @@ async function runDebateAsync(
           systemPrompt: "",
           temperature: 0.7,
           provider: "google" as const,
-          modelId: "gemini-2.0-flash-exp",
+          modelId: "gemini-2.0-flash",
         }));
 
         await notifyDebateComplete(

@@ -146,12 +146,19 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
   // Load editing scenario data
   useEffect(() => {
     if (editingScenarioData) {
+      const tokenOptimizationDefaults = editingScenarioData.tokenOptimization ?? { enabled: true, maxTokensPerMessage: 0, compressionEnabled: false }
+      const tokenOptimization = {
+        enabled: tokenOptimizationDefaults.enabled ?? true,
+        maxTokensPerMessage: tokenOptimizationDefaults.maxTokensPerMessage ?? 0,
+        compressionEnabled: tokenOptimizationDefaults.compressionEnabled ?? false,
+      }
+
       setFormData({
         name: editingScenarioData.name,
         description: editingScenarioData.description,
         shortDescription: editingScenarioData.shortDescription || '',
-        segment: editingScenarioData.segment,
-        status: editingScenarioData.status,
+        segment: editingScenarioData.segment as 'entrepreneur' | 'sme' | 'corporate',
+        status: editingScenarioData.status as 'draft' | 'active' | 'archived',
         expertIds: editingScenarioData.expertIds || [],
         requiresDepartments: editingScenarioData.requiresDepartments || false,
         departmentIds: editingScenarioData.departmentIds || [],
@@ -160,7 +167,7 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
         promptVariables: editingScenarioData.promptVariables || {},
         successMetrics: editingScenarioData.successMetrics || [],
         agentBehaviorOverrides: editingScenarioData.agentBehaviorOverrides || {},
-        tokenOptimization: editingScenarioData.tokenOptimization || { enabled: true },
+        tokenOptimization,
         generateCertificate: editingScenarioData.generateCertificate ?? true,
         certificateTemplate: editingScenarioData.certificateTemplate || '',
         minTier: editingScenarioData.minTier || 'free',
@@ -269,11 +276,11 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--theme-text-primary)] flex items-center gap-2">
+          <h2 className="text-2xl font-bold styles.colors.text.primary flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-purple-400" />
             Gestión de Escenarios
           </h2>
-          <p className="text-sm text-[var(--theme-text-secondary)] mt-1">
+          <p className="text-sm styles.colors.text.secondary mt-1">
             Administra los Decision Playbooks (Escenarios)
           </p>
         </div>
@@ -291,25 +298,25 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
       </div>
 
       {/* Filters */}
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardContent className="pt-6">
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <Label className="text-[var(--theme-text-secondary)]">Buscar</Label>
+              <Label className="styles.colors.text.secondary">Buscar</Label>
               <div className="relative mt-2">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--theme-text-secondary)]" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 styles.colors.text.secondary" />
                 <Input
                   placeholder="Buscar escenarios..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                  className="pl-10 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                 />
               </div>
             </div>
             <div>
-              <Label className="text-[var(--theme-text-secondary)]">Segmento</Label>
+              <Label className="styles.colors.text.secondary">Segmento</Label>
               <Select value={segmentFilter} onValueChange={setSegmentFilter}>
-                <SelectTrigger className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                <SelectTrigger className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -321,9 +328,9 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
               </Select>
             </div>
             <div>
-              <Label className="text-[var(--theme-text-secondary)]">Estado</Label>
+              <Label className="styles.colors.text.secondary">Estado</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                <SelectTrigger className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -339,19 +346,19 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
       </Card>
 
       {/* Scenarios Table */}
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">
+          <CardTitle className="styles.colors.text.primary">
             Escenarios ({scenarios.length})
           </CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardDescription className="styles.colors.text.secondary">
             Lista de todos los escenarios configurados
           </CardDescription>
         </CardHeader>
         <CardContent>
           {scenarios.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-[var(--theme-text-secondary)]">
+              <p className="styles.colors.text.secondary">
                 No se encontraron escenarios
               </p>
             </div>
@@ -359,25 +366,25 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[var(--theme-border)]">
-                    <TableHead className="text-[var(--theme-text-primary)]">Nombre</TableHead>
-                    <TableHead className="text-[var(--theme-text-primary)]">Segmento</TableHead>
-                    <TableHead className="text-[var(--theme-text-primary)]">Estado</TableHead>
-                    <TableHead className="text-[var(--theme-text-primary)]">Expertos</TableHead>
-                    <TableHead className="text-[var(--theme-text-primary)]">Usos</TableHead>
-                    <TableHead className="text-[var(--theme-text-primary)]">Acciones</TableHead>
+                  <TableRow className="styles.colors.border.default">
+                    <TableHead className="styles.colors.text.primary">Nombre</TableHead>
+                    <TableHead className="styles.colors.text.primary">Segmento</TableHead>
+                    <TableHead className="styles.colors.text.primary">Estado</TableHead>
+                    <TableHead className="styles.colors.text.primary">Expertos</TableHead>
+                    <TableHead className="styles.colors.text.primary">Usos</TableHead>
+                    <TableHead className="styles.colors.text.primary">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {scenarios.map((scenario) => {
                     const SegmentIcon = segmentIcons[scenario.segment]
                     return (
-                      <TableRow key={scenario.id} className="border-[var(--theme-border)]">
-                        <TableCell className="text-[var(--theme-text-primary)]">
+                      <TableRow key={scenario.id} className="styles.colors.border.default">
+                        <TableCell className="styles.colors.text.primary">
                           <div>
                             <div className="font-medium">{scenario.name}</div>
                             {scenario.shortDescription && (
-                              <div className="text-sm text-[var(--theme-text-secondary)]">
+                              <div className="text-sm styles.colors.text.secondary">
                                 {scenario.shortDescription}
                               </div>
                             )}
@@ -394,10 +401,10 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
                             {statusLabels[scenario.status]}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-[var(--theme-text-secondary)]">
+                        <TableCell className="styles.colors.text.secondary">
                           {scenario.expertIds?.length || 0} expertos
                         </TableCell>
-                        <TableCell className="text-[var(--theme-text-secondary)]">
+                        <TableCell className="styles.colors.text.secondary">
                           {scenario.usageCount || 0}
                         </TableCell>
                         <TableCell>
@@ -432,12 +439,12 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto styles.colors.bg.secondary styles.colors.border.default">
           <DialogHeader>
-            <DialogTitle className="text-[var(--theme-text-primary)]">
+            <DialogTitle className="styles.colors.text.primary">
               {editingScenario ? 'Editar Escenario' : 'Nuevo Escenario'}
             </DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-secondary)]">
+            <DialogDescription className="styles.colors.text.secondary">
               {editingScenario
                 ? 'Modifica la configuración del escenario'
                 : 'Crea un nuevo Decision Playbook'}
@@ -448,23 +455,26 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
             {/* Basic Info */}
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label className="text-[var(--theme-text-secondary)]">Nombre *</Label>
+                <Label className="styles.colors.text.secondary">Nombre *</Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                  className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                   placeholder="Ej: Validación de Idea & Product-Market Fit"
                 />
               </div>
               <div>
-                <Label className="text-[var(--theme-text-secondary)]">Segmento *</Label>
+                <Label className="styles.colors.text.secondary">Segmento *</Label>
                 <Select
                   value={formData.segment}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, segment: value as any })
+                    setFormData({
+                      ...formData,
+                      segment: value as 'entrepreneur' | 'sme' | 'corporate',
+                    })
                   }
                 >
-                  <SelectTrigger className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                  <SelectTrigger className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -477,51 +487,56 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
             </div>
 
             <div>
-              <Label className="text-[var(--theme-text-secondary)]">Descripción Corta</Label>
+              <Label className="styles.colors.text.secondary">Descripción Corta</Label>
               <Input
                 value={formData.shortDescription}
                 onChange={(e) =>
                   setFormData({ ...formData, shortDescription: e.target.value })
                 }
-                className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                 placeholder="Breve descripción (máx. 500 caracteres)"
                 maxLength={500}
               />
             </div>
 
             <div>
-              <Label className="text-[var(--theme-text-secondary)]">Descripción Completa *</Label>
+              <Label className="styles.colors.text.secondary">Descripción Completa *</Label>
               <Textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] min-h-[100px]"
+                className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary min-h-[100px]"
                 placeholder="Descripción detallada del escenario..."
               />
             </div>
 
             <div>
-              <Label className="text-[var(--theme-text-secondary)]">Master Prompt Template *</Label>
+              <Label className="styles.colors.text.secondary">Master Prompt Template *</Label>
               <Textarea
                 value={formData.masterPromptTemplate}
                 onChange={(e) =>
                   setFormData({ ...formData, masterPromptTemplate: e.target.value })
                 }
-                className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] min-h-[200px] font-mono text-sm"
+                className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary min-h-[200px] font-mono text-sm"
                 placeholder="Template con variables {{user_input}}, {{context}}, etc."
               />
-              <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">
+              <p className="text-xs styles.colors.text.tertiary mt-1">
                 Usa variables como {'{{user_input}}'}, {'{{context}}'}, {'{{#if var}}...{{/if}}'}
               </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label className="text-[var(--theme-text-secondary)]">Estado</Label>
+                <Label className="styles.colors.text.secondary">Estado</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value) => setFormData({ ...formData, status: value as any })}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      status: value as 'draft' | 'active' | 'archived',
+                    })
+                  }
                 >
-                  <SelectTrigger className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                  <SelectTrigger className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -532,12 +547,12 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
                 </Select>
               </div>
               <div>
-                <Label className="text-[var(--theme-text-secondary)]">Tier Mínimo</Label>
+                <Label className="styles.colors.text.secondary">Tier Mínimo</Label>
                 <Select
                   value={formData.minTier}
                   onValueChange={(value) => setFormData({ ...formData, minTier: value })}
                 >
-                  <SelectTrigger className="mt-2 bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                  <SelectTrigger className="mt-2 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -556,11 +571,11 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
                 id="isPublic"
                 checked={formData.isPublic}
                 onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-                className="rounded border-[var(--theme-border)]"
+                className="rounded styles.colors.border.default"
                 aria-label="Escenario público"
                 title="Escenario público (visible para todos los usuarios)"
               />
-              <Label htmlFor="isPublic" className="text-[var(--theme-text-secondary)]">
+              <Label htmlFor="isPublic" className="styles.colors.text.secondary">
                 Escenario público (visible para todos los usuarios)
               </Label>
             </div>
@@ -574,7 +589,7 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
                 resetForm()
                 setEditingScenario(null)
               }}
-              className="border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+              className="styles.colors.border.default styles.colors.text.primary"
             >
               Cancelar
             </Button>

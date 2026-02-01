@@ -1,4 +1,19 @@
-import type { AIConfig, ExpertConfig } from "@quoorum/ai";
+// Local type definitions to avoid import issues
+export interface AIConfig {
+  provider: string;
+  model: string;
+  apiKey?: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
+export interface ExpertConfig {
+  id: string;
+  name: string;
+  expertise: string;
+  systemPrompt: string;
+  aiConfig: AIConfig;
+}
 
 export interface DeliberationConfig {
   id: string;

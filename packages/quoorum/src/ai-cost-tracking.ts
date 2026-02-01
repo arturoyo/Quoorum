@@ -6,7 +6,7 @@
 
 import { db } from '@quoorum/db'
 import { aiCostTracking, type AIOperationType, type AIProvider } from '@quoorum/db/schema'
-import { logger } from './logger'
+import { quoorumLogger as logger } from './logger'
 
 // ============================================================================
 // PRICING DATA (cost per 1M tokens)
@@ -26,7 +26,7 @@ export const AI_PRICING = {
     'claude-3-5-haiku-20241022': { prompt: 0.8, completion: 4.0 },
   },
   google: {
-    'gemini-2.0-flash-exp': { prompt: 0, completion: 0 }, // FREE (for now)
+    'gemini-2.0-flash': { prompt: 0, completion: 0 }, // FREE (for now)
     'gemini-1.5-pro': { prompt: 1.25, completion: 5.0 },
     'gemini-1.5-flash': { prompt: 0.075, completion: 0.3 },
   },
@@ -78,7 +78,10 @@ export function calculateAICost(
     if (similarModelKey) {
       pricing = providerPricing[similarModelKey as keyof typeof providerPricing]
       logger.info(`[AI Cost Tracking] Using similar model pricing: ${similarModelKey} for ${modelId}`)
-    } else {
+    }
+
+    // Final check: if still no pricing found, return zero cost
+    if (!pricing) {
       logger.warn(`[AI Cost Tracking] Unknown model: ${modelId} for provider ${provider}`, { provider, modelId })
       return {
         costUsdPrompt: 0,
@@ -137,7 +140,7 @@ export interface TrackAICallParams {
  *   userId: ctx.userId,
  *   operationType: 'context_assessment',
  *   provider: 'google',
- *   modelId: 'gemini-2.0-flash-exp',
+ *   modelId: 'gemini-2.0-flash',
  *   promptTokens: 1500,
  *   completionTokens: 800,
  *   latencyMs: Date.now() - startTime,

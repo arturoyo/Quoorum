@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { SettingsContent } from './settings-content'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface SettingsModalProps {
   open: boolean
@@ -26,7 +26,7 @@ export function SettingsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          'max-w-5xl max-h-[80vh] w-[95vw] sm:w-full overflow-hidden !p-0 bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] backdrop-blur-xl border-[var(--theme-border)]',
+          'max-w-5xl max-h-[80vh] w-[95vw] sm:w-full overflow-hidden !p-0 styles.colors.bg.secondary styles.colors.text.primary backdrop-blur-xl styles.colors.border.default',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'

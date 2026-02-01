@@ -132,17 +132,17 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-[var(--theme-text-primary)]">API Keys</h1>
-        <p className="text-[var(--theme-text-secondary)]">
+        <h1 className="text-3xl font-bold mb-2 styles.colors.text.primary">API Keys</h1>
+        <p className="styles.colors.text.secondary">
           Gestiona tus claves de acceso a la API de Quoorum
         </p>
       </div>
 
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-[var(--theme-text-primary)]">Tus API Keys</CardTitle>
-            <CardDescription className="text-[var(--theme-text-secondary)]">
+            <CardTitle className="styles.colors.text.primary">Tus API Keys</CardTitle>
+            <CardDescription className="styles.colors.text.secondary">
               Crea y administra tus claves de acceso
             </CardDescription>
           </div>
@@ -153,12 +153,12 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
                 Nueva API Key
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+            <DialogContent className="styles.colors.bg.secondary styles.colors.border.default">
               <DialogHeader>
-                <DialogTitle className="text-[var(--theme-text-primary)]">
+                <DialogTitle className="styles.colors.text.primary">
                   Crear Nueva API Key
                 </DialogTitle>
-                <DialogDescription className="text-[var(--theme-text-secondary)]">
+                <DialogDescription className="styles.colors.text.secondary">
                   Dale un nombre descriptivo a tu API key para identificarla
                   fácilmente.
                 </DialogDescription>
@@ -186,13 +186,13 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
                       type={showKey ? 'text' : 'password'}
                       value={newKey}
                       readOnly
-                      className="bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)] text-[var(--theme-text-primary)] font-mono"
+                      className="styles.colors.bg.tertiary styles.colors.border.default styles.colors.text.primary font-mono"
                     />
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => setShowKey(!showKey)}
-                      className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                      className="styles.colors.text.tertiary hover:styles.colors.text.primary"
                     >
                       {showKey ? (
                         <EyeOff className="h-4 w-4" />
@@ -204,7 +204,7 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
                       variant="ghost"
                       size="icon"
                       onClick={() => copyToClipboard(newKey)}
-                      className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                      className="styles.colors.text.tertiary hover:styles.colors.text.primary"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -223,7 +223,7 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
                 <>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label htmlFor="keyName" className="text-[var(--theme-text-secondary)]">
+                      <Label htmlFor="keyName" className="styles.colors.text.secondary">
                         Nombre
                       </Label>
                       <Input
@@ -231,7 +231,7 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
                         placeholder="Ej: Production API"
                         value={newKeyName}
                         onChange={(e) => setNewKeyName(e.target.value)}
-                        className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                        className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                       />
                     </div>
                   </div>
@@ -260,9 +260,9 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
         <CardContent>
           {apiKeys && apiKeys.length === 0 ? (
             <div className="text-center py-8">
-              <Key className="w-12 h-12 text-[var(--theme-text-tertiary)] mx-auto mb-4" />
-              <p className="text-[var(--theme-text-tertiary)]">No tienes API keys aún</p>
-              <p className="text-[var(--theme-text-tertiary)] text-sm mt-1">
+              <Key className="w-12 h-12 styles.colors.text.tertiary mx-auto mb-4" />
+              <p className="styles.colors.text.tertiary">No tienes API keys aún</p>
+              <p className="styles.colors.text.tertiary text-sm mt-1">
                 Crea una para empezar a usar la API de Quoorum
               </p>
             </div>
@@ -271,16 +271,16 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
               {apiKeys?.map((key) => (
                 <div
                   key={key.id}
-                  className="flex items-center justify-between p-4 rounded-lg bg-[var(--theme-bg-tertiary)]"
+                  className="flex items-center justify-between p-4 rounded-lg styles.colors.bg.tertiary"
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-[var(--theme-text-primary)] font-medium">{key.name}</p>
-                      <Badge className="bg-gray-500/20 text-[var(--theme-text-tertiary)]">
+                      <p className="styles.colors.text.primary font-medium">{key.name}</p>
+                      <Badge className="bg-gray-500/20 styles.colors.text.tertiary">
                         {key.prefix}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-[var(--theme-text-tertiary)]">
+                    <div className="flex items-center gap-4 mt-1 text-sm styles.colors.text.tertiary">
                       <span>
                         Creada:{' '}
                         {new Date(key.createdAt).toLocaleDateString('es-ES')}
@@ -309,26 +309,26 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Documentación API</CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardTitle className="styles.colors.text.primary">Documentación API</CardTitle>
+          <CardDescription className="styles.colors.text.secondary">
             Aprende a usar la API de Quoorum
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="p-4 rounded-lg bg-[var(--theme-bg-tertiary)] font-mono text-sm">
-            <p className="text-[var(--theme-text-tertiary)]"># Ejemplo de uso</p>
+          <div className="p-4 rounded-lg styles.colors.bg.tertiary font-mono text-sm">
+            <p className="styles.colors.text.tertiary"># Ejemplo de uso</p>
             <p className="text-purple-400 mt-2">
               curl https://api.quoorum.ai/v1/debates \
             </p>
-            <p className="text-[var(--theme-text-secondary)] pl-4">
+            <p className="styles.colors.text.secondary pl-4">
               -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
             </p>
-            <p className="text-[var(--theme-text-secondary)] pl-4">
+            <p className="styles.colors.text.secondary pl-4">
               -H &quot;Content-Type: application/json&quot; \
             </p>
-            <p className="text-[var(--theme-text-secondary)] pl-4">
+            <p className="styles.colors.text.secondary pl-4">
               -d &apos;&#123;&quot;question&quot;: &quot;...&quot;&#125;&apos;
             </p>
           </div>
@@ -336,7 +336,7 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
           <Link href="/docs/api" className="block mt-4">
             <Button
               variant="outline"
-              className="w-full border-[var(--theme-border)] text-[var(--theme-text-primary)] hover:bg-purple-500/10"
+              className="w-full styles.colors.border.default styles.colors.text.primary hover:bg-purple-500/10"
             >
               Ver Documentación Completa
             </Button>

@@ -51,12 +51,10 @@ export async function getUserMonthlyCreditLimit(userId: string): Promise<number>
     }
 
     // Use monthlyCredits from subscription if set, otherwise use tier default
-    const tier = subscription.tier || 'free'
+    const tier = String(subscription?.tier) || 'free'
     const tierLimit = PLAN_MONTHLY_CREDIT_LIMITS[tier] ?? PLAN_MONTHLY_CREDIT_LIMITS.free
-    const monthlyCredits = subscription.monthlyCredits ?? 0
-    return monthlyCredits > 0
-      ? monthlyCredits
-      : tierLimit
+    const monthlyCredits = Number(subscription?.monthlyCredits ?? 0) || 0
+    return monthlyCredits > 0 ? monthlyCredits : tierLimit
   } catch (error) {
     logger.error('Failed to get monthly credit limit', {
       error: error instanceof Error ? error.message : String(error),
@@ -90,26 +88,7 @@ export async function getUserMonthlyCreditsUsed(userId: string): Promise<number>
       .limit(1)
 
     if (!subscription || !subscription.currentPeriodStart || !subscription.currentPeriodEnd) {
-      // No active subscription = use current month
-      const now = new Date()
-      const periodStart = new Date(now.getFullYear(), now.getMonth(), 1)
-      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
-
-      const [usageRecord] = await db
-        .select({
-          creditsDeducted: usage.creditsDeducted,
-        })
-        .from(usage)
-        .where(
-          and(
-            eq(usage.userId, userId),
-            gte(usage.periodStart, periodStart),
-            lte(usage.periodEnd, periodEnd)
-          )
-        )
-        .limit(1)
-
-      return usageRecord?.creditsDeducted || 0
+      return 0 as number
     }
 
     // Get usage for current billing period

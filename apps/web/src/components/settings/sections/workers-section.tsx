@@ -41,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
 import { toast } from 'sonner'
 import {
   Loader2,
@@ -205,7 +206,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
     setEditingWorker(worker.id)
     setFormData({
       name: worker.name,
-      role: worker.role as any,
+      role: worker.role,
       departmentId: worker.departmentId || undefined,
       expertise: worker.expertise,
       description: worker.description || '',
@@ -273,12 +274,12 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
   const handleLoadTemplate = (template: NonNullable<typeof libraryWorkers>[number]) => {
     setFormData({
       name: template.name,
-      role: template.role as any,
+      role: template.role,
       departmentId: undefined,
       expertise: template.expertise,
       description: template.description || '',
       responsibilities: template.responsibilities || '',
-      systemPrompt: template.systemPrompt || '',
+      systemPrompt: (template as { systemPrompt?: string }).systemPrompt || '',
       provider: template.aiConfig.provider,
       model: template.aiConfig.model,
       temperature: template.aiConfig.temperature || 0.7,
@@ -306,8 +307,8 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--theme-text-primary)]">Profesionales Internos</h2>
-          <p className="text-sm text-[var(--theme-text-tertiary)] mt-1">
+          <h2 className="text-2xl font-bold styles.colors.text.primary">Profesionales Internos</h2>
+          <p className="text-sm styles.colors.text.tertiary mt-1">
             Gestiona los profesionales virtuales de tu empresa que participan en debates internos
           </p>
         </div>
@@ -324,12 +325,12 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
               Nuevo Profesional
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+          <DialogContent className="max-w-2xl styles.colors.bg.secondary styles.colors.border.default">
             <DialogHeader className="border-b-0 pb-0">
-              <DialogTitle className="text-[var(--theme-text-primary)]">
+              <DialogTitle className="styles.colors.text.primary">
                 {editingWorker ? 'Editar Profesional' : 'Nuevo Profesional'}
               </DialogTitle>
-              <DialogDescription className="text-[var(--theme-text-tertiary)]">
+              <DialogDescription className="styles.colors.text.tertiary">
                 {editingWorker
                   ? 'Modifica la información del profesional'
                   : 'Crea un profesional virtual que represente a un empleado de tu empresa'}
@@ -340,7 +341,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
               {/* Basic Info */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-[var(--theme-text-secondary)]">
+                  <Label htmlFor="name" className="styles.colors.text.secondary">
                     Nombre *
                   </Label>
                   <Input
@@ -348,15 +349,15 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Ej: Juan García"
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                    className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="role" className="text-[var(--theme-text-secondary)]">
+                  <Label htmlFor="role" className="styles.colors.text.secondary">
                     Rol *
                   </Label>
                   <Select value={formData.role} onValueChange={(value: any) => setFormData({ ...formData, role: value })}>
-                    <SelectTrigger id="role" className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                    <SelectTrigger id="role" className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -372,14 +373,14 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
 
               {/* Department */}
               <div className="space-y-2">
-                <Label htmlFor="department" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="department" className="styles.colors.text.secondary">
                   Departamento (Opcional)
                 </Label>
                 <Select
                   value={formData.departmentId || 'none'}
                   onValueChange={(value) => setFormData({ ...formData, departmentId: value === 'none' ? undefined : value })}
                 >
-                  <SelectTrigger id="department" className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                  <SelectTrigger id="department" className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
                     <SelectValue placeholder="Sin departamento" />
                   </SelectTrigger>
                   <SelectContent>
@@ -396,7 +397,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
 
               {/* Expertise */}
               <div className="space-y-2">
-                <Label htmlFor="expertise" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="expertise" className="styles.colors.text.secondary">
                   Expertise *
                 </Label>
                 <Input
@@ -404,13 +405,13 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                   value={formData.expertise}
                   onChange={(e) => setFormData({ ...formData, expertise: e.target.value })}
                   placeholder="Ej: Marketing digital, SEO, Content strategy"
-                  className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                  className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="description" className="styles.colors.text.secondary">
                   Descripción
                 </Label>
                 <Textarea
@@ -419,13 +420,13 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Breve descripción del profesional..."
                   rows={2}
-                  className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                  className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                 />
               </div>
 
               {/* Responsibilities */}
               <div className="space-y-2">
-                <Label htmlFor="responsibilities" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="responsibilities" className="styles.colors.text.secondary">
                   Responsabilidades
                 </Label>
                 <Textarea
@@ -434,13 +435,13 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                   onChange={(e) => setFormData({ ...formData, responsibilities: e.target.value })}
                   placeholder="Ej: Gestiona campañas, analiza métricas..."
                   rows={3}
-                  className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                  className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                 />
               </div>
 
               {/* System Prompt */}
               <div className="space-y-2">
-                <Label htmlFor="systemPrompt" className="text-[var(--theme-text-secondary)]">
+                <Label htmlFor="systemPrompt" className="styles.colors.text.secondary">
                   System Prompt *
                 </Label>
                 <Textarea
@@ -449,21 +450,21 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                   onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
                   placeholder="Define el comportamiento y rol del profesional en debates..."
                   rows={6}
-                  className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)] font-mono text-sm"
+                  className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary font-mono text-sm"
                 />
               </div>
 
               {/* AI Config */}
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="provider" className="text-[var(--theme-text-secondary)]">
+                  <Label htmlFor="provider" className="styles.colors.text.secondary">
                     Provider
                   </Label>
                   <Select
                     value={formData.provider}
                     onValueChange={(value: any) => setFormData({ ...formData, provider: value })}
                   >
-                    <SelectTrigger id="provider" className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
+                    <SelectTrigger id="provider" className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -475,7 +476,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="model" className="text-[var(--theme-text-secondary)]">
+                  <Label htmlFor="model" className="styles.colors.text.secondary">
                     Modelo
                   </Label>
                   <Input
@@ -483,22 +484,26 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                     value={formData.model}
                     onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                     placeholder="gemini-2.0-flash-exp"
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                    className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="temperature" className="text-[var(--theme-text-secondary)]">
-                    Temperature
-                  </Label>
-                  <Input
-                    id="temperature"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="2"
-                    value={formData.temperature}
-                    onChange={(e) => setFormData({ ...formData, temperature: parseFloat(e.target.value) || 0.7 })}
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="temperature" className="styles.colors.text.secondary">
+                      Temperature
+                    </Label>
+                    <span className="text-sm font-semibold text-purple-400">{(parseFloat(formData.temperature as any) || 0.7).toFixed(1)}</span>
+                  </div>
+                  <Slider
+                    value={[parseFloat(formData.temperature as any) || 0.7]}
+                    onValueChange={(value) => {
+                      const nextValue = value[0] ?? 0.7
+                      setFormData({ ...formData, temperature: nextValue })
+                    }}
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -506,7 +511,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
               {/* Optional fields */}
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="avatar" className="text-[var(--theme-text-secondary)]">
+                  <Label htmlFor="avatar" className="styles.colors.text.secondary">
                     Avatar (Emoji)
                   </Label>
                   <Input
@@ -515,11 +520,11 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                     onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
                     placeholder="👔"
                     maxLength={2}
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                    className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[var(--theme-text-secondary)]">
+                  <Label htmlFor="email" className="styles.colors.text.secondary">
                     Email
                   </Label>
                   <Input
@@ -528,11 +533,11 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="profesional@empresa.com"
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                    className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-[var(--theme-text-secondary)]">
+                  <Label htmlFor="phone" className="styles.colors.text.secondary">
                     Teléfono
                   </Label>
                   <Input
@@ -540,7 +545,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="+34 600 000 000"
-                    className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]"
+                    className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
                   />
                 </div>
               </div>
@@ -574,13 +579,13 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
 
       {/* Library Templates */}
       {libraryWorkers && libraryWorkers.length > 0 && (
-        <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+        <Card className="styles.colors.bg.secondary styles.colors.border.default">
           <CardHeader>
-            <CardTitle className="text-[var(--theme-text-primary)] flex items-center gap-2">
+            <CardTitle className="styles.colors.text.primary flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-purple-400" />
               Plantillas de Profesionales
             </CardTitle>
-            <CardDescription className="text-[var(--theme-text-tertiary)]">
+            <CardDescription className="styles.colors.text.tertiary">
               Usa estas plantillas como base para crear tus profesionales
             </CardDescription>
           </CardHeader>
@@ -589,7 +594,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
               {libraryWorkers.map((template) => (
                 <Card
                   key={template.id}
-                  className="bg-[var(--theme-bg-tertiary)] border-[var(--theme-border)] hover:border-purple-500/30 cursor-pointer transition-colors"
+                  className="styles.colors.bg.tertiary styles.colors.border.default hover:border-purple-500/30 cursor-pointer transition-colors"
                   onClick={() => handleLoadTemplate(template)}
                 >
                   <CardContent className="p-4">
@@ -598,9 +603,9 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                         <div className="text-2xl">{template.avatar}</div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-[var(--theme-text-primary)] truncate">{template.name}</h4>
-                        <p className="text-xs text-[var(--theme-text-tertiary)] mt-1">{template.role}</p>
-                        <p className="text-sm text-[var(--theme-text-secondary)] mt-2 line-clamp-2">{template.expertise}</p>
+                        <h4 className="font-semibold styles.colors.text.primary truncate">{template.name}</h4>
+                        <p className="text-xs styles.colors.text.tertiary mt-1">{template.role}</p>
+                        <p className="text-sm styles.colors.text.secondary mt-2 line-clamp-2">{template.expertise}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -613,13 +618,13 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
 
       {/* Workers List */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">Tus Profesionales</h3>
+        <h3 className="text-lg font-semibold styles.colors.text.primary">Tus Profesionales</h3>
         {!workers || workers.length === 0 ? (
-          <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+          <Card className="styles.colors.bg.secondary styles.colors.border.default">
             <CardContent className="py-8 text-center">
-              <Users className="h-12 w-12 text-[var(--theme-text-tertiary)] mx-auto mb-4" />
-              <p className="text-[var(--theme-text-tertiary)]">No tienes profesionales creados aún</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)] mt-2">
+              <Users className="h-12 w-12 styles.colors.text.tertiary mx-auto mb-4" />
+              <p className="styles.colors.text.tertiary">No tienes profesionales creados aún</p>
+              <p className="text-sm styles.colors.text.tertiary mt-2">
                 Crea tu primer profesional o usa una plantilla de arriba
               </p>
             </CardContent>
@@ -629,7 +634,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
             {workers.map((worker) => {
               const department = departments?.find((d) => d.id === worker.departmentId)
               return (
-                <Card key={worker.id} className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+                <Card key={worker.id} className="styles.colors.bg.secondary styles.colors.border.default">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
@@ -637,8 +642,8 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                           <div className="text-2xl">{worker.avatar}</div>
                         )}
                         <div>
-                          <CardTitle className="text-[var(--theme-text-primary)]">{worker.name}</CardTitle>
-                          <CardDescription className="text-[var(--theme-text-tertiary)]">
+                          <CardTitle className="styles.colors.text.primary">{worker.name}</CardTitle>
+                          <CardDescription className="styles.colors.text.tertiary">
                             {WORKER_ROLES.find((r) => r.value === worker.role)?.label || worker.role}
                           </CardDescription>
                         </div>
@@ -664,15 +669,15 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <p className="text-sm text-[var(--theme-text-secondary)]">{worker.expertise}</p>
+                    <p className="text-sm styles.colors.text.secondary">{worker.expertise}</p>
                     {department && (
-                      <div className="flex items-center gap-2 text-xs text-[var(--theme-text-tertiary)]">
+                      <div className="flex items-center gap-2 text-xs styles.colors.text.tertiary">
                         <Building2 className="h-3 w-3" />
                         <span>{department.icon} {department.name}</span>
                       </div>
                     )}
                     {worker.description && (
-                      <p className="text-xs text-[var(--theme-text-tertiary)] line-clamp-2">{worker.description}</p>
+                      <p className="text-xs styles.colors.text.tertiary line-clamp-2">{worker.description}</p>
                     )}
                   </CardContent>
                 </Card>

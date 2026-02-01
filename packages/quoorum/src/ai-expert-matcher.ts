@@ -43,45 +43,9 @@ export interface AIExpertMatchingOptions {
     description?: string
     context?: string
   }
+  /** Performance level for AI model selection */
+  performanceLevel?: 'economic' | 'balanced' | 'performance'
 }
-
-/**
- * Prompt del sistema para matching inteligente de expertos
- */
-const AI_EXPERT_MATCHER_PROMPT = `Eres un experto en selección de equipos de expertos para debates estratégicos.
-
-Tu tarea es analizar una pregunta de negocio y el contexto de una empresa, y seleccionar los expertos más adecuados de una base de datos.
-
-CRITERIOS DE SELECCIÓN:
-1. **Relevancia directa**: El experto debe tener expertise específico relacionado con la pregunta
-2. **Contexto de empresa**: Considera la industria, tamaño, etapa y situación específica de la empresa
-3. **Diversidad de perspectivas**: Selecciona expertos que aporten diferentes ángulos (optimista, crítico, analítico, estratégico)
-4. **Sinergia entre expertos**: Los expertos deben complementarse entre sí, no duplicarse
-5. **Complejidad de la pregunta**: Para preguntas complejas, incluye más expertos con perspectivas diversas
-
-IMPORTANTE:
-- Siempre incluye un crítico (The Critic) para pensamiento crítico
-- Selecciona 4-7 expertos en total
-- Prioriza expertos con expertise específico sobre la pregunta
-- Considera el contexto de la empresa (startup vs enterprise, SaaS vs e-commerce, etc.)
-- Explica claramente por qué cada experto es relevante
-
-Responde SOLO con un JSON válido con esta estructura:
-{
-  "selectedExperts": [
-    {
-      "expertId": "string (ID del experto)",
-      "score": number (0-100),
-      "reasons": ["razón 1", "razón 2"],
-      "role": "primary" | "secondary" | "critic",
-      "synergy": ["expertId1", "expertId2"] // IDs de expertos con los que tiene sinergia
-    }
-  ],
-  "reasoning": "Explicación general de por qué se seleccionaron estos expertos",
-  "teamComposition": "Descripción de cómo estos expertos trabajan juntos"
-}
-
-NO incluyas markdown, solo JSON puro.`
 
 /**
  * Hace matching inteligente de expertos usando IA
@@ -97,6 +61,7 @@ export async function matchExpertsWithAI(
     maxExperts = 7,
     alwaysIncludeCritic = true,
     companyContext,
+    performanceLevel = 'balanced',
   } = options
 
   try {
@@ -139,12 +104,25 @@ Selecciona los ${minExperts}-${maxExperts} expertos más adecuados para esta pre
 ${alwaysIncludeCritic ? 'IMPORTANTE: Siempre incluye "critic" (The Critic) en la selección.' : ''}
 `
 
+    // Get prompt template from new system
+    const { getPromptTemplate } = await import('@quoorum/quoorum/lib/prompt-manager');
+    const resolvedPrompt = await getPromptTemplate(
+      'match-experts',
+      {
+        question,
+        questionAnalysis: JSON.stringify(questionAnalysis),
+        companyContext: companyContext ? JSON.stringify(companyContext) : '',
+        expertsInfo: JSON.stringify(expertsInfo),
+      },
+      performanceLevel
+    );
+
     const aiClient = getAIClient()
     const response = await aiClient.generate(userPrompt, {
-      systemPrompt: AI_EXPERT_MATCHER_PROMPT,
-      modelId: 'gemini-2.0-flash-exp', // Free tier, sin cuota
-      temperature: 0.7, // Creativo pero consistente
-      maxTokens: 2000,
+      systemPrompt: resolvedPrompt.systemPrompt || resolvedPrompt.template,
+      modelId: resolvedPrompt.model,
+      temperature: resolvedPrompt.temperature,
+      maxTokens: resolvedPrompt.maxTokens,
     })
 
     logger.info('[AI Expert Matcher] AI response received', {

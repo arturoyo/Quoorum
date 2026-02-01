@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { api } from '@/lib/trpc/client'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -32,11 +32,11 @@ interface NotificationsCenterProps {
 
 interface Notification {
   id: string
-  type: 'debate_completed' | 'debate_failed' | 'debate_ready'
+  type: string
   title: string
   message: string
-  debateId?: string
-  read: boolean
+  debateId?: string | null
+  read?: boolean
   createdAt: Date
 }
 
@@ -77,19 +77,19 @@ function NotificationItem({
       className={cn(
         'flex items-start gap-3 rounded-lg border-l-4 p-4 transition-all',
         notification.read
-          ? 'border-l-[#8696a0] bg-[#111b21]/50 opacity-70'
-          : 'border-l-[#00a884] cursor-pointer bg-[#111b21] hover:bg-[#111b21]/80',
+          ? cn(styles.colors.border.default, styles.colors.bg.secondary, 'opacity-70')
+          : cn(styles.colors.brand.border, styles.colors.bg.secondary, 'cursor-pointer hover:bg-[var(--theme-bg-tertiary)]'),
         onClick && 'cursor-pointer'
       )}
     >
       <div
         className={cn(
           'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-          notification.read ? 'bg-[#2a3942]' : 'bg-[#00a884]/20'
+          notification.read ? styles.colors.bg.input : styles.colors.brand.bgSoft
         )}
       >
         <Icon
-          className={cn('h-5 w-5', notification.read ? 'text-[#8696a0]' : 'text-[#00a884]')}
+          className={cn('h-5 w-5', notification.read ? styles.colors.text.tertiary : styles.colors.brand.text)}
         />
       </div>
 
@@ -98,20 +98,20 @@ function NotificationItem({
           <h4
             className={cn(
               'text-sm font-medium',
-              notification.read ? 'text-[#8696a0]' : 'text-[#e9edef]'
+              notification.read ? styles.colors.text.tertiary : styles.colors.text.primary
             )}
           >
             {notification.title}
           </h4>
-          <span className="shrink-0 text-xs text-[#8696a0]">{timeAgo}</span>
+          <span className={cn('shrink-0 text-xs', styles.colors.text.tertiary)}>{timeAgo}</span>
         </div>
-        <p className="mt-1 text-sm text-[#8696a0]">{notification.message}</p>
+        <p className={cn('mt-1 text-sm', styles.colors.text.tertiary)}>{notification.message}</p>
 
         {notification.debateId && (
           <Button
             variant="link"
             size="sm"
-            className="mt-2 h-auto p-0 text-[#00a884]"
+            className={cn('mt-2 h-auto p-0', styles.colors.brand.text)}
             onClick={(e) => {
               e.stopPropagation()
               onClick?.()
@@ -131,7 +131,7 @@ function NotificationItem({
                 onMarkAsRead()
               }}
               disabled={isMarkingAsRead}
-              className="h-7 text-xs text-[#8696a0] hover:text-[#e9edef]"
+              className={cn('h-7 text-xs', styles.colors.text.tertiary, styles.hoverState())}
             >
               {isMarkingAsRead ? (
                 <Loader2 className="mr-1 h-3 w-3 animate-spin" />
@@ -149,7 +149,7 @@ function NotificationItem({
               onDelete()
             }}
             disabled={isDeleting}
-            className="h-7 text-xs text-[#8696a0] hover:text-[#e9edef]"
+            className={cn('h-7 text-xs', styles.colors.text.tertiary, styles.hoverState())}
           >
             {isDeleting ? (
               <Loader2 className="mr-1 h-3 w-3 animate-spin" />
@@ -161,7 +161,7 @@ function NotificationItem({
         </div>
       </div>
 
-      {!notification.read && <div className="h-2 w-2 shrink-0 rounded-full bg-[#00a884]" />}
+      {!notification.read && <div className={cn('h-2 w-2 shrink-0 rounded-full', styles.colors.brand.bg)} />}
     </div>
   )
 }
@@ -181,6 +181,11 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
     limit: 50,
     unreadOnly: activeTab === 'unread',
   })
+
+  const normalizedNotifications: Notification[] = (notifications ?? []).map((notification) => ({
+    ...notification,
+    read: (notification as { read?: boolean }).read ?? false,
+  }))
 
   const { data: unreadCount } = api.quoorumNotifications.getUnreadCount.useQuery()
 
@@ -211,18 +216,18 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
   })
 
   return (
-    <Card className="border-[#2a3942] bg-[#202c33]">
-      <CardHeader className="border-b border-[#2a3942]">
+    <Card className={cn(styles.colors.border.default, styles.colors.bg.tertiary)}>
+      <CardHeader className={cn('border-b', styles.colors.border.default)}>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 text-[#e9edef]">
+            <CardTitle className={cn('flex items-center gap-2', styles.colors.text.primary)}>
               <Bell className="h-5 w-5" />
               Notificaciones
               {(unreadCount ?? 0) > 0 && (
-                <Badge className="bg-[#00a884] text-white">{unreadCount}</Badge>
+                <Badge className={cn(styles.colors.brand.bg, styles.colors.text.primary)}>{unreadCount}</Badge>
               )}
             </CardTitle>
-            <CardDescription className="text-[#8696a0]">
+            <CardDescription className={styles.colors.text.tertiary}>
               Centro de notificaciones de debates
             </CardDescription>
           </div>
@@ -233,7 +238,7 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
                 size="sm"
                 onClick={() => markAllAsRead.mutate()}
                 disabled={markAllAsRead.isPending}
-                className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+                className={cn(styles.colors.border.default, styles.colors.bg.secondary, styles.colors.text.primary)}
               >
                 <CheckCheck className="mr-2 h-4 w-4" />
                 Marcar todo como leído
@@ -245,7 +250,7 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
                 size="sm"
                 onClick={() => clearAll.mutate()}
                 disabled={clearAll.isPending}
-                className="border-[#2a3942] bg-[#111b21] text-[#e9edef]"
+                className={cn(styles.colors.border.default, styles.colors.bg.secondary, styles.colors.text.primary)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Limpiar todo
@@ -256,11 +261,13 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
       </CardHeader>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-        <TabsList className="w-full justify-start rounded-none border-b border-[#2a3942] bg-transparent p-0">
+        <TabsList className={cn('w-full justify-start rounded-none border-b bg-transparent p-0', styles.colors.border.default)}>
           <TabsTrigger
             value="all"
             className={cn(
-              'rounded-none border-b-2 border-transparent px-4 py-3 text-[#8696a0] data-[state=active]:border-[#00a884] data-[state=active]:bg-transparent data-[state=active]:text-[#e9edef]'
+              'rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:bg-transparent',
+              styles.colors.text.tertiary,
+              'data-[state=active]:border-[#00a884] data-[state=active]:text-[#e9edef]'
             )}
           >
             Todas
@@ -268,12 +275,14 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
           <TabsTrigger
             value="unread"
             className={cn(
-              'rounded-none border-b-2 border-transparent px-4 py-3 text-[#8696a0] data-[state=active]:border-[#00a884] data-[state=active]:bg-transparent data-[state=active]:text-[#e9edef]'
+              'rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:bg-transparent',
+              styles.colors.text.tertiary,
+              'data-[state=active]:border-[#00a884] data-[state=active]:text-[#e9edef]'
             )}
           >
             Sin leer
             {(unreadCount ?? 0) > 0 && (
-              <span className="ml-2 rounded-full bg-[#00a884] px-2 py-0.5 text-xs text-white">
+              <span className={cn('ml-2 rounded-full px-2 py-0.5 text-xs', styles.colors.brand.bg, styles.colors.text.primary)}>
                 {unreadCount}
               </span>
             )}
@@ -284,16 +293,16 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
           <TabsContent value="all" className="m-0 space-y-3">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-[#8696a0]" />
+                <Loader2 className={cn('h-6 w-6 animate-spin', styles.colors.text.tertiary)} />
               </div>
-            ) : !notifications || notifications.length === 0 ? (
+            ) : normalizedNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <BellOff className="h-12 w-12 text-[#8696a0]" />
-                <p className="mt-4 text-[#8696a0]">No hay notificaciones</p>
+                <BellOff className={cn('h-12 w-12', styles.colors.text.tertiary)} />
+                <p className={cn('mt-4', styles.colors.text.tertiary)}>No hay notificaciones</p>
               </div>
             ) : (
               <>
-                {notifications.map((notification) => (
+                {normalizedNotifications.map((notification) => (
                   <NotificationItem
                     key={notification.id}
                     notification={notification}
@@ -311,16 +320,16 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
           <TabsContent value="unread" className="m-0 space-y-3">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-[#8696a0]" />
+                <Loader2 className={cn('h-6 w-6 animate-spin', styles.colors.text.tertiary)} />
               </div>
-            ) : !notifications || notifications.length === 0 ? (
+            ) : normalizedNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <CheckCircle2 className="h-12 w-12 text-[#00a884]" />
-                <p className="mt-4 text-[#8696a0]">Estás al día!</p>
-                <p className="text-sm text-[#8696a0]">No tienes notificaciones sin leer</p>
+                <CheckCircle2 className={cn('h-12 w-12', styles.colors.brand.text)} />
+                <p className={cn('mt-4', styles.colors.text.tertiary)}>Estás al día!</p>
+                <p className={cn('text-sm', styles.colors.text.tertiary)}>No tienes notificaciones sin leer</p>
               </div>
             ) : (
-              notifications.map((notification) => (
+              normalizedNotifications.map((notification) => (
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
@@ -349,12 +358,16 @@ export function NotificationBell({ onClick }: { onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="relative rounded-lg p-2 transition-colors hover:bg-[#2a3942]"
+      className={cn('relative rounded-lg p-2 transition-colors', styles.hoverState())}
       title={(unreadCount ?? 0) > 0 ? `${unreadCount} notificación${(unreadCount ?? 0) > 1 ? 'es' : ''} sin leer` : 'Notificaciones'}
     >
-      <Bell className="h-5 w-5 text-[#8696a0]" />
+      <Bell className={cn('h-5 w-5', styles.colors.text.tertiary)} />
       {(unreadCount ?? 0) > 0 && (
-        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#00a884] text-xs font-medium text-white">
+        <span className={cn(
+          'absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium',
+          styles.colors.brand.bg,
+          styles.colors.text.primary
+        )}>
           {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
         </span>
       )}

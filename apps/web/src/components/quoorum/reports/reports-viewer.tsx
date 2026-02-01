@@ -53,7 +53,7 @@ export function ReportsViewer({ debateId, showSchedules = true }: ReportsViewerP
   } = useReportsViewer()
 
   return (
-    <Card className="border-[#2a3942] bg-[#202c33]">
+    <Card className="styles.colors.border.default styles.colors.bg.tertiary">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -61,7 +61,7 @@ export function ReportsViewer({ debateId, showSchedules = true }: ReportsViewerP
               <FileText className="h-5 w-5 text-[#00a884]" />
               Informes del Quoorum
             </CardTitle>
-            <CardDescription className="text-[#8696a0]">
+            <CardDescription className="styles.colors.text.tertiary">
               Genera y gestiona informes de tus debates
             </CardDescription>
           </div>

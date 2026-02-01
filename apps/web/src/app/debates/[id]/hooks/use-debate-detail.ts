@@ -11,7 +11,7 @@ import { api } from '@/lib/trpc/client'
 import type { RoundMessage, ProcessedMessage, DebatePhase } from '../types'
 import { EXPERT_COLORS } from '../types'
 
-export function useDebateDetail(debateId: string) {
+export function useDebateDetail(debateId?: string) {
   const router = useRouter()
   const [expertColors, setExpertColors] = useState<Record<string, string>>({})
   const [isContextExpanded, setIsContextExpanded] = useState(true)
@@ -23,8 +23,9 @@ export function useDebateDetail(debateId: string) {
 
   // Fetch debate with refetch interval for real-time updates
   const { data: debate, isLoading } = api.debates.get.useQuery(
-    { id: debateId },
+    { id: debateId ?? '' },
     {
+      enabled: !!debateId,
       refetchInterval: (data) => {
         // Poll every 3 seconds while debate is in progress
         return data?.status === 'in_progress' ? 3000 : false
@@ -35,8 +36,8 @@ export function useDebateDetail(debateId: string) {
 
   // Fetch comments count for header
   const { data: comments } = api.quoorum.getComments.useQuery(
-    { debateId },
-    { enabled: debate?.status === 'completed' }
+    { debateId: debateId ?? '' },
+    { enabled: !!debateId && debate?.status === 'completed' }
   )
 
   // ═══════════════════════════════════════════════════════════
@@ -57,7 +58,7 @@ export function useDebateDetail(debateId: string) {
 
     const colors: Record<string, string> = {}
     Array.from(experts).forEach((expert, idx) => {
-      colors[expert] = EXPERT_COLORS[idx % EXPERT_COLORS.length] || EXPERT_COLORS[0]
+      colors[expert] = EXPERT_COLORS[idx % EXPERT_COLORS.length] || EXPERT_COLORS[0] || '#64748b'
     })
 
     setExpertColors(colors)
@@ -69,13 +70,15 @@ export function useDebateDetail(debateId: string) {
 
   // Collect all messages from all rounds for chat view
   const allMessages: ProcessedMessage[] = useMemo(() => {
-    return debate?.rounds?.flatMap((round: { messages?: RoundMessage[] }, roundIdx: number) =>
-      round.messages?.map((msg: RoundMessage, msgIdx: number) => ({
+    if (!debate?.rounds) return []
+
+    return debate.rounds.flatMap((round: { messages?: RoundMessage[] }, roundIdx: number) =>
+      (round.messages ?? []).map((msg: RoundMessage, msgIdx: number) => ({
         ...msg,
         roundNumber: roundIdx + 1,
         messageId: `${roundIdx}-${msgIdx}`,
       }))
-    ) ?? []
+    )
   }, [debate?.rounds])
 
   // Determine current phase based on debate status

@@ -190,7 +190,7 @@ export default function BackstorySettingsPage() {
           variant="ghost"
           size="sm"
           onClick={() => router.push("/settings")}
-          className="text-[var(--theme-text-secondary)] hover:text-white"
+          className="styles.colors.text.secondary hover:text-white"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver a Settings
@@ -198,7 +198,7 @@ export default function BackstorySettingsPage() {
         <h1 className="text-3xl font-bold tracking-tight text-white">
           Mi Información
         </h1>
-        <p className="text-[var(--theme-text-secondary)]">
+        <p className="styles.colors.text.secondary">
           Personaliza cómo Quoorum adapta los debates a tu contexto
         </p>
       </div>
@@ -217,7 +217,7 @@ export default function BackstorySettingsPage() {
         <CardContent className="space-y-4">
           {/* Company Name */}
           <div className="space-y-2">
-            <Label htmlFor="companyName" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="companyName" className="styles.colors.text.secondary">
               Nombre de la empresa
             </Label>
             <Input
@@ -227,13 +227,13 @@ export default function BackstorySettingsPage() {
               onChange={(e) =>
                 setFormData({ ...formData, companyName: e.target.value })
               }
-              className="bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)]"
+              className="bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary"
             />
           </div>
 
           {/* Industry */}
           <div className="space-y-2">
-            <Label htmlFor="industry" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="industry" className="styles.colors.text.secondary">
               Industria *
             </Label>
             <Select
@@ -264,7 +264,7 @@ export default function BackstorySettingsPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Company Size */}
             <div className="space-y-2">
-              <Label htmlFor="companySize" className="text-[var(--theme-text-secondary)]">
+              <Label htmlFor="companySize" className="styles.colors.text.secondary">
                 Tamaño
               </Label>
               <Select
@@ -294,7 +294,7 @@ export default function BackstorySettingsPage() {
 
             {/* Company Stage */}
             <div className="space-y-2">
-              <Label htmlFor="companyStage" className="text-[var(--theme-text-secondary)]">
+              <Label htmlFor="companyStage" className="styles.colors.text.secondary">
                 Etapa
               </Label>
               <Select
@@ -339,7 +339,7 @@ export default function BackstorySettingsPage() {
         <CardContent className="space-y-4">
           {/* Role */}
           <div className="space-y-2">
-            <Label htmlFor="role" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="role" className="styles.colors.text.secondary">
               Rol *
             </Label>
             <Select
@@ -383,7 +383,7 @@ export default function BackstorySettingsPage() {
         <CardContent className="space-y-4">
           {/* Decision Style */}
           <div className="space-y-2">
-            <Label htmlFor="decisionStyle" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="decisionStyle" className="styles.colors.text.secondary">
               Estilo
             </Label>
             <Select
@@ -413,7 +413,7 @@ export default function BackstorySettingsPage() {
 
           {/* Additional Context */}
           <div className="space-y-2">
-            <Label htmlFor="additionalContext" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="additionalContext" className="styles.colors.text.secondary">
               Contexto adicional (opcional)
             </Label>
             <Textarea
@@ -424,7 +424,7 @@ export default function BackstorySettingsPage() {
                 setFormData({ ...formData, additionalContext: e.target.value })
               }
               rows={4}
-              className="bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)]"
+              className="bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary"
             />
           </div>
         </CardContent>

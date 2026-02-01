@@ -15,11 +15,13 @@ import { QuestionCard } from './question-card'
 import { ContextSummary } from './context-summary'
 import { InternetSearchResults } from './internet-search-results'
 import { DebateStickyHeader } from './debate-sticky-header'
-import { cn } from '@/lib/utils'
-import { getRandomDebatePrompt } from '@/lib/debate-prompts'
+import { RealCreditsTracker } from './real-credits-tracker'
+import { ValidationShield, ValidationBadge } from './validation-indicator'
+import { cn, styles } from '@/lib/utils'
 import { getRandomSuggestedQuestions } from '@/lib/suggested-debate-questions'
 import { api } from '@/lib/trpc/client'
 import type { ContextoState } from '../types'
+import { useBackstoryHeader } from '../hooks/use-backstory-header'
 
 interface PhaseContextoProps {
   state: ContextoState
@@ -39,6 +41,7 @@ interface PhaseContextoProps {
   onSkipToNextPhase?: () => void
   isGeneratingQuestions: boolean
   isEvaluating: boolean
+  isValidating?: boolean
   isAdmin?: boolean
 }
 
@@ -59,6 +62,7 @@ export function PhaseContexto({
   onSkipToNextPhase,
   isGeneratingQuestions,
   isEvaluating,
+  isValidating = false,
   isAdmin = false,
 }: PhaseContextoProps) {
   const router = useRouter()
@@ -80,12 +84,9 @@ export function PhaseContexto({
     return []
   })
   
-  // Seleccionar un prompt aleatorio al montar el componente (solo cuando está en fase inicial)
-  // Usar useState para evitar problemas de hidratación (Math.random() genera valores diferentes en servidor/cliente)
-  const [randomPrompt, setRandomPrompt] = useState<{ title: string; subtitle: string }>(() => {
-    // Valor por defecto para SSR (evita error de hidratación)
-    return { title: '¿Qué decisión quieres tomar?', subtitle: 'Describe tu pregunta o decisión y te guiaremos paso a paso' }
-  })
+  // Get dynamic header based on user's backstory (company, role, industry, etc.)
+  // Falls back to random prompt if no backstory is configured
+  const backstoryHeader = useBackstoryHeader()
   
   // Marcar componente como montado solo en el cliente
   useEffect(() => {
@@ -105,28 +106,9 @@ export function PhaseContexto({
   )
 
   // ========================================================================
-  // PERSONALIZED PROMPT: Use context hub
+  // PERSONALIZED PROMPT: Replaced by useBackstoryHeader hook
+  // Now using direct backstory data instead of AI-generated prompts
   // ========================================================================
-  const { data: personalizedPromptData } = api.debates.generatePersonalizedPrompt.useQuery(
-    {
-      contextText: contextHub?.fullContextText, // Pass cached context to avoid redundant queries
-    },
-    {
-      enabled: isMounted && state.phase === 'initial' && !state.mainQuestion && typeof window !== 'undefined',
-      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-      retry: 1,
-    }
-  )
-
-  // Update prompt when personalized data arrives
-  useEffect(() => {
-    if (personalizedPromptData && state.phase === 'initial' && !state.mainQuestion) {
-      setRandomPrompt({
-        title: personalizedPromptData.title,
-        subtitle: personalizedPromptData.subtitle,
-      })
-    }
-  }, [personalizedPromptData, state.phase, state.mainQuestion])
   
   // Generar preguntas sugeridas contextualizadas usando IA
   // Los hooks DEBEN llamarse incondicionalmente (React Rules of Hooks)
@@ -168,10 +150,14 @@ export function PhaseContexto({
     // Si estamos generando preguntas, mostrar estado de carga centrado en pantalla
     if (isGeneratingQuestions) {
       return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-[var(--theme-bg-primary)]/80 backdrop-blur-sm">
+        <div className={cn(
+          'fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm',
+          styles.colors.bg.primary,
+          'bg-opacity-80'
+        )}>
           <div className="flex flex-col items-center justify-center gap-4">
             <Loader2 className="h-12 w-12 animate-spin text-purple-400" />
-            <p className="text-lg text-[var(--theme-text-primary)]">Generando preguntas...</p>
+            <p className={cn('text-lg', styles.colors.text.primary)}>Generando preguntas...</p>
           </div>
         </div>
       )
@@ -179,14 +165,16 @@ export function PhaseContexto({
 
     const contextProgressBar = (
       <div className="flex items-center gap-4">
-        <div className="flex-1 min-w-0 h-4 bg-[var(--theme-bg-input)] rounded-full overflow-hidden relative">
+        <div className={cn('flex-1 min-w-0 h-4 rounded-full overflow-hidden relative', styles.colors.bg.input)}>
           <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 transition-all duration-500 ease-out rounded-full"
-            style={{ width: `${Math.max(contextProgress, 2)}%` }}
+            className={cn(
+              'absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 transition-all duration-500 ease-out rounded-full',
+              `w-[${Math.max(contextProgress, 2)}%]`
+            )}
           />
         </div>
         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-600 border-2 border-purple-400 flex items-center justify-center">
-          <span className="text-sm font-bold text-[var(--theme-text-primary)]" suppressHydrationWarning>
+          <span className={cn('text-sm font-bold', styles.colors.text.primary)} suppressHydrationWarning>
             {Math.round(contextProgress)}%
           </span>
         </div>
@@ -198,9 +186,30 @@ export function PhaseContexto({
         <DebateStickyHeader
           topContent={contextProgressBar}
           phaseNumber={1}
-          title={randomPrompt.title}
-          subtitle={randomPrompt.subtitle}
+          title={backstoryHeader.title}
+          subtitle={backstoryHeader.subtitle}
         />
+
+        {/* Mostrar créditos gastados en tiempo real si hay algún consumo */}
+        <div className="mt-4 flex items-center gap-3 flex-wrap">
+          {state.realCreditsDeducted > 0 && (
+            <RealCreditsTracker
+              realCreditsDeducted={state.realCreditsDeducted}
+              variant="inline"
+            />
+          )}
+
+          {/* Indicador de validación activa */}
+          {state.phase !== 'initial' && (
+            <ValidationShield />
+          )}
+
+          {/* Indicador en tiempo real de validación */}
+          {isValidating && (
+            <ValidationBadge isValidating={true} />
+          )}
+        </div>
+
         <div className="mt-4 mb-6">
           {initialQuestion.trim().length > 0 && initialQuestion.trim().length < 10 && (
             <p className="text-sm text-amber-400 mt-2">
@@ -214,7 +223,7 @@ export function PhaseContexto({
             {isMounted && suggestedQuestions.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm text-[var(--theme-text-tertiary)] font-medium">Preguntas sugeridas:</p>
+                  <p className="text-sm styles.colors.text.tertiary font-medium">Preguntas sugeridas:</p>
                   {isLoadingSuggestions && (
                     <Loader2 className="h-4 w-4 animate-spin text-purple-400" />
                   )}
@@ -224,9 +233,9 @@ export function PhaseContexto({
                     {[1, 2, 3].map((i) => (
                       <div
                         key={i}
-                        className="p-4 rounded-lg border-2 border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] animate-pulse"
+                        className="p-4 rounded-lg border-2 styles.colors.border.default styles.colors.bg.secondary animate-pulse"
                       >
-                        <div className="h-4 bg-[var(--theme-bg-tertiary)] rounded w-3/4" />
+                        <div className="h-4 styles.colors.bg.tertiary rounded w-3/4" />
                       </div>
                     ))}
                   </div>
@@ -245,7 +254,7 @@ export function PhaseContexto({
                       disabled={isGeneratingQuestions}
                       className={cn(
                         'p-4 rounded-lg border-2 text-left transition-all',
-                        'bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
+                        'styles.colors.bg.secondary styles.colors.border.default styles.colors.text.primary',
                         'hover:border-purple-500 hover:bg-purple-500/10',
                         'focus:outline-none focus:ring-2 focus:ring-purple-500',
                         isGeneratingQuestions && 'opacity-50 cursor-not-allowed'
@@ -265,10 +274,10 @@ export function PhaseContexto({
 
           <div className="relative py-1.5">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[var(--theme-border)]"></div>
+              <div className="w-full border-t styles.colors.border.default"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[var(--theme-bg-primary)] text-[var(--theme-text-tertiary)]">O escribe tu propia pregunta</span>
+              <span className="px-4 styles.colors.bg.primary styles.colors.text.tertiary">O escribe tu propia pregunta</span>
             </div>
           </div>
 
@@ -286,8 +295,8 @@ export function PhaseContexto({
             placeholder="Ej: ¿Debería lanzar mi producto ahora o esperar 3 meses? (mínimo 10 caracteres)"
             disabled={isGeneratingQuestions}
             className={cn(
-              'h-16 text-lg bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
-              'placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500',
+              'h-16 text-lg styles.colors.bg.secondary styles.colors.border.default styles.colors.text.primary',
+              'placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500',
               'focus-visible:border-purple-500',
               initialQuestion.trim().length > 0 && initialQuestion.trim().length < 10 && 'border-amber-500/50 focus-visible:ring-amber-500 focus-visible:border-amber-500'
             )}
@@ -368,33 +377,33 @@ export function PhaseContexto({
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 mb-4">
             <CheckCircle2 className="h-8 w-8 text-green-400" />
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[var(--theme-text-primary)] mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold styles.colors.text.primary mb-4">
             ¡Contexto completado!
           </h2>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/30">
             <span className="text-2xl font-bold text-purple-300">{state.contextScore}</span>
-            <span className="text-[var(--theme-text-secondary)]">/ 100</span>
+            <span className="styles.colors.text.secondary">/ 100</span>
           </div>
         </div>
         
-        <div className="bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg p-6 space-y-4">
+        <div className="styles.colors.bg.secondary border styles.colors.border.default rounded-lg p-6 space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">Evaluación del contexto</h3>
+              <h3 className="text-lg font-semibold styles.colors.text.primary">Evaluación del contexto</h3>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-[var(--theme-text-secondary)]">Calidad:</span>
+                <span className="text-sm styles.colors.text.secondary">Calidad:</span>
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-500/20 border border-purple-500/30">
                   <span className="text-base font-bold text-purple-300">{state.contextScore}</span>
-                  <span className="text-xs text-[var(--theme-text-tertiary)]">/100</span>
+                  <span className="text-xs styles.colors.text.tertiary">/100</span>
                 </span>
               </div>
             </div>
-            <p className="text-[var(--theme-text-secondary)] whitespace-pre-wrap mb-3">{state.evaluation.reasoning}</p>
-            <div className="bg-[var(--theme-bg-tertiary)] border border-[var(--theme-border)] rounded-lg p-3 mt-3">
-              <p className="text-xs text-[var(--theme-text-secondary)]">
-                <strong className="text-[var(--theme-text-primary)]">💡 Diferencia entre las métricas:</strong>
+            <p className="styles.colors.text.secondary whitespace-pre-wrap mb-3">{state.evaluation.reasoning}</p>
+            <div className="styles.colors.bg.tertiary border styles.colors.border.default rounded-lg p-3 mt-3">
+              <p className="text-xs styles.colors.text.secondary">
+                <strong className="styles.colors.text.primary">💡 Diferencia entre las métricas:</strong>
               </p>
-              <ul className="text-xs text-[var(--theme-text-tertiary)] mt-2 space-y-1 list-disc list-inside">
+              <ul className="text-xs styles.colors.text.tertiary mt-2 space-y-1 list-disc list-inside">
                 <li><strong className="text-purple-300">{state.contextScore}/100</strong>: Calidad del contexto (qué tan completo y útil es)</li>
                 <li><strong className="text-blue-300">{contextProgress ?? 0}%</strong>: Progreso de la fase (cuánto has avanzado respondiendo preguntas)</li>
               </ul>
@@ -403,8 +412,8 @@ export function PhaseContexto({
           
           {state.evaluation.missingAspects.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-[var(--theme-text-secondary)] mb-2">Aspectos a considerar:</h4>
-              <ul className="list-disc list-inside space-y-1 text-[var(--theme-text-secondary)]">
+              <h4 className="text-sm font-medium styles.colors.text.secondary mb-2">Aspectos a considerar:</h4>
+              <ul className="list-disc list-inside space-y-1 styles.colors.text.secondary">
                 {state.evaluation.missingAspects.map((aspect, index) => (
                   <li key={index}>{aspect}</li>
                 ))}
@@ -418,7 +427,7 @@ export function PhaseContexto({
           <Button
             variant="outline"
             onClick={() => setShowSummary(true)}
-            className="w-full border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+            className="w-full styles.colors.border.default styles.colors.bg.secondary styles.colors.text.primary hover:styles.colors.bg.tertiary"
           >
             <Eye className="mr-2 h-4 w-4" />
             Ver resumen completo de preguntas y respuestas
@@ -440,7 +449,7 @@ export function PhaseContexto({
         <div className="w-full max-w-2xl mx-auto flex items-center justify-center min-h-[60vh]">
           <div className="flex flex-col items-center justify-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
-            <p className="text-[var(--theme-text-secondary)] text-lg">Generando preguntas...</p>
+            <p className="styles.colors.text.secondary text-lg">Generando preguntas...</p>
           </div>
         </div>
       )
@@ -450,7 +459,7 @@ export function PhaseContexto({
     if (state.questions.length === 0) {
       return (
         <div className="w-full max-w-2xl mx-auto text-center space-y-4">
-          <p className="text-[var(--theme-text-secondary)] mb-4">
+          <p className="styles.colors.text.secondary mb-4">
             No hay preguntas disponibles. El estado guardado puede estar corrupto.
           </p>
           <div className="flex gap-4 justify-center">
@@ -477,7 +486,7 @@ export function PhaseContexto({
                 router.push('/debates')
               }}
               variant="outline"
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+              className="styles.colors.border.default styles.colors.bg.secondary styles.colors.text.primary hover:styles.colors.bg.tertiary"
             >
               Volver al inicio
             </Button>
@@ -492,10 +501,10 @@ export function PhaseContexto({
       // Si estamos en transición, mostrar loading en lugar de error
       if (isEvaluating || isGeneratingQuestions) {
         return (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-[var(--theme-bg-primary)]/80 backdrop-blur-sm">
+          <div className="fixed inset-0 flex items-center justify-center z-50 styles.colors.bg.primary/80 backdrop-blur-sm">
             <div className="flex flex-col items-center justify-center gap-4">
               <Loader2 className="h-12 w-12 animate-spin text-purple-400" />
-              <p className="text-lg text-[var(--theme-text-primary)]">Cargando siguiente pregunta...</p>
+              <p className="text-lg styles.colors.text.primary">Cargando siguiente pregunta...</p>
             </div>
           </div>
         )
@@ -504,7 +513,7 @@ export function PhaseContexto({
       // Solo mostrar error si NO estamos en transición (error real)
       return (
         <div className="w-full max-w-2xl mx-auto text-center space-y-4">
-          <p className="text-[var(--theme-text-secondary)] mb-4">
+          <p className="styles.colors.text.secondary mb-4">
             El índice de pregunta está fuera de rango. Limpiando estado...
           </p>
           <Button
@@ -531,10 +540,10 @@ export function PhaseContexto({
     // Si no hay pregunta pero hay preguntas en el array y estamos en transición
     if (state.questions.length > 0 && (isEvaluating || isGeneratingQuestions)) {
       return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-[var(--theme-bg-primary)]/80 backdrop-blur-sm">
+        <div className="fixed inset-0 flex items-center justify-center z-50 styles.colors.bg.primary/80 backdrop-blur-sm">
           <div className="flex flex-col items-center justify-center gap-4">
             <Loader2 className="h-12 w-12 animate-spin text-purple-400" />
-            <p className="text-lg text-[var(--theme-text-primary)]">Cargando siguiente pregunta...</p>
+            <p className="text-lg styles.colors.text.primary">Cargando siguiente pregunta...</p>
           </div>
         </div>
       )
@@ -575,16 +584,16 @@ export function PhaseContexto({
               <>
                 <Loader2 className="h-5 w-5 text-purple-400 animate-spin" />
                 <div>
-                  <p className="text-sm font-medium text-[var(--theme-text-primary)]">Buscando en internet...</p>
-                  <p className="text-xs text-[var(--theme-text-secondary)]">Puedes continuar respondiendo mientras buscamos</p>
+                  <p className="text-sm font-medium styles.colors.text.primary">Buscando en internet...</p>
+                  <p className="text-xs styles.colors.text.secondary">Puedes continuar respondiendo mientras buscamos</p>
                 </div>
               </>
             ) : state.internetSearch.context ? (
               <>
                 <CheckCircle className="h-5 w-5 text-green-400" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-[var(--theme-text-primary)]">Contexto de internet incluido</p>
-                  <p className="text-xs text-[var(--theme-text-secondary)]">
+                  <p className="text-sm font-medium styles.colors.text.primary">Contexto de internet incluido</p>
+                  <p className="text-xs styles.colors.text.secondary">
                     {state.internetSearch.results.filter((r) => r.selected).length} resultado{state.internetSearch.results.filter((r) => r.selected).length !== 1 ? 's' : ''} seleccionado{state.internetSearch.results.filter((r) => r.selected).length !== 1 ? 's' : ''}
                   </p>
                 </div>
@@ -604,8 +613,8 @@ export function PhaseContexto({
               <>
                 <CheckCircle className="h-5 w-5 text-blue-400" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-[var(--theme-text-primary)]">Resultados disponibles</p>
-                  <p className="text-xs text-[var(--theme-text-secondary)]">
+                  <p className="text-sm font-medium styles.colors.text.primary">Resultados disponibles</p>
+                  <p className="text-xs styles.colors.text.secondary">
                     {state.internetSearch.results.length} resultado{state.internetSearch.results.length !== 1 ? 's' : ''} encontrado{state.internetSearch.results.length !== 1 ? 's' : ''}
                   </p>
                 </div>
@@ -625,8 +634,8 @@ export function PhaseContexto({
               <>
                 <X className="h-5 w-5 text-yellow-400" />
                 <div>
-                  <p className="text-sm font-medium text-[var(--theme-text-primary)]">No se encontró contexto en internet</p>
-                  <p className="text-xs text-[var(--theme-text-secondary)]">{state.internetSearch.error || 'Continuaremos sin contexto adicional'}</p>
+                  <p className="text-sm font-medium styles.colors.text.primary">No se encontró contexto en internet</p>
+                  <p className="text-xs styles.colors.text.secondary">{state.internetSearch.error || 'Continuaremos sin contexto adicional'}</p>
                 </div>
               </>
             )}

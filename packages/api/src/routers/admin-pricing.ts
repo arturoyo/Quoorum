@@ -20,7 +20,6 @@ import {
 } from '@quoorum/db'
 import { TRPCError } from '@trpc/server'
 import {
-  analyzeProfitMargin,
   analyzeAllTiers,
   validatePricingConfig,
   validateTierConfig,
@@ -207,7 +206,7 @@ export const adminPricingRouter = router({
           },
           changedBy: ctx.userId,
           changeReason,
-        })
+        } as any)
       }
 
       return newConfig
@@ -316,7 +315,7 @@ export const adminPricingRouter = router({
           newValues: configData,
           changedBy: ctx.userId,
           changeReason,
-        })
+        } as any)
       }
 
       return newConfig
@@ -399,7 +398,7 @@ export const adminPricingRouter = router({
           newValues: updates,
           changedBy: ctx.userId,
           changeReason,
-        })
+        } as any)
       }
 
       return newConfig
@@ -450,7 +449,7 @@ export const adminPricingRouter = router({
         oldValues: currentConfig,
         changedBy: ctx.userId,
         changeReason,
-      })
+      } as any)
 
       return { success: true }
     }),

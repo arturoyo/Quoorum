@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "predev": "pwsh -NoProfile -File ../../scripts/auto-fix-dev.ps1",
-    "dev": "next dev -p 3000",
-    "dev:no-fix": "next dev -p 3000",
-    "dev:webpack": "next dev -p 3000 --webpack",
+    "prebuild": "pwsh -NoProfile -File ../../scripts/check-emoji-violations.ps1 --mode build",
+    "dev": "pwsh -NoProfile -File ../../scripts/check-emoji-violations.ps1 --mode dev && next dev -p 3005 --hostname 0.0.0.0",
+    "dev:no-fix": "pwsh -NoProfile -File ../../scripts/check-emoji-violations.ps1 --mode dev && next dev -p 3005 --hostname 0.0.0.0",
+    "dev:webpack": "next dev -p 3005 --webpack --hostname 0.0.0.0",
     "build": "cd ../.. && turbo build --filter=@quoorum/web",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -21,6 +22,7 @@
     "postinstall": "node scripts/copy-pdf-worker.js"
   },
   "dependencies": {
+    "@monaco-editor/react": "4.6.0",
     "@quoorum/api": "workspace:*",
     "@quoorum/core": "workspace:*",
     "@quoorum/db": "workspace:*",

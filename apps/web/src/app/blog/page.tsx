@@ -9,7 +9,7 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { blogPosts, categories } from "./data";
 
@@ -33,19 +33,19 @@ export default function BlogPage() {
       <section className="pt-40 pb-24 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] text-sm text-[var(--theme-text-secondary)] mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] text-sm styles.colors.text.secondary mb-8">
               <Brain className="w-4 h-4 text-purple-400" />
               <span>Blog de Quoorum</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-[var(--theme-text-primary)] mb-8 tracking-tight">
+            <h1 className="text-5xl md:text-7xl font-bold styles.colors.text.primary mb-8 tracking-tight">
               Insights sobre{" "}
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
                 decisiones inteligentes
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed">
               Artículos, casos de estudio y reflexiones sobre cómo la IA está
               transformando la manera en que tomamos decisiones importantes.
             </p>
@@ -67,7 +67,7 @@ export default function BlogPage() {
                 className={`px-6 py-2 rounded-full text-sm transition-all ${
                   category === selectedCategory
                     ? "bg-gradient-to-r from-purple-600 to-cyan-600 text-white"
-                    : "bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-landing-card-hover)] hover:text-[var(--theme-text-primary)]"
+                    : "bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] styles.colors.text.secondary hover:bg-[var(--theme-landing-card-hover)] hover:styles.colors.text.primary"
                 }`}
               >
                 {category}
@@ -106,23 +106,23 @@ export default function BlogPage() {
 
                     {/* Category */}
                     <div
-                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r ${post.gradient} bg-opacity-10 text-xs font-medium text-[var(--theme-text-primary)] mb-4`}
+                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r ${post.gradient} bg-opacity-10 text-xs font-medium styles.colors.text.primary mb-4`}
                     >
                       {post.category}
                     </div>
 
                     {/* Title */}
-                    <h2 className="text-2xl font-bold text-[var(--theme-text-primary)] mb-4 group-hover:text-purple-400 transition-colors">
+                    <h2 className="text-2xl font-bold styles.colors.text.primary mb-4 group-hover:text-purple-400 transition-colors">
                       {post.title}
                     </h2>
 
                     {/* Excerpt */}
-                    <p className="text-[var(--theme-text-secondary)] mb-6 leading-relaxed">
+                    <p className="styles.colors.text.secondary mb-6 leading-relaxed">
                       {post.excerpt}
                     </p>
 
                     {/* Meta */}
-                    <div className="flex items-center gap-6 text-sm text-[var(--theme-text-tertiary)]">
+                    <div className="flex items-center gap-6 text-sm styles.colors.text.tertiary">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4" />
                         <span>{post.author}</span>
@@ -134,7 +134,7 @@ export default function BlogPage() {
                     </div>
 
                     {/* Date */}
-                    <div className="mt-4 text-xs text-[var(--theme-text-tertiary)]">{post.date}</div>
+                    <div className="mt-4 text-xs styles.colors.text.tertiary">{post.date}</div>
 
                     {/* Read More */}
                     <div className="mt-6 flex items-center gap-2 text-purple-400 group-hover:gap-3 transition-all">
@@ -153,7 +153,7 @@ export default function BlogPage() {
               <Button
                 variant="outline"
                 onClick={() => setVisibleCount((prev) => prev + 4)}
-                className="border-[var(--theme-landing-border)] hover:bg-[var(--theme-landing-card-hover)] text-[var(--theme-text-primary)] px-8"
+                className="border-[var(--theme-landing-border)] hover:bg-[var(--theme-landing-card-hover)] styles.colors.text.primary px-8"
               >
                 Cargar más artículos
               </Button>
@@ -163,7 +163,7 @@ export default function BlogPage() {
           {/* No results message */}
           {filteredPosts.length === 0 && (
             <div className="text-center py-16">
-              <p className="text-[var(--theme-text-secondary)] text-lg">
+              <p className="styles.colors.text.secondary text-lg">
                 No hay artículos en esta categoría todavía.
               </p>
             </div>
@@ -182,10 +182,10 @@ export default function BlogPage() {
             <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-500/30 rounded-full blur-[100px]" />
 
             <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-bold text-[var(--theme-text-primary)] mb-6">
+              <h2 className="text-4xl md:text-5xl font-bold styles.colors.text.primary mb-6">
                 Recibe nuevos artículos en tu inbox
               </h2>
-              <p className="text-xl text-[var(--theme-text-secondary)] mb-10">
+              <p className="text-xl styles.colors.text.secondary mb-10">
                 Únete a cientos de profesionales que reciben nuestros insights
                 semanales sobre decisiones estratégicas y tecnología.
               </p>
@@ -194,14 +194,14 @@ export default function BlogPage() {
                 <input
                   type="email"
                   placeholder="tu@email.com"
-                  className="flex-1 px-6 h-12 rounded-2xl bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:border-purple-500/50 transition-colors"
+                  className="flex-1 px-6 h-12 rounded-2xl bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] styles.colors.text.primary placeholder:styles.colors.text.tertiary focus:outline-none focus:border-purple-500/50 transition-colors"
                 />
                 <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white border-0 px-8 h-12">
                   Suscribirse
                 </Button>
               </div>
 
-              <p className="text-sm text-[var(--theme-text-tertiary)] mt-4">
+              <p className="text-sm styles.colors.text.tertiary mt-4">
                 Sin spam. Cancela cuando quieras.
               </p>
             </div>

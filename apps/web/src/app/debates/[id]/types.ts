@@ -29,7 +29,9 @@ export interface ProcessedMessage extends RoundMessage {
   messageId: string
 }
 
-export type DebatePhase = 'contexto' | 'debate' | 'conclusion'
+// UI-specific phase labels (Spanish)
+const DEBATE_PHASES = ['contexto', 'debate', 'conclusion'] as const
+export type DebatePhase = (typeof DEBATE_PHASES)[number]
 
 // Infer type from DB enum (single source of truth)
 // Includes: 'draft' | 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled'

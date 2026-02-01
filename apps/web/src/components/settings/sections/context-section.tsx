@@ -316,8 +316,8 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-[var(--theme-text-primary)]">Archivos de Contexto</h1>
-        <p className="text-[var(--theme-text-secondary)]">
+        <h1 className="text-3xl font-bold mb-2 styles.colors.text.primary">Archivos de Contexto</h1>
+        <p className="styles.colors.text.secondary">
           Gestiona archivos de contexto que se incluyen automáticamente en tus debates
         </p>
       </div>
@@ -335,39 +335,41 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
               Crear Archivo
             </Button>
           </DialogTrigger>
-          <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl text-[var(--theme-text-primary)]">
+          <DialogContent className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl styles.colors.text.primary">
             <DialogHeader className="border-b-0 pb-0">
-              <DialogTitle className="text-[var(--theme-text-primary)]">
+              <DialogTitle className="styles.colors.text.primary">
                 {editingFile ? 'Editar Archivo de Contexto' : 'Crear Nuevo Archivo de Contexto'}
               </DialogTitle>
-              <DialogDescription className="text-[var(--theme-text-secondary)]">
+              <DialogDescription className="styles.colors.text.secondary">
                 Añade un archivo de texto que se incluirá automáticamente en tus debates para proporcionar contexto adicional.
               </DialogDescription>
             </DialogHeader>
 
             <DialogBody className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-[var(--theme-text-secondary)]">Nombre *</Label>
+                <Label className="styles.colors.text.secondary">Nombre *</Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej: Documentación Quoorum"
-                  className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                   aria-label="Context file name"
+                  className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[var(--theme-text-secondary)]">Descripción</Label>
+                <Label className="styles.colors.text.secondary">Descripción</Label>
                 <Input
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Breve descripción del archivo..."
-                  className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                   aria-label="Context file description"
+                  className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[var(--theme-text-secondary)]">Subir Archivo (opcional)</Label>
+                <Label className="styles.colors.text.secondary">Subir Archivo (opcional)</Label>
                 <div
                   onDragEnter={handleDragEnter}
                   onDragOver={handleDragOver}
@@ -379,7 +381,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
                     transition-all duration-200 ease-in-out
                     ${isDragging
                       ? 'border-purple-500 bg-purple-500/10 scale-[1.02]'
-                      : 'border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] hover:border-purple-500/50 hover:bg-[var(--theme-bg-input)]'
+                      : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-purple-500/50 hover:styles.colors.bg.input'
                     }
                   `}
                 >
@@ -405,10 +407,10 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[var(--theme-text-primary)] mb-1">
+                      <p className="text-sm font-medium styles.colors.text.primary mb-1">
                         {isDragging ? '¡Suelta el archivo aquí!' : 'Arrastra un archivo o haz clic para seleccionar'}
                       </p>
-                      <p className="text-xs text-[var(--theme-text-tertiary)]">
+                      <p className="text-xs styles.colors.text.tertiary">
                         Solo archivos de texto (.txt, .md). Máximo 500KB.
                       </p>
                     </div>
@@ -417,40 +419,40 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[var(--theme-text-secondary)]">Contenido *</Label>
+                <Label className="styles.colors.text.secondary">Contenido *</Label>
                 <Textarea
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   placeholder="Pega o escribe el contenido del archivo aquí..."
-                  className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] min-h-[200px] font-mono text-sm"
+                  className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary min-h-[200px] font-mono text-sm"
                 />
-                <p className="text-xs text-[var(--theme-text-tertiary)]">
+                <p className="text-xs styles.colors.text.tertiary">
                   {formData.content.length} caracteres
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[var(--theme-text-secondary)]">Orden</Label>
+                  <Label className="styles.colors.text.secondary">Orden</Label>
                   <Input
                     type="number"
                     min="0"
                     value={formData.order}
                     onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                    className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                    className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
                   />
-                  <p className="text-xs text-[var(--theme-text-tertiary)]">
+                  <p className="text-xs styles.colors.text.tertiary">
                     Orden en que se incluyen los archivos (menor = primero)
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[var(--theme-text-secondary)]">Tags (separados por comas)</Label>
+                  <Label className="styles.colors.text.secondary">Tags (separados por comas)</Label>
                   <Input
                     value={formData.tags}
                     onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                     placeholder="Ej: proyecto, landing, estrategia"
-                    className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+                    className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
                   />
                 </div>
               </div>
@@ -460,7 +462,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
               <Button
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600"
+                className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary hover:bg-purple-600 hover:border-purple-600"
               >
                 Cancelar
               </Button>
@@ -503,7 +505,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
           transition-all duration-200 ease-in-out
           ${isDragging
             ? 'border-purple-500 bg-purple-500/10 scale-[1.01]'
-            : 'border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] hover:border-purple-500/50 hover:bg-[var(--theme-bg-input)]'
+            : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-purple-500/50 hover:styles.colors.bg.input'
           }
         `}
       >
@@ -526,10 +528,10 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
             )}
           </div>
           <div>
-            <p className="text-sm font-medium text-[var(--theme-text-primary)]">
+            <p className="text-sm font-medium styles.colors.text.primary">
               {isDragging ? '¡Suelta para subir!' : 'Arrastra archivos aquí para añadirlos rápidamente'}
             </p>
-            <p className="text-xs text-[var(--theme-text-tertiary)]">
+            <p className="text-xs styles.colors.text.tertiary">
               O haz clic para seleccionar • Solo .txt, .md • Máx 500KB
             </p>
           </div>
@@ -537,11 +539,11 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
       </div>
 
       {!files || files.length === 0 ? (
-        <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+        <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <FileText className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-4" />
-            <p className="text-[var(--theme-text-secondary)] mb-2">No tienes archivos de contexto aún</p>
-            <p className="text-sm text-[var(--theme-text-tertiary)] mb-4">
+            <FileText className="h-12 w-12 styles.colors.text.tertiary mb-4" />
+            <p className="styles.colors.text.secondary mb-2">No tienes archivos de contexto aún</p>
+            <p className="text-sm styles.colors.text.tertiary mb-4">
               Crea tu primer archivo de contexto para incluir información relevante en tus debates
             </p>
             <Button
@@ -558,30 +560,30 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
           {files.map((file) => (
             <Card
               key={file.id}
-              className={`border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl hover:border-purple-500/30 transition-colors ${
+              className={`styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl hover:border-purple-500/30 transition-colors ${
                 !file.isActive ? 'opacity-60' : ''
               }`}
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-[var(--theme-text-primary)] flex items-center gap-2">
+                    <CardTitle className="styles.colors.text.primary flex items-center gap-2">
                       <FileText className="h-5 w-5 text-purple-400" />
                       {file.name}
                       {!file.isActive && (
-                        <Badge variant="outline" className="border-[var(--theme-border)] text-[var(--theme-text-tertiary)] bg-[var(--theme-bg-tertiary)]">
+                        <Badge variant="outline" className="styles.colors.border.default styles.colors.text.tertiary styles.colors.bg.tertiary">
                           Inactivo
                         </Badge>
                       )}
                     </CardTitle>
-                    <CardDescription className="text-[var(--theme-text-secondary)] mt-1">
+                    <CardDescription className="styles.colors.text.secondary mt-1">
                       {file.description || 'Sin descripción'}
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center gap-2 text-xs text-[var(--theme-text-secondary)]">
+                <div className="flex items-center gap-2 text-xs styles.colors.text.secondary">
                   <span>Tamaño: {formatFileSize(file.fileSize)}</span>
                   {file.order !== null && file.order !== undefined && (
                     <>
@@ -601,14 +603,14 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 pt-2 border-t border-[var(--theme-border)]">
+                <div className="flex items-center gap-2 pt-2 border-t styles.colors.border.default">
                   <div className="flex items-center gap-2 flex-1">
                     <Switch
                       checked={file.isActive}
                       onCheckedChange={() => handleToggleActive(file.id, file.isActive)}
                       disabled={toggleActive.isPending}
                     />
-                    <span className="text-sm text-[var(--theme-text-secondary)]">
+                    <span className="text-sm styles.colors.text.secondary">
                       {file.isActive ? 'Activo' : 'Inactivo'}
                     </span>
                   </div>
@@ -616,7 +618,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => handleEdit(file)}
-                    className="border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600"
+                    className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary hover:bg-purple-600 hover:border-purple-600"
                   >
                     <Edit className="h-3 w-3" />
                   </Button>

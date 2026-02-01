@@ -92,38 +92,60 @@ Formato tu respuesta como JSON:
 }
 
 // ============================================================================
-// SPECIAL MODE PROMPTS
+// SPECIAL MODE PROMPTS (Dynamic + Fallback)
 // ============================================================================
 
-export function buildDevilsAdvocatePrompt(
-  question: string, userPreference: string, context: DebateContext
-): string {
-  return `
-PREGUNTA: ${question}
+// Hardcoded fallback template for Devil's Advocate
+const DEVILS_ADVOCATE_FALLBACK = `PREGUNTA: \${question}
 
-LA PREFERENCIA DEL USUARIO ES: "${userPreference}"
+LA PREFERENCIA DEL USUARIO ES: "\${userPreference}"
 
 TU MISIÓN: Ser el Abogado del Diablo. Argumenta ACTIVAMENTE en contra de la preferencia del usuario.
 No seas condescendiente - busca genuinamente los problemas, riesgos y razones por las que esta podría ser una mala decisión.
 
-${context.companyContext ? `CONTEXTO: ${context.companyContext}` : ''}
+\${companyContext}
 
 Proporciona:
-1. 3-5 razones fuertes por las que "${userPreference}" podría ser un ERROR
+1. 3-5 razones fuertes por las que "\${userPreference}" podría ser un ERROR
 2. Escenarios específicos donde esta decisión podría fallar
 3. Qué estarían pensando las personas que NO están de acuerdo
 4. El "elephant in the room" - lo que nadie quiere decir pero es verdad
 5. Una alternativa que el usuario probablemente no ha considerado
 
-Sé brutalmente honesto pero constructivo.
-`.trim()
+Sé brutalmente honesto pero constructivo.`;
+
+export async function buildDevilsAdvocatePrompt(
+  question: string,
+  userPreference: string,
+  context: DebateContext,
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<string> {
+  try {
+    const { getPromptTemplate } = await import('../lib/prompt-manager');
+    const resolvedPrompt = await getPromptTemplate(
+      'special-mode-devils-advocate',
+      {
+        question,
+        userPreference,
+        companyContext: context.companyContext ? `CONTEXTO: ${context.companyContext}` : '',
+      },
+      performanceLevel
+    );
+    return resolvedPrompt.template;
+  } catch {
+    // Fallback to hardcoded template
+    return DEVILS_ADVOCATE_FALLBACK
+      .replace(/\${question}/g, question)
+      .replace(/\${userPreference}/g, userPreference)
+      .replace(/\${companyContext}/g, context.companyContext ? `CONTEXTO: ${context.companyContext}` : '')
+      .trim();
+  }
 }
 
-export function buildPreMortemPrompt(question: string, context: DebateContext): string {
-  return `
-DECISIÓN A ANALIZAR: ${question}
+// Hardcoded fallback template for Pre-Mortem
+const PRE_MORTEM_FALLBACK = `DECISIÓN A ANALIZAR: \${question}
 
-${context.companyContext ? `CONTEXTO: ${context.companyContext}` : ''}
+\${companyContext}
 
 EJERCICIO PRE-MORTEM:
 Imagina que estamos en 12 meses en el futuro. Esta decisión se tomó y FUE UN FRACASO TOTAL.
@@ -139,19 +161,57 @@ Tu tarea es hacer ingeniería inversa del fracaso:
 6. ALTERNATIVA: ¿Qué deberíamos haber hecho en su lugar?
 7. PREVENCIÓN: ¿Qué podemos hacer HOY para evitar este futuro?
 
-Sé específico y realista. Usa números cuando sea posible.
-`.trim()
+Sé específico y realista. Usa números cuando sea posible.`;
+
+export async function buildPreMortemPrompt(
+  question: string,
+  context: DebateContext,
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<string> {
+  try {
+    const { getPromptTemplate } = await import('../lib/prompt-manager');
+    const resolvedPrompt = await getPromptTemplate(
+      'special-mode-pre-mortem',
+      {
+        question,
+        companyContext: context.companyContext ? `CONTEXTO: ${context.companyContext}` : '',
+      },
+      performanceLevel
+    );
+    return resolvedPrompt.template;
+  } catch {
+    // Fallback to hardcoded template
+    return PRE_MORTEM_FALLBACK
+      .replace(/\${question}/g, question)
+      .replace(/\${companyContext}/g, context.companyContext ? `CONTEXTO: ${context.companyContext}` : '')
+      .trim();
+  }
 }
 
-export function buildGutCheckPrompt(question: string): string {
-  return `
-PREGUNTA: ${question}
+// Hardcoded fallback template for Gut Check
+const GUT_CHECK_FALLBACK = `PREGUNTA: \${question}
 
 RESPONDE EN MÁXIMO 3 ORACIONES:
 1. ¿Cuál es tu instinto inicial? (SÍ/NO/DEPENDE)
 2. ¿Por qué en una frase?
 3. ¿Qué es lo ÚNICO que necesitas saber para estar seguro?
 
-Sé directo. Sin rodeos. Como un mentor que tiene 30 segundos.
-`.trim()
+Sé directo. Sin rodeos. Como un mentor que tiene 30 segundos.`;
+
+export async function buildGutCheckPrompt(
+  question: string,
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<string> {
+  try {
+    const { getPromptTemplate } = await import('../lib/prompt-manager');
+    const resolvedPrompt = await getPromptTemplate(
+      'special-mode-gut-check',
+      { question },
+      performanceLevel
+    );
+    return resolvedPrompt.template;
+  } catch {
+    // Fallback to hardcoded template
+    return GUT_CHECK_FALLBACK.replace(/\${question}/g, question).trim();
+  }
 }

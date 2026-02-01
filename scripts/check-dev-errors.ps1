@@ -5,22 +5,22 @@ $TerminalDir = "$env:USERPROFILE\.cursor\projects\c-Quoorum\terminals"
 
 if (-not (Test-Path $TerminalDir)) {
     Write-Host "[ERROR] Terminal logs directory not found" -ForegroundColor Red
-    exit 1
+    exit [EMOJI]
 }
 
 # Check multiple recent logs, not just the latest
 $RecentLogs = Get-ChildItem -Path $TerminalDir -Filter "*.txt" | 
     Sort-Object LastWriteTime -Descending | 
-    Select-Object -First 5
+    Select-Object -First [EMOJI]
 
 if (-not $RecentLogs -or $RecentLogs.Count -eq 0) {
     Write-Host "[ERROR] No log files found" -ForegroundColor Red
-    exit 1
+    exit [EMOJI]
 }
 
-Write-Host "📋 Checking $($RecentLogs.Count) recent log(s):" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Checking $($RecentLogs.Count) recent log(s):" -ForegroundColor Cyan
 foreach ($Log in $RecentLogs) {
-    Write-Host "   • $($Log.Name) - $($Log.LastWriteTime)" -ForegroundColor Gray
+    Write-Host "   [EMOJI][EMOJI]� $($Log.Name) - $($Log.LastWriteTime)" -ForegroundColor Gray
 }
 Write-Host ""
 
@@ -63,11 +63,11 @@ $FoundErrors = @()
 foreach ($ErrorType in $ErrorPatterns) {
     if ($Content -match $ErrorType.Pattern) {
         $Matches = [regex]::Matches($Content, $ErrorType.Pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-        $LastMatch = $Matches[-1]
+        $LastMatch = $Matches[-[EMOJI]]
         
         if ($LastMatch) {
-            $StartPos = [Math]::Max(0, $LastMatch.Index - 200)
-            $EndPos = [Math]::Min($Content.Length, $LastMatch.Index + 500)
+            $StartPos = [Math]::Max(0, $LastMatch.Index - [EMOJI]00)
+            $EndPos = [Math]::Min($Content.Length, $LastMatch.Index + [EMOJI]00)
             $Context = $Content.Substring($StartPos, $EndPos - $StartPos)
             
             $FoundErrors += @{
@@ -89,14 +89,14 @@ Write-Host ("=" * 70) -ForegroundColor DarkGray
 
 foreach ($Err in $FoundErrors) {
     Write-Host "`n[ERROR] $($Err.Type)" -ForegroundColor Red
-    Write-Host ("─" * 70) -ForegroundColor DarkGray
+    Write-Host ("[EMOJI][EMOJI][EMOJI]" * 70) -ForegroundColor DarkGray
     
     # Extract the most relevant error message
     $Lines = $Err.Context -split "`n"
     $RelevantLines = $Lines | Where-Object { 
         $_ -match "error|Error|ERROR|failed|Failed|FAILED" -or
         $_ -match "Module not found|Can't resolve|Build Error"
-    } | Select-Object -First 10
+    } | Select-Object -First [EMOJI]0
     
     foreach ($Line in $RelevantLines) {
         if ($Line.Trim().Length -gt 0) {
@@ -106,7 +106,7 @@ foreach ($Err in $FoundErrors) {
 }
 
 Write-Host ("`n" + ("=" * 70)) -ForegroundColor DarkGray
-Write-Host "`n💡 Tip: Run 'pnpm check:errors' to see this automatically" -ForegroundColor Cyan
+Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Tip: Run 'pnpm check:errors' to see this automatically" -ForegroundColor Cyan
 Write-Host "   Or use 'pnpm watch:errors' for continuous monitoring`n" -ForegroundColor Cyan
 
-exit 1
+exit [EMOJI]
