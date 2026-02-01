@@ -263,7 +263,7 @@ export type {
   MaturityLevel,
   ContextRelevance,
   RelationshipType,
-  AIConfig,
+  ProfileAIConfig,
   Firmographics,
   Psychographics,
 } from "./strategic-profiles";

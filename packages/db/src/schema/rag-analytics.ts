@@ -6,7 +6,7 @@
  */
 
 import { pgTable, uuid, varchar, text, integer, real, boolean, timestamp, jsonb, index } from 'drizzle-orm/pg-core'
-import { profiles } from './auth'
+import { profiles } from './profiles'
 import { companies } from './companies'
 import { quoorumDebates } from './quoorum-debates'
 import { vectorDocuments } from './vector-documents'

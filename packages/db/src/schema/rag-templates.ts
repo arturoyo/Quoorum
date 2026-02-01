@@ -5,7 +5,7 @@
  */
 
 import { pgTable, uuid, varchar, text, integer, real, boolean, timestamp, jsonb, index } from 'drizzle-orm/pg-core'
-import { profiles } from './auth'
+import { profiles } from './profiles'
 
 // ============================================================================
 // RAG TEMPLATES

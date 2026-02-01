@@ -5,7 +5,7 @@
 
 import { pgTable, uuid, text, integer, decimal, jsonb, timestamp, index } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { profiles } from './auth'
+import { profiles } from './profiles'
 import { companies } from './companies'
 
 // ============================================================================

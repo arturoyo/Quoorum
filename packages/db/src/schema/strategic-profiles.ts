@@ -24,7 +24,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { profiles } from './auth'
+import { profiles } from './profiles'
 import { companies } from './companies'
 import { vectorDocuments } from './vector-documents'
 
@@ -85,7 +85,7 @@ export type RelationshipType = (typeof relationshipTypeEnum.enumValues)[number]
 // TYPE-SPECIFIC CONFIGS (TypeScript interfaces for JSONB)
 // ============================================================================
 
-export interface AIConfig {
+export interface ProfileAIConfig {
   systemPrompt?: string
   model?: string
   temperature?: number
@@ -161,7 +161,7 @@ export const strategicProfiles = pgTable(
     successMetrics: text('success_metrics').array(),
 
     // Type-Specific Attributes (JSONB)
-    aiConfig: jsonb('ai_config').$type<AIConfig>().default({}),
+    aiConfig: jsonb('ai_config').$type<ProfileAIConfig>().default({}),
     firmographics: jsonb('firmographics').$type<Firmographics>().default({}),
     psychographics: jsonb('psychographics').$type<Psychographics>().default({}),
 
