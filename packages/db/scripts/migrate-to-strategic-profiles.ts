@@ -65,10 +65,10 @@ async function migrateExpert(expert: any): Promise<boolean> {
       createdBy: expert.createdBy || null,
     })
 
-    console.log(`✅ Migrated expert: ${expert.name}`)
+    console.log(`[OK] Migrated expert: ${expert.name}`)
     return true
   } catch (error) {
-    console.error(`❌ Failed to migrate expert ${expert.name}:`, error)
+    console.error(`[ERROR] Failed to migrate expert ${expert.name}:`, error)
     return false
   }
 }
@@ -121,10 +121,10 @@ async function migrateProfessional(worker: any): Promise<boolean> {
       createdBy: worker.createdBy || null,
     })
 
-    console.log(`✅ Migrated professional: ${worker.name}`)
+    console.log(`[OK] Migrated professional: ${worker.name}`)
     return true
   } catch (error) {
-    console.error(`❌ Failed to migrate professional ${worker.name}:`, error)
+    console.error(`[ERROR] Failed to migrate professional ${worker.name}:`, error)
     return false
   }
 }
@@ -133,7 +133,7 @@ async function migrateProfessional(worker: any): Promise<boolean> {
  * Main migration function
  */
 async function runMigration() {
-  console.log('🚀 Starting migration to Strategic Profiles...\n')
+  console.log('[INFO] Starting migration to Strategic Profiles...\n')
 
   const stats: MigrationStats = {
     expertsProcessed: 0,
@@ -144,12 +144,12 @@ async function runMigration() {
 
   try {
     // Get all experts
-    console.log('📊 Fetching existing experts...')
+    console.log('[INFO] Fetching existing experts...')
     const existingExperts = await db.select().from(experts)
     console.log(`Found ${existingExperts.length} experts\n`)
 
     // Migrate experts
-    console.log('🔄 Migrating experts...')
+    console.log('[INFO] Migrating experts...')
     for (const expert of existingExperts) {
       // Check if already migrated (by slug)
       const existing = await db.query.strategicProfiles.findFirst({
@@ -157,7 +157,7 @@ async function runMigration() {
       })
 
       if (existing) {
-        console.log(`⏭️  Skipped (already exists): ${expert.name}`)
+        console.log(`[SKIP] Skipped (already exists): ${expert.name}`)
         stats.skipped++
         continue
       }
@@ -173,12 +173,12 @@ async function runMigration() {
     console.log('\n')
 
     // Get all professionals/workers
-    console.log('📊 Fetching existing professionals...')
+    console.log('[INFO] Fetching existing professionals...')
     const existingWorkers = await db.select().from(workers)
     console.log(`Found ${existingWorkers.length} professionals\n`)
 
     // Migrate professionals
-    console.log('🔄 Migrating professionals...')
+    console.log('[INFO] Migrating professionals...')
     for (const worker of existingWorkers) {
       // Check if already migrated
       const existing = await db.query.strategicProfiles.findFirst({
@@ -186,7 +186,7 @@ async function runMigration() {
       })
 
       if (existing) {
-        console.log(`⏭️  Skipped (already exists): ${worker.name}`)
+        console.log(`[SKIP] Skipped (already exists): ${worker.name}`)
         stats.skipped++
         continue
       }
@@ -202,22 +202,22 @@ async function runMigration() {
     // Print summary
     console.log('\n')
     console.log('=' .repeat(60))
-    console.log('📋 MIGRATION SUMMARY')
+    console.log('[INFO] MIGRATION SUMMARY')
     console.log('=' .repeat(60))
-    console.log(`✅ Experts migrated:        ${stats.expertsProcessed}`)
-    console.log(`✅ Professionals migrated:  ${stats.professionalsProcessed}`)
-    console.log(`⏭️  Skipped (duplicates):   ${stats.skipped}`)
-    console.log(`❌ Errors:                  ${stats.errors}`)
-    console.log(`📊 Total processed:         ${stats.expertsProcessed + stats.professionalsProcessed}`)
+    console.log(`[OK] Experts migrated:        ${stats.expertsProcessed}`)
+    console.log(`[OK] Professionals migrated:  ${stats.professionalsProcessed}`)
+    console.log(`[SKIP] Skipped (duplicates):   ${stats.skipped}`)
+    console.log(`[ERROR] Errors:                  ${stats.errors}`)
+    console.log(`[INFO] Total processed:         ${stats.expertsProcessed + stats.professionalsProcessed}`)
     console.log('=' .repeat(60))
 
     if (stats.errors === 0) {
-      console.log('\n✅ Migration completed successfully!')
+      console.log('\n[OK] Migration completed successfully!')
     } else {
-      console.log(`\n⚠️  Migration completed with ${stats.errors} errors`)
+      console.log(`\n[WARN] Migration completed with ${stats.errors} errors`)
     }
   } catch (error) {
-    console.error('\n❌ Migration failed:', error)
+    console.error('\n[ERROR] Migration failed:', error)
     process.exit(1)
   }
 }
@@ -226,11 +226,11 @@ async function runMigration() {
 if (require.main === module) {
   runMigration()
     .then(() => {
-      console.log('\n✅ Migration script finished')
+      console.log('\n[OK] Migration script finished')
       process.exit(0)
     })
     .catch((error) => {
-      console.error('\n❌ Migration script failed:', error)
+      console.error('\n[ERROR] Migration script failed:', error)
       process.exit(1)
     })
 }
