@@ -1,9 +1,16 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts", "src/providers/index.ts", "src/embeddings/index.ts"],
+  entry: {
+    index: "src/index.ts",
+    "providers/index": "src/providers/index.ts",
+    "embeddings/index": "src/embeddings/index.ts",
+  },
   format: ["esm"],
-  dts: true,
+  dts: false, // Use tsc instead to avoid chunking issues
+  splitting: false,
+  treeshake: false,
   clean: true,
   sourcemap: true,
+  bundle: false,
 });
