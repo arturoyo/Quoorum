@@ -300,6 +300,17 @@ export const debatesRouter = router({
         });
       }
 
+      // Validate user has email
+      if (!ctx.user.email) {
+        logger.error("[Create Draft] User email is missing", {
+          userId: ctx.user.id,
+        });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "El usuario no tiene un email asociado",
+        });
+      }
+
       // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
       // Find or create profile for this user
       let [profile] = await db
@@ -320,7 +331,7 @@ export const debatesRouter = router({
           .values({
             userId: ctx.user.id, // Reference to users.id (Supabase Auth)
             email: ctx.user.email,
-            name: ctx.user.name || ctx.user.email.split('@')[0],
+            name: ctx.user.name || (ctx.user.email ? ctx.user.email.split('@')[0] : 'Unknown User'),
             role: ctx.user.role || 'user',
             isActive: true,
           })
@@ -440,7 +451,7 @@ export const debatesRouter = router({
           .values({
             userId: ctx.user.id, // Reference to users.id (Supabase Auth)
             email: ctx.user.email,
-            name: ctx.user.name || ctx.user.email.split('@')[0],
+            name: ctx.user.name || (ctx.user.email ? ctx.user.email.split('@')[0] : 'Unknown User'),
             role: ctx.user.role || 'user',
             isActive: true,
           })

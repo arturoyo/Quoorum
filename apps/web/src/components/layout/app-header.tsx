@@ -173,7 +173,7 @@ export function AppHeader({
             <div className="flex-1">
               <QuoorumLogoWithText
                 href="/"
-                iconSize={200}
+                iconSize={20}
                 showGradient={true}
                 showText={false}
                 className="transition-opacity group-hover:opacity-80"
@@ -294,7 +294,7 @@ export function AppHeader({
           <div className="relative flex h-16 items-center justify-between">
             <QuoorumLogoWithText
               href="/dashboard"
-              iconSize={200}
+              iconSize={20}
               showGradient={true}
               showText={false}
               className="transition-opacity group-hover:opacity-80"

@@ -5,7 +5,7 @@
  * Falls back to random prompts if no backstory is configured.
  */
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { api } from '@/lib/trpc/client'
 import { getRandomDebatePrompt } from '@/lib/debate-prompts'
 
@@ -15,11 +15,23 @@ interface BackstoryHeader {
   hasBackstory: boolean
 }
 
+// Static fallback to avoid hydration mismatch
+const STATIC_FALLBACK = {
+  title: '¿Qué decisión quieres tomar?',
+  subtitle: 'Describe tu pregunta o decisión y te guiaremos paso a paso',
+}
+
 export function useBackstoryHeader(): BackstoryHeader {
   const { data: backstorySummary } = api.userBackstory.getSummary.useQuery(undefined, {
     retry: false,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   })
+
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   return useMemo(() => {
     // If user has backstory configured, use it
@@ -46,12 +58,21 @@ export function useBackstoryHeader(): BackstoryHeader {
       }
     }
 
-    // Fallback: Use random prompt if no backstory
+    // Fallback: Use static prompt on server/first render, random on client after mount
+    // This prevents hydration mismatch from Math.random()
+    if (!isMounted) {
+      return {
+        title: STATIC_FALLBACK.title,
+        subtitle: STATIC_FALLBACK.subtitle,
+        hasBackstory: false,
+      }
+    }
+
     const randomPrompt = getRandomDebatePrompt()
     return {
       title: randomPrompt.title,
       subtitle: randomPrompt.subtitle,
       hasBackstory: false,
     }
-  }, [backstorySummary])
+  }, [backstorySummary, isMounted])
 }
