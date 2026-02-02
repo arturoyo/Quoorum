@@ -30,6 +30,7 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { cn, styles } from '@/lib/utils'
 import { SettingsSectionRenderer } from './settings-section-renderer'
 import { SettingsProvider } from './settings-context'
+import { api } from '@/lib/trpc/client'
 
 interface SettingsContentProps {
   isInModal?: boolean
@@ -141,9 +142,14 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
     )
   }
 
+  // Get user's admin status
+  const { data: currentUser } = api.users.getMe.useQuery(undefined, {
+    enabled: !isLoading,
+  })
+
   // Use currentSection state when in modal, pathname otherwise
   const activePath = isInModal ? currentSection : (pathname || '/settings')
-  const settingsNav = getSettingsNav(activePath)
+  const settingsNav = getSettingsNav(activePath, currentUser?.isAdmin ?? false)
 
   return (
     <div className={cn('relative flex flex-col', isInModal ? 'max-h-[90vh]' : 'min-h-screen')}>

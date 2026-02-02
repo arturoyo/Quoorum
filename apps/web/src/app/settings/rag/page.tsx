@@ -46,7 +46,7 @@ export default function RAGPage() {
     onSuccess: () => {
       toast.success('Document uploaded successfully')
       refetchDocuments()
-      setUploadFile(null)
+      setUploadFiles(null)
     },
     onError: (error) => {
       toast.error(`Upload failed: ${error.message}`)

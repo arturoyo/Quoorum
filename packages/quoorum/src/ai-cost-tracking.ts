@@ -67,7 +67,7 @@ export function calculateAICost(
   }
 
   // Find model pricing (exact match or fallback)
-  let pricing = providerPricing[modelId as keyof typeof providerPricing]
+  let pricing: { prompt: number; completion: number } | undefined = providerPricing[modelId as keyof typeof providerPricing] as { prompt: number; completion: number } | undefined
 
   // Fallback: if model not found, try to find similar model
   if (!pricing) {
@@ -76,7 +76,7 @@ export function calculateAICost(
       modelId.includes(key) || key.includes(modelId.split('-')[0] ?? '')
     )
     if (similarModelKey) {
-      pricing = providerPricing[similarModelKey as keyof typeof providerPricing]
+      pricing = providerPricing[similarModelKey as keyof typeof providerPricing] as { prompt: number; completion: number }
       logger.info(`[AI Cost Tracking] Using similar model pricing: ${similarModelKey} for ${modelId}`)
     }
 

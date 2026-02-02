@@ -65,6 +65,7 @@ const INITIAL_ESTRATEGIA: EstrategiaState = {
 
 const INITIAL_REVISION: RevisionState = {
   canProceed: false,
+  performanceLevel: 'balanced',
   summary: {
     question: '',
     expertCount: 0,
@@ -1488,6 +1489,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       if (currentPhase === 3) {
         setRevision({
           canProceed: true,
+          performanceLevel: 'balanced',
           summary: {
             question: contexto.mainQuestion,
             expertCount: expertos.selectedExpertIds.length,

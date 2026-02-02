@@ -95,8 +95,8 @@ export function estimateExpertSelectionPhaseCost(config: PhaseCostConfig): Phase
   
   const totalCostUsd = matchingCostUsd + expertCostUsd + departmentCostUsd + workerCostUsd
   const totalCredits = convertUsdToCredits(totalCostUsd)
-  
-  const breakdown = []
+
+  const breakdown: { item: string; costCredits: number }[] = []
   if (matchingCostUsd > 0) {
     breakdown.push({ item: 'Matching de expertos', costCredits: convertUsdToCredits(matchingCostUsd) })
   }

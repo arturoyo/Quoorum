@@ -93,7 +93,7 @@ export function getPerformanceProfile(
  * Get default performance profile (balanced)
  */
 export function getDefaultPerformanceProfile(): PerformanceProfile {
-  return PERFORMANCE_PROFILES.balanced
+  return PERFORMANCE_PROFILES.balanced!
 }
 
 /**

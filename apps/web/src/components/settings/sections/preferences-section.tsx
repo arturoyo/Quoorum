@@ -16,7 +16,7 @@ interface PreferencesSectionProps {
 
 const PERFORMANCE_LEVELS = [
   {
-    value: 'economic',
+    value: 'economic' as const,
     name: 'Económico',
     icon: TrendingDown,
     color: 'text-green-400',
@@ -25,9 +25,10 @@ const PERFORMANCE_LEVELS = [
     description: 'Modelos más baratos en todas las operaciones. ~70% menos coste.',
     examples: 'GPT-3.5 Turbo, GPT-4o Mini, Gemini 2.0 Flash',
     costMultiplier: '0.3x',
+    isRecommended: false,
   },
   {
-    value: 'balanced',
+    value: 'balanced' as const,
     name: 'Equilibrado',
     icon: Scale,
     color: 'text-blue-400',
@@ -39,7 +40,7 @@ const PERFORMANCE_LEVELS = [
     isRecommended: true,
   },
   {
-    value: 'performance',
+    value: 'performance' as const,
     name: 'Alto Rendimiento',
     icon: Zap,
     color: 'text-purple-400',
@@ -48,8 +49,9 @@ const PERFORMANCE_LEVELS = [
     description: 'Modelos premium en todas las operaciones. Máxima calidad y precisión.',
     examples: 'GPT-4, Claude 3 Opus, Claude 3.5 Sonnet',
     costMultiplier: '3.0x',
+    isRecommended: false,
   },
-] as const
+]
 
 export function PreferencesSection({ isInModal = false }: PreferencesSectionProps) {
   const [isSaving, setIsSaving] = useState(false)

@@ -129,7 +129,7 @@ export async function getPromptTemplate(
 
   // 3. Fallback to config defaults
   if (!promptConfig) {
-    promptConfig = DEBATE_PROMPTS_DEFAULTS[promptSlug]
+    promptConfig = DEBATE_PROMPTS_DEFAULTS[promptSlug] ?? null
 
     if (!promptConfig) {
       throw new Error(

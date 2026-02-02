@@ -156,7 +156,7 @@ export class GeminiProvider implements AIProvider {
   async generateResponse(prompt: string, options?: GenerateOptions): Promise<string> {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`
 
-    const contents = []
+    const contents: { role: string; parts: { text: string }[] }[] = []
     if (options?.systemPrompt) {
       contents.push({ role: 'user', parts: [{ text: options.systemPrompt }] })
       contents.push({ role: 'model', parts: [{ text: 'Entendido.' }] })

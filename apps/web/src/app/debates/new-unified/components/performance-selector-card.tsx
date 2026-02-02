@@ -26,7 +26,7 @@ interface PerformanceSelectorCardProps {
 
 const PERFORMANCE_LEVELS = [
   {
-    value: 'economic',
+    value: 'economic' as const,
     name: 'Económico',
     icon: TrendingDown,
     color: 'text-green-400',
@@ -35,9 +35,11 @@ const PERFORMANCE_LEVELS = [
     description: 'Modelos básicos. Ideal para debates exploratorios o pruebas.',
     costMultiplier: '0.3x coste',
     savings: '~70% ahorro',
+    isRecommended: false,
+    premium: false,
   },
   {
-    value: 'balanced',
+    value: 'balanced' as const,
     name: 'Equilibrado',
     icon: Scale,
     color: 'text-blue-400',
@@ -45,10 +47,12 @@ const PERFORMANCE_LEVELS = [
     borderColor: 'border-blue-500/30 bg-blue-500/5',
     description: 'Balance óptimo calidad/precio. Recomendado para la mayoría de debates.',
     costMultiplier: '1.0x coste',
+    savings: undefined,
     isRecommended: true,
+    premium: false,
   },
   {
-    value: 'performance',
+    value: 'performance' as const,
     name: 'Alto Rendimiento',
     icon: Zap,
     color: 'text-purple-400',
@@ -56,9 +60,11 @@ const PERFORMANCE_LEVELS = [
     borderColor: 'border-purple-500/30 bg-purple-500/5',
     description: 'Modelos premium. Máxima calidad para decisiones críticas.',
     costMultiplier: '3.0x coste',
+    savings: undefined,
+    isRecommended: false,
     premium: true,
   },
-] as const
+]
 
 export function PerformanceSelectorCard({
   numExperts,
@@ -141,12 +147,12 @@ export function PerformanceSelectorCard({
                         Tu default
                       </Badge>
                     )}
-                    {level.isRecommended && (
+                    {level.isRecommended === true && (
                       <Badge variant="secondary" className="text-xs">
                         Recomendado
                       </Badge>
                     )}
-                    {level.premium && (
+                    {level.premium === true && (
                       <Badge className={level.badgeColor} variant="outline">
                         Premium
                       </Badge>

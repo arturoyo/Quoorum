@@ -374,7 +374,7 @@ export function PhaseRevision({
         {/* Just-in-Time Performance Selector */}
         <PerformanceSelectorCard
           numExperts={expertos.selectedExpertIds.length + expertos.selectedDepartmentIds.length + expertos.selectedWorkerIds.length}
-          framework={estrategia.selectedFramework?.name}
+          framework={estrategia.selectedFrameworkId || undefined}
           numContextQuestions={contexto.questions.length}
           hasInternetSearch={false}
           value={selectedPerformanceLevel}
