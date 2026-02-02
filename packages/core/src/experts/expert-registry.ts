@@ -1,4 +1,5 @@
-import type { ExpertConfig } from "@quoorum/ai";
+// Workaround for TS2709: Import from types export directly to avoid namespace issue
+import type { ExpertConfig } from "@quoorum/ai/types";
 import { DeliberationExpert } from "./deliberation-expert";
 import type { BaseExpert } from "./base-expert";
 

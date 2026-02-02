@@ -229,7 +229,8 @@
       "Bash(powershell.exe -NoProfile -Command:*)",
       "Bash(powershell.exe:*)",
       "Bash(Set-Location \"C:\\\\quoorum\\\\packages\\\\api\")",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(tsc:*)"
     ]
   }
 }

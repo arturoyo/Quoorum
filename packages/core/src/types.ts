@@ -1,19 +1,9 @@
-// Local type definitions to avoid import issues
-export interface AIConfig {
-  provider: string;
-  model: string;
-  apiKey?: string;
-  temperature?: number;
-  maxTokens?: number;
-}
+// Import and re-export type definitions from @quoorum/ai
+// Using /types export to avoid TS2709 namespace issue
+import type { AIConfig as AIConfigBase, ExpertConfig as ExpertConfigBase } from "@quoorum/ai/types";
 
-export interface ExpertConfig {
-  id: string;
-  name: string;
-  expertise: string;
-  systemPrompt: string;
-  aiConfig: AIConfig;
-}
+export type AIConfig = AIConfigBase;
+export type ExpertConfig = ExpertConfigBase;
 
 export interface DeliberationConfig {
   id: string;

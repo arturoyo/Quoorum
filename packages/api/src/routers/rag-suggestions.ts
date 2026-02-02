@@ -11,7 +11,7 @@ import { router, protectedProcedure } from '../trpc'
 import { db } from '@quoorum/db'
 import { quoorumDebates, vectorDocuments } from '@quoorum/db/schema'
 import { eq, desc, sql } from 'drizzle-orm'
-import { logger } from '../logger'
+import { logger } from '../lib/logger'
 import { callAI } from '@quoorum/ai'
 
 export const ragSuggestionsRouter = router({
