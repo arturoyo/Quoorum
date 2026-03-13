@@ -24,7 +24,7 @@ import { db } from '@quoorum/db'
 import type { Context } from '../../trpc'
 
 // Mock dependencies
-vi.mock('@quoorum/quoorum/src/orchestration/market-simulator', () => ({
+vi.mock('@quoorum/quoorum/orchestration/market-simulator', () => ({
   runMarketSimulation: vi.fn().mockResolvedValue({
     winningVariant: {
       index: 0,

@@ -13,7 +13,7 @@ import {
   type FrictionScore,
 } from '@quoorum/db/schema'
 import { eq, and, desc, inArray } from 'drizzle-orm'
-import { runMarketSimulation, type BuyerPersona } from '@quoorum/quoorum/src/orchestration/market-simulator'
+import { runMarketSimulation, type BuyerPersona } from '@quoorum/quoorum/orchestration/market-simulator'
 import { logger } from '../lib/logger'
 
 // ============================================================================

@@ -35,6 +35,8 @@
     "./governance/decision-evidence": "./src/governance/decision-evidence.ts",
     "./voting/quadratic-voting": "./src/voting/quadratic-voting.ts",
     "./analytics/phase-cost-estimator": "./src/analytics/phase-cost-estimator.ts",
+    "./pricing/debate-cost-estimator": "./src/pricing/debate-cost-estimator.ts",
+    "./orchestration/market-simulator": "./src/orchestration/market-simulator.ts",
     "./scenarios/types": "./src/scenarios/types.ts",
     "./ai-cost-tracking": "./src/ai-cost-tracking.ts",
     "./skills/predefined-skills": "./src/skills/predefined-skills.ts",

@@ -9,7 +9,7 @@
     "dev": "pwsh -NoProfile -File ../../scripts/check-emoji-violations.ps1 --mode dev && next dev -p 3005 --hostname 0.0.0.0",
     "dev:no-fix": "pwsh -NoProfile -File ../../scripts/check-emoji-violations.ps1 --mode dev && next dev -p 3005 --hostname 0.0.0.0",
     "dev:webpack": "next dev -p 3005 --webpack --hostname 0.0.0.0",
-    "build": "cd ../.. && turbo build --filter=@quoorum/web",
+    "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "next lint",

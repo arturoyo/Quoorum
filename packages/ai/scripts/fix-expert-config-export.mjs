@@ -16,7 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const distDir = join(__dirname, '../dist');
 const indexDtsPath = join(distDir, 'index.d.ts');
 
-console.log('🔧 Fixing ExpertConfig export in type definition files...');
+console.log('[INFO] Fixing ExpertConfig export in type definition files...');
 
 try {
   // Step 1: Fix index.d.ts
@@ -24,7 +24,7 @@ try {
 
   // Check if already fixed
   if (indexContent.includes('// Direct export to avoid namespace issue') && !indexContent.match(/E as ExpertConfig/)) {
-    console.log('✅ index.d.ts already fixed');
+    console.log('[OK] index.d.ts already fixed');
   } else {
     // Import AIConfig for the interface definition
     indexContent = indexContent.replace(
@@ -56,7 +56,7 @@ export interface ExpertConfig {
     }
 
     writeFileSync(indexDtsPath, indexContent, 'utf-8');
-    console.log('✅ index.d.ts fixed');
+    console.log('[OK] index.d.ts fixed');
   }
 
   // Step 2: Fix the chunk file (index-*.d.ts)
@@ -75,12 +75,12 @@ export interface ExpertConfig {
 
     if (chunkContent !== originalChunkContent) {
       writeFileSync(chunkPath, chunkContent, 'utf-8');
-      console.log(`✅ ${chunkFile} fixed (removed ExpertConfig export)`);
+      console.log(`[OK] ${chunkFile} fixed (removed ExpertConfig export)`);
     }
   }
 
-  console.log('✅ All ExpertConfig exports fixed successfully');
+  console.log('[OK] All ExpertConfig exports fixed successfully');
 } catch (error) {
-  console.error('❌ Error fixing ExpertConfig export:', error.message);
+  console.error('[ERROR] Error fixing ExpertConfig export:', error.message);
   process.exit(1);
 }

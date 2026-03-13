@@ -230,7 +230,11 @@
       "Bash(powershell.exe:*)",
       "Bash(Set-Location \"C:\\\\quoorum\\\\packages\\\\api\")",
       "Bash(gh pr create:*)",
-      "Bash(tsc:*)"
+      "Bash(tsc:*)",
+      "Bash(Get-ChildItem \"C:\\\\quoorum\\\\packages\\\\ai\\\\dist\" -Name)",
+      "Bash(Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue)",
+      "Bash(Remove-Item -Recurse -Force node_modules/.cache -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Id 67188 -Force)"
     ]
   }
 }

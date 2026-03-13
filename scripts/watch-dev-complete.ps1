@@ -6,9 +6,9 @@ $ErrorActionPreference = "Continue"
 Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] MONITOR COMPLETO DE DESARROLLO" -ForegroundColor Cyan
 Write-Host "===================================" -ForegroundColor Cyan
 if ($AutoFix) {
-    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Auto-fix: ACTIVADO - CorregirÃ[EMOJI] TODOS los errores automÃ[EMOJI]ticamente" -ForegroundColor Green
+    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Auto-fix: ACTIVADO - Corregirï¿½[EMOJI] TODOS los errores automï¿½[EMOJI]ticamente" -ForegroundColor Green
 } else {
-    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Auto-fix: DESACTIVADO - Solo reportarÃ[EMOJI] (usa -AutoFix)" -ForegroundColor Yellow
+    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Auto-fix: DESACTIVADO - Solo reportarï¿½[EMOJI] (usa -AutoFix)" -ForegroundColor Yellow
 }
 Write-Host ""
 
@@ -243,7 +243,7 @@ function Fix-UnusedVariable {
                 }
             }
         }
-        # CASO [EMOJI]: ParÃ[EMOJI]metro de funciÃ³n no usado
+        # CASO [EMOJI]: Parï¿½[EMOJI]metro de funciÃ³n no usado
         # Detectar: function name(param[EMOJI], VarName, param[EMOJI]) o (VarName: Type)
         elseif ($TargetLine -match "\([^)]*$VarName[^)]*\)" -or 
                 ($Lines[[int]$LineNum - [EMOJI]] -match "function\s+\w+\s*\(" -or 
@@ -251,12 +251,12 @@ function Fix-UnusedVariable {
                  $Lines[[int]$LineNum - [EMOJI]] -match "=>\s*\{") -or
                 $TargetLine -match "^\s*$VarName\s*:") {
             
-            # AÃ±adir prefijo _ al parÃ[EMOJI]metro
+            # AÃ±adir prefijo _ al parï¿½[EMOJI]metro
             $NewLine = $TargetLine -replace "\b$VarName\b", "_$VarName"
             $Lines[[int]$LineNum - [EMOJI]] = $NewLine
             $Content = $Lines -join "`n"
             $Modified = $true
-            Write-Host "    [EMOJI][EMOJI][EMOJI] ParÃ[EMOJI]metro renombrado: $VarName [EMOJI][EMOJI][EMOJI] _$VarName" -ForegroundColor Gray
+            Write-Host "    [EMOJI][EMOJI][EMOJI] Parï¿½[EMOJI]metro renombrado: $VarName [EMOJI][EMOJI][EMOJI] _$VarName" -ForegroundColor Gray
         }
         # CASO [EMOJI]: Variable local no usada
         # Detectar: const VarName = ... o let VarName = ... o var VarName = ...
@@ -301,7 +301,7 @@ function Fix-UnusedVariable {
             Write-Host "  [OK] CORREGIDO - Archivo actualizado: $FullPath" -ForegroundColor Green
             return $true
         } else {
-            Write-Host "  [WARN]  No se pudo aplicar correcciÃ³n automÃ[EMOJI]tica" -ForegroundColor Yellow
+            Write-Host "  [WARN]  No se pudo aplicar correcciÃ³n automï¿½[EMOJI]tica" -ForegroundColor Yellow
             return $false
         }
     }
@@ -402,7 +402,7 @@ function Fix-IndexSignature {
         # - obj.prop = value
         # - obj.prop?.method()
         
-        # Regex para encontrar obj.prop (pero no obj['prop'] que ya estÃ[EMOJI] correcto)
+        # Regex para encontrar obj.prop (pero no obj['prop'] que ya estï¿½[EMOJI] correcto)
         $Pattern = "(\w+)\.$([regex]::Escape($PropertyName))\b"
         
         if ($TargetLine -match $Pattern) {
@@ -425,7 +425,7 @@ function Fix-IndexSignature {
             Write-Host "  [OK] CORREGIDO - Archivo actualizado: $FullPath" -ForegroundColor Green
             return $true
         } else {
-            Write-Host "  [WARN]  No se pudo aplicar correcciÃ³n automÃ[EMOJI]tica" -ForegroundColor Yellow
+            Write-Host "  [WARN]  No se pudo aplicar correcciÃ³n automï¿½[EMOJI]tica" -ForegroundColor Yellow
             return $false
         }
     }
@@ -567,7 +567,7 @@ function Fix-MissingReturnType {
             Write-Host "  [OK] CORREGIDO - Archivo actualizado: $FullPath" -ForegroundColor Green
             return $true
         } else {
-            Write-Host "  [WARN]  No se pudo aplicar correcciÃ³n automÃ[EMOJI]tica" -ForegroundColor Yellow
+            Write-Host "  [WARN]  No se pudo aplicar correcciÃ³n automï¿½[EMOJI]tica" -ForegroundColor Yellow
             return $false
         }
     }
@@ -653,7 +653,7 @@ function Fix-ConsoleLog {
             $Modified = $true
             Write-Host "    [EMOJI][EMOJI][EMOJI] Reemplazado: console.X [EMOJI][EMOJI][EMOJI] $LoggerMethod" -ForegroundColor Gray
 
-            # Verificar si logger estÃ[EMOJI] importado
+            # Verificar si logger estï¿½[EMOJI] importado
             $HasLoggerImport = $false
             foreach ($Line in $Lines) {
                 if ($Line -match "import.*logger.*from" -or $Line -match "from.*logger") {
@@ -697,7 +697,7 @@ function Fix-ConsoleLog {
             Write-Host "  [OK] CORREGIDO - Archivo actualizado: $FullPath" -ForegroundColor Green
             return $true
         } else {
-            Write-Host "  [WARN]  No se pudo aplicar correcciÃ³n automÃ[EMOJI]tica" -ForegroundColor Yellow
+            Write-Host "  [WARN]  No se pudo aplicar correcciÃ³n automï¿½[EMOJI]tica" -ForegroundColor Yellow
             return $false
         }
     }
@@ -713,7 +713,7 @@ function Fix-MissingEnumValue {
     try {
         Write-Host "  [EMOJI][EMOJI][EMOJI][EMOJI] AÃ±adiendo valor '$Value' al enum '$EnumName'..." -ForegroundColor Yellow
 
-        # Verificar si Docker estÃ[EMOJI] corriendo
+        # Verificar si Docker estï¿½[EMOJI] corriendo
         $DockerRunning = docker ps --filter "name=quoorum-postgres" --format "{{.Names}}" [EMOJI]>&[EMOJI]
         if ($LASTEXITCODE -ne 0 -or -not $DockerRunning) {
             Write-Host "    [WARN]  Contenedor PostgreSQL no encontrado. Verifica que Docker estÃ© corriendo." -ForegroundColor Yellow
@@ -750,7 +750,7 @@ function Detect-MissingColumn {
     try {
         Write-Host "  [EMOJI][EMOJI][EMOJI][EMOJI] Detectando columna faltante: $TableName.$ColumnName..." -ForegroundColor Yellow
 
-        # Verificar si Docker estÃ[EMOJI] corriendo
+        # Verificar si Docker estï¿½[EMOJI] corriendo
         $DockerRunning = docker ps --filter "name=quoorum-postgres" --format "{{.Names}}" [EMOJI]>&[EMOJI]
         if ($LASTEXITCODE -ne 0 -or -not $DockerRunning) {
             Write-Host "    [WARN]  Contenedor PostgreSQL no encontrado." -ForegroundColor Yellow
@@ -1263,7 +1263,7 @@ if ($ErrorsFound -gt 0) {
         Write-Host ""
 
         if ($ErrorsFixed -gt 0) {
-            Write-Host "[OK] $ErrorsFixed errores fueron corregidos automÃ[EMOJI]ticamente" -ForegroundColor Green
+            Write-Host "[OK] $ErrorsFixed errores fueron corregidos automï¿½[EMOJI]ticamente" -ForegroundColor Green
         }
 
         if ($ErrorsManual -gt 0) {
@@ -1271,7 +1271,7 @@ if ($ErrorsFound -gt 0) {
         }
     } else {
         Write-Host ""
-        Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Ejecuta con -AutoFix para correcciÃ³n automÃ[EMOJI]tica" -ForegroundColor Cyan
+        Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Ejecuta con -AutoFix para correcciÃ³n automï¿½[EMOJI]tica" -ForegroundColor Cyan
         Write-Host "   pnpm dev:watch" -ForegroundColor Gray
     }
 

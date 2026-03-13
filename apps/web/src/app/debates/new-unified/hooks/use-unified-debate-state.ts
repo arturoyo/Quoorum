@@ -730,6 +730,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
     if (!currentQ) return
 
     // Validar relevancia de la respuesta antes de aceptarla
+    console.log('[DEBUG] Iniciando validación de respuesta:', { question: currentQ.content, answer })
     setIsValidating(true)
     try {
       const validation = await validateAnswer.mutateAsync({
@@ -737,12 +738,24 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         answer: answer,
         previousAnswers: contexto.answers, // Pasar respuestas anteriores para detectar contradicciones
       })
-      
+
+      console.log('[DEBUG] Validación recibida:', validation)
+
       // Detectar problemas de calidad
       const hasQualityIssues = validation.isVague || validation.isTooShort || (validation.qualityIssues && validation.qualityIssues.length > 0)
-      
+
+      console.log('[DEBUG] ¿Tiene problemas de calidad?', {
+        isRelevant: validation.isRelevant,
+        requiresExplanation: validation.requiresExplanation,
+        hasQualityIssues,
+        isVague: validation.isVague,
+        isTooShort: validation.isTooShort,
+        qualityIssues: validation.qualityIssues
+      })
+
       // Si la respuesta no es relevante, requiere explicación, o tiene problemas de calidad
       if (!validation.isRelevant || validation.requiresExplanation || hasQualityIssues) {
+        console.log('[DEBUG] Respuesta RECHAZADA - Mostrando error')
         // Construir mensaje de error específico según el tipo de problema
         let errorMessage = ''
         let warningTitle = ''
@@ -819,6 +832,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       }
 
       // Respuesta válida, limpiar error de validación
+      console.log('[DEBUG] Respuesta ACEPTADA - Continúa flujo normal')
       setCurrentValidationError(null)
       setIsValidating(false)
       
@@ -831,6 +845,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       }
     } catch (error) {
       // Si falla la validación por error de red o servidor, avisar al usuario
+      console.error('[DEBUG] ERROR en validación:', error)
       logger.error('Error validating answer', { error })
 
       // Mostrar error al usuario

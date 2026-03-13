@@ -12,7 +12,7 @@ import { db } from '@quoorum/db'
 import { quoorumDebates, vectorDocuments } from '@quoorum/db/schema'
 import { eq, desc, sql } from 'drizzle-orm'
 import { logger } from '../lib/logger'
-import { callAI } from '@quoorum/ai'
+import { getAIClient } from '@quoorum/ai'
 
 export const ragSuggestionsRouter = router({
   /**
@@ -126,14 +126,15 @@ Respond in JSON format:
   ]
 }`
 
-      const response = await callAI({
+      const aiClient = await getAIClient()
+      const response = await aiClient.generate({
         model: 'gpt-4-turbo',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        responseFormat: { type: 'json_object' },
+        // responseFormat: { type: 'json_object' }, // Removed: not supported by all providers
       })
 
-      const result = JSON.parse(response.content)
+      const result = JSON.parse(response.text)
 
       logger.info('[ragSuggestions.getSuggestions] Suggestions generated', {
         userId: ctx.userId,
