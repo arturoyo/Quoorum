@@ -22,14 +22,14 @@ const ExpertProviderConfigSchema = z.object({
  */
 function getDefaultConfig(): Pick<ExpertProfile, 'provider' | 'modelId'> {
   const provider = (process.env.EXPERT_DEFAULT_PROVIDER || 'google') as ExpertProfile['provider']
-  const model = process.env.EXPERT_DEFAULT_MODEL || 'gemini-2.0-flash-exp'
+  const model = process.env.EXPERT_DEFAULT_MODEL || 'gemini-2.0-flash'
 
   try {
     ExpertProviderConfigSchema.parse({ provider, model })
     return { provider, modelId: model }
   } catch (error) {
     quoorumLogger.error('Invalid expert default configuration, falling back to Gemini', error instanceof Error ? error : undefined, { provider, model })
-    return { provider: 'google', modelId: 'gemini-2.0-flash-exp' }
+    return { provider: 'google', modelId: 'gemini-2.0-flash' }
   }
 }
 
@@ -84,7 +84,7 @@ function getExpertConfig(expertId: string): Pick<ExpertProfile, 'provider' | 'mo
  * 1. Per-expert override (EXPERT_APRIL_DUNFORD_PROVIDER)
  * 2. Per-category override (EXPERT_POSITIONING_PROVIDER)
  * 3. Global default (EXPERT_DEFAULT_PROVIDER)
- * 4. Hard default (google/gemini-2.0-flash-exp)
+ * 4. Hard default (google/gemini-2.0-flash)
  *
  * @param expertId - Expert identifier (e.g., 'april_dunford')
  * @param category - Expert category (e.g., 'positioning')
@@ -246,7 +246,7 @@ export const EXPERT_CATEGORIES = {
 export function getExpertFreeTierConfig(): Pick<ExpertProfile, 'provider' | 'modelId'> {
   return {
     provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    modelId: 'gemini-2.0-flash',
   }
 }
 

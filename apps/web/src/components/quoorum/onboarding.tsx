@@ -7,8 +7,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useLocalStorage } from '~/hooks/use-forum'
-
+import { useLocalStorage } from '@/hooks/use-quoorum'
+import { cn, styles } from '@/lib/utils'
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -103,7 +103,11 @@ export function OnboardingModal() {
         {/* Close button */}
         <button
           onClick={handleSkip}
-          className="absolute right-4 top-4 text-2xl text-[var(--theme-text-secondary)] transition-colors hover:text-[var(--theme-text-tertiary)]"
+          className={cn(
+            "absolute right-4 top-4 text-2xl transition-colors",
+            styles.colors.text.secondary,
+            "hover:styles.colors.text.tertiary"
+          )}
         >
           ✕
         </button>
@@ -123,15 +127,19 @@ export function OnboardingModal() {
         {/* Content */}
         <div className="mb-8 text-center">
           {step?.image && <div className="mb-6 text-6xl">{step.image}</div>}
-          <h2 className="mb-4 text-3xl font-bold text-[var(--theme-text-primary)]">{step?.title}</h2>
-          <p className="text-lg text-[var(--theme-text-tertiary)]">{step?.description}</p>
+          <h2 className={cn("mb-4 text-3xl font-bold", styles.colors.text.primary)}>{step?.title}</h2>
+          <p className={cn("text-lg", styles.colors.text.tertiary)}>{step?.description}</p>
         </div>
 
         {/* Actions */}
         <div className="flex items-center justify-between">
           <button
             onClick={handleSkip}
-            className="text-[var(--theme-text-tertiary)] transition-colors hover:text-[var(--theme-text-secondary)]"
+            className={cn(
+              "transition-colors",
+              styles.colors.text.tertiary,
+              styles.hoverState()
+            )}
           >
             Saltar tutorial
           </button>
@@ -147,7 +155,10 @@ export function OnboardingModal() {
             )}
             <button
               onClick={handleNext}
-              className="rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
+              className={cn(
+                "rounded-lg bg-blue-600 px-6 py-2 transition-colors hover:bg-blue-700",
+                styles.colors.text.primary
+              )}
             >
               {isLastStep ? '¡Empezar!' : 'Siguiente'}
             </button>
@@ -155,7 +166,7 @@ export function OnboardingModal() {
         </div>
 
         {/* Step indicator */}
-        <div className="mt-6 text-center text-sm text-[var(--theme-text-tertiary)]">
+        <div className={cn("mt-6 text-center text-sm", styles.colors.text.tertiary)}>
           Paso {currentStep + 1} de {ONBOARDING_STEPS.length}
         </div>
       </div>
@@ -183,10 +194,14 @@ export function QuickStartGuide() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-8">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-[var(--theme-text-primary)]">Guía Rápida del Quoorum</h2>
+              <h2 className={cn("text-2xl font-bold", styles.colors.text.primary)}>Guía Rápida del Quoorum</h2>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-2xl text-[var(--theme-text-secondary)] transition-colors hover:text-[var(--theme-text-tertiary)]"
+                className={cn(
+                  "text-2xl transition-colors",
+                  styles.colors.text.secondary,
+                  "hover:styles.colors.text.tertiary"
+                )}
               >
                 ✕
               </button>
@@ -195,9 +210,9 @@ export function QuickStartGuide() {
             <div className="space-y-6">
               {/* Section 1 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">1. Crea un debate</h3>
-                <p className="mb-2 text-[var(--theme-text-tertiary)]">Haz una pregunta estratégica clara. Ejemplos:</p>
-                <ul className="list-inside list-disc space-y-1 text-[var(--theme-text-tertiary)]">
+                <h3 className={cn("mb-2 text-lg font-semibold", styles.colors.text.primary)}>1. Crea un debate</h3>
+                <p className={cn("mb-2", styles.colors.text.tertiary)}>Haz una pregunta estratégica clara. Ejemplos:</p>
+                <ul className={cn("list-inside list-disc space-y-1", styles.colors.text.tertiary)}>
                   <li>"¿Debería pivotar de B2C a B2B?"</li>
                   <li>"¿Qué modelo de pricing maximiza revenue?"</li>
                   <li>"¿Cómo mejoro la retención de usuarios?"</li>
@@ -206,8 +221,8 @@ export function QuickStartGuide() {
 
               {/* Section 2 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">2. Selecciona el modo</h3>
-                <ul className="list-inside list-disc space-y-1 text-[var(--theme-text-tertiary)]">
+                <h3 className={cn("mb-2 text-lg font-semibold", styles.colors.text.primary)}>2. Selecciona el modo</h3>
+                <ul className={cn("list-inside list-disc space-y-1", styles.colors.text.tertiary)}>
                   <li>
                     <strong>Dinámico (recomendado):</strong> El sistema selecciona automáticamente
                     los mejores expertos
@@ -220,9 +235,9 @@ export function QuickStartGuide() {
 
               {/* Section 3 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">3. Observa el debate</h3>
-                <p className="text-[var(--theme-text-tertiary)]">Los expertos debatirán en tiempo real. Verás:</p>
-                <ul className="list-inside list-disc space-y-1 text-[var(--theme-text-tertiary)]">
+                <h3 className={cn("mb-2 text-lg font-semibold", styles.colors.text.primary)}>3. Observa el debate</h3>
+                <p className={styles.colors.text.tertiary}>Los expertos debatirán en tiempo real. Verás:</p>
+                <ul className={cn("list-inside list-disc space-y-1", styles.colors.text.tertiary)}>
                   <li>Argumentos de cada experto</li>
                   <li>Contraargumentos y refutaciones</li>
                   <li>Construcción de consenso</li>
@@ -232,11 +247,11 @@ export function QuickStartGuide() {
 
               {/* Section 4 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">
+                <h3 className={cn("mb-2 text-lg font-semibold", styles.colors.text.primary)}>
                   4. Revisa los resultados
                 </h3>
-                <p className="text-[var(--theme-text-tertiary)]">Al finalizar, obtendrás:</p>
-                <ul className="list-inside list-disc space-y-1 text-[var(--theme-text-tertiary)]">
+                <p className={styles.colors.text.tertiary}>Al finalizar, obtendrás:</p>
+                <ul className={cn("list-inside list-disc space-y-1", styles.colors.text.tertiary)}>
                   <li>Ranking de opciones con scores de éxito</li>
                   <li>Razonamiento detallado para cada opción</li>
                   <li>Score de consenso (0-100%)</li>
@@ -246,8 +261,8 @@ export function QuickStartGuide() {
 
               {/* Section 5 */}
               <div>
-                <h3 className="mb-2 text-lg font-semibold text-[var(--theme-text-primary)]">5. Exporta y comparte</h3>
-                <p className="text-[var(--theme-text-tertiary)]">
+                <h3 className={cn("mb-2 text-lg font-semibold", styles.colors.text.primary)}>5. Exporta y comparte</h3>
+                <p className={styles.colors.text.tertiary}>
                   Puedes exportar el debate a PDF para compartir con tu equipo, añadir comentarios
                   para colaborar, y ver analytics de todos tus debates.
                 </p>
@@ -257,7 +272,10 @@ export function QuickStartGuide() {
             <div className="mt-8 border-t border-gray-200 pt-6">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full rounded-lg bg-blue-600 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+                className={cn(
+                  "w-full rounded-lg bg-blue-600 py-3 font-medium transition-colors hover:bg-blue-700",
+                  styles.colors.text.primary
+                )}
               >
                 ¡Entendido!
               </button>
@@ -361,7 +379,11 @@ export function ContextualHelp({ context }: { context: string }) {
     <div className="relative inline-block">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="text-[var(--theme-text-secondary)] transition-colors hover:text-[var(--theme-text-tertiary)]"
+        className={cn(
+          "transition-colors",
+          styles.colors.text.secondary,
+          "hover:styles.colors.text.tertiary"
+        )}
         title="Ayuda"
       >
         ❓
@@ -371,8 +393,8 @@ export function ContextualHelp({ context }: { context: string }) {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
-            <h4 className="mb-2 font-semibold text-[var(--theme-text-primary)]">{help.title}</h4>
-            <p className="text-sm text-[var(--theme-text-tertiary)]">{help.content}</p>
+            <h4 className={cn("mb-2 font-semibold", styles.colors.text.primary)}>{help.title}</h4>
+            <p className={cn("text-sm", styles.colors.text.tertiary)}>{help.content}</p>
           </div>
         </>
       )}

@@ -1,6 +1,6 @@
 import { generateText } from "ai";
-import { createModel, type ExpertConfig } from "@quoorum/ai";
-import type { ExpertOpinionResult } from "../types";
+import { createModel } from "@quoorum/ai";
+import type { ExpertConfig, ExpertOpinionResult } from "../types";
 
 export abstract class BaseExpert {
   protected config: ExpertConfig;

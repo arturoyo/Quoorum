@@ -64,14 +64,14 @@ export default function ForgotPasswordPage() {
           <CardTitle className="text-2xl font-bold text-white">
             ¡Email enviado!
           </CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
+          <CardDescription className="styles.colors.text.secondary">
             Si existe una cuenta con{" "}
             <span className="text-white font-medium">{email}</span>, recibirás
             un enlace para restablecer tu contraseña.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-center text-sm text-[var(--theme-text-secondary)]">
+          <p className="text-center text-sm styles.colors.text.secondary">
             Revisa tu bandeja de entrada y haz clic en el enlace para crear una
             nueva contraseña.
           </p>
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
             <Link href="/login">
               <Button
                 variant="ghost"
-                className="w-full text-[var(--theme-text-secondary)] hover:text-white"
+                className="w-full styles.colors.text.secondary hover:text-white"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Volver al login
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
         <CardTitle className="text-2xl font-bold text-white">
           ¿Olvidaste tu contraseña?
         </CardTitle>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className="styles.colors.text.secondary">
           Introduce tu email y te enviaremos un enlace para restablecerla
         </CardDescription>
       </CardHeader>
@@ -119,11 +119,11 @@ export default function ForgotPasswordPage() {
 
         <form onSubmit={handleResetPassword} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[var(--theme-text-secondary)]">
+            <Label htmlFor="email" className="styles.colors.text.secondary">
               Email
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 styles.colors.text.tertiary" />
               <Input
                 id="email"
                 type="email"
@@ -132,7 +132,7 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-[var(--theme-text-tertiary)] focus:border-purple-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:styles.colors.text.tertiary focus:border-purple-500"
               />
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function ForgotPasswordPage() {
 
       <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-6">
         <Link href="/login">
-          <Button variant="ghost" className="text-[var(--theme-text-secondary)] hover:text-white hover:bg-white/10">
+          <Button variant="ghost" className="styles.colors.text.secondary hover:text-white hover:bg-white/10">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver al login
           </Button>

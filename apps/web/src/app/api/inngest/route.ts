@@ -40,4 +40,4 @@ export const { GET, POST, PUT } = serve({
     assignMonthlyCredits,
     checkMonthlyCreditsRenewals,
   ],
-})
+} as Parameters<typeof serve>[0])

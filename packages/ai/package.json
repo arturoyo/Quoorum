@@ -8,13 +8,20 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./types": {
+      "types": "./dist/types.d.ts"
+    },
     "./providers": {
       "types": "./dist/providers/index.d.ts",
       "import": "./dist/providers/index.js"
+    },
+    "./embeddings": {
+      "types": "./dist/embeddings/index.d.ts",
+      "import": "./dist/embeddings/index.js"
     }
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && tsc --emitDeclarationOnly --outDir dist",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
@@ -25,6 +32,7 @@
     "@ai-sdk/groq": "^1.0.0",
     "@ai-sdk/openai": "^1.0.0",
     "ai": "^4.0.0",
+    "openai": "^4.77.3",
     "zod": "^3.24.0"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@
 
 import { captureException } from '@/lib/monitoring'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { trpc } from '~/lib/trpc'
+import { api } from '@/lib/trpc/client'
 
 // ============================================================================
 // TYPES
@@ -70,7 +70,7 @@ interface WebSocketMessage {
  * ```
  */
 export function useDebateList(refreshInterval?: number) {
-  const { data: debates, isLoading, error, refetch } = trpc.quoorum.list.useQuery()
+  const { data: debates, isLoading, error, refetch } = api.quoorum.list.useQuery()
 
   // Auto-refresh
   useEffect(() => {
@@ -148,7 +148,7 @@ export function useDebate(debateId: string | null) {
     isLoading,
     error,
     refetch,
-  } = trpc.quoorum.get.useQuery({ id: debateId! }, { enabled: !!debateId })
+  } = api.quoorum.get.useQuery({ id: debateId! }, { enabled: !!debateId })
 
   // WebSocket connection for real-time updates
   useEffect(() => {
@@ -188,8 +188,8 @@ export function useDebate(debateId: string | null) {
  * Hook for creating debates with optimistic updates
  */
 export function useCreateDebate() {
-  const utils = trpc.useUtils()
-  const createMutation = trpc.quoorum.create.useMutation({
+  const utils = api.useUtils()
+  const createMutation = api.quoorum.create.useMutation({
     onSuccess: () => {
       utils.forum.list.invalidate()
     },
@@ -213,8 +213,8 @@ export function useCreateDebate() {
  * Hook for starting debates
  */
 export function useStartDebate() {
-  const utils = trpc.useUtils()
-  const startMutation = trpc.quoorum.start.useMutation({
+  const utils = api.useUtils()
+  const startMutation = api.quoorum.start.useMutation({
     onSuccess: () => {
       utils.forum.list.invalidate()
     },
@@ -242,7 +242,7 @@ export function useStartDebate() {
  * Hook for forum analytics
  */
 export function useForumAnalytics() {
-  const { data: analytics, isLoading, error } = trpc.quoorum.analytics.useQuery()
+  const { data: analytics, isLoading, error } = api.quoorum.analytics.useQuery()
 
   return {
     analytics,
@@ -259,7 +259,7 @@ export function useExpertPerformance(expertId?: string) {
     data: performance,
     isLoading,
     error,
-  } = trpc.quoorum.expertPerformance.useQuery({ expertId: expertId! }, { enabled: !!expertId })
+  } = api.quoorum.expertPerformance.useQuery({ expertId: expertId! }, { enabled: !!expertId })
 
   return {
     performance,
@@ -276,8 +276,8 @@ export function useExpertPerformance(expertId?: string) {
  * Hook for adding comments
  */
 export function useAddComment() {
-  const utils = trpc.useUtils()
-  const addCommentMutation = trpc.quoorum.addComment.useMutation({
+  const utils = api.useUtils()
+  const addCommentMutation = api.quoorum.addComment.useMutation({
     onSuccess: (_, variables) => {
       utils.forum.get.invalidate({ id: variables.debateId })
     },
@@ -301,8 +301,8 @@ export function useAddComment() {
  * Hook for adding reactions
  */
 export function useAddReaction() {
-  const utils = trpc.useUtils()
-  const addReactionMutation = trpc.quoorum.addReaction.useMutation({
+  const utils = api.useUtils()
+  const addReactionMutation = api.quoorum.addReaction.useMutation({
     onSuccess: (_, variables) => {
       utils.forum.get.invalidate({ id: variables.debateId })
     },
@@ -330,22 +330,22 @@ export function useAddReaction() {
  * Hook for managing custom experts
  */
 export function useCustomExperts() {
-  const { data: experts, isLoading, error, refetch } = trpc.quoorum.listExperts.useQuery()
-  const utils = trpc.useUtils()
+  const { data: experts, isLoading, error, refetch } = api.quoorum.listExperts.useQuery()
+  const utils = api.useUtils()
 
-  const createMutation = trpc.quoorum.createCustomExpert.useMutation({
+  const createMutation = api.quoorum.createCustomExpert.useMutation({
     onSuccess: () => {
       utils.forum.listExperts.invalidate()
     },
   })
 
-  const updateMutation = trpc.quoorum.updateCustomExpert.useMutation({
+  const updateMutation = api.quoorum.updateCustomExpert.useMutation({
     onSuccess: () => {
       utils.forum.listExperts.invalidate()
     },
   })
 
-  const deleteMutation = trpc.quoorum.deleteCustomExpert.useMutation({
+  const deleteMutation = api.quoorum.deleteCustomExpert.useMutation({
     onSuccess: () => {
       utils.forum.listExperts.invalidate()
     },
@@ -373,7 +373,7 @@ export function useCustomExperts() {
  * Hook for checking rate limits
  */
 export function useRateLimit() {
-  const { data: rateLimit, isLoading, error, refetch } = trpc.quoorum.checkRateLimit.useQuery()
+  const { data: rateLimit, isLoading, error, refetch } = api.quoorum.checkRateLimit.useQuery()
 
   return {
     rateLimit,
@@ -393,7 +393,7 @@ export function useSimilarDebates(question: string, enabled: boolean = true) {
     data: similar,
     isLoading,
     error,
-  } = trpc.quoorum.getSimilar.useQuery({ question }, { enabled: enabled && question.length > 10 })
+  } = api.quoorum.getSimilar.useQuery({ question }, { enabled: enabled && question.length > 10 })
 
   return {
     similar: similar || [],
@@ -419,7 +419,7 @@ export function useDebateSearch(initialQuery: string = '') {
     return () => clearTimeout(timer)
   }, [query])
 
-  const { data: debates } = trpc.quoorum.list.useQuery()
+  const { data: debates } = api.quoorum.list.useQuery()
 
   // Filter debates by query
   const filteredDebates =

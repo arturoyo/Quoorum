@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { type LucideIcon } from 'lucide-react'
 
 export interface EmptyStateCardProps {
@@ -31,10 +31,10 @@ export interface EmptyStateCardProps {
 
 const variantStyles = {
   default: {
-    container: 'bg-[#111b21] border-[#2a3942]',
-    icon: 'text-[var(--theme-text-secondary)]',
-    title: 'text-white',
-    description: 'text-[var(--theme-text-secondary)]',
+    container: cn(styles.colors.bg.secondary, styles.colors.border.default),
+    icon: styles.colors.text.secondary,
+    title: styles.colors.text.primary,
+    description: styles.colors.text.secondary,
   },
   info: {
     container: 'bg-blue-500/10 border-blue-500/20',
@@ -49,10 +49,10 @@ const variantStyles = {
     description: 'text-amber-200/70',
   },
   muted: {
-    container: 'bg-white/5 border-white/10',
-    icon: 'text-[var(--theme-text-tertiary)]',
-    title: 'text-[var(--theme-text-secondary)]',
-    description: 'text-[var(--theme-text-tertiary)]',
+    container: 'bg-white/5 styles.colors.border.default',
+    icon: 'styles.colors.text.tertiary',
+    title: 'styles.colors.text.secondary',
+    description: 'styles.colors.text.tertiary',
   },
 }
 
@@ -130,7 +130,7 @@ export function EmptyDebatesList({
 }) {
   return (
     <EmptyStateCard
-      title="No hay debates aún"
+      title="No hay debates a�n"
       description="Crea tu primer debate para comenzar a explorar ideas con expertos IA"
       actionLabel={onCreateDebate ? "Crear Debate" : undefined}
       onAction={onCreateDebate}
@@ -153,7 +153,7 @@ export function EmptySearchResults({
       description={
         searchTerm
           ? `No se encontraron resultados para "${searchTerm}"`
-          : "No se encontraron resultados para tu búsqueda"
+          : "No se encontraron resultados para tu b�squeda"
       }
       variant="muted"
       className={className}

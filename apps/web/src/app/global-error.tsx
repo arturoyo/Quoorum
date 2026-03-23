@@ -59,7 +59,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             </h1>
 
             {/* Description */}
-            <p className="mb-6 text-[var(--theme-text-secondary)]">
+            <p className="mb-6 styles.colors.text.secondary">
               La aplicación encontró un error crítico y debe reiniciarse.
               El error ha sido registrado automáticamente.
             </p>
@@ -95,7 +95,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
 
             {/* Footer */}
             <div className="mt-8 border-t border-gray-800 pt-4">
-              <p className="text-xs text-[var(--theme-text-tertiary)]">
+              <p className="text-xs styles.colors.text.tertiary">
                 Error ID: {error.digest || 'N/A'}
               </p>
             </div>

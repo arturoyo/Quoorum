@@ -1,0 +1,19 @@
+# Git attributes to ensure proper line endings and encoding
+# Force LF line endings for all TypeScript/JavaScript files
+*.ts eol=lf
+*.tsx eol=lf
+*.js eol=lf
+*.jsx eol=lf
+*.json eol=lf
+*.md eol=lf
+
+# Force binary for compiled/minified files
+*.min.js binary
+*.min.css binary
+
+# Never convert these files
+.env* eol=lf diff=text
+Dockerfile eol=lf
+*.yml eol=lf
+*.yaml eol=lf
+*.sh eol=lf

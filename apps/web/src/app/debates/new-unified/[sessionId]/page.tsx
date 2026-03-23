@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewUnifiedDebatePage with Dynamic Session ID
  *
  * This page creates a unique URL for each new debate session.
@@ -280,6 +280,7 @@ export default function NewUnifiedDebatePageWithSession() {
                   onSkipToNextPhase={state.skipContextoAndGoToExpertos}
                   isGeneratingQuestions={state.isGeneratingQuestions}
                   isEvaluating={state.isEvaluating}
+                  isValidating={state.isValidating}
                   isAdmin={isAdmin}
                 />
               </motion.div>

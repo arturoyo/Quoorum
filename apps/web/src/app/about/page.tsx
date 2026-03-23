@@ -8,7 +8,7 @@ import {
   Heart,
   Lightbulb,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { CTASection } from "@/components/ui/cta-section";
@@ -86,19 +86,19 @@ export default function AboutPage() {
       <section className="pt-40 pb-32 px-4">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] text-sm text-[var(--theme-text-secondary)] mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] text-sm styles.colors.text.secondary mb-8">
               <Zap className="w-4 h-4 text-cyan-400" />
               <span>Sobre Nosotros</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-[var(--theme-text-primary)] mb-8 tracking-tight">
+            <h1 className="text-5xl md:text-7xl font-bold styles.colors.text.primary mb-8 tracking-tight">
               Construyendo el futuro de la{" "}
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
                 toma de decisiones
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed">
               Quoorum nació de una frustración simple: las herramientas de IA nos
               dan respuestas rápidas, pero las decisiones importantes necesitan
               debate, perspectivas múltiples y pensamiento crítico.
@@ -118,10 +118,10 @@ export default function AboutPage() {
             <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-500/30 rounded-full blur-[100px]" />
 
             <div className="relative z-10 text-center">
-              <h2 className="text-4xl md:text-5xl font-bold text-[var(--theme-text-primary)] mb-6">
+              <h2 className="text-4xl md:text-5xl font-bold styles.colors.text.primary mb-6">
                 Nuestra Misión
               </h2>
-              <p className="text-xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed">
                 Democratizar el acceso a deliberación de clase mundial. Cada equipo,
                 sin importar su tamaño, debería poder analizar decisiones complejas
                 con la misma profundidad que las mejores consultoras del mundo.
@@ -169,10 +169,10 @@ export default function AboutPage() {
                 <div className="text-sm font-mono text-purple-400 mb-2">
                   {item.year}
                 </div>
-                <h3 className="text-2xl font-bold text-[var(--theme-text-primary)] mb-3">
+                <h3 className="text-2xl font-bold styles.colors.text.primary mb-3">
                   {item.title}
                 </h3>
-                <p className="text-[var(--theme-text-secondary)] leading-relaxed">
+                <p className="styles.colors.text.secondary leading-relaxed">
                   {item.description}
                 </p>
               </div>
@@ -197,11 +197,11 @@ export default function AboutPage() {
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center mx-auto mb-6">
                 <Users className="w-12 h-12 text-white" />
               </div>
-              <h3 className="text-3xl font-bold text-[var(--theme-text-primary)] mb-4">
+              <h3 className="text-3xl font-bold styles.colors.text.primary mb-4">
                 {team[0]?.name}
               </h3>
               <p className="text-lg text-purple-400 mb-6">{team[0]?.role}</p>
-              <p className="text-[var(--theme-text-secondary)] max-w-2xl mx-auto leading-relaxed">
+              <p className="styles.colors.text.secondary max-w-2xl mx-auto leading-relaxed">
                 {team[0]?.description}
               </p>
             </div>
@@ -211,10 +211,10 @@ export default function AboutPage() {
 
       {/* CTA */}
       <CTASection>
-        <h2 className="text-4xl md:text-6xl font-bold text-[var(--theme-text-primary)] mb-6 tracking-tight">
+        <h2 className="text-4xl md:text-6xl font-bold styles.colors.text.primary mb-6 tracking-tight">
           Únete a la revolución de las decisiones
         </h2>
-        <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+        <p className="text-xl styles.colors.text.secondary mb-10 max-w-2xl mx-auto">
           Empieza a tomar mejores decisiones hoy. 5 debates gratis, sin
           tarjeta de crédito.
         </p>

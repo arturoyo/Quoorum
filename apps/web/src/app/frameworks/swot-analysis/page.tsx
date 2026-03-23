@@ -1,4 +1,5 @@
 import { type Metadata } from "next";
+import { cn, styles } from '@/lib/utils'
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,7 @@ import {
   Users,
   Clock,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { CTASection } from "@/components/ui/cta-section";
@@ -165,7 +166,7 @@ export default function SWOTAnalysisLandingPage() {
         {/* Hero */}
         <section className="pt-40 pb-24 px-4">
           <div className="container mx-auto max-w-4xl text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[var(--theme-text-secondary)] mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm styles.colors.text.secondary mb-8">
               <Sparkles className="w-4 h-4 text-blue-400" />
               <span>SWOT Analysis Gratis - 4 IAs Expertas</span>
             </div>
@@ -178,7 +179,7 @@ export default function SWOTAnalysisLandingPage() {
               con IA
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed mb-8">
+            <p className="text-xl md:text-2xl styles.colors.text.secondary max-w-3xl mx-auto leading-relaxed mb-8">
               Genera un análisis SWOT profesional en 4 minutos.
               4 agentes de IA expertos analizan Fortalezas, Debilidades, Oportunidades y Amenazas.
             </p>
@@ -205,15 +206,15 @@ export default function SWOTAnalysisLandingPage() {
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10">
               <div>
                 <div className="text-3xl font-bold text-blue-400">4</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">Dimensiones SWOT</div>
+                <div className="text-sm styles.colors.text.tertiary">Dimensiones SWOT</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-blue-400">4 min</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">Promedio</div>
+                <div className="text-sm styles.colors.text.tertiary">Promedio</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-blue-400">100%</div>
-                <div className="text-sm text-[var(--theme-text-tertiary)]">Gratis</div>
+                <div className="text-sm styles.colors.text.tertiary">Gratis</div>
               </div>
             </div>
           </div>
@@ -249,13 +250,13 @@ export default function SWOTAnalysisLandingPage() {
                           <h3 className={`text-lg font-semibold ${quadrant.textColor}`}>
                             {quadrant.title}
                           </h3>
-                          <p className="text-xs text-[var(--theme-text-tertiary)]">{quadrant.subtitle}</p>
+                          <p className="text-xs styles.colors.text.tertiary">{quadrant.subtitle}</p>
                         </div>
                       </div>
 
                       <ul className="space-y-2">
                         {quadrant.items.map((item, itemIdx) => (
-                          <li key={itemIdx} className="flex items-start gap-2 text-sm text-[var(--theme-text-secondary)]">
+                          <li key={itemIdx} className="flex items-start gap-2 text-sm styles.colors.text.secondary">
                             <Icon className={`w-4 h-4 ${quadrant.textColor} flex-shrink-0 mt-0.5`} />
                             <span>{item}</span>
                           </li>
@@ -295,14 +296,14 @@ export default function SWOTAnalysisLandingPage() {
                         <span className="font-medium text-white text-sm">Producto localizado</span>
                         <Badge variant="outline" className="text-xs border-green-500/30 text-green-400">Impact: 90</Badge>
                       </div>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">Ya tenemos versión en español con pagos locales integrados</p>
+                      <p className="text-xs styles.colors.text.secondary">Ya tenemos versión en español con pagos locales integrados</p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-medium text-white text-sm">Equipo multicultural</span>
                         <Badge variant="outline" className="text-xs border-green-500/30 text-green-400">Impact: 85</Badge>
                       </div>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">3 miembros del equipo de México, Argentina y Colombia</p>
+                      <p className="text-xs styles.colors.text.secondary">3 miembros del equipo de México, Argentina y Colombia</p>
                     </div>
                   </div>
                 </div>
@@ -325,14 +326,14 @@ export default function SWOTAnalysisLandingPage() {
                         <span className="font-medium text-white text-sm">Sin presencia física</span>
                         <Badge variant="outline" className="text-xs border-red-500/30 text-red-400">Severity: 70</Badge>
                       </div>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">No tenemos oficina ni equipo on-the-ground en LATAM</p>
+                      <p className="text-xs styles.colors.text.secondary">No tenemos oficina ni equipo on-the-ground en LATAM</p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-medium text-white text-sm">Budget limitado</span>
                         <Badge variant="outline" className="text-xs border-red-500/30 text-red-400">Severity: 65</Badge>
                       </div>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">Solo $50k para GTM de toda la región</p>
+                      <p className="text-xs styles.colors.text.secondary">Solo $50k para GTM de toda la región</p>
                     </div>
                   </div>
                 </div>
@@ -355,14 +356,14 @@ export default function SWOTAnalysisLandingPage() {
                         <span className="font-medium text-white text-sm">Mercado desatendido</span>
                         <Badge variant="outline" className="text-xs border-cyan-500/30 text-cyan-400">Potential: 95</Badge>
                       </div>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">Pocos competidores con producto localizado en español</p>
+                      <p className="text-xs styles.colors.text.secondary">Pocos competidores con producto localizado en español</p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-medium text-white text-sm">Crecimiento SaaS LATAM</span>
                         <Badge variant="outline" className="text-xs border-cyan-500/30 text-cyan-400">Potential: 85</Badge>
                       </div>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">Mercado SaaS en LATAM creciendo 25% anual</p>
+                      <p className="text-xs styles.colors.text.secondary">Mercado SaaS en LATAM creciendo 25% anual</p>
                     </div>
                   </div>
                 </div>
@@ -385,14 +386,14 @@ export default function SWOTAnalysisLandingPage() {
                         <span className="font-medium text-white text-sm">Players locales agresivos</span>
                         <Badge variant="outline" className="text-xs border-orange-500/30 text-orange-400">Risk: 75</Badge>
                       </div>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">Startups locales con mejor network y pricing más bajo</p>
+                      <p className="text-xs styles.colors.text.secondary">Startups locales con mejor network y pricing más bajo</p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-medium text-white text-sm">Volatilidad económica</span>
                         <Badge variant="outline" className="text-xs border-orange-500/30 text-orange-400">Risk: 70</Badge>
                       </div>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">Inflación y tipo de cambio volátil afecta pricing</p>
+                      <p className="text-xs styles.colors.text.secondary">Inflación y tipo de cambio volátil afecta pricing</p>
                     </div>
                   </div>
                 </div>
@@ -416,7 +417,7 @@ export default function SWOTAnalysisLandingPage() {
                       <Shield className="h-4 w-4 text-green-400" />
                       SO (Strengths + Opportunities)
                     </div>
-                    <p className="text-xs text-[var(--theme-text-secondary)]">
+                    <p className="text-xs styles.colors.text.secondary">
                       1. Lanzar GTM digital-first aprovechando producto localizado<br />
                       2. Posicionar como alternativa "hecha para LATAM" vs gringos
                     </p>
@@ -426,7 +427,7 @@ export default function SWOTAnalysisLandingPage() {
                       <Target className="h-4 w-4 text-red-400" />
                       WO (Weaknesses + Opportunities)
                     </div>
-                    <p className="text-xs text-[var(--theme-text-secondary)]">
+                    <p className="text-xs styles.colors.text.secondary">
                       1. Contratar 1-2 SDRs locales remote antes de abrir oficina<br />
                       2. Partner con aceleradora local para network sin CAPEX
                     </p>
@@ -458,7 +459,7 @@ export default function SWOTAnalysisLandingPage() {
                     <div className="relative z-10">
                       <Icon className="w-8 h-8 text-blue-400 mb-4" />
                       <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                      <p className="text-sm text-[var(--theme-text-secondary)]">{feature.description}</p>
+                      <p className="text-sm styles.colors.text.secondary">{feature.description}</p>
                     </div>
                   </div>
                 );
@@ -472,7 +473,7 @@ export default function SWOTAnalysisLandingPage() {
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
             ¿Listo para tu análisis SWOT?
           </h2>
-          <p className="text-xl text-[var(--theme-text-secondary)] mb-10 max-w-2xl mx-auto">
+          <p className="text-xl styles.colors.text.secondary mb-10 max-w-2xl mx-auto">
             Genera un SWOT profesional con IA en 4 minutos
           </p>
           <Link href="/debates/new-unified?framework=swot-analysis&new=1">

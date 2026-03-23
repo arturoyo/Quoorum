@@ -37,8 +37,8 @@ export async function getSystemPrompt(
       LIMIT 1
     `)
 
-    if (result.rows && result.rows.length > 0) {
-      const row = result.rows[0] as Record<string, unknown>
+    if (result && result.length > 0) {
+      const row = result[0] as Record<string, unknown>
       const prompt = typeof row.prompt === 'string' ? row.prompt : String(row.prompt || '')
       
       // Cache the result

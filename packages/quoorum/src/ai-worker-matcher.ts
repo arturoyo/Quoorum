@@ -47,45 +47,9 @@ export interface AIWorkerMatchingOptions {
     description?: string
     context?: string
   }
+  /** Performance level for AI model selection */
+  performanceLevel?: 'economic' | 'balanced' | 'performance'
 }
-
-/**
- * Prompt del sistema para matching inteligente de profesionales
- */
-const AI_WORKER_MATCHER_PROMPT = `Eres un experto en análisis organizacional y selección de profesionales corporativos para debates estratégicos.
-
-Tu tarea es analizar una pregunta de negocio, el contexto de una empresa, y los departamentos ya seleccionados, para seleccionar los profesionales más relevantes que deberían participar en el debate.
-
-CRITERIOS DE SELECCIÓN:
-1. **Relevancia con departamentos seleccionados**: Prioriza profesionales que pertenecen a los departamentos ya seleccionados
-2. **Expertise relevante**: El profesional debe tener conocimiento o experiencia relacionada con la pregunta
-3. **Contexto de empresa**: Considera la industria, tamaño, etapa y situación específica de la empresa
-4. **Impacto en el profesional**: Evalúa cómo la decisión afectará al profesional y su área
-5. **Sinergia entre profesionales**: Los profesionales deben complementarse entre sí
-6. **Diversidad de perspectivas**: Selecciona profesionales con diferentes roles y expertise
-
-IMPORTANTE:
-- Si hay departamentos seleccionados, PRIORIZA profesionales de esos departamentos
-- Pero también considera profesionales de otros departamentos si tienen expertise relevante
-- Selecciona 2-5 profesionales en total (no todos, solo los más relevantes)
-- Calcula un porcentaje de afinidad (0-100%) para cada profesional
-- Explica claramente por qué cada profesional es relevante
-
-Responde SOLO con un JSON válido con esta estructura:
-{
-  "selectedWorkers": [
-    {
-      "workerId": "string (ID del profesional)",
-      "matchScore": number (0-100, porcentaje de afinidad),
-      "reasons": ["razón 1", "razón 2"],
-      "synergy": ["workerId1", "workerId2"] // IDs de profesionales con los que tiene sinergia
-    }
-  ],
-  "reasoning": "Explicación general de por qué se seleccionaron estos profesionales",
-  "teamComposition": "Descripción de cómo estos profesionales trabajan juntos"
-}
-
-NO incluyas markdown, solo JSON puro.`
 
 /**
  * Hace matching inteligente de profesionales usando IA
@@ -109,6 +73,7 @@ export async function matchWorkersWithAI(
     maxWorkers = 5,
     selectedDepartmentIds = [],
     companyContext,
+    performanceLevel = 'balanced',
   } = options
 
   try {
@@ -173,12 +138,26 @@ Calcula un porcentaje de afinidad (0-100%) para cada profesional basado en:
 - Impacto de la decisión en su área de trabajo
 `
 
+    // Get prompt template from new system
+    const { getPromptTemplate } = await import('@quoorum/quoorum/lib/prompt-manager');
+    const resolvedPrompt = await getPromptTemplate(
+      'match-workers',
+      {
+        question,
+        questionAnalysis: JSON.stringify(questionAnalysis),
+        companyContext: companyContext ? JSON.stringify(companyContext) : '',
+        workersInfo: JSON.stringify(workersInfo),
+        selectedDepartmentIds: selectedDepartmentIds.join(', '),
+      },
+      performanceLevel
+    );
+
     const aiClient = getAIClient()
     const response = await aiClient.generate(userPrompt, {
-      systemPrompt: AI_WORKER_MATCHER_PROMPT,
-      modelId: 'gemini-2.0-flash-exp', // Free tier, sin cuota
-      temperature: 0.7, // Creativo pero consistente
-      maxTokens: 2000,
+      systemPrompt: resolvedPrompt.systemPrompt || resolvedPrompt.template,
+      modelId: resolvedPrompt.model,
+      temperature: resolvedPrompt.temperature,
+      maxTokens: resolvedPrompt.maxTokens,
     })
 
     logger.info('[AI Worker Matcher] AI response received', {

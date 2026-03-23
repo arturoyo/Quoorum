@@ -8,6 +8,8 @@ export default defineConfig({
     reporters: ["default"],
     include: ["packages/**/*.test.ts", "packages/**/*.test.tsx"],
     exclude: ["**/node_modules/**", "node_modules", "dist", ".turbo"],
+    // NOTE: Component tests in apps/web require jsdom environment
+    // Install jsdom and create separate vitest.config.ts in apps/web to run them
     coverage: {
       enabled: false,
       provider: "v8",

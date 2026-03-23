@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import type { ContextoState, Question } from '../types'
 
 interface ContextSummaryProps {
@@ -70,8 +70,8 @@ export function ContextSummary({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-[var(--theme-text-primary)] mb-2">Resumen del Contexto</h2>
-          <p className="text-[var(--theme-text-tertiary)]">
+          <h2 className="text-3xl font-bold styles.colors.text.primary mb-2">Resumen del Contexto</h2>
+          <p className="styles.colors.text.tertiary">
             Revisa y edita todas tus respuestas antes de continuar
           </p>
         </div>
@@ -80,7 +80,7 @@ export function ContextSummary({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+            className="styles.colors.text.tertiary hover:styles.colors.text.primary"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -88,49 +88,49 @@ export function ContextSummary({
       </div>
 
       {/* Pregunta Principal */}
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader
-          className="cursor-pointer hover:bg-[var(--theme-bg-tertiary)] transition-colors"
+          className="cursor-pointer hover:styles.colors.bg.tertiary transition-colors"
           onClick={() => toggleSection('main')}
         >
           <div className="flex items-center justify-between">
-            <CardTitle className="text-[var(--theme-text-primary)] flex items-center gap-2">
+            <CardTitle className="styles.colors.text.primary flex items-center gap-2">
               <span>Pregunta Principal</span>
               <Badge variant="outline" className="border-purple-500/30 text-purple-300">
                 Inicio
               </Badge>
             </CardTitle>
             {expandedSections.has('main') ? (
-              <ChevronUp className="h-5 w-5 text-[var(--theme-text-tertiary)]" />
+              <ChevronUp className="h-5 w-5 styles.colors.text.tertiary" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-[var(--theme-text-tertiary)]" />
+              <ChevronDown className="h-5 w-5 styles.colors.text.tertiary" />
             )}
           </div>
         </CardHeader>
         {expandedSections.has('main') && (
           <CardContent>
-            <p className="text-lg text-[var(--theme-text-primary)]">{contexto.mainQuestion}</p>
+            <p className="text-lg styles.colors.text.primary">{contexto.mainQuestion}</p>
           </CardContent>
         )}
       </Card>
 
       {/* Respuestas */}
-      <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader
-          className="cursor-pointer hover:bg-[var(--theme-bg-tertiary)] transition-colors"
+          className="cursor-pointer hover:styles.colors.bg.tertiary transition-colors"
           onClick={() => toggleSection('answers')}
         >
           <div className="flex items-center justify-between">
-            <CardTitle className="text-[var(--theme-text-primary)] flex items-center gap-2">
+            <CardTitle className="styles.colors.text.primary flex items-center gap-2">
               <span>Preguntas y Respuestas</span>
               <Badge variant="outline" className="border-purple-500/30 text-purple-300">
                 {Object.keys(contexto.answers).length} respuesta{Object.keys(contexto.answers).length !== 1 ? 's' : ''}
               </Badge>
             </CardTitle>
             {expandedSections.has('answers') ? (
-              <ChevronUp className="h-5 w-5 text-[var(--theme-text-tertiary)]" />
+              <ChevronUp className="h-5 w-5 styles.colors.text.tertiary" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-[var(--theme-text-tertiary)]" />
+              <ChevronDown className="h-5 w-5 styles.colors.text.tertiary" />
             )}
           </div>
         </CardHeader>
@@ -144,7 +144,7 @@ export function ContextSummary({
               return (
                 <div
                   key={questionId}
-                  className="p-4 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-tertiary)] space-y-3"
+                  className="p-4 rounded-lg border styles.colors.border.default styles.colors.bg.tertiary space-y-3"
                 >
                   {/* Pregunta */}
                   <div className="flex items-start justify-between">
@@ -163,14 +163,14 @@ export function ContextSummary({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[var(--theme-text-primary)] font-medium">{question?.content || `Pregunta ${questionId}`}</p>
+                      <p className="styles.colors.text.primary font-medium">{question?.content || `Pregunta ${questionId}`}</p>
                     </div>
                     {!isEditing && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => startEdit(questionId, answer)}
-                        className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                        className="styles.colors.text.tertiary hover:styles.colors.text.primary"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -187,8 +187,8 @@ export function ContextSummary({
                           placeholder="Escribe tu respuesta..."
                           rows={4}
                           className={cn(
-                            'bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
-                            'placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500',
+                            'styles.colors.bg.secondary styles.colors.border.default styles.colors.text.primary',
+                            'placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500',
                             'focus-visible:border-purple-500'
                           )}
                           autoFocus
@@ -199,8 +199,8 @@ export function ContextSummary({
                           onChange={(e) => setEditValue(e.target.value)}
                           placeholder="Escribe tu respuesta..."
                           className={cn(
-                            'bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
-                            'placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500',
+                            'styles.colors.bg.secondary styles.colors.border.default styles.colors.text.primary',
+                            'placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500',
                             'focus-visible:border-purple-500'
                           )}
                           autoFocus
@@ -220,15 +220,15 @@ export function ContextSummary({
                           size="sm"
                           variant="ghost"
                           onClick={cancelEdit}
-                          className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+                          className="styles.colors.text.tertiary hover:styles.colors.text.primary"
                         >
                           Cancelar
                         </Button>
                       </div>
                     </div>
                   ) : (
-                    <div className="p-3 rounded bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)]">
-                      <p className="text-[var(--theme-text-secondary)] whitespace-pre-wrap">{answer}</p>
+                    <div className="p-3 rounded styles.colors.bg.secondary border styles.colors.border.default">
+                      <p className="styles.colors.text.secondary whitespace-pre-wrap">{answer}</p>
                     </div>
                   )}
                 </div>
@@ -236,7 +236,7 @@ export function ContextSummary({
             })}
 
             {Object.keys(contexto.answers).length === 0 && (
-              <div className="text-center py-8 text-[var(--theme-text-tertiary)]">
+              <div className="text-center py-8 styles.colors.text.tertiary">
                 No hay respuestas aún
               </div>
             )}
@@ -246,36 +246,36 @@ export function ContextSummary({
 
       {/* Evaluación */}
       {contexto.evaluation && (
-        <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
+        <Card className="styles.colors.bg.secondary styles.colors.border.default">
           <CardHeader
-            className="cursor-pointer hover:bg-[var(--theme-bg-tertiary)] transition-colors"
+            className="cursor-pointer hover:styles.colors.bg.tertiary transition-colors"
             onClick={() => toggleSection('evaluation')}
           >
             <div className="flex items-center justify-between">
-              <CardTitle className="text-[var(--theme-text-primary)] flex items-center gap-2">
+              <CardTitle className="styles.colors.text.primary flex items-center gap-2">
                 <span>Evaluación del Contexto</span>
                 <Badge variant="outline" className="border-green-500/30 text-green-300">
                   {contexto.contextScore}/100
                 </Badge>
               </CardTitle>
               {expandedSections.has('evaluation') ? (
-                <ChevronUp className="h-5 w-5 text-[var(--theme-text-tertiary)]" />
+                <ChevronUp className="h-5 w-5 styles.colors.text.tertiary" />
               ) : (
-                <ChevronDown className="h-5 w-5 text-[var(--theme-text-tertiary)]" />
+                <ChevronDown className="h-5 w-5 styles.colors.text.tertiary" />
               )}
             </div>
           </CardHeader>
           {expandedSections.has('evaluation') && (
             <CardContent className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-[var(--theme-text-tertiary)] mb-2">Análisis</h4>
-                <p className="text-[var(--theme-text-secondary)] whitespace-pre-wrap">{contexto.evaluation.reasoning}</p>
+                <h4 className="text-sm font-medium styles.colors.text.tertiary mb-2">Análisis</h4>
+                <p className="styles.colors.text.secondary whitespace-pre-wrap">{contexto.evaluation.reasoning}</p>
               </div>
 
               {contexto.evaluation.contradictions && contexto.evaluation.contradictions.length > 0 && (
                 <div>
                   <h4 className="text-sm font-medium text-yellow-400 mb-2">[WARN] Contradicciones detectadas</h4>
-                  <ul className="list-disc list-inside space-y-1 text-[var(--theme-text-secondary)]">
+                  <ul className="list-disc list-inside space-y-1 styles.colors.text.secondary">
                     {contexto.evaluation.contradictions.map((contradiction, index) => (
                       <li key={index}>{contradiction}</li>
                     ))}
@@ -286,7 +286,7 @@ export function ContextSummary({
               {contexto.evaluation.duplicatedInfo && contexto.evaluation.duplicatedInfo.length > 0 && (
                 <div>
                   <h4 className="text-sm font-medium text-blue-400 mb-2">ℹ️ Información duplicada</h4>
-                  <ul className="list-disc list-inside space-y-1 text-[var(--theme-text-secondary)]">
+                  <ul className="list-disc list-inside space-y-1 styles.colors.text.secondary">
                     {contexto.evaluation.duplicatedInfo.map((dup, index) => (
                       <li key={index}>{dup}</li>
                     ))}
@@ -296,8 +296,8 @@ export function ContextSummary({
 
               {contexto.evaluation.missingAspects.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-[var(--theme-text-tertiary)] mb-2">Aspectos a considerar</h4>
-                  <ul className="list-disc list-inside space-y-1 text-[var(--theme-text-secondary)]">
+                  <h4 className="text-sm font-medium styles.colors.text.tertiary mb-2">Aspectos a considerar</h4>
+                  <ul className="list-disc list-inside space-y-1 styles.colors.text.secondary">
                     {contexto.evaluation.missingAspects.map((aspect, index) => (
                       <li key={index}>{aspect}</li>
                     ))}

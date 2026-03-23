@@ -109,11 +109,11 @@ export function DebatePreview({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Eye className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-lg font-semibold styles.colors.text.primary">
                 🎭 Preview del Debate
               </h3>
             </div>
-            <p className="mt-1 text-sm text-[#aebac1]">
+            <p className="mt-1 text-sm styles.colors.text.secondary">
               Predicción de cómo debatirán los expertos con tu contexto actual
             </p>
           </div>
@@ -122,7 +122,7 @@ export function DebatePreview({
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="text-[#8696a0] hover:text-white"
+            className="styles.colors.text.tertiary hover:styles.colors.text.primary"
           >
             Cerrar
           </Button>
@@ -130,28 +130,28 @@ export function DebatePreview({
 
         {/* Stats */}
         <div className="mt-4 grid grid-cols-3 gap-4">
-          <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
-            <div className="flex items-center gap-2 text-xs text-[#8696a0]">
+          <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-3">
+            <div className="flex items-center gap-2 text-xs styles.colors.text.tertiary">
               <MessageSquare className="h-4 w-4" />
               Rondas estimadas
             </div>
-            <p className="mt-1 text-2xl font-bold text-white">{estimatedRounds}</p>
+            <p className="mt-1 text-2xl font-bold styles.colors.text.primary">{estimatedRounds}</p>
           </div>
 
-          <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
-            <div className="flex items-center gap-2 text-xs text-[#8696a0]">
+          <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-3">
+            <div className="flex items-center gap-2 text-xs styles.colors.text.tertiary">
               <Target className="h-4 w-4" />
               Prob. consenso
             </div>
-            <p className="mt-1 text-2xl font-bold text-white">{consensusLikelihood}%</p>
+            <p className="mt-1 text-2xl font-bold styles.colors.text.primary">{consensusLikelihood}%</p>
           </div>
 
-          <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
-            <div className="flex items-center gap-2 text-xs text-[#8696a0]">
+          <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-3">
+            <div className="flex items-center gap-2 text-xs styles.colors.text.tertiary">
               <Users className="h-4 w-4" />
               Puntos de debate
             </div>
-            <p className="mt-1 text-2xl font-bold text-white">{hotPoints.length}</p>
+            <p className="mt-1 text-2xl font-bold styles.colors.text.primary">{hotPoints.length}</p>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@ export function DebatePreview({
       {/* Hot Points */}
       {hotPoints.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-white">
+          <h4 className="text-sm font-semibold styles.colors.text.primary">
             [WARN] Puntos Calientes (Alta Controversia)
           </h4>
           {hotPoints.map((point, index) => {
@@ -192,7 +192,7 @@ export function DebatePreview({
                         >
                           {point.controversy}% controversia
                         </Badge>
-                        <h5 className="text-sm font-semibold text-white">{point.topic}</h5>
+                        <h5 className="text-sm font-semibold styles.colors.text.primary">{point.topic}</h5>
                       </div>
                     </div>
 
@@ -201,16 +201,16 @@ export function DebatePreview({
                       transition={{ duration: 0.2 }}
                     >
                       {isExpanded ? (
-                        <ChevronUp className="h-5 w-5 text-[#8696a0]" />
+                        <ChevronUp className="h-5 w-5 styles.colors.text.tertiary" />
                       ) : (
-                        <ChevronDown className="h-5 w-5 text-[#8696a0]" />
+                        <ChevronDown className="h-5 w-5 styles.colors.text.tertiary" />
                       )}
                     </motion.div>
                   </button>
 
                   {/* Collapsed Preview */}
                   {!isExpanded && (
-                    <div className="mt-2 flex gap-4 text-xs text-[#8696a0]">
+                    <div className="mt-2 flex gap-4 text-xs styles.colors.text.tertiary">
                       <span>
                         {point.expertA.name}: {point.expertA.position}
                       </span>
@@ -231,34 +231,34 @@ export function DebatePreview({
                       className="mt-4 space-y-4"
                     >
                       {/* Expert A */}
-                      <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
+                      <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-3">
                         <div className="flex items-center gap-2 mb-2">
                           <Users className="h-4 w-4 text-purple-400" />
                           <p className="text-xs font-medium text-purple-300">
                             {point.expertA.name}
                           </p>
                         </div>
-                        <p className="text-sm font-medium text-white mb-1">
+                        <p className="text-sm font-medium styles.colors.text.primary mb-1">
                           {point.expertA.position}
                         </p>
-                        <p className="text-xs text-[#aebac1]">{point.expertA.reasoning}</p>
+                        <p className="text-xs styles.colors.text.secondary">{point.expertA.reasoning}</p>
                       </div>
 
                       {/* VS */}
-                      <div className="text-center text-xs font-bold text-[#8696a0]">VS</div>
+                      <div className="text-center text-xs font-bold styles.colors.text.tertiary">VS</div>
 
                       {/* Expert B */}
-                      <div className="rounded border border-[#2a3942] bg-[#0b141a] p-3">
+                      <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-3">
                         <div className="flex items-center gap-2 mb-2">
                           <Users className="h-4 w-4 text-purple-400" />
                           <p className="text-xs font-medium text-purple-300">
                             {point.expertB.name}
                           </p>
                         </div>
-                        <p className="text-sm font-medium text-white mb-1">
+                        <p className="text-sm font-medium styles.colors.text.primary mb-1">
                           {point.expertB.position}
                         </p>
-                        <p className="text-xs text-[#aebac1]">{point.expertB.reasoning}</p>
+                        <p className="text-xs styles.colors.text.secondary">{point.expertB.reasoning}</p>
                       </div>
                     </motion.div>
                   )}
@@ -272,7 +272,7 @@ export function DebatePreview({
       {/* Weak Points */}
       {weakPoints.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-white">
+          <h4 className="text-sm font-semibold styles.colors.text.primary">
             [WARN] Puntos Débiles (Contexto Insuficiente)
           </h4>
           {weakPoints.map((weak, index) => (
@@ -287,15 +287,15 @@ export function DebatePreview({
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertTriangle className="h-4 w-4 text-yellow-400" />
-                      <h5 className="text-sm font-semibold text-white">{weak.dimension}</h5>
+                      <h5 className="text-sm font-semibold styles.colors.text.primary">{weak.dimension}</h5>
                     </div>
-                    <p className="text-sm text-[#aebac1] mb-2">{weak.issue}</p>
+                    <p className="text-sm styles.colors.text.secondary mb-2">{weak.issue}</p>
                     <p className="text-xs text-yellow-300 mb-3">
                       💡 Impacto: {weak.impact}
                     </p>
-                    <div className="rounded border border-[#2a3942] bg-[#0b141a] p-2">
-                      <p className="text-xs text-[#8696a0] mb-1">Sugerencia:</p>
-                      <p className="text-xs text-white">{weak.suggestion}</p>
+                    <div className="rounded border styles.colors.border.default styles.colors.bg.primary p-2">
+                      <p className="text-xs styles.colors.text.tertiary mb-1">Sugerencia:</p>
+                      <p className="text-xs styles.colors.text.primary">{weak.suggestion}</p>
                     </div>
                   </div>
                 </div>
@@ -303,7 +303,7 @@ export function DebatePreview({
                 <Button
                   onClick={() => onAddContext(weak.suggestion)}
                   size="sm"
-                  className="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 text-white"
+                  className="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 styles.colors.text.primary"
                 >
                   Añadir contexto sugerido
                 </Button>

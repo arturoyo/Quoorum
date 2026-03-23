@@ -8,7 +8,7 @@
 
 import { getAIClient } from '@quoorum/ai'
 import { quoorumLogger } from './logger'
-import { calculateTokenCost } from './analytics/cost'
+import { calculateAICost } from './ai-cost-tracking'
 import type { DebateRound, FinalSynthesis, FinalSynthesisOption } from './types'
 
 // ============================================================================
@@ -116,6 +116,38 @@ Genera el JSON ahora (sin explicaciones adicionales):
 `
 
 // ============================================================================
+// DYNAMIC PROMPT LOADING
+// ============================================================================
+
+/**
+ * Get final synthesis prompt with dynamic loading
+ * Falls back to hardcoded prompt if not found in DB
+ */
+async function getFinalSynthesisPrompt(
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
+): Promise<{ template: string; model: string; temperature: number; maxTokens: number }> {
+  try {
+    const { getPromptTemplate } = await import('./lib/prompt-manager');
+    const resolvedPrompt = await getPromptTemplate('final-synthesis', {}, performanceLevel);
+
+    return {
+      template: resolvedPrompt.template,
+      model: resolvedPrompt.model,
+      temperature: resolvedPrompt.temperature,
+      maxTokens: resolvedPrompt.maxTokens,
+    };
+  } catch {
+    // Fallback to hardcoded config
+    return {
+      template: FINAL_SYNTHESIS_PROMPT,
+      model: 'gpt-4o',
+      temperature: 0.2,
+      maxTokens: 2000,
+    };
+  }
+}
+
+// ============================================================================
 // SYNTHESIS GENERATOR
 // ============================================================================
 
@@ -133,7 +165,8 @@ export interface FinalSynthesisResult {
 export async function generateFinalSynthesis(
   sessionId: string,
   question: string,
-  rounds: DebateRound[]
+  rounds: DebateRound[],
+  performanceLevel: 'economic' | 'balanced' | 'performance' = 'balanced'
 ): Promise<FinalSynthesisResult | null> {
   try {
     quoorumLogger.info('[Final Synthesis] Starting synthesis generation', {
@@ -141,6 +174,9 @@ export async function generateFinalSynthesis(
       totalRounds: rounds.length,
       totalMessages: rounds.reduce((sum, r) => sum + r.messages.length, 0),
     })
+
+    // Get dynamic prompt config
+    const promptConfig = await getFinalSynthesisPrompt(performanceLevel);
 
     // Build debate history summary
     const debateHistory = rounds
@@ -157,18 +193,17 @@ export async function generateFinalSynthesis(
       })
       .join('\n\n')
 
-    // Build final prompt
-    const finalPrompt = FINAL_SYNTHESIS_PROMPT
+    // Build final prompt with variables
+    const finalPrompt = promptConfig.template
       .replace('{{QUESTION}}', question)
       .replace('{{DEBATE_HISTORY}}', debateHistory)
 
-    // Generate synthesis with powerful model
+    // Generate synthesis with model from config
     const client = getAIClient()
-    const modelId = 'gpt-4o' // Usar modelo potente para síntesis final
     const response = await client.generate(finalPrompt, {
-      modelId,
-      temperature: 0.2, // Baja temperatura para precisión
-      maxTokens: 2000,
+      modelId: promptConfig.model,
+      temperature: promptConfig.temperature,
+      maxTokens: promptConfig.maxTokens,
     })
 
     // Parse JSON response
@@ -184,7 +219,20 @@ export async function generateFinalSynthesis(
 
     // Calculate cost for tracking
     const tokensUsed = (response.usage?.promptTokens || 0) + (response.usage?.completionTokens || 0)
-    const costUsd = calculateTokenCost(modelId, response.usage?.promptTokens || 0, response.usage?.completionTokens || 0)
+
+    // Detect provider from model ID
+    const provider = promptConfig.model.includes('gpt')
+      ? 'openai'
+      : promptConfig.model.includes('claude')
+      ? 'anthropic'
+      : 'google';
+
+    const { costUsdTotal: costUsd } = calculateAICost(
+      provider,
+      promptConfig.model,
+      response.usage?.promptTokens || 0,
+      response.usage?.completionTokens || 0
+    )
 
     quoorumLogger.info('[Final Synthesis] Synthesis generated successfully', {
       sessionId,
@@ -192,14 +240,16 @@ export async function generateFinalSynthesis(
       qualityScores: synthesis.debateQuality,
       tokensUsed,
       costUsd,
+      model: promptConfig.model,
+      provider,
     })
 
     return {
       synthesis,
       costUsd,
       tokensUsed,
-      provider: 'openai', // Assuming OpenAI for gpt-4o
-      model: modelId,
+      provider,
+      model: promptConfig.model,
     }
 
   } catch (error) {

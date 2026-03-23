@@ -50,12 +50,13 @@ export interface RunDebateOptions {
       customPrompt?: string // Layer 4: Personality/style customization
     }>
   }
+  performanceLevel?: 'economic' | 'balanced' | 'performance' // User's AI performance level
   onRoundComplete?: (round: DebateRound) => Promise<void>
   onMessageGenerated?: (message: DebateMessage) => Promise<void>
 }
 
 export async function runDebate(options: RunDebateOptions): Promise<DebateResult> {
-  const { sessionId, userId, question, context, corporateContext, onRoundComplete, onMessageGenerated } = options
+  const { sessionId, userId, question, context, corporateContext, performanceLevel = 'balanced', onRoundComplete, onMessageGenerated } = options
 
   const rounds: DebateRound[] = []
   let totalCost = 0
@@ -251,7 +252,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
 
     try {
       quoorumLogger.info('[Debate] Generating final synthesis...', { sessionId })
-      const synthesisResult = await generateFinalSynthesis(sessionId, question, rounds)
+      const synthesisResult = await generateFinalSynthesis(sessionId, question, rounds, performanceLevel)
 
       if (synthesisResult) {
         finalSynthesis = synthesisResult.synthesis
@@ -263,15 +264,18 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
 
         // Create virtual message for synthesis phase (for cost tracking)
         const synthesisMessage: DebateMessage = {
+          id: `${sessionId}-synthesis`,
+          sessionId,
+          round: rounds.length + 1,
           agentKey: 'synthesis',
           agentName: 'Secretario del Tribunal',
           content: `Síntesis ejecutiva generada: ${finalSynthesis.recommendation.option}`,
+          isCompressed: false,
           provider: synthesisResult.provider as any,
-          model: synthesisResult.model,
+          modelId: synthesisResult.model,
           tokensUsed: synthesisResult.tokensUsed,
           costUsd: synthesisResult.costUsd,
-          timestamp: new Date(),
-          phase: 'synthesis', // Track synthesis phase cost
+          createdAt: new Date(),
         }
 
         // Add synthesis as a virtual round for cost tracking
@@ -297,6 +301,7 @@ export async function runDebate(options: RunDebateOptions): Promise<DebateResult
         userId,
         creditsToRefund,
         sessionId,
+        'refund',
         'Refund unused credits after debate completion'
       )
       refundIssued = refundResult.success

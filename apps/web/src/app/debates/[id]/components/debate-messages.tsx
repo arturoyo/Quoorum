@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateMessages Component
  *
  * Displays the messages from experts during the debate.

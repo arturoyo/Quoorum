@@ -81,13 +81,13 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
   ]
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0b141a]">
+    <div className="flex min-h-screen flex-col styles.colors.bg.primary">
       {/* Header */}
-      <div className="border-b border-[#2a3942] bg-[#202c33] px-6 py-4">
+      <div className="border-b styles.colors.border.default styles.colors.bg.tertiary px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-[#e9edef]">Quoorum Estratégico</h1>
-            <p className="text-sm text-[#8696a0]">
+            <p className="text-sm styles.colors.text.tertiary">
               Panel de expertos IA para decisiones estratégicas
             </p>
           </div>
@@ -109,7 +109,7 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
               <CardTitle className="text-2xl text-[#e9edef]">
                 {addonInfo.name || 'Quoorum Estratégico'}
               </CardTitle>
-              <CardDescription className="text-base text-[#8696a0]">
+              <CardDescription className="text-base styles.colors.text.tertiary">
                 {addonInfo.description ||
                   'Panel de expertos IA para decisiones estratégicas. Debates en tiempo real.'}
               </CardDescription>
@@ -119,7 +119,7 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
                 <span className="text-4xl font-bold text-purple-400">
                   {addonInfo.monthlyPrice || 39}€
                 </span>
-                <span className="text-[#8696a0]">/mes</span>
+                <span className="styles.colors.text.tertiary">/mes</span>
               </div>
 
               <Button
@@ -141,7 +141,7 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
                 )}
               </Button>
 
-              <p className="mt-3 text-xs text-[#8696a0]">
+              <p className="mt-3 text-xs styles.colors.text.tertiary">
                 Se añadirá a tu suscripción actual. Cancela cuando quieras.
               </p>
             </CardContent>
@@ -152,13 +152,13 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
             <h2 className="mb-4 text-lg font-semibold text-[#e9edef]">¿Qué incluye?</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {features.map((feature) => (
-                <Card key={feature.title} className="border-[#2a3942] bg-[#202c33]">
+                <Card key={feature.title} className="styles.colors.border.default styles.colors.bg.tertiary">
                   <CardContent className="p-4">
                     <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20">
                       <feature.icon className="h-5 w-5 text-purple-400" />
                     </div>
                     <h3 className="mb-1 font-medium text-[#e9edef]">{feature.title}</h3>
-                    <p className="text-sm text-[#8696a0]">{feature.description}</p>
+                    <p className="text-sm styles.colors.text.tertiary">{feature.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -168,7 +168,7 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
           {/* Use Cases */}
           <div>
             <h2 className="mb-4 text-lg font-semibold text-[#e9edef]">Ejemplos de uso</h2>
-            <Card className="border-[#2a3942] bg-[#202c33]">
+            <Card className="styles.colors.border.default styles.colors.bg.tertiary">
               <CardContent className="p-4">
                 <ul className="space-y-3">
                   {useCases.map((useCase) => (
@@ -186,31 +186,31 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
           <div>
             <h2 className="mb-4 text-lg font-semibold text-[#e9edef]">Límites por plan</h2>
             <div className="grid gap-4 md:grid-cols-3">
-              <Card className="border-[#2a3942] bg-[#202c33]">
+              <Card className="styles.colors.border.default styles.colors.bg.tertiary">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base text-[#e9edef]">Starter</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm text-[#8696a0]">
+                <CardContent className="space-y-2 text-sm styles.colors.text.tertiary">
                   <p>• 10 debates/mes</p>
                   <p>• Hasta 4 expertos</p>
                   <p>• Hasta 3 rondas</p>
                 </CardContent>
               </Card>
-              <Card className="border-[#00a884]/30 bg-[#202c33]">
+              <Card className="border-[#00a884]/30 styles.colors.bg.tertiary">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base text-[#00a884]">Pro</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm text-[#8696a0]">
+                <CardContent className="space-y-2 text-sm styles.colors.text.tertiary">
                   <p>• 30 debates/mes</p>
                   <p>• Hasta 6 expertos</p>
                   <p>• Hasta 5 rondas</p>
                 </CardContent>
               </Card>
-              <Card className="border-purple-500/30 bg-[#202c33]">
+              <Card className="border-purple-500/30 styles.colors.bg.tertiary">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base text-purple-400">Business</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm text-[#8696a0]">
+                <CardContent className="space-y-2 text-sm styles.colors.text.tertiary">
                   <p>• Debates ilimitados</p>
                   <p>• Hasta 10 expertos</p>
                   <p>• Hasta 10 rondas</p>
@@ -231,7 +231,7 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
 
-            <p className="mt-4 text-sm text-[#8696a0]">
+            <p className="mt-4 text-sm styles.colors.text.tertiary">
               ¿Tienes dudas?{' '}
               <Link href="/settings/addons" className="text-[#00a884] hover:underline">
                 Ver todos los add-ons

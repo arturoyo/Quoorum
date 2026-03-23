@@ -16,7 +16,8 @@ const BATCH_INTERVAL_MS = 10000; // 10 segundos (más largo que backend)
 // ═══════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════
-type LogLevel = "debug" | "info" | "warn" | "error" | "fatal";
+const LOG_LEVELS = ["debug", "info", "warn", "error", "fatal"] as const;
+type LogLevel = (typeof LOG_LEVELS)[number];
 
 interface LogEntry {
   level: LogLevel;
@@ -121,7 +122,7 @@ class ClientLogger {
         };
         
         // Capturar propiedades adicionales si existen (status, code, etc.)
-        const errorRecord = value as Record<string, unknown>;
+        const errorRecord = value as unknown as Record<string, unknown>;
         for (const key of ['status', 'statusText', 'code', 'cause', 'responseBody']) {
           if (key in errorRecord) {
             errorObj[key] = errorRecord[key];
@@ -215,7 +216,7 @@ class ClientLogger {
         }
         
         // Verificar propiedades del error
-        const errorObj = errorOrMetadata as Record<string, unknown>;
+        const errorObj = errorOrMetadata as unknown as Record<string, unknown>;
         if (!shouldSilence && (errorObj.status === 401 || errorObj.status === 402)) {
           shouldSilence = true;
         }

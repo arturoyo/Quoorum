@@ -105,10 +105,10 @@ export function GenerateReportDialog({ debateId, onSuccess }: GenerateReportDial
           Generar Informe
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-[#2a3942] bg-[#202c33] text-[#e9edef]">
+      <DialogContent className="styles.colors.border.default styles.colors.bg.tertiary text-[#e9edef]">
         <DialogHeader>
           <DialogTitle>Generar Nuevo Informe</DialogTitle>
-          <DialogDescription className="text-[#8696a0]">
+          <DialogDescription className="styles.colors.text.tertiary">
             Configura las opciones para tu informe del Quoorum
           </DialogDescription>
         </DialogHeader>
@@ -117,7 +117,7 @@ export function GenerateReportDialog({ debateId, onSuccess }: GenerateReportDial
           <div className="space-y-2">
             <Label>Tipo de Informe</Label>
             <Select value={type} onValueChange={(v) => setType(v as ReportType)}>
-              <SelectTrigger className="border-[#2a3942] bg-[#111b21]">
+              <SelectTrigger className="styles.colors.border.default styles.colors.bg.secondary">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -132,7 +132,7 @@ export function GenerateReportDialog({ debateId, onSuccess }: GenerateReportDial
           <div className="space-y-2">
             <Label>Formato</Label>
             <Select value={format} onValueChange={(v) => setFormat(v as ReportFormat)}>
-              <SelectTrigger className="border-[#2a3942] bg-[#111b21]">
+              <SelectTrigger className="styles.colors.border.default styles.colors.bg.secondary">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -145,7 +145,7 @@ export function GenerateReportDialog({ debateId, onSuccess }: GenerateReportDial
 
           <div className="space-y-2">
             <Label>Contenido incluido</Label>
-            <p className="rounded-lg border border-dashed border-[#2a3942] bg-[#111b21] p-3 text-sm text-[#8696a0]">
+            <p className="rounded-lg border border-dashed styles.colors.border.default styles.colors.bg.secondary p-3 text-sm styles.colors.text.tertiary">
               El informe incluirá automáticamente el resumen, métricas principales y visualizaciones
               estándar según el tipo seleccionado.
             </p>
@@ -156,7 +156,7 @@ export function GenerateReportDialog({ debateId, onSuccess }: GenerateReportDial
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
-            className="border-[#2a3942] bg-[#111b21]"
+            className="styles.colors.border.default styles.colors.bg.secondary"
           >
             Cancelar
           </Button>

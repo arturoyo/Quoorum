@@ -58,7 +58,7 @@ export const adminRolesRouter = router({
         conditions.push(eq(adminRoles.isActive, true))
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+      const whereClause = conditions.length > 0 ? and(...(conditions as any)) : undefined
 
       const roles = await db
         .select()

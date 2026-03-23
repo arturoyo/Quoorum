@@ -225,7 +225,7 @@ Output as JSON array of strings:
 
   try {
     const response = await aiClient.generate(prompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       systemPrompt:
         'You are a quality analyst. Provide specific, actionable insights. Output ONLY valid JSON.',
       temperature: 0.4,

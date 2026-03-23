@@ -9,7 +9,7 @@
 
 import React from 'react'
 import { ArrowRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 export interface SuggestedAnswerCardProps {
   id: string
@@ -39,7 +39,7 @@ export function SuggestedAnswerCard({
       disabled={disabled}
       className={cn(
         'w-full p-4 rounded-lg border-2 text-left transition-all',
-        'bg-blue-500/10 border-blue-500/30 text-[var(--theme-text-primary)]',
+        'bg-blue-500/10 border-blue-500/30 styles.colors.text.primary',
         'hover:border-blue-500 hover:bg-blue-500/20',
         'focus:outline-none focus:ring-2 focus:ring-blue-500',
         disabled && 'opacity-50 cursor-not-allowed',
@@ -51,7 +51,7 @@ export function SuggestedAnswerCard({
           <p className="text-sm font-medium text-blue-200 mb-1 break-words">
             {description}
           </p>
-          <p className="text-sm text-[var(--theme-text-secondary)] leading-relaxed break-words whitespace-pre-wrap">
+          <p className="text-sm styles.colors.text.secondary leading-relaxed break-words whitespace-pre-wrap">
             {text}
           </p>
         </div>

@@ -46,7 +46,7 @@ import {
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface AuditSectionProps {
   isInModal?: boolean
@@ -101,7 +101,7 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Auditoría</h2>
-          <p className="text-sm text-[#aebac1] mt-1">
+          <p className="text-sm styles.colors.text.secondary mt-1">
             Logs de auditoría del sistema
           </p>
         </div>
@@ -109,7 +109,7 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
           onClick={() => void refetch()}
           variant="outline"
           size="sm"
-          className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+          className="styles.colors.border.default styles.colors.bg.input text-white hover:bg-purple-600 hover:border-purple-600"
         >
           <RefreshCw className="mr-2 h-4 w-4" />
           Actualizar
@@ -117,7 +117,7 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
       </div>
 
       {/* Filters */}
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Filter className="h-5 w-5" />
@@ -127,39 +127,39 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="action" className="text-[#aebac1]">
+              <Label htmlFor="action" className="styles.colors.text.secondary">
                 Acción
               </Label>
               <Select value={actionFilter || 'all'} onValueChange={(v) => setActionFilter(v === 'all' ? undefined : v)}>
-                <SelectTrigger className="bg-[#2a3942] border-[#2a3942] text-white">
+                <SelectTrigger className="styles.colors.bg.input styles.colors.border.default text-white">
                   <SelectValue placeholder="Todas las acciones" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111b21] border-[#2a3942]">
-                  <SelectItem value="all" className="text-white hover:bg-[#202c33]">
+                <SelectContent className="styles.colors.bg.secondary styles.colors.border.default">
+                  <SelectItem value="all" className="text-white hover:styles.colors.bg.tertiary">
                     Todas las acciones
                   </SelectItem>
-                  <SelectItem value="deliberation.created" className="text-white hover:bg-[#202c33]">
+                  <SelectItem value="deliberation.created" className="text-white hover:styles.colors.bg.tertiary">
                     Debate Creado
                   </SelectItem>
-                  <SelectItem value="deliberation.started" className="text-white hover:bg-[#202c33]">
+                  <SelectItem value="deliberation.started" className="text-white hover:styles.colors.bg.tertiary">
                     Debate Iniciado
                   </SelectItem>
-                  <SelectItem value="deliberation.completed" className="text-white hover:bg-[#202c33]">
+                  <SelectItem value="deliberation.completed" className="text-white hover:styles.colors.bg.tertiary">
                     Debate Completado
                   </SelectItem>
-                  <SelectItem value="deliberation.cancelled" className="text-white hover:bg-[#202c33]">
+                  <SelectItem value="deliberation.cancelled" className="text-white hover:styles.colors.bg.tertiary">
                     Debate Cancelado
                   </SelectItem>
-                  <SelectItem value="round.started" className="text-white hover:bg-[#202c33]">
+                  <SelectItem value="round.started" className="text-white hover:styles.colors.bg.tertiary">
                     Ronda Iniciada
                   </SelectItem>
-                  <SelectItem value="round.completed" className="text-white hover:bg-[#202c33]">
+                  <SelectItem value="round.completed" className="text-white hover:styles.colors.bg.tertiary">
                     Ronda Completada
                   </SelectItem>
-                  <SelectItem value="consensus.reached" className="text-white hover:bg-[#202c33]">
+                  <SelectItem value="consensus.reached" className="text-white hover:styles.colors.bg.tertiary">
                     Consenso Alcanzado
                   </SelectItem>
-                  <SelectItem value="settings.changed" className="text-white hover:bg-[#202c33]">
+                  <SelectItem value="settings.changed" className="text-white hover:styles.colors.bg.tertiary">
                     Configuración Cambiada
                   </SelectItem>
                 </SelectContent>
@@ -167,7 +167,7 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="userId" className="text-[#aebac1]">
+              <Label htmlFor="userId" className="styles.colors.text.secondary">
                 User ID
               </Label>
               <Input
@@ -178,12 +178,12 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
                   setPage(0)
                 }}
                 placeholder="Filtrar por usuario..."
-                className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                className="styles.colors.bg.input styles.colors.border.default text-white placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="deliberationId" className="text-[#aebac1]">
+              <Label htmlFor="deliberationId" className="styles.colors.text.secondary">
                 Debate ID
               </Label>
               <Input
@@ -194,7 +194,7 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
                   setPage(0)
                 }}
                 placeholder="Filtrar por debate..."
-                className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                className="styles.colors.bg.input styles.colors.border.default text-white placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
               />
             </div>
           </div>
@@ -204,7 +204,7 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
               onClick={handleClearFilters}
               variant="outline"
               size="sm"
-              className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-[#202c33]"
+              className="styles.colors.border.default styles.colors.bg.input text-white hover:styles.colors.bg.tertiary"
             >
               Limpiar Filtros
             </Button>
@@ -213,13 +213,13 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
       </Card>
 
       {/* Audit Logs Table */}
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <FileText className="h-5 w-5" />
             Logs de Auditoría
           </CardTitle>
-          <CardDescription className="text-[#aebac1]">
+          <CardDescription className="styles.colors.text.secondary">
             {data?.length || 0} registros encontrados
           </CardDescription>
         </CardHeader>
@@ -228,31 +228,31 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
             <div className="space-y-2">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[#2a3942] hover:bg-[#202c33]">
-                    <TableHead className="text-[#aebac1] w-12"></TableHead>
-                    <TableHead className="text-[#aebac1]">Fecha</TableHead>
-                    <TableHead className="text-[#aebac1]">Acción</TableHead>
-                    <TableHead className="text-[#aebac1]">Usuario</TableHead>
-                    <TableHead className="text-[#aebac1]">Entidad</TableHead>
+                  <TableRow className="styles.colors.border.default hover:styles.colors.bg.tertiary">
+                    <TableHead className="styles.colors.text.secondary w-12"></TableHead>
+                    <TableHead className="styles.colors.text.secondary">Fecha</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Acción</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Usuario</TableHead>
+                    <TableHead className="styles.colors.text.secondary">Entidad</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.map((log) => {
                     const isExpanded = expandedLog === log.id
-                    const actionColor = ACTION_COLORS[log.action] || 'bg-[#2a3942] text-[#aebac1]'
+                    const actionColor = ACTION_COLORS[log.action] || 'styles.colors.bg.input styles.colors.text.secondary'
 
                     return (
                       <>
                         <TableRow
                           key={log.id}
-                          className="border-[#2a3942] hover:bg-[#202c33] cursor-pointer"
+                          className="styles.colors.border.default hover:styles.colors.bg.tertiary cursor-pointer"
                           onClick={() => setExpandedLog(isExpanded ? null : log.id)}
                         >
                           <TableCell>
                             {isExpanded ? (
-                              <ChevronDown className="h-4 w-4 text-[#aebac1]" />
+                              <ChevronDown className="h-4 w-4 styles.colors.text.secondary" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 text-[#aebac1]" />
+                              <ChevronRight className="h-4 w-4 styles.colors.text.secondary" />
                             )}
                           </TableCell>
                           <TableCell className="text-white">
@@ -263,47 +263,47 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
                               {log.action.replace('.', ' ')}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-[#aebac1]">
+                          <TableCell className="styles.colors.text.secondary">
                             {log.userId ? (
-                              <code className="text-xs bg-[#2a3942] px-2 py-1 rounded">
+                              <code className="text-xs styles.colors.bg.input px-2 py-1 rounded">
                                 {log.userId.substring(0, 8)}...
                               </code>
                             ) : (
-                              <span className="text-[#8696a0]">Sistema</span>
+                              <span className="styles.colors.text.tertiary">Sistema</span>
                             )}
                           </TableCell>
-                          <TableCell className="text-[#aebac1]">
+                          <TableCell className="styles.colors.text.secondary">
                             {log.entityType && log.entityId ? (
                               <div className="flex items-center gap-2">
                                 <span className="text-xs">{log.entityType}</span>
-                                <code className="text-xs bg-[#2a3942] px-2 py-1 rounded">
+                                <code className="text-xs styles.colors.bg.input px-2 py-1 rounded">
                                   {log.entityId.substring(0, 8)}...
                                 </code>
                               </div>
                             ) : (
-                              <span className="text-[#8696a0]">—</span>
+                              <span className="styles.colors.text.tertiary">—</span>
                             )}
                           </TableCell>
                         </TableRow>
                         {isExpanded && (
-                          <TableRow className="border-[#2a3942] bg-[#0b141a]">
+                          <TableRow className="styles.colors.border.default styles.colors.bg.primary">
                             <TableCell colSpan={5} className="p-4">
                               <div className="space-y-3 text-sm">
                                 <div>
-                                  <Label className="text-[#aebac1] text-xs">Detalles:</Label>
-                                  <pre className="mt-1 p-3 bg-[#2a3942] rounded text-[#aebac1] text-xs overflow-x-auto">
+                                  <Label className="styles.colors.text.secondary text-xs">Detalles:</Label>
+                                  <pre className="mt-1 p-3 styles.colors.bg.input rounded styles.colors.text.secondary text-xs overflow-x-auto">
                                     {JSON.stringify(log.details, null, 2)}
                                   </pre>
                                 </div>
                                 {log.ipAddress && (
                                   <div>
-                                    <Label className="text-[#aebac1] text-xs">IP:</Label>
+                                    <Label className="styles.colors.text.secondary text-xs">IP:</Label>
                                     <span className="ml-2 text-white">{log.ipAddress}</span>
                                   </div>
                                 )}
                                 {log.userAgent && (
                                   <div>
-                                    <Label className="text-[#aebac1] text-xs">User Agent:</Label>
+                                    <Label className="styles.colors.text.secondary text-xs">User Agent:</Label>
                                     <span className="ml-2 text-white text-xs">{log.userAgent}</span>
                                   </div>
                                 )}
@@ -324,11 +324,11 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
                   size="sm"
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-[#202c33] disabled:opacity-50"
+                  className="styles.colors.border.default styles.colors.bg.input text-white hover:styles.colors.bg.tertiary disabled:opacity-50"
                 >
                   Anterior
                 </Button>
-                <span className="text-sm text-[#aebac1]">
+                <span className="text-sm styles.colors.text.secondary">
                   Página {page + 1}
                 </span>
                 <Button
@@ -336,17 +336,17 @@ export function AuditSection({ isInModal = false }: AuditSectionProps) {
                   size="sm"
                   onClick={() => setPage((p) => p + 1)}
                   disabled={!data || data.length < limit}
-                  className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-[#202c33] disabled:opacity-50"
+                  className="styles.colors.border.default styles.colors.bg.input text-white hover:styles.colors.bg.tertiary disabled:opacity-50"
                 >
                   Siguiente
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-[#aebac1]">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-[#8696a0]" />
+            <div className="text-center py-8 styles.colors.text.secondary">
+              <FileText className="h-12 w-12 mx-auto mb-4 styles.colors.text.tertiary" />
               <p>No se encontraron logs de auditoría</p>
-              <p className="text-sm text-[#8696a0] mt-1">
+              <p className="text-sm styles.colors.text.tertiary mt-1">
                 Los logs aparecerán aquí cuando haya actividad en el sistema
               </p>
             </div>

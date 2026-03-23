@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
@@ -135,7 +135,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
               const errorInfo = classifyTRPCError(error);
               // Solo loggear errores que NO están en la lista de errores silenciados
               if (!isSilencedCategory(errorInfo.type)) {
-                logger.error('[React Query] Query error:', error);
+                logger.error('[React Query] Query error:', error as Error | Record<string, unknown>);
               }
             },
           },
@@ -146,7 +146,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
               const errorInfo = classifyTRPCError(error);
               // Solo loggear errores que NO están en la lista de errores silenciados
               if (!isSilencedCategory(errorInfo.type)) {
-                logger.error('[React Query] Mutation error:', error);
+                logger.error('[React Query] Mutation error:', error as Error | Record<string, unknown>);
               }
             },
           },
@@ -238,17 +238,17 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
                 
                 // Clasificar y manejar el error
                 const error = new Error(`tRPC request failed: ${response.status} ${response.statusText}`);
-                (error as Record<string, unknown>).status = response.status;
-                (error as Record<string, unknown>).statusText = response.statusText;
-                (error as Record<string, unknown>).responseBody = parsedError;
+                (error as unknown as Record<string, unknown>).status = response.status;
+                (error as unknown as Record<string, unknown>).statusText = response.statusText;
+                (error as unknown as Record<string, unknown>).responseBody = parsedError;
                 // Añadir errorCode al error para que classifyTRPCError lo detecte
                 if (errorCode) {
-                  (error as Record<string, unknown>).code = errorCode
+                  (error as unknown as Record<string, unknown>).code = errorCode
                   // También añadir a data.code (formato tRPC)
-                  if (!(error as Record<string, unknown>).data) {
-                    (error as Record<string, unknown>).data = {}
+                  if (!(error as unknown as Record<string, unknown>).data) {
+                    (error as unknown as Record<string, unknown>).data = {}
                   }
-                  ((error as Record<string, unknown>).data as Record<string, unknown>).code = errorCode
+                  ((error as unknown as Record<string, unknown>).data as Record<string, unknown>).code = errorCode
                 }
                 
                 // Usar la detección previa de isUnauthorized
@@ -263,7 +263,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
                       const errorData = firstError.error as Record<string, unknown>;
                       if (errorData.json && typeof errorData.json === 'object') {
                         const jsonData = errorData.json as Record<string, unknown>;
-                        const msg = (jsonData.message as string) || ''
+                        const msg = String(jsonData.message || '')
                         
                         // Detectar PAYMENT_REQUIRED desde múltiples fuentes
                         isPaymentRequired = response.status === 402 || 
@@ -286,16 +286,17 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
                   // Asegurar que el error tenga la estructura correcta para classifyTRPCError
                   if (!errorCode) {
                     errorCode = 'PAYMENT_REQUIRED'
-                    (error as Record<string, unknown>).code = errorCode
-                    if (!(error as Record<string, unknown>).data) {
-                      (error as Record<string, unknown>).data = {}
+                    const errorObj = error as unknown as Record<string, unknown>
+                    errorObj.code = errorCode
+                    if (!errorObj.data) {
+                      errorObj.data = {}
                     }
-                    ((error as Record<string, unknown>).data as Record<string, unknown>).code = errorCode
+                    (errorObj.data as Record<string, unknown>).code = errorCode
                   }
                   
                   // Añadir cause con status para que classifyTRPCError lo detecte
-                  if (!(error as Record<string, unknown>).cause) {
-                    (error as Record<string, unknown>).cause = {
+                  if (!(error as unknown as Record<string, unknown>).cause) {
+                    (error as unknown as Record<string, unknown>).cause = {
                       status: 402,
                       statusText: 'Payment Required',
                       responseBody: parsedError,

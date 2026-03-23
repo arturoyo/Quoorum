@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Quoorum Animations & Transitions
  * 
  * WOW-factor animations for Quoorum UI

@@ -41,7 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface ExpertSelectorProps {
   selectedExpertIds: string[]
@@ -52,10 +52,10 @@ interface ExpertSelectorProps {
 }
 
 const CATEGORIES = [
-  { value: 'all', label: 'Todas las categorías' },
+  { value: 'all', label: 'Todas las categor�as' },
   { value: 'empresa', label: 'Empresa' },
   { value: 'vida-personal', label: 'Vida Personal' },
-  { value: 'historicos', label: 'Personajes Históricos' },
+  { value: 'historicos', label: 'Personajes Hist�ricos' },
   { value: 'general', label: 'General' },
 ] as const
 
@@ -82,7 +82,7 @@ export function ExpertSelector({
   const useAutoSuggestions = selectionMode === 'auto'
 
   // Get auto-suggested experts when question is available (only in auto mode)
-  const { data: suggestedExperts, isLoading: isLoadingSuggestions } = api.experts.suggest.useQuery(
+  const { data: suggestedExpertsRaw, isLoading: isLoadingSuggestions } = api.experts.suggest.useQuery(
     { question: question || '', context: context || '' },
     {
       enabled: isOpen && !!question && question.length >= 10 && selectionMode === 'auto',
@@ -90,17 +90,38 @@ export function ExpertSelector({
     }
   )
 
+  const suggestedExperts = (suggestedExpertsRaw ?? []) as Array<{
+    id: string
+    name: string
+    category?: string
+    expertise?: string | string[]
+    title?: string
+    role?: 'primary' | 'critic' | 'secondary'
+    reasons?: string[]
+    matchScore: number
+  }>
+
   // Get category counts first (fast, shows structure immediately) - only in manual mode
-  const { data: categoryCounts } = api.experts.libraryCategoryCounts.useQuery(
+  const { data: categoryCountsRaw } = api.experts.libraryCategoryCounts.useQuery(
     { activeOnly: true },
     { enabled: isOpen && selectionMode === 'manual' }
   )
 
+  const categoryCounts = categoryCountsRaw as { byCategory?: Record<string, number>; total?: number } | undefined
+
   // Get all experts from library (load in background) - only in manual mode
-  const { data: customExperts, isLoading: isLoadingCustom } = api.experts.libraryList.useQuery(
+  const { data: customExpertsRaw, isLoading: isLoadingCustom } = api.experts.libraryList.useQuery(
     { activeOnly: true, limit: 100 },
     { enabled: isOpen && selectionMode === 'manual' }
   )
+
+  const customExperts = (customExpertsRaw ?? []) as Array<{
+    id: string
+    name: string
+    category?: string
+    expertise?: string | string[]
+    description?: string
+  }>
 
   // Auto-select suggested experts when they arrive (only if no selection yet and in auto mode)
   useEffect(() => {
@@ -269,7 +290,7 @@ export function ExpertSelector({
           <Button
             variant="default"
             onClick={() => setIsOpen(true)}
-            className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold shadow-lg shadow-purple-500/30 border-2 border-purple-400/50 transition-all duration-200 hover:scale-[1.02]"
+            className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 styles.colors.text.primary font-semibold shadow-lg shadow-purple-500/30 border-2 border-purple-400/50 transition-all duration-200 hover:scale-[1.02]"
           >
             <Sparkles className="mr-2 h-4 w-4" />
             {selectedExpertIds.length > 0
@@ -292,36 +313,36 @@ export function ExpertSelector({
     : categories
 
   return (
-    <Card className="border-purple-500/20 bg-slate-900/60 backdrop-blur-sm">
+    <Card className="border-purple-500/20 styles.colors.bg.secondary backdrop-blur-sm">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-purple-400" />
-            <CardTitle className="text-white">Selección de Expertos</CardTitle>
+            <CardTitle className="styles.colors.text.primary">Selecci�n de Expertos</CardTitle>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="text-[var(--theme-text-secondary)] hover:text-white"
+            className="styles.colors.text.secondary hover:styles.colors.text.primary"
           >
             Cerrar
           </Button>
         </div>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className="styles.colors.text.secondary">
           {question && question.length >= 10
-            ? 'Expertos propuestos automáticamente según tu pregunta. Puedes seleccionar manualmente o usar los sugeridos.'
-            : 'Selecciona expertos de la biblioteca. Si no seleccionas ninguno, se usarán expertos automáticos del sistema.'}
+            ? 'Expertos propuestos autom�ticamente seg�n tu pregunta. Puedes seleccionar manualmente o usar los sugeridos.'
+            : 'Selecciona expertos de la biblioteca. Si no seleccionas ninguno, se usar�n expertos autom�ticos del sistema.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
         {/* Selected Experts - Fixed Top Section */}
         {selectedExpertsData.length > 0 && (
-          <div className="space-y-3 pb-4 border-b border-white/10">
+          <div className="space-y-3 pb-4 border-b styles.colors.border.default">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold styles.colors.text.primary">
                   Expertos Seleccionados
                 </span>
                 <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-400 bg-purple-500/10">
@@ -332,7 +353,7 @@ export function ExpertSelector({
                 variant="ghost"
                 size="sm"
                 onClick={() => onSelectionChange([])}
-                className="text-xs text-[var(--theme-text-secondary)] hover:text-white"
+                className="text-xs styles.colors.text.secondary hover:styles.colors.text.primary"
               >
                 Limpiar todos
               </Button>
@@ -343,7 +364,7 @@ export function ExpertSelector({
                   key={`selected-${expert.id}`}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-500/50 bg-purple-500/20 backdrop-blur-sm"
                 >
-                  <span className="text-sm font-medium text-white">{expert.name}</span>
+                  <span className="text-sm font-medium styles.colors.text.primary">{expert.name}</span>
                   {expert.matchScore && (
                     <Badge
                       variant="outline"
@@ -354,7 +375,7 @@ export function ExpertSelector({
                   )}
                   <button
                     onClick={() => toggleExpert(expert.id)}
-                    className="ml-1 p-0.5 rounded hover:bg-purple-600/30 text-[var(--theme-text-secondary)] hover:text-white transition-colors"
+                    className="ml-1 p-0.5 rounded hover:bg-purple-600/30 styles.colors.text.secondary hover:text-white transition-colors"
                     title="Eliminar"
                   >
                     <X className="h-3 w-3" />
@@ -367,19 +388,19 @@ export function ExpertSelector({
 
         {/* Mode Selection (Auto/Manual) */}
         <div className="space-y-2">
-          <Label className="text-white flex items-center gap-2">
+          <Label className="styles.colors.text.primary flex items-center gap-2">
             <Settings className="h-4 w-4 text-purple-400" />
-            Modo de Selección
+            Modo de Selecci�n
           </Label>
           <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
-            <SelectTrigger className="border-white/10 bg-slate-800/50 text-white">
+            <SelectTrigger className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="auto">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span>Automático (Recomendado)</span>
+                  <span>Autom�tico (Recomendado)</span>
                 </div>
               </SelectItem>
               <SelectItem value="manual">
@@ -399,7 +420,7 @@ export function ExpertSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
-                  <span className="text-sm text-[var(--theme-text-secondary)]">Analizando tu pregunta y buscando expertos...</span>
+                  <span className="text-sm styles.colors.text.secondary">Analizando tu pregunta y buscando expertos...</span>
                 </div>
                 <div className="space-y-2">
                   {[1, 2, 3, 4, 5].map((i) => (
@@ -412,8 +433,8 @@ export function ExpertSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span className="text-sm font-semibold text-white">
-                    Expertos Sugeridos Automáticamente
+                  <span className="text-sm font-semibold styles.colors.text.primary">
+                    Expertos Sugeridos Autom�ticamente
                   </span>
                   <Badge variant="outline" className="text-xs border-yellow-500/30 text-yellow-400 bg-yellow-500/10">
                     {filteredSuggestedExperts.length}
@@ -422,6 +443,11 @@ export function ExpertSelector({
                 
                 <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
                     {filteredSuggestedExperts.map((suggested) => {
+                      const expertiseList = Array.isArray(suggested.expertise)
+                        ? suggested.expertise
+                        : suggested.expertise
+                        ? [suggested.expertise]
+                        : []
                       const isSelected = selectedExpertIds.includes(suggested.id)
                       return (
                         <div
@@ -431,7 +457,7 @@ export function ExpertSelector({
                             'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                             isSelected
                               ? 'border-yellow-500/50 bg-yellow-500/10'
-                              : 'border-white/10 bg-slate-800/30 hover:border-yellow-500/30 hover:bg-slate-800/50'
+                              : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-yellow-500/30 hover:styles.colors.bg.tertiary'
                           )}
                         >
                           <Checkbox
@@ -441,7 +467,7 @@ export function ExpertSelector({
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="text-sm font-medium text-white truncate">
+                              <p className="text-sm font-medium styles.colors.text.primary truncate">
                                 {suggested.name}
                               </p>
                               <Badge
@@ -452,10 +478,10 @@ export function ExpertSelector({
                                     ? 'border-green-500/30 text-green-400 bg-green-500/10'
                                     : suggested.role === 'critic'
                                     ? 'border-red-500/30 text-red-400 bg-red-500/10'
-                                    : 'border-gray-600 text-[var(--theme-text-secondary)]'
+                                    : 'border-gray-600 styles.colors.text.secondary'
                                 )}
                               >
-                                {suggested.role === 'primary' ? 'Principal' : suggested.role === 'critic' ? 'Crítico' : 'Secundario'}
+                                {suggested.role === 'primary' ? 'Principal' : suggested.role === 'critic' ? 'Cr�tico' : 'Secundario'}
                               </Badge>
                               <Badge
                                 variant="outline"
@@ -464,8 +490,8 @@ export function ExpertSelector({
                                 {suggested.matchScore}% match
                               </Badge>
                             </div>
-                            <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-1 mb-1">
-                              {suggested.expertise?.join(', ') || suggested.title}
+                            <p className="text-xs styles.colors.text.secondary line-clamp-1 mb-1">
+                              {expertiseList.join(', ') || suggested.title}
                             </p>
                             {suggested.reasons && suggested.reasons.length > 0 && (
                               <div className="mt-1 flex items-start gap-1">
@@ -484,29 +510,29 @@ export function ExpertSelector({
 
               <div className="rounded-lg border-2 border-yellow-500/30 bg-yellow-900/10 p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Badge className="bg-yellow-600 text-white">
+                  <Badge className="bg-yellow-600 styles.colors.text.primary">
                     {filteredSuggestedExperts.length} Expertos Recomendados
                   </Badge>
                 </div>
-                <p className="text-xs text-[var(--theme-text-secondary)] mb-3">
-                  El sistema ha analizado tu pregunta y seleccionado los expertos más relevantes. Puedes cambiar a modo manual para ver todos los expertos disponibles.
+                <p className="text-xs styles.colors.text.secondary mb-3">
+                  El sistema ha analizado tu pregunta y seleccionado los expertos m�s relevantes. Puedes cambiar a modo manual para ver todos los expertos disponibles.
                 </p>
               </div>
             </>
           ) : question && question.length >= 10 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Loader2 className="h-8 w-8 animate-spin text-purple-400 mb-3" />
-              <p className="text-[var(--theme-text-secondary)] mb-2">No se encontraron expertos sugeridos</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <p className="styles.colors.text.secondary mb-2">No se encontraron expertos sugeridos</p>
+              <p className="text-sm styles.colors.text.tertiary">
                 Intenta cambiar a modo manual para ver todos los expertos disponibles
               </p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Info className="h-8 w-8 text-[var(--theme-text-tertiary)] mb-3" />
-              <p className="text-[var(--theme-text-secondary)] mb-2">Añade una pregunta para ver expertos sugeridos</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
-                El modo automático requiere una pregunta de al menos 10 caracteres
+              <Info className="h-8 w-8 styles.colors.text.tertiary mb-3" />
+              <p className="styles.colors.text.secondary mb-2">A�ade una pregunta para ver expertos sugeridos</p>
+              <p className="text-sm styles.colors.text.tertiary">
+                El modo autom�tico requiere una pregunta de al menos 10 caracteres
               </p>
             </div>
           )}
@@ -517,22 +543,22 @@ export function ExpertSelector({
             {/* Search and Filter (only in manual mode) */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--theme-text-secondary)]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 styles.colors.text.secondary" />
                 <Input
                   placeholder="Buscar expertos..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-white/10 bg-slate-800/50 text-white placeholder:text-[var(--theme-text-tertiary)]"
+                  className="pl-10 styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary placeholder:styles.colors.text.tertiary"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-[var(--theme-text-secondary)]" />
+                <Filter className="h-4 w-4 styles.colors.text.secondary" />
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-white/10 bg-slate-800/50 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  title="Filtrar por categoría"
-                  aria-label="Filtrar expertos por categoría"
+                  className="px-3 py-2 rounded-lg border styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  title="Filtrar por categor�a"
+                  aria-label="Filtrar expertos por categor�a"
                 >
                   {CATEGORIES.map((cat) => (
                     <option key={cat.value} value={cat.value}>
@@ -548,20 +574,20 @@ export function ExpertSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
-                  <span className="text-sm text-[var(--theme-text-secondary)]">Cargando expertos y categorías...</span>
+                  <span className="text-sm styles.colors.text.secondary">Cargando expertos y categor�as...</span>
                 </div>
                 {/* Show category structure with loading skeletons */}
-                {categoryCounts?.byCategory ? (
+                {(categoryCounts as any)?.byCategory ? (
                   <Accordion type="multiple" className="space-y-2">
-                    {Object.entries(categoryCounts.byCategory).map(([category, count]) => {
+                    {Object.entries(((categoryCounts as any)?.byCategory ?? {}) as Record<string, number>).map(([category, count]) => {
                       const categoryLabel = CATEGORIES.find((c) => c.value === category)?.label || category
                       return (
                         <AccordionItem
                           key={category}
                           value={category}
-                          className="border-white/10 bg-slate-800/30 rounded-lg px-4"
+                          className="styles.colors.border.default styles.colors.bg.tertiary rounded-lg px-4"
                         >
-                          <AccordionTrigger className="text-white hover:no-underline py-3">
+                          <AccordionTrigger className="styles.colors.text.primary hover:no-underline py-3">
                             <div className="flex items-center gap-3">
                               <h3 className="text-sm font-semibold">{categoryLabel}</h3>
                               <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10 text-xs">
@@ -594,11 +620,11 @@ export function ExpertSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-purple-400" />
-                  <span className="text-sm font-semibold text-white">
+                  <span className="text-sm font-semibold styles.colors.text.primary">
                     Expertos Personalizados
                   </span>
-                  <Badge variant="outline" className="text-xs border-gray-600 text-[var(--theme-text-secondary)]">
-                    {categoryCounts?.total || Object.values(filteredAndGroupedExperts).reduce((acc, experts) => acc + experts.length, 0)}
+                  <Badge variant="outline" className="text-xs border-gray-600 styles.colors.text.secondary">
+                    {(categoryCounts as any)?.total || Object.values(filteredAndGroupedExperts).reduce((acc, experts) => acc + experts.length, 0)}
                   </Badge>
                 </div>
                 
@@ -613,9 +639,9 @@ export function ExpertSelector({
                         <AccordionItem
                           key={category}
                           value={category}
-                          className="border-white/10 bg-slate-800/30 rounded-lg px-4"
+                          className="styles.colors.border.default styles.colors.bg.tertiary rounded-lg px-4"
                         >
-                          <AccordionTrigger className="text-white hover:no-underline py-3">
+                          <AccordionTrigger className="styles.colors.text.primary hover:no-underline py-3">
                             <div className="flex items-center gap-3">
                               <h3 className="text-sm font-semibold">{label}</h3>
                               <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10 text-xs">
@@ -643,7 +669,7 @@ export function ExpertSelector({
                                           'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                                           isSelected
                                             ? 'border-purple-500/50 bg-purple-500/10'
-                                            : 'border-white/10 bg-slate-800/30 hover:border-purple-500/30 hover:bg-slate-800/50'
+                                            : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-purple-500/30 hover:styles.colors.bg.tertiary'
                                         )}
                                       >
                                         <Checkbox
@@ -653,24 +679,24 @@ export function ExpertSelector({
                                         />
                                         <div className="flex-1 min-w-0">
                                           <div className="flex items-center gap-2 mb-1">
-                                            <p className="text-sm font-medium text-white truncate">
+                                            <p className="text-sm font-medium styles.colors.text.primary truncate">
                                               {expert.name}
                                             </p>
                                           </div>
-                                          <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-2">
+                                          <p className="text-xs styles.colors.text.secondary line-clamp-2">
                                             {typeof expert.expertise === 'string'
                                               ? expert.expertise
                                               : Array.isArray(expert.expertise)
                                                 ? expert.expertise.join(', ')
-                                                : expert.description || 'Sin descripción'}
+                                                : expert.description || 'Sin descripci�n'}
                                           </p>
                                         </div>
                                       </div>
                                     )
                                   })
                                 ) : (
-                                  <p className="text-xs text-[var(--theme-text-tertiary)] text-center py-4">
-                                    No hay expertos en esta categoría
+                                  <p className="text-xs styles.colors.text.tertiary text-center py-4">
+                                    No hay expertos en esta categor�a
                                   </p>
                                 )}
                               </div>
@@ -689,9 +715,9 @@ export function ExpertSelector({
                         <AccordionItem
                           key={category}
                           value={category}
-                          className="border-white/10 bg-slate-800/30 rounded-lg px-4"
+                          className="styles.colors.border.default styles.colors.bg.tertiary rounded-lg px-4"
                         >
-                          <AccordionTrigger className="text-white hover:no-underline py-3">
+                          <AccordionTrigger className="styles.colors.text.primary hover:no-underline py-3">
                             <div className="flex items-center gap-3">
                               <h3 className="text-sm font-semibold">{categoryLabel}</h3>
                               <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10 text-xs">
@@ -711,7 +737,7 @@ export function ExpertSelector({
                                       'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                                       isSelected
                                         ? 'border-purple-500/50 bg-purple-500/10'
-                                        : 'border-white/10 bg-slate-800/30 hover:border-purple-500/30 hover:bg-slate-800/50'
+                                        : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-purple-500/30 hover:styles.colors.bg.tertiary'
                                     )}
                                   >
                                     <Checkbox
@@ -721,16 +747,16 @@ export function ExpertSelector({
                                     />
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-2 mb-1">
-                                        <p className="text-sm font-medium text-white truncate">
+                                        <p className="text-sm font-medium styles.colors.text.primary truncate">
                                           {expert.name}
                                         </p>
                                       </div>
-                                      <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-2">
+                                      <p className="text-xs styles.colors.text.secondary line-clamp-2">
                                         {typeof expert.expertise === 'string'
                                           ? expert.expertise
                                           : Array.isArray(expert.expertise)
                                             ? expert.expertise.join(', ')
-                                            : expert.description || 'Sin descripción'}
+                                            : expert.description || 'Sin descripci�n'}
                                       </p>
                                     </div>
                                   </div>
@@ -747,10 +773,10 @@ export function ExpertSelector({
             ) : (
               /* Empty State for manual mode */
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Sparkles className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
-                <p className="text-[var(--theme-text-secondary)] mb-2">No hay expertos disponibles en la biblioteca</p>
-                <p className="text-sm text-[var(--theme-text-tertiary)]">
-                  Los expertos se seleccionan automáticamente según tu pregunta y contexto.
+                <Sparkles className="h-12 w-12 styles.colors.text.tertiary mb-3" />
+                <p className="styles.colors.text.secondary mb-2">No hay expertos disponibles en la biblioteca</p>
+                <p className="text-sm styles.colors.text.tertiary">
+                  Los expertos se seleccionan autom�ticamente seg�n tu pregunta y contexto.
                 </p>
               </div>
             ))}
@@ -760,10 +786,10 @@ export function ExpertSelector({
              categories.length === 0 && 
              selectedExpertsData.length > 0 && (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Search className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
-                <p className="text-[var(--theme-text-secondary)] mb-2">No se encontraron expertos</p>
-                <p className="text-sm text-[var(--theme-text-tertiary)]">
-                  Intenta con otros términos de búsqueda o cambia el filtro de categoría
+                <Search className="h-12 w-12 styles.colors.text.tertiary mb-3" />
+                <p className="styles.colors.text.secondary mb-2">No se encontraron expertos</p>
+                <p className="text-sm styles.colors.text.tertiary">
+                  Intenta con otros t�rminos de b�squeda o cambia el filtro de categor�a
                 </p>
               </div>
             )}

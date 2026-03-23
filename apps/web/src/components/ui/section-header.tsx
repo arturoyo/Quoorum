@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface SectionHeaderProps {
   title: string
@@ -30,7 +30,7 @@ export function SectionHeader({
 
   return (
     <div className={cn('mb-20', alignClasses[align], className)}>
-      <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--theme-text-primary)] mb-6 tracking-tight">
+      <h2 className={cn('text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight', styles.colors.text.primary)}>
         {title}
         {gradientText && (
           <>
@@ -44,7 +44,8 @@ export function SectionHeader({
       {subtitle && (
         <p
           className={cn(
-            'text-xl text-[var(--theme-text-secondary)]',
+            'text-xl',
+            styles.colors.text.secondary,
             align === 'center' && 'max-w-2xl mx-auto'
           )}
         >

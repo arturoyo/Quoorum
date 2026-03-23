@@ -5,7 +5,7 @@
  * for seamless integration between orchestration patterns and the existing UI
  */
 
-import type { DebateSequence, PatternType, DebateResult, DebateRound, RankedOption } from '@quoorum/quoorum'
+import type { DebateSequence, DebateResult, DebateRound, RankedOption } from '@quoorum/quoorum'
 
 /**
  * Convert DebateSequence (orchestration format) to DebateResult (core format)
@@ -81,7 +81,7 @@ export function debateSequenceToResult(
   } else if (sequence.results.length > 0) {
     // Use best result from last phase
     const lastPhase = sequence.results[sequence.results.length - 1]
-    if (lastPhase?.debateResults.length > 0) {
+    if (lastPhase?.debateResults && lastPhase.debateResults.length > 0) {
       const bestDebate = lastPhase.debateResults.reduce((best, r) =>
         r.consensusScore > best.consensusScore ? r : best
       )

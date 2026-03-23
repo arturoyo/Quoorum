@@ -28,7 +28,7 @@ export default function DeprecatedNewDebatePage() {
     <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 flex items-center justify-center">
       <div className="text-white text-center">
         <p className="text-lg mb-2">Redirigiendo...</p>
-        <p className="text-sm text-[var(--theme-text-secondary)]">Esta ruta ha sido actualizada</p>
+        <p className="text-sm styles.colors.text.secondary">Esta ruta ha sido actualizada</p>
       </div>
     </div>
   )

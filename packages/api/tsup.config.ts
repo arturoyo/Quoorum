@@ -6,7 +6,7 @@ export default defineConfig({
     "lib/system-logger": "src/lib/system-logger.ts",
   },
   format: ["esm"],
-  dts: true,
+  dts: false,
   clean: true,
   sourcemap: true,
   external: [

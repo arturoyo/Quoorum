@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PersonalizationSection - Re-export
  *
  * This file re-exports from the modular personalization folder.

@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface FrameworkSelectorProps {
   selectedFrameworkId: string | null
@@ -84,16 +84,15 @@ export function FrameworkSelector({
         isOpen) {
       // Auto-select top suggested framework
       const topFramework = suggestedFrameworks[0]
+      if (!topFramework) return
 
       logger.info('[FrameworkSelector] Auto-selecting framework:', {
         frameworkId: topFramework.id,
         slug: topFramework.slug,
-        matchScore: topFramework.matchScore
+        matchScore: topFramework.matchScore,
       })
 
-      if (topFramework) {
-        onSelectionChange(topFramework.id)
-      }
+      onSelectionChange(topFramework.id)
     }
   }, [suggestedFrameworks, selectionMode, isOpen, selectedFrameworkId, onSelectionChange])
 
@@ -159,7 +158,7 @@ export function FrameworkSelector({
           <Button
             variant="default"
             onClick={() => setIsOpen(true)}
-            className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold shadow-lg shadow-purple-500/30 border-2 border-purple-400/50 transition-all duration-200 hover:scale-[1.02]"
+            className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 styles.colors.text.primary font-semibold shadow-lg shadow-purple-500/30 border-2 border-purple-400/50 transition-all duration-200 hover:scale-[1.02]"
           >
             <Target className="mr-2 h-4 w-4" />
             {selectedFrameworkId
@@ -178,36 +177,36 @@ export function FrameworkSelector({
   const isLoading = isLoadingSuggestions || isLoadingAll
 
   return (
-    <Card className="border-purple-500/20 bg-slate-900/60 backdrop-blur-sm">
+    <Card className="border-purple-500/20 styles.colors.bg.secondary backdrop-blur-sm">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-purple-400" />
-            <CardTitle className="text-white">Framework de Decisión</CardTitle>
+            <CardTitle className="styles.colors.text.primary">Framework de Decisi�n</CardTitle>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="text-[var(--theme-text-secondary)] hover:text-white"
+            className="styles.colors.text.secondary hover:styles.colors.text.primary"
           >
             Cerrar
           </Button>
         </div>
-        <CardDescription className="text-[var(--theme-text-secondary)]">
+        <CardDescription className="styles.colors.text.secondary">
           {question && question.length >= 10
-            ? 'Framework propuesto automáticamente según tu pregunta. Puedes seleccionar manualmente o usar el sugerido.'
+            ? 'Framework propuesto autom�ticamente seg�n tu pregunta. Puedes seleccionar manualmente o usar el sugerido.'
             : 'Selecciona un framework para estructurar la respuesta final del debate.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
         {/* Selected Framework - Fixed Top Section */}
         {selectedFrameworkData && (
-          <div className="space-y-3 pb-4 border-b border-white/10">
+          <div className="space-y-3 pb-4 border-b styles.colors.border.default">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold styles.colors.text.primary">
                   Framework Seleccionado
                 </span>
               </div>
@@ -215,13 +214,13 @@ export function FrameworkSelector({
                 variant="ghost"
                 size="sm"
                 onClick={() => onSelectionChange(null)}
-                className="text-xs text-[var(--theme-text-secondary)] hover:text-white"
+                className="text-xs styles.colors.text.secondary hover:styles.colors.text.primary"
               >
                 Limpiar
               </Button>
             </div>
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-500/50 bg-purple-500/20 backdrop-blur-sm">
-              <span className="text-sm font-medium text-white">{selectedFrameworkData.name}</span>
+              <span className="text-sm font-medium styles.colors.text.primary">{selectedFrameworkData.name}</span>
               {selectedFrameworkData.matchScore && (
                 <Badge
                   variant="outline"
@@ -232,14 +231,14 @@ export function FrameworkSelector({
               )}
               <button
                 onClick={() => toggleFramework(selectedFrameworkData.id)}
-                className="ml-auto p-0.5 rounded hover:bg-purple-600/30 text-[var(--theme-text-secondary)] hover:text-white transition-colors"
+                className="ml-auto p-0.5 rounded hover:bg-purple-600/30 styles.colors.text.secondary hover:text-white transition-colors"
                 title="Eliminar"
               >
                 <X className="h-3 w-3" />
               </button>
             </div>
             {selectedFrameworkData.reasoning && (
-              <p className="text-xs text-[var(--theme-text-secondary)] px-3">
+              <p className="text-xs styles.colors.text.secondary px-3">
                 {selectedFrameworkData.reasoning}
               </p>
             )}
@@ -248,19 +247,19 @@ export function FrameworkSelector({
 
         {/* Mode Selection (Auto/Manual) */}
         <div className="space-y-2">
-          <Label className="text-white flex items-center gap-2">
+          <Label className="styles.colors.text.primary flex items-center gap-2">
             <Settings className="h-4 w-4 text-purple-400" />
-            Modo de Selección
+            Modo de Selecci�n
           </Label>
           <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
-            <SelectTrigger className="border-white/10 bg-slate-800/50 text-white">
+            <SelectTrigger className="styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="auto">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span>Automático (Recomendado)</span>
+                  <span>Autom�tico (Recomendado)</span>
                 </div>
               </SelectItem>
               <SelectItem value="manual">
@@ -280,7 +279,7 @@ export function FrameworkSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
-                  <span className="text-sm text-[var(--theme-text-secondary)]">Analizando tu pregunta y buscando frameworks...</span>
+                  <span className="text-sm styles.colors.text.secondary">Analizando tu pregunta y buscando frameworks...</span>
                 </div>
                 <div className="space-y-2">
                   {[1, 2, 3].map((i) => (
@@ -293,8 +292,8 @@ export function FrameworkSelector({
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-yellow-400" />
-                    <span className="text-sm font-semibold text-white">
-                      Frameworks Sugeridos Automáticamente
+                    <span className="text-sm font-semibold styles.colors.text.primary">
+                      Frameworks Sugeridos Autom�ticamente
                     </span>
                     <Badge variant="outline" className="text-xs border-yellow-500/30 text-yellow-400 bg-yellow-500/10">
                       {suggestedFrameworks.length}
@@ -314,7 +313,7 @@ export function FrameworkSelector({
                               'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                               isSelected
                                 ? 'border-yellow-500/50 bg-yellow-500/10'
-                                : 'border-white/10 bg-slate-800/30 hover:border-yellow-500/30 hover:bg-slate-800/50'
+                                : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-yellow-500/30 hover:styles.colors.bg.tertiary'
                             )}
                           >
                             <Checkbox
@@ -324,7 +323,7 @@ export function FrameworkSelector({
                             />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-medium text-white truncate">
+                                <p className="text-sm font-medium styles.colors.text.primary truncate">
                                   {framework.name}
                                 </p>
                                 <Badge
@@ -334,7 +333,7 @@ export function FrameworkSelector({
                                   {framework.matchScore}% match
                                 </Badge>
                               </div>
-                              <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-1 mb-1">
+                              <p className="text-xs styles.colors.text.secondary line-clamp-1 mb-1">
                                 {framework.description}
                               </p>
                               {framework.reasoning && (
@@ -354,29 +353,29 @@ export function FrameworkSelector({
 
                 <div className="rounded-lg border-2 border-yellow-500/30 bg-yellow-900/10 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-yellow-600 text-white">
+                    <Badge className="bg-yellow-600 styles.colors.text.primary">
                       {suggestedFrameworks.length} Framework{suggestedFrameworks.length !== 1 ? 's' : ''} Recomendado{suggestedFrameworks.length !== 1 ? 's' : ''}
                     </Badge>
                   </div>
-                  <p className="text-xs text-[var(--theme-text-secondary)] mb-3">
-                    El sistema ha analizado tu pregunta y seleccionado el framework más relevante. Puedes cambiar a modo manual para ver todos los frameworks disponibles.
+                  <p className="text-xs styles.colors.text.secondary mb-3">
+                    El sistema ha analizado tu pregunta y seleccionado el framework m�s relevante. Puedes cambiar a modo manual para ver todos los frameworks disponibles.
                   </p>
                 </div>
               </>
             ) : question && question.length >= 10 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-purple-400 mb-3" />
-                <p className="text-[var(--theme-text-secondary)] mb-2">No se encontraron frameworks sugeridos</p>
-                <p className="text-sm text-[var(--theme-text-tertiary)]">
+                <p className="styles.colors.text.secondary mb-2">No se encontraron frameworks sugeridos</p>
+                <p className="text-sm styles.colors.text.tertiary">
                   Intenta cambiar a modo manual para ver todos los frameworks disponibles
                 </p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Info className="h-8 w-8 text-[var(--theme-text-tertiary)] mb-3" />
-                <p className="text-[var(--theme-text-secondary)] mb-2">Añade una pregunta para ver frameworks sugeridos</p>
-                <p className="text-sm text-[var(--theme-text-tertiary)]">
-                  El modo automático requiere una pregunta de al menos 10 caracteres
+                <Info className="h-8 w-8 styles.colors.text.tertiary mb-3" />
+                <p className="styles.colors.text.secondary mb-2">A�ade una pregunta para ver frameworks sugeridos</p>
+                <p className="text-sm styles.colors.text.tertiary">
+                  El modo autom�tico requiere una pregunta de al menos 10 caracteres
                 </p>
               </div>
             )}
@@ -387,13 +386,13 @@ export function FrameworkSelector({
             {/* Search (only in manual mode) */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--theme-text-secondary)]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 styles.colors.text.secondary" />
                 <input
                   type="text"
                   placeholder="Buscar frameworks..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-white/10 bg-slate-800/50 text-white placeholder:text-[var(--theme-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border styles.colors.border.default styles.colors.bg.tertiary styles.colors.text.primary placeholder:styles.colors.text.tertiary focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 />
               </div>
             </div>
@@ -403,7 +402,7 @@ export function FrameworkSelector({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
-                  <span className="text-sm text-[var(--theme-text-secondary)]">Cargando frameworks...</span>
+                  <span className="text-sm styles.colors.text.secondary">Cargando frameworks...</span>
                 </div>
                 <div className="space-y-2">
                   {[1, 2, 3].map((i) => (
@@ -428,7 +427,7 @@ export function FrameworkSelector({
                             'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                             isSelected
                               ? 'border-purple-500/50 bg-purple-500/10'
-                              : 'border-white/10 bg-slate-800/30 hover:border-purple-500/30 hover:bg-slate-800/50'
+                              : 'styles.colors.border.default styles.colors.bg.tertiary hover:border-purple-500/30 hover:styles.colors.bg.tertiary'
                           )}
                         >
                           <Checkbox
@@ -438,11 +437,11 @@ export function FrameworkSelector({
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="text-sm font-medium text-white truncate">
+                              <p className="text-sm font-medium styles.colors.text.primary truncate">
                                 {framework.name}
                               </p>
                             </div>
-                            <p className="text-xs text-[var(--theme-text-secondary)] line-clamp-2">
+                            <p className="text-xs styles.colors.text.secondary line-clamp-2">
                               {framework.description}
                             </p>
                           </div>
@@ -452,10 +451,10 @@ export function FrameworkSelector({
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <Search className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-3" />
-                    <p className="text-sm text-[var(--theme-text-secondary)]">
+                    <Search className="h-12 w-12 styles.colors.text.tertiary mb-3" />
+                    <p className="text-sm styles.colors.text.secondary">
                       {searchQuery
-                        ? 'No se encontraron frameworks que coincidan con tu búsqueda.'
+                        ? 'No se encontraron frameworks que coincidan con tu b�squeda.'
                         : 'No hay frameworks disponibles.'}
                     </p>
                   </div>
@@ -470,10 +469,10 @@ export function FrameworkSelector({
           <div className="flex gap-2">
             <Info className="h-5 w-5 text-blue-400 flex-shrink-0" />
             <div className="space-y-1 text-sm">
-              <p className="font-medium text-blue-400">¿Qué es un Framework de Decisión?</p>
+              <p className="font-medium text-blue-400">�Qu� es un Framework de Decisi�n?</p>
               <p className="text-blue-300/80">
-                Un framework estructura la respuesta final del debate según una metodología probada (FODA, ROI, Delphi, etc.).
-                Esto ayuda a presentar la decisión de forma clara y accionable.
+                Un framework estructura la respuesta final del debate seg�n una metodolog�a probada (FODA, ROI, Delphi, etc.).
+                Esto ayuda a presentar la decisi�n de forma clara y accionable.
               </p>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import {
   CheckCircle,
   Clock,
@@ -47,7 +47,7 @@ const statusConfig: Record<
   draft: {
     label: 'Borrador',
     icon: FileText,
-    className: 'bg-gray-500/20 text-[var(--theme-text-secondary)] border-gray-500/50',
+    className: cn('bg-gray-500/20 border-gray-500/50', styles.colors.text.secondary),
   },
   pending: {
     label: 'Pendiente',
@@ -73,7 +73,7 @@ const statusConfig: Record<
   cancelled: {
     label: 'Cancelado',
     icon: XCircle,
-    className: 'bg-gray-500/20 text-[var(--theme-text-secondary)] border-gray-500/50',
+    className: cn('bg-gray-500/20 border-gray-500/50', styles.colors.text.secondary),
   },
   paused: {
     label: 'Pausado',

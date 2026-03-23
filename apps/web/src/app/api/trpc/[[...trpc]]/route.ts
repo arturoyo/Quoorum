@@ -57,13 +57,13 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
         if (secretToken) {
           const [email, token] = bypassCookie.split(':');
           if (token === secretToken) {
-            userEmail = email;
+            userEmail = email ?? null;
           } else {
             systemLogger.warn("[tRPC Context] Invalid bypass token", { hasToken: !!token, isLocalHost });
           }
         } else {
           // No secret configured, allow simple email bypass (backward compat for local)
-          userEmail = bypassCookie;
+          userEmail = bypassCookie ?? null;
         }
       }
     }
@@ -116,7 +116,7 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       db.select({ role: adminUsers.role }).from(adminUsers).where(eq(adminUsers.userId, profile.id)).limit(1)
     ]);
 
-    let dbUser = dbUserRows[0] || null;
+    let dbUser: typeof users.$inferSelect | null = dbUserRows[0] ?? null;
     const adminCheck = adminCheckRows[0] || null;
 
     if (!dbUser) {
@@ -126,7 +126,7 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
         ? "admin" 
         : (profile.role === "admin" || profile.role === "super_admin" ? profile.role : "member");
 
-      const [newUser] = await db
+      const inserted = await db
         .insert(users)
         .values({
           email: profile.email || userEmail,
@@ -139,8 +139,31 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
         })
         .returning();
 
+      const newUser = inserted[0] ?? null;
+      if (!newUser) {
+        systemLogger.error('[tRPC Context] User creation returned empty result', { email: userEmail });
+        return {
+          db,
+          user: null,
+          userId: null,
+          supabase: null,
+          authUserId: null,
+        };
+      }
+
       dbUser = newUser;
       systemLogger.info("[tRPC Context] User created", { userId: dbUser.id, role: dbUser.role });
+    }
+
+    if (!dbUser) {
+      systemLogger.error('[tRPC Context] User creation failed unexpectedly', { email: userEmail });
+      return {
+        db,
+        user: null,
+        userId: null,
+        supabase: null,
+        authUserId: null,
+      };
     }
 
     let finalRole = dbUser.role;
@@ -176,7 +199,7 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       user: finalUser,
       userId: profile.id, // Use profile.id for foreign keys (quoorum_debates.user_id, etc.)
       supabase: null, // Not using Supabase
-      authUserId: profile.userId, // Original user ID from auth system (if any)
+      authUserId: profile.userId ?? null, // Original user ID from auth system (if any)
     };
   } catch (error) {
     systemLogger.error("[tRPC Context] Error creating context", error as Error);

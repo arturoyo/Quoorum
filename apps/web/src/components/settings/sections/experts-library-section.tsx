@@ -139,11 +139,11 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
     <div className="space-y-6">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-[var(--theme-text-primary)]">Biblioteca de Expertos</h1>
-        <p className="text-[var(--theme-text-secondary)]">
+        <h1 className="text-3xl font-bold mb-2 styles.colors.text.primary">Biblioteca de Expertos</h1>
+        <p className="styles.colors.text.secondary">
           Explora nuestra biblioteca de expertos predefinidos del sistema. Estos son los expertos disponibles para usar en tus debates.
         </p>
-        <p className="text-sm text-[var(--theme-text-tertiary)] mt-2">
+        <p className="text-sm styles.colors.text.tertiary mt-2">
           [WARN] Los expertos personalizados han sido eliminados. Solo se pueden usar expertos del sistema.
         </p>
       </div>
@@ -160,16 +160,16 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--theme-text-tertiary)]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 styles.colors.text.tertiary" />
           <Input
             placeholder="Buscar expertos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]"
+            className="pl-10 styles.colors.border.default styles.colors.bg.input styles.colors.text.primary"
           />
         </div>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full sm:w-[200px] border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)]">
+          <SelectTrigger className="w-full sm:w-[200px] styles.colors.border.default styles.colors.bg.input styles.colors.text.primary">
             <Filter className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Categoría" />
           </SelectTrigger>
@@ -184,11 +184,11 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
       </div>
 
       {!experts || experts.length === 0 ? (
-        <Card className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl">
+        <Card className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl">
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <BookOpen className="h-12 w-12 text-[var(--theme-text-tertiary)] mb-4" />
-            <p className="text-[var(--theme-text-secondary)] mb-2">No se encontraron expertos</p>
-            <p className="text-sm text-[var(--theme-text-tertiary)]">
+            <BookOpen className="h-12 w-12 styles.colors.text.tertiary mb-4" />
+            <p className="styles.colors.text.secondary mb-2">No se encontraron expertos</p>
+            <p className="text-sm styles.colors.text.tertiary">
               {searchQuery || (selectedCategory && selectedCategory !== 'all')
                 ? 'Intenta con otros términos de búsqueda'
                 : 'La biblioteca de expertos está vacía'}
@@ -205,9 +205,9 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
               <AccordionItem
                 key={category}
                 value={category}
-                className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl rounded-lg px-4"
+                className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl rounded-lg px-4"
               >
-                <AccordionTrigger className="text-[var(--theme-text-primary)] hover:no-underline py-4">
+                <AccordionTrigger className="styles.colors.text.primary hover:no-underline py-4">
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl font-semibold">{categoryLabel}</h2>
                     <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10">
@@ -221,12 +221,12 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
                       return (
                         <Card
                           key={expert.id}
-                          className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl hover:border-purple-500/30 transition-colors"
+                          className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl hover:border-purple-500/30 transition-colors"
                         >
                           <CardHeader>
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
-                                <CardTitle className="text-[var(--theme-text-primary)] flex items-center gap-2">
+                                <CardTitle className="styles.colors.text.primary flex items-center gap-2">
                                   {expert.name}
                                   <Badge
                                     variant="outline"
@@ -235,7 +235,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
                                     Biblioteca
                                   </Badge>
                                 </CardTitle>
-                                <CardDescription className="text-[var(--theme-text-secondary)] mt-1">
+                                <CardDescription className="styles.colors.text.secondary mt-1">
                                   {typeof expert.expertise === 'string'
                                     ? expert.expertise
                                     : JSON.stringify(expert.expertise, null, 2)}
@@ -245,14 +245,14 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
                           </CardHeader>
                           <CardContent className="space-y-4">
                             {expert.description && (
-                              <p className="text-sm text-[var(--theme-text-secondary)] line-clamp-2">
+                              <p className="text-sm styles.colors.text.secondary line-clamp-2">
                                 {typeof expert.description === 'string'
                                   ? expert.description
                                   : JSON.stringify(expert.description, null, 2)}
                               </p>
                             )}
 
-                            <div className="flex items-center gap-2 text-xs text-[var(--theme-text-secondary)]">
+                            <div className="flex items-center gap-2 text-xs styles.colors.text.secondary">
                               <span>Provider: {expert.aiConfig.provider}</span>
                               <span>•</span>
                               <span>Model: {expert.aiConfig.model}</span>
@@ -270,7 +270,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
                               size="sm"
                               onClick={() => handleFork()}
                               disabled={true}
-                              className="w-full border-gray-500/40 text-[var(--theme-text-secondary)] cursor-not-allowed opacity-50"
+                              className="w-full border-gray-500/40 styles.colors.text.secondary cursor-not-allowed opacity-50"
                               title="Los expertos personalizados han sido eliminados"
                             >
                               <Copy className="mr-2 h-3 w-3" />
@@ -291,10 +291,10 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
       {/* Fork Confirmation Dialog - Deshabilitado */}
       {false && (
       <Dialog open={isForkDialogOpen} onOpenChange={setIsForkDialogOpen}>
-        <DialogContent className="border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl text-[var(--theme-text-primary)]">
+        <DialogContent className="styles.colors.border.default styles.colors.bg.secondary backdrop-blur-xl styles.colors.text.primary">
           <DialogHeader>
             <DialogTitle>Copiar Experto a Personalizados</DialogTitle>
-            <DialogDescription className="text-[var(--theme-text-tertiary)]">
+            <DialogDescription className="styles.colors.text.tertiary">
               [WARN] Los expertos personalizados han sido eliminados. Esta funcionalidad ya no está disponible.
             </DialogDescription>
           </DialogHeader>
@@ -302,7 +302,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
             <Button
               variant="outline"
               onClick={() => setIsForkDialogOpen(false)}
-              className="border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+              className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:styles.colors.bg.tertiary"
             >
               Cerrar
             </Button>

@@ -306,10 +306,10 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
               maxLength={2000}
             />
             <div className="flex items-center justify-between">
-              <p className="text-xs text-[var(--theme-text-tertiary)]">
+              <p className="text-xs styles.colors.text.tertiary">
                 Quoorum utiliza esta información para personalizar respuestas.
               </p>
-              <p className="text-xs text-[var(--theme-text-tertiary)]">
+              <p className="text-xs styles.colors.text.tertiary">
                 {profileData.about.length}/2000
               </p>
             </div>
@@ -327,7 +327,7 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
               maxLength={3000}
             />
             <div className="flex items-center justify-end">
-              <p className="text-xs text-[var(--theme-text-tertiary)]">
+              <p className="text-xs styles.colors.text.tertiary">
                 {profileData.customInstructions.length}/3000
               </p>
             </div>

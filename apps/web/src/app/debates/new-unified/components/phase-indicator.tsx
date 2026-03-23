@@ -9,7 +9,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { Coins } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { UnifiedPhase, PhaseProgress } from '../types'
@@ -88,7 +88,12 @@ export function PhaseIndicator({
   }
   
   return (
-    <div className="fixed left-0 right-0 w-full bg-[var(--theme-bg-secondary)] border-t border-[var(--theme-border)] pt-4 pb-4 shadow-lg z-50 bottom-[70px]">
+    <div className={cn(
+      'fixed left-0 right-0 w-full border-t pt-4 pb-4 shadow-lg z-20 bottom-[90px]',
+        'fixed left-0 right-0 w-full border-t pt-4 pb-4 shadow-lg z-20 bottom-[calc(3vh+1rem)]',
+      styles.colors.bg.secondary,
+      styles.colors.border.default
+    )}>
       <div className="container mx-auto px-4 flex items-start gap-4">
         {/* Área de etiquetas + barra: mismo ancho, sin invadir el círculo del % */}
         <div className="flex-1 min-w-0">
@@ -105,9 +110,9 @@ export function PhaseIndicator({
                   disabled={!isClickable}
                   className={cn(
                     'text-sm font-semibold transition-colors whitespace-nowrap',
-                    status === 'active' && 'text-[var(--theme-text-primary)]',
+                    status === 'active' && styles.colors.text.primary,
                     status === 'completed' && 'text-purple-300',
-                    status === 'pending' && 'text-[var(--theme-text-tertiary)]',
+                    status === 'pending' && styles.colors.text.tertiary,
                     !isClickable && 'cursor-not-allowed opacity-50',
                     isClickable && 'cursor-pointer hover:text-purple-400'
                   )}
@@ -118,10 +123,12 @@ export function PhaseIndicator({
             })}
           </div>
           {/* Barra de progreso: mismo ancho que las etiquetas */}
-          <div className="relative h-4 bg-[var(--theme-bg-input)] rounded-full overflow-hidden">
+          <div className={cn('relative h-4 rounded-full overflow-hidden', styles.colors.bg.input)}>
             <div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 transition-all duration-700 ease-out rounded-full"
-              style={{ width: `${Math.max(overallProgress, 5)}%` }}
+              className={cn(
+                'absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 transition-all duration-700 ease-out rounded-full',
+                `w-[${Math.max(overallProgress, 5)}%]`
+              )}
             />
           </div>
         </div>
@@ -130,7 +137,7 @@ export function PhaseIndicator({
         <div className="flex-shrink-0 flex items-center gap-3">
           {/* Círculo del % */}
           <div className="w-12 h-12 rounded-full bg-purple-600 border-2 border-purple-400 flex items-center justify-center shadow-lg">
-            <span className="text-sm font-bold text-[var(--theme-text-primary)]" suppressHydrationWarning>
+            <span className={cn('text-sm font-bold', styles.colors.text.primary)} suppressHydrationWarning>
               {Math.round(overallProgress)}%
             </span>
           </div>
@@ -147,35 +154,35 @@ export function PhaseIndicator({
                     </span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs bg-[var(--theme-bg-secondary)] border-purple-500/30">
+                <TooltipContent side="top" className="max-w-xs styles.colors.bg.secondary border-purple-500/30">
                   <div className="space-y-2 p-1">
-                    <div className="font-semibold text-[var(--theme-text-primary)]">Créditos del Debate</div>
+                    <div className="font-semibold styles.colors.text.primary">Créditos del Debate</div>
                     {accumulatedCredits > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-[var(--theme-text-secondary)]">Fases completadas:</span>
+                        <span className="styles.colors.text.secondary">Fases completadas:</span>
                         <span className="text-amber-400">{accumulatedCredits} créditos</span>
                       </div>
                     )}
                     {currentPhaseCost && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-[var(--theme-text-secondary)]">Fase actual:</span>
+                        <span className="styles.colors.text.secondary">Fase actual:</span>
                         <span className="text-purple-300">~{currentPhaseCost.costCredits} créditos</span>
                       </div>
                     )}
                     {estimatedDebateCost && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-[var(--theme-text-secondary)]">Debate estimado:</span>
+                        <span className="styles.colors.text.secondary">Debate estimado:</span>
                         <span className="text-purple-300">~{estimatedDebateCost.min}-{estimatedDebateCost.max}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-sm pt-1 border-t border-purple-500/20">
-                      <span className="text-[var(--theme-text-secondary)]">Total debate:</span>
-                      <span className="font-bold text-[var(--theme-text-primary)]">
+                      <span className="styles.colors.text.secondary">Total debate:</span>
+                      <span className="font-bold styles.colors.text.primary">
                         ~{totalEstimatedCredits.toLocaleString()} créditos
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[var(--theme-text-secondary)]">Restantes estimados:</span>
+                      <span className="styles.colors.text.secondary">Restantes estimados:</span>
                       <span className={cn(
                         'font-bold',
                         estimatedRemainingCredits >= 0 ? 'text-green-400' : 'text-red-400'

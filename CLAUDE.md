@@ -46,6 +46,8 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | 10 | **Security** | Checklist de seguridad obligatorio | 10 min | [10-security.md](./docs/claude/10-security.md) |
 | 11 | **FAQ** | Comandos útiles, troubleshooting, CI/CD | 5 min | [11-faq.md](./docs/claude/11-faq.md) |
 | 12 | **AI Systems** | Rate limiting, fallback, cost tracking para IA | 15 min | [12-ai-systems.md](./docs/claude/12-ai-systems.md) |
+| 13 | **Debate Flow** | Flujo completo de creación de debates (5 fases) | 20 min | [13-debate-flow.md](./docs/claude/13-debate-flow.md) |
+| 14 | **AI Prompt Management** | Sistema de gestión centralizada de prompts IA | 15 min | [14-ai-prompt-management.md](./docs/claude/14-ai-prompt-management.md) |
 
 **📖 Navegación:** Ver [docs/claude/INDEX.md](./docs/claude/INDEX.md) para mapa completo del sistema de documentación.
 
@@ -84,7 +86,14 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | **Monorepo structure** | [01-startup-protocol.md#monorepo-structure](./docs/claude/01-startup-protocol.md) |
 | **CI/CD (Vercel)** | [11-faq.md#cicd](./docs/claude/11-faq.md) |
 | **pnpm commands** | [11-faq.md#comandos-utiles](./docs/claude/11-faq.md) |
+| **Next.js cache issues** | [11-faq.md#nextjs-cache-issues](./docs/claude/11-faq.md) - ⚠️ LEER |
+| **Windows setup (PowerShell)** | [11-faq.md#windows-setup](./docs/claude/11-faq.md) - ✅ Recomendado |
 | **Pre-commit untracked files** | Scripts automáticos detectan archivos sin trackear |
+| **AI Prompt Management** | [14-ai-prompt-management.md](./docs/claude/14-ai-prompt-management.md) - Sistema centralizado |
+| **getPromptTemplate()** | [14-ai-prompt-management.md#uso-del-sistema](./docs/claude/14-ai-prompt-management.md) |
+| **Performance levels (AI)** | [14-ai-prompt-management.md#performance-levels](./docs/claude/14-ai-prompt-management.md) |
+| **Prompt versioning** | [14-ai-prompt-management.md#database-schema](./docs/claude/14-ai-prompt-management.md) |
+| **Dynamic prompts** | [14-ai-prompt-management.md](./docs/claude/14-ai-prompt-management.md) - 60+ prompts |
 
 **💡 TIP:** Usa la herramienta `Grep` para buscar cualquier keyword en este archivo o en módulos específicos.
 
@@ -138,7 +147,7 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 
 ## 📊 ESTADÍSTICAS DEL PROYECTO
 
-**Estado actual (27 Ene 2026):**
+**Estado actual (31 Ene 2026):**
 
 | Métrica | Valor |
 |---------|-------|
@@ -148,12 +157,13 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | **DB Schemas** | 69 schemas (27 activos, 42 históricos) |
 | **React Components** | 304 componentes |
 | **AI Agents** | 22 agentes (4 debate + 18 expertos) |
+| **AI Prompts** | 60+ prompts dinámicos (3 performance tiers) |
 | **Expert Database** | 80+ expertos en 5 categorías |
 | **Tests Unitarios** | 328 passing (369 total) |
 | **Tests E2E** | 29 archivos Playwright |
 | **Test Coverage** | 80-100% en módulos core |
-| **Deuda Técnica** | ✅ 0 (`any` types eliminados, config centralizada) |
-| **Build Status** | ✅ Clean (0 type errors) |
+| **Deuda Técnica** | ⚠️ 22 enums hardcodeados (frontend) |
+| **Build Status** | ✅ Clean (0 type errors en código nuevo) |
 | **CI/CD** | Vercel (GitHub Actions NO usado por costos) |
 
 **📖 Ver detalles:** [SYSTEM.md](./SYSTEM.md) y [PHASES.md](./PHASES.md)
@@ -232,6 +242,17 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 - ✅ Navegación más rápida (lectura dirigida)
 - ✅ Archivos más pequeños (performance)
 - ✅ Consistencia (una sola fuente de verdad)
+
+### v1.15.0 - 31 Ene 2026
+
+- **AI Prompt Management System** implementado
+- 60+ prompts refactorizados a sistema dinámico
+- 3 niveles de rendimiento (economic/balanced/performance)
+- User settings UI para seleccionar nivel
+- Admin UI placeholder para gestión de prompts
+- Módulo 14 creado: [14-ai-prompt-management.md](./docs/claude/14-ai-prompt-management.md)
+- TypeScript errors resueltos en código refactorizado
+- Commits: `e52cd62`, `a6e71b6`
 
 ### v1.14.0 - 25 Ene 2026
 

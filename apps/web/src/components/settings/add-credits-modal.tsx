@@ -176,47 +176,47 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent nested className="bg-slate-900 border-purple-500/20 max-w-2xl">
+      <DialogContent nested className="styles.colors.bg.primary border-purple-500/20 max-w-2xl">
         <DialogHeader className="border-b-0 pb-0">
-          <DialogTitle className="text-2xl font-semibold text-white">
+          <DialogTitle className="text-2xl font-semibold styles.colors.text.primary">
             Añadir más créditos
           </DialogTitle>
-          <DialogDescription className="text-[var(--theme-text-secondary)]">
+          <DialogDescription className="styles.colors.text.secondary">
             Ajusta tu plan y añade créditos mensuales recurrentes
           </DialogDescription>
         </DialogHeader>
 
         <DialogBody className="space-y-6">
           {/* Billing Adjustment Card */}
-          <Card className="bg-slate-800/50 border-purple-500/20">
+          <Card className="styles.colors.bg.tertiary border-purple-500/20">
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label className="text-[var(--theme-text-secondary)] text-sm">Ajuste de facturación</Label>
+                  <Label className="styles.colors.text.secondary text-sm">Ajuste de facturación</Label>
                   <div className="flex items-baseline gap-2 mt-1">
                     {oneTimeAdjustment > 0 && (
                       <>
-                        <span className="text-[var(--theme-text-tertiary)] line-through text-lg">
+                        <span className="styles.colors.text.tertiary line-through text-lg">
                           {Math.round(oneTimeAdjustment)}€
                         </span>
-                        <span className="text-white text-2xl font-bold">
+                        <span className="styles.colors.text.primary text-2xl font-bold">
                           {Math.round(displayPrice)}€
                         </span>
                       </>
                     )}
                     {oneTimeAdjustment <= 0 && (
-                      <span className="text-white text-2xl font-bold">
+                      <span className="styles.colors.text.primary text-2xl font-bold">
                         {Math.round(displayPrice)}€
                       </span>
                     )}
-                    <span className="text-[var(--theme-text-secondary)] text-sm">vencido hoy</span>
+                    <span className="styles.colors.text.secondary text-sm">vencido hoy</span>
                   </div>
                 </div>
 
                 {/* Annual Toggle */}
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col items-end">
-                    <span className="text-sm text-[var(--theme-text-secondary)]">
+                    <span className="text-sm styles.colors.text.secondary">
                       {isYearly ? 'Anual' : 'Mensual'}
                     </span>
                     {isYearly && (
@@ -235,12 +235,12 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
 
               {/* Credits Dropdown */}
               <div className="space-y-2">
-                <Label className="text-[var(--theme-text-secondary)] text-sm">Créditos mensuales</Label>
+                <Label className="styles.colors.text.secondary text-sm">Créditos mensuales</Label>
                 <Select
                   value={selectedCredits}
                   onValueChange={setSelectedCredits}
                 >
-                  <SelectTrigger className="w-full bg-slate-900/50 border-purple-500/30 text-white hover:bg-slate-900/70 focus:ring-purple-500/50">
+                  <SelectTrigger className="w-full bg-slate-900/50 border-purple-500/30 styles.colors.text.primary hover:bg-slate-900/70 focus:ring-purple-500/50">
                     <SelectValue placeholder="Seleccionar créditos">
                       {(() => {
                         const selectedOption = CREDIT_OPTIONS.find(opt => opt.credits.toString() === selectedCredits)
@@ -251,7 +251,7 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
                       })()}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-purple-500/30 max-h-[300px] z-[200]">
+                  <SelectContent className="styles.colors.bg.tertiary border-purple-500/30 max-h-[300px] z-[200]">
                     {CREDIT_OPTIONS.map((option) => {
                       const isCurrent = option.credits === currentPlan?.credits
                       
@@ -259,7 +259,7 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
                         <SelectItem
                           key={option.credits}
                           value={option.credits.toString()}
-                          className="text-white hover:bg-slate-700/50 focus:bg-slate-700/50 cursor-pointer data-[highlighted]:bg-slate-700/50"
+                          className="styles.colors.text.primary hover:styles.colors.bg.input/50 focus:styles.colors.bg.input/50 cursor-pointer data-[highlighted]:styles.colors.bg.input/50"
                         >
                           <div className="flex items-center justify-between w-full pr-6">
                             <div className="flex items-center gap-2">
@@ -288,7 +288,7 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
             <div className="flex items-start gap-3">
               <Check className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-white text-sm">
+                <p className="styles.colors.text.primary text-sm">
                   Recibirá <span className="font-semibold">{selectedCreditsNum.toLocaleString()} créditos mensuales</span> de inmediato
                 </p>
               </div>
@@ -296,7 +296,7 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
             <div className="flex items-start gap-3">
               <Check className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-white text-sm">
+                <p className="styles.colors.text.primary text-sm">
                   Su plan se actualizará a{' '}
                   <span className="font-semibold">
                     {Math.round(displayPrice)}€ / mes
@@ -312,7 +312,7 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
             <div className="flex items-start gap-3">
               <Check className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-white text-sm">
+                <p className="styles.colors.text.primary text-sm">
                   Degradar en cualquier momento
                 </p>
               </div>
@@ -321,7 +321,7 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
 
           {/* Next Billing Date */}
           {nextBillingDate && (
-            <p className="text-[var(--theme-text-secondary)] text-sm">
+            <p className="styles.colors.text.secondary text-sm">
               Próximo ciclo de facturación y renovación del plan {nextBillingDate}
             </p>
           )}
@@ -332,7 +332,7 @@ export function AddCreditsModal({ open, onOpenChange }: AddCreditsModalProps) {
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isProcessing}
-            className="border-gray-600 text-[var(--theme-text-secondary)] hover:bg-gray-800"
+            className="border-gray-600 styles.colors.text.secondary hover:bg-gray-800"
           >
             Cancelar
           </Button>

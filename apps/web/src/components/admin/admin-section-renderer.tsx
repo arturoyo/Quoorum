@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin Section Renderer
  * Dynamically renders the appropriate admin section content based on activePath
  */

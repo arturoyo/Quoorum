@@ -18,7 +18,7 @@
  */
 
 import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 // ═══════════════════════════════════════════════════════════
 // Main Card Component
@@ -30,10 +30,10 @@ interface ThemedCardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string
 }
 
-export const ThemedCard = forwardRef<HTMLDivElement, ThemedCardProps>(
+const ThemedCardBase = forwardRef<HTMLDivElement, ThemedCardProps>(
   ({ children, variant = 'default', className, ...props }, ref) => {
     const variantClasses = {
-      default: 'bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]',
+      default: cn(styles.colors.bg.secondary, styles.colors.border.default),
       landing: 'bg-[var(--theme-landing-card)] border-[var(--theme-landing-border)]',
       glass:
         'bg-[var(--theme-landing-glass)] backdrop-blur-sm border-[var(--theme-landing-glass-border)]',
@@ -55,7 +55,7 @@ export const ThemedCard = forwardRef<HTMLDivElement, ThemedCardProps>(
   }
 )
 
-ThemedCard.displayName = 'ThemedCard'
+ThemedCardBase.displayName = 'ThemedCard'
 
 // ═══════════════════════════════════════════════════════════
 // Card Header
@@ -72,8 +72,8 @@ const ThemedCardHeader = forwardRef<HTMLDivElement, ThemedCardHeaderProps>(
       <div
         ref={ref}
         className={cn(
-          'flex flex-col space-y-1.5 p-6',
-          'bg-[var(--theme-bg-tertiary)] rounded-t-lg',
+          'flex flex-col space-y-1.5 p-6 rounded-t-lg',
+          styles.colors.bg.tertiary,
           className
         )}
         {...props}
@@ -102,7 +102,7 @@ const ThemedCardTitle = forwardRef<HTMLHeadingElement, ThemedCardTitleProps>(
         ref={ref}
         className={cn(
           'text-lg font-semibold leading-none tracking-tight',
-          'text-[var(--theme-text-primary)]',
+          styles.colors.text.primary,
           className
         )}
         {...props}
@@ -129,7 +129,7 @@ const ThemedCardDescription = forwardRef<HTMLParagraphElement, ThemedCardDescrip
     return (
       <p
         ref={ref}
-        className={cn('text-sm text-[var(--theme-text-secondary)]', className)}
+        className={cn('text-sm', styles.colors.text.secondary, className)}
         {...props}
       >
         {children}
@@ -185,6 +185,18 @@ ThemedCardFooter.displayName = 'ThemedCard.Footer'
 // ═══════════════════════════════════════════════════════════
 // Attach subcomponents to main component
 // ═══════════════════════════════════════════════════════════
+
+type ThemedCardComponent = React.ForwardRefExoticComponent<
+  ThemedCardProps & React.RefAttributes<HTMLDivElement>
+> & {
+  Header: typeof ThemedCardHeader
+  Title: typeof ThemedCardTitle
+  Description: typeof ThemedCardDescription
+  Content: typeof ThemedCardContent
+  Footer: typeof ThemedCardFooter
+}
+
+export const ThemedCard = ThemedCardBase as ThemedCardComponent
 
 ThemedCard.Header = ThemedCardHeader
 ThemedCard.Title = ThemedCardTitle

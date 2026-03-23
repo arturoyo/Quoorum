@@ -85,11 +85,11 @@ function convertToReactFlow(tree: ArgumentTree): { nodes: Node[]; edges: Edge[] 
                       ? 'Objeción'
                       : 'Apoyo'}
               </Badge>
-              <span className="text-xs text-[#8696a0]">Ronda {node.round}</span>
+              <span className="text-xs styles.colors.text.tertiary">Ronda {node.round}</span>
             </div>
-            <p className="text-sm text-white mb-1 line-clamp-3">{node.content}</p>
+            <p className="text-sm styles.colors.text.primary mb-1 line-clamp-3">{node.content}</p>
             <div className="flex items-center justify-between mt-1">
-              <span className="text-xs text-[#aebac1]">{node.expert}</span>
+              <span className="text-xs styles.colors.text.secondary">{node.expert}</span>
               <span className="text-xs text-purple-400">
                 {(node.strength * 100).toFixed(0)}%
               </span>
@@ -166,8 +166,9 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
   // Get unique experts and types
   const experts = useMemo(() => {
     if (!tree) return []
-    return [...new Set(tree.nodes.map((n) => n.expert))].sort()
-  }, [tree])
+    const filtered = tree.nodes.map((n) => n.expert).filter((e): e is string => typeof e === 'string' && !!e)
+    return [...new Set(filtered)].sort()
+  }, [tree]) as string[]
 
   // Filter and convert to ReactFlow format
   const { nodes, edges } = useMemo(() => {
@@ -207,12 +208,12 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
 
   if (isLoading) {
     return (
-      <Card className="border-[#2a3942] bg-[#111b21]">
+      <Card className="styles.colors.border.default styles.colors.bg.secondary">
         <CardHeader>
-          <CardTitle className="text-white">Árbol de Argumentos</CardTitle>
+          <CardTitle className="styles.colors.text.primary">Árbol de Argumentos</CardTitle>
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[500px] w-full bg-[#202c33]" />
+          <Skeleton className="h-[500px] w-full styles.colors.bg.tertiary" />
         </CardContent>
       </Card>
     )
@@ -224,10 +225,10 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
   }
 
   return (
-    <Card className="border-[#2a3942] bg-[#111b21]">
+    <Card className="styles.colors.border.default styles.colors.bg.secondary">
       <CardHeader>
-        <CardTitle className="text-white">Grafo de Argumentos</CardTitle>
-        <CardDescription className="text-[#aebac1]">
+        <CardTitle className="styles.colors.text.primary">Grafo de Argumentos</CardTitle>
+        <CardDescription className="styles.colors.text.secondary">
           Visualización interactiva de argumentos y sus relaciones ({tree.nodes.length} argumentos,{' '}
           {tree.edges.length} relaciones)
         </CardDescription>
@@ -236,15 +237,15 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
         {/* Filters */}
         <div className="flex gap-2 mb-4 flex-wrap">
           <Select value={filterExpert} onValueChange={setFilterExpert}>
-            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-white">
+            <SelectTrigger className="w-[150px] styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
               <SelectValue placeholder="Experto" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111b21] border-[#2a3942]">
-              <SelectItem value="all" className="text-white">
+            <SelectContent className="styles.colors.bg.secondary styles.colors.border.default">
+              <SelectItem value="all" className="styles.colors.text.primary">
                 Todos los expertos
               </SelectItem>
               {experts.map((expert) => (
-                <SelectItem key={expert} value={expert} className="text-white">
+                <SelectItem key={expert} value={expert} className="styles.colors.text.primary">
                   {expert}
                 </SelectItem>
               ))}
@@ -252,23 +253,23 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
           </Select>
 
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-white">
+            <SelectTrigger className="w-[150px] styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111b21] border-[#2a3942]">
-              <SelectItem value="all" className="text-white">
+            <SelectContent className="styles.colors.bg.secondary styles.colors.border.default">
+              <SelectItem value="all" className="styles.colors.text.primary">
                 Todos los tipos
               </SelectItem>
-              <SelectItem value="premise" className="text-white">
+              <SelectItem value="premise" className="styles.colors.text.primary">
                 Premisas
               </SelectItem>
-              <SelectItem value="conclusion" className="text-white">
+              <SelectItem value="conclusion" className="styles.colors.text.primary">
                 Conclusiones
               </SelectItem>
-              <SelectItem value="objection" className="text-white">
+              <SelectItem value="objection" className="styles.colors.text.primary">
                 Objeciones
               </SelectItem>
-              <SelectItem value="support" className="text-white">
+              <SelectItem value="support" className="styles.colors.text.primary">
                 Apoyos
               </SelectItem>
             </SelectContent>
@@ -278,20 +279,20 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
             value={minStrength.toString()}
             onValueChange={(v) => setMinStrength(parseFloat(v))}
           >
-            <SelectTrigger className="w-[150px] bg-[#2a3942] border-[#2a3942] text-white">
+            <SelectTrigger className="w-[150px] styles.colors.bg.input styles.colors.border.default styles.colors.text.primary">
               <SelectValue placeholder="Fuerza mínima" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111b21] border-[#2a3942]">
-              <SelectItem value="0" className="text-white">
+            <SelectContent className="styles.colors.bg.secondary styles.colors.border.default">
+              <SelectItem value="0" className="styles.colors.text.primary">
                 Todas
               </SelectItem>
-              <SelectItem value="0.3" className="text-white">
+              <SelectItem value="0.3" className="styles.colors.text.primary">
                 ≥ 30%
               </SelectItem>
-              <SelectItem value="0.5" className="text-white">
+              <SelectItem value="0.5" className="styles.colors.text.primary">
                 ≥ 50%
               </SelectItem>
-              <SelectItem value="0.7" className="text-white">
+              <SelectItem value="0.7" className="styles.colors.text.primary">
                 ≥ 70%
               </SelectItem>
             </SelectContent>
@@ -299,7 +300,7 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
         </div>
 
         {/* ReactFlow Graph */}
-        <div className="h-[600px] w-full border border-[#2a3942] rounded-lg bg-[#0b141a]">
+        <div className="h-[600px] w-full border styles.colors.border.default rounded-lg styles.colors.bg.primary">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -321,15 +322,7 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
             }}
           >
             <Background color="#2a3942" gap={16} />
-            <Controls
-              style={{
-                button: {
-                  backgroundColor: '#111b21',
-                  color: '#ffffff',
-                  border: '1px solid #2a3942',
-                },
-              }}
-            />
+            <Controls />
             <MiniMap
               nodeColor={(node) => {
                 const nodeData = node.data?.node as ArgumentNode | undefined
@@ -348,8 +341,8 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
                 border: '1px solid #2a3942',
               }}
             />
-            <Panel position="top-right" className="bg-[#111b21] border border-[#2a3942] rounded p-2">
-              <div className="text-xs text-[#aebac1] space-y-1">
+            <Panel position="top-right" className="styles.colors.bg.secondary border styles.colors.border.default rounded p-2">
+              <div className="text-xs styles.colors.text.secondary space-y-1">
                 <div>Nodos: {nodes.length}</div>
                 <div>Relaciones: {edges.length}</div>
               </div>
@@ -358,28 +351,28 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
         </div>
 
         {/* Legend */}
-        <div className="mt-4 p-3 rounded-lg border border-[#2a3942] bg-[#202c33]">
-          <p className="text-sm font-semibold text-white mb-2">Leyenda:</p>
+        <div className="mt-4 p-3 rounded-lg border styles.colors.border.default styles.colors.bg.tertiary">
+          <p className="text-sm font-semibold styles.colors.text.primary mb-2">Leyenda:</p>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-blue-500/20 border border-blue-500/30"></div>
-              <span className="text-[#aebac1]">Premisa</span>
+              <span className="styles.colors.text.secondary">Premisa</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-purple-500/20 border border-purple-500/30"></div>
-              <span className="text-[#aebac1]">Conclusión</span>
+              <span className="styles.colors.text.secondary">Conclusión</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-red-500/20 border border-red-500/30"></div>
-              <span className="text-[#aebac1]">Objeción</span>
+              <span className="styles.colors.text.secondary">Objeción</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-green-500/20 border border-green-500/30"></div>
-              <span className="text-[#aebac1]">Apoyo</span>
+              <span className="styles.colors.text.secondary">Apoyo</span>
             </div>
           </div>
-          <div className="mt-2 pt-2 border-t border-[#2a3942]">
-            <p className="text-xs text-[#8696a0]">
+          <div className="mt-2 pt-2 border-t styles.colors.border.default">
+            <p className="text-xs styles.colors.text.tertiary">
               💡 Arrastra los nodos para reorganizar el grafo. Usa los controles para zoom y pan.
             </p>
           </div>

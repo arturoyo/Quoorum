@@ -11,7 +11,7 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 export default function ExpertsPage() {
   const { data: topExperts, isLoading } = api.quoorumFeedback.getTopExperts.useQuery({ limit: 50 })
@@ -29,7 +29,7 @@ export default function ExpertsPage() {
       <div className="mx-auto max-w-6xl space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-white">Top Expertos</h1>
-          <p className="mt-2 text-[var(--theme-text-secondary)]">
+          <p className="mt-2 styles.colors.text.secondary">
             Ranking de expertos basado en valoraciones de usuarios
           </p>
         </div>
@@ -37,9 +37,9 @@ export default function ExpertsPage() {
         {!topExperts || topExperts.length === 0 ? (
           <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <Users className="h-12 w-12 text-[var(--theme-text-tertiary)]" />
-              <p className="mt-4 text-[var(--theme-text-secondary)]">Aún no hay expertos valorados</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">
+              <Users className="h-12 w-12 styles.colors.text.tertiary" />
+              <p className="mt-4 styles.colors.text.secondary">Aún no hay expertos valorados</p>
+              <p className="text-sm styles.colors.text.tertiary">
                 Los expertos aparecerán aquí después de recibir feedback de los usuarios
               </p>
             </CardContent>
@@ -79,7 +79,7 @@ export default function ExpertsPage() {
                           <CardTitle className="text-lg text-white">
                             {expert.expertId.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                           </CardTitle>
-                          <CardDescription className="text-xs text-[var(--theme-text-secondary)]">
+                          <CardDescription className="text-xs styles.colors.text.secondary">
                             {expert.totalRatings} valoraciones
                           </CardDescription>
                         </div>
@@ -90,7 +90,7 @@ export default function ExpertsPage() {
                     {/* Overall Rating */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-[var(--theme-text-secondary)]">Valoración Promedio</span>
+                        <span className="text-sm styles.colors.text.secondary">Valoración Promedio</span>
                         <span className="text-2xl font-bold text-white">{ratingPercent}%</span>
                       </div>
                       <div className="flex gap-1">
@@ -101,7 +101,7 @@ export default function ExpertsPage() {
                               'h-5 w-5',
                               star <= Math.round(avgRating)
                                 ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-[var(--theme-text-tertiary)]'
+                                : 'styles.colors.text.tertiary'
                             )}
                           />
                         ))}
@@ -112,25 +112,25 @@ export default function ExpertsPage() {
                     {expert.avgInsightfulness && (
                       <div className="space-y-2 rounded-lg bg-slate-800/50 p-3">
                         <div className="flex justify-between text-xs">
-                          <span className="text-[var(--theme-text-secondary)]">Perspicacia</span>
+                          <span className="styles.colors.text.secondary">Perspicacia</span>
                           <span className="text-white">
                             {expert.avgInsightfulness ? Math.round(expert.avgInsightfulness / 100) : 0}/5
                           </span>
                         </div>
                         <div className="flex justify-between text-xs">
-                          <span className="text-[var(--theme-text-secondary)]">Relevancia</span>
+                          <span className="styles.colors.text.secondary">Relevancia</span>
                           <span className="text-white">
                             {expert.avgRelevance ? Math.round(expert.avgRelevance / 100) : 0}/5
                           </span>
                         </div>
                         <div className="flex justify-between text-xs">
-                          <span className="text-[var(--theme-text-secondary)]">Claridad</span>
+                          <span className="styles.colors.text.secondary">Claridad</span>
                           <span className="text-white">
                             {expert.avgClarity ? Math.round(expert.avgClarity / 100) : 0}/5
                           </span>
                         </div>
                         <div className="flex justify-between text-xs">
-                          <span className="text-[var(--theme-text-secondary)]">Accionabilidad</span>
+                          <span className="styles.colors.text.secondary">Accionabilidad</span>
                           <span className="text-white">
                             {expert.avgActionability ? Math.round(expert.avgActionability / 100) : 0}/5
                           </span>

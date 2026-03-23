@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 /**
  * Admin Billing & Pricing Page
@@ -182,7 +182,7 @@ export default function AdminBillingPage() {
     })
   }
 
-  const handleUpdateTier = async (tier: string) => {
+  const handleUpdateTier = async (tierId: string) => {
     const monthlyPriceUsd = parseInt(tierFormData.monthlyPriceUsd)
     const monthlyCredits = parseInt(tierFormData.monthlyCredits)
 
@@ -202,15 +202,15 @@ export default function AdminBillingPage() {
     }
 
     await updateTierConfig.mutateAsync({
-      tier,
+      id: tierId,
       monthlyPriceUsd: monthlyPriceUsd * 100, // Convert to cents
       monthlyCredits,
       changeReason: tierFormData.changeReason,
     })
   }
 
-  const startEditingTier = (tier: { tier: string; monthlyPriceUsd: number; monthlyCredits: number }) => {
-    setEditingTier(tier.tier)
+  const startEditingTier = (tier: { id: string; tier: string; monthlyPriceUsd: number; monthlyCredits: number }) => {
+    setEditingTier(tier.id)
     setTierFormData({
       monthlyPriceUsd: (tier.monthlyPriceUsd / 100).toFixed(2),
       monthlyCredits: tier.monthlyCredits.toString(),
@@ -672,7 +672,7 @@ export default function AdminBillingPage() {
                     </TableHeader>
                     <TableBody>
                       {tierConfigs?.map((tier) => (
-                        <TableRow key={tier.tier}>
+                        <TableRow key={tier.id}>
                           <TableCell>
                             <Badge
                               variant={
@@ -685,7 +685,7 @@ export default function AdminBillingPage() {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {editingTier === tier.tier ? (
+                            {editingTier === tier.id ? (
                               <Input
                                 type="number"
                                 step="0.01"
@@ -698,7 +698,7 @@ export default function AdminBillingPage() {
                             )}
                           </TableCell>
                           <TableCell>
-                            {editingTier === tier.tier ? (
+                            {editingTier === tier.id ? (
                               <Input
                                 type="number"
                                 value={tierFormData.monthlyCredits}
@@ -715,7 +715,7 @@ export default function AdminBillingPage() {
                             </span>
                           </TableCell>
                           <TableCell>
-                            {editingTier === tier.tier ? (
+                            {editingTier === tier.id ? (
                               <div className="flex gap-2">
                                 <Input
                                   placeholder="Reason for change..."
@@ -725,7 +725,7 @@ export default function AdminBillingPage() {
                                 />
                                 <Button
                                   size="sm"
-                                  onClick={() => handleUpdateTier(tier.tier)}
+                                  onClick={() => handleUpdateTier(tier.id)}
                                   disabled={updateTierConfig.isPending}
                                 >
                                   {updateTierConfig.isPending ? (
@@ -904,7 +904,9 @@ export default function AdminBillingPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <Badge variant={change.changeType === 'global' ? 'default' : 'secondary'}>
-                            {change.changeType === 'global' ? 'Global Config' : `Tier: ${change.tier}`}
+                            {change.changeType === 'global'
+                              ? 'Global Config'
+                              : `Tier: ${(change as { tier?: string }).tier ?? 'N/A'}`}
                           </Badge>
                           <div className="text-sm text-muted-foreground mt-1">
                             {new Date(change.changedAt).toLocaleString()}
@@ -935,9 +937,9 @@ export default function AdminBillingPage() {
                           </pre>
                         </div>
                       </div>
-                      {change.impactSummary && (
+                      {(change as { impactSummary?: string }).impactSummary && (
                         <div className="mt-2 text-sm text-muted-foreground">
-                          <span className="font-medium">Impact:</span> {change.impactSummary}
+                          <span className="font-medium">Impact:</span> {(change as { impactSummary?: string }).impactSummary}
                         </div>
                       )}
                     </div>

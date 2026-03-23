@@ -1,4 +1,9 @@
-import type { AIConfig, ExpertConfig } from "@quoorum/ai";
+// Import and re-export type definitions from @quoorum/ai
+// Using /types export to avoid TS2709 namespace issue
+import type { AIConfig as AIConfigBase, ExpertConfig as ExpertConfigBase } from "@quoorum/ai/types";
+
+export type AIConfig = AIConfigBase;
+export type ExpertConfig = ExpertConfigBase;
 
 export interface DeliberationConfig {
   id: string;

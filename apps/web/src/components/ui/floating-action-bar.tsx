@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { type LucideIcon } from 'lucide-react'
 
 export interface FloatingActionItem {
@@ -58,12 +58,12 @@ export function FloatingActionBar({
   return (
     <div
       className={cn(
-        'fixed bottom-6 left-1/2 -translate-x-1/2 z-50',
+        'fixed bottom-[calc(3vh+1rem)] left-1/2 -translate-x-1/2 z-20',
         'animate-in slide-in-from-bottom-4 fade-in duration-200',
         className
       )}
     >
-      <div className="border border-white/20 bg-slate-800/95 backdrop-blur-xl shadow-2xl rounded-lg p-4">
+      <div className={cn('border bg-slate-800/95 backdrop-blur-xl shadow-2xl rounded-lg p-4', styles.colors.border.default)}>
         <div className="flex items-center gap-4">
           {showSelection && (
             <>
@@ -75,7 +75,7 @@ export function FloatingActionBar({
                     className="border-white/30 data-[state=checked]:bg-purple-600"
                   />
                 )}
-                <span className="text-sm text-white font-medium">
+                <span className={cn('text-sm font-medium', styles.colors.text.primary)}>
                   {selectionCount} seleccionado{selectionCount !== 1 ? 's' : ''}
                   {totalCount !== undefined && ` de ${totalCount}`}
                 </span>
@@ -98,7 +98,7 @@ export function FloatingActionBar({
                   className={cn(
                     action.variant === 'destructive'
                       ? 'bg-red-600 hover:bg-red-700 text-white border-red-600'
-                      : 'border-white/20 text-white hover:bg-white/10'
+                      : cn(styles.colors.border.default, 'text-white hover:bg-white/10')
                   )}
                 >
                   {Icon && (

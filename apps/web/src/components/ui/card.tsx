@@ -1,14 +1,14 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn, styles } from '@/lib/utils'
 
 /**
  * Card component with theme CSS variables
  *
  * Uses theme variables for consistent dark/light mode support:
- * - bg-[var(--theme-bg-secondary)] for card background
- * - border-[var(--theme-border)] for borders
- * - text-[var(--theme-text-primary)] for titles
- * - text-[var(--theme-text-secondary)] for descriptions
+ * - styles.colors.bg.secondary for card background
+ * - styles.colors.border.default for borders
+ * - styles.colors.text.primary for titles
+ * - styles.colors.text.secondary for descriptions
  */
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
@@ -16,8 +16,8 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
       ref={ref}
       className={cn(
         "rounded-xl border shadow-sm",
-        "bg-[var(--theme-bg-secondary)]",
-        "border-[var(--theme-border)]",
+        "styles.colors.bg.secondary",
+        "styles.colors.border.default",
         className
       )}
       {...props}
@@ -43,7 +43,7 @@ const CardTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
       ref={ref}
       className={cn(
         "font-semibold leading-none tracking-tight",
-        "text-[var(--theme-text-primary)]",
+        "styles.colors.text.primary",
         className
       )}
       {...props}
@@ -58,7 +58,7 @@ const CardDescription = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
       ref={ref}
       className={cn(
         "text-sm",
-        "text-[var(--theme-text-secondary)]",
+        "styles.colors.text.secondary",
         className
       )}
       {...props}

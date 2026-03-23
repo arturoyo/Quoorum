@@ -21,7 +21,7 @@ const mockAgent: AgentConfig = {
   role: 'optimizer',
   prompt: 'You are an expert optimizer. Identify opportunities and maximize upside.',
   provider: 'google',
-  model: 'gemini-2.0-flash-exp',
+  model: 'gemini-2.0-flash',
   temperature: 0.7,
 }
 

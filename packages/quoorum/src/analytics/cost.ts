@@ -35,7 +35,7 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'claude-3-5-haiku-20241022': { input: 1.0, output: 5.0 },
 
   // Google Gemini
-  'gemini-2.0-flash-exp': { input: 0, output: 0 }, // Free Tier
+  'gemini-2.0-flash': { input: 0, output: 0 }, // Free Tier
   'gemini-1.5-flash': { input: 0.075, output: 0.3 },
   'gemini-1.5-pro': { input: 1.25, output: 5.0 },
 

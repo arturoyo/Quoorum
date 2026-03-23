@@ -4,41 +4,41 @@
 .SYNOPSIS
     Monitor Git Status en tiempo real
 .DESCRIPTION
-    Muestra status de git cada 30 segundos
-    √ötil para monitorear cambios cuando trabajas en m√∫ltiples ventanas
+    Muestra status de git cada [EMOJI]0 segundos
+    √[EMOJI]til para monitorear cambios cuando trabajas en m√∫ltiples ventanas
 .EXAMPLE
-    ./monitor-git-status.ps1
-    ./monitor-git-status.ps1 -Interval 10  # Cada 10 segundos
+    ./monitor-git-status.ps[EMOJI]
+    ./monitor-git-status.ps[EMOJI] -Interval [EMOJI]0  # Cada [EMOJI]0 segundos
 #>
 
 param(
-    [int]$Interval = 30
+    [int]$Interval = [EMOJI]0
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
 
 function Show-GitStatus {
     Clear-Host
-    Write-Host "üìä GIT STATUS MONITOR" -ForegroundColor Cyan
+    Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] GIT STATUS MONITOR" -ForegroundColor Cyan
     Write-Host "$(Get-Date -Format 'HH:mm:ss') - Actualizaci√≥n cada $Interval segundos" -ForegroundColor Gray
-    Write-Host "‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê" -ForegroundColor Gray
+    Write-Host "[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê" -ForegroundColor Gray
     
     # Rama actual
     $branch = git rev-parse --abbrev-ref HEAD
-    Write-Host "`nüåø Rama: " -ForegroundColor Yellow -NoNewline
+    Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Rama: " -ForegroundColor Yellow -NoNewline
     Write-Host "$branch" -ForegroundColor Green
     
     # Status
-    Write-Host "`nüìù Cambios:" -ForegroundColor Yellow
+    Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Cambios:" -ForegroundColor Yellow
     $status = git status --short
     if ($status) {
         $status | ForEach-Object { Write-Host "  $_" -ForegroundColor Cyan }
     } else {
-        Write-Host "  ‚úÖ Sin cambios" -ForegroundColor Green
+        Write-Host "  [OK] Sin cambios" -ForegroundColor Green
     }
     
     # Ramas locales
-    Write-Host "`nüåø Ramas locales:" -ForegroundColor Yellow
+    Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Ramas locales:" -ForegroundColor Yellow
     git branch -v | ForEach-Object {
         if ($_ -match "^\* ") {
             Write-Host "  $_" -ForegroundColor Green
@@ -48,7 +48,7 @@ function Show-GitStatus {
     }
     
     # Stash
-    Write-Host "`nüíæ Stash:" -ForegroundColor Yellow
+    Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Stash:" -ForegroundColor Yellow
     $stash = git stash list
     if ($stash) {
         $stash | ForEach-Object { Write-Host "  $_" -ForegroundColor Magenta }
@@ -56,11 +56,11 @@ function Show-GitStatus {
         Write-Host "  (vac√≠o)" -ForegroundColor Gray
     }
     
-    # √öltimo commit
-    Write-Host "`nüìú √öltimo commit:" -ForegroundColor Yellow
-    git log -1 --oneline | ForEach-Object { Write-Host "  $_" -ForegroundColor Cyan }
+    # √[EMOJI]ltimo commit
+    Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] √[EMOJI]ltimo commit:" -ForegroundColor Yellow
+    git log -[EMOJI] --oneline | ForEach-Object { Write-Host "  $_" -ForegroundColor Cyan }
     
-    Write-Host "`n‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê" -ForegroundColor Gray
+    Write-Host "`n[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê[EMOJI][EMOJI]ê" -ForegroundColor Gray
     Write-Host "Presiona Ctrl+C para salir" -ForegroundColor Gray
 }
 

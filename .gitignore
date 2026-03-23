@@ -35,3 +35,22 @@ tmpclaude-*
 
 .vercel
 .env*.local
+
+# Build artifacts
+*.tsbuildinfo
+/next
+/pnpm
+
+# Assets (binary files)
+*.pdf
+
+# Test/debug outputs
+*-output.txt
+*-errors.txt
+postgres-*.txt
+audit-*.txt
+build-*.txt
+dev-*.txt
+web-*.txt
+typecheck-*.txt
+full-*.txt

@@ -51,3 +51,7 @@ export function captureMessage(message: string, level: "info" | "warning" | "err
   }
   // Production: Sentry.captureMessage(message, level);
 }
+
+export function captureException(error: Error, context?: LogContext): void {
+  logError(error, context);
+}

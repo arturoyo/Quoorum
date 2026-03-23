@@ -13,7 +13,7 @@
  */
 
 import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 // ═══════════════════════════════════════════════════════════
 // Themed Input
@@ -37,9 +37,9 @@ export const ThemedInput = forwardRef<HTMLInputElement, ThemedInputProps>(
           'file:border-0 file:bg-transparent file:text-sm file:font-medium',
           'disabled:cursor-not-allowed disabled:opacity-50',
           // Theme colors (NO hardcoded)
-          'bg-[var(--theme-bg-input)]',
-          'border-[var(--theme-border)]',
-          'text-[var(--theme-text-primary)]',
+          styles.colors.bg.input,
+          styles.colors.border.default,
+          styles.colors.text.primary,
           'placeholder:text-[var(--theme-text-tertiary)]',
           // Focus states
           'focus-visible:outline-none',
@@ -77,9 +77,9 @@ export const ThemedTextarea = forwardRef<HTMLTextAreaElement, ThemedTextareaProp
           'transition-colors',
           'disabled:cursor-not-allowed disabled:opacity-50',
           // Theme colors (NO hardcoded)
-          'bg-[var(--theme-bg-input)]',
-          'border-[var(--theme-border)]',
-          'text-[var(--theme-text-primary)]',
+          styles.colors.bg.input,
+          styles.colors.border.default,
+          styles.colors.text.primary,
           'placeholder:text-[var(--theme-text-tertiary)]',
           // Focus states
           'focus-visible:outline-none',
@@ -112,7 +112,7 @@ export const ThemedLabel = forwardRef<HTMLLabelElement, ThemedLabelProps>(
         ref={ref}
         className={cn(
           'text-sm font-medium leading-none',
-          'text-[var(--theme-text-secondary)]',
+          styles.colors.text.secondary,
           'peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
           className
         )}
@@ -138,9 +138,9 @@ export const ThemedButton = forwardRef<HTMLButtonElement, ThemedButtonProps>(
     const variantClasses = {
       primary: 'bg-purple-600 hover:bg-purple-700 text-white',
       secondary:
-        'border-[var(--theme-border)] bg-[var(--theme-bg-input)] text-[var(--theme-text-primary)] hover:bg-purple-600 hover:border-purple-600',
+        'styles.colors.border.default styles.colors.bg.input text-white hover:bg-purple-600 hover:border-purple-600',
       ghost:
-        'hover:bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-primary)] hover:text-purple-400',
+        'hover:styles.colors.bg.tertiary text-white hover:text-purple-400',
       destructive: 'bg-red-600 hover:bg-red-700 text-white',
     }
 

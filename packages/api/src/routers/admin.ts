@@ -103,7 +103,7 @@ export const adminRouter = router({
         conditions.push(eq(users.role, input.role))
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+      const whereClause = conditions.length > 0 ? and(...(conditions as any)) : undefined
 
       const orderBy =
         input.sortBy === 'created_at'
@@ -756,4 +756,230 @@ export const adminRouter = router({
 
     return debates
   }),
+
+  // ============================================
+  // AI COST ANALYTICS
+  // ============================================
+
+  /**
+   * Get AI cost summary (total, by operation, by provider, free tier ratio)
+   */
+  getAICostSummary: adminProcedure
+    .input(
+      z.object({
+        startDate: z.string().datetime().optional(),
+        endDate: z.string().datetime().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { aiCostTracking } = await import('@quoorum/db/schema')
+      const { gte, lte, and: andOp } = await import('drizzle-orm')
+
+      const conditions = []
+      if (input.startDate) {
+        conditions.push(gte(aiCostTracking.createdAt, new Date(input.startDate)))
+      }
+      if (input.endDate) {
+        conditions.push(lte(aiCostTracking.createdAt, new Date(input.endDate)))
+      }
+
+      const whereClause = conditions.length > 0 ? andOp(...conditions) : undefined
+
+      const results = await db
+        .select({
+          operationType: aiCostTracking.operationType,
+          provider: aiCostTracking.provider,
+          costUsdTotal: aiCostTracking.costUsdTotal,
+          totalTokens: aiCostTracking.totalTokens,
+          isFreeTier: aiCostTracking.isFreeTier,
+        })
+        .from(aiCostTracking)
+        .where(whereClause)
+
+      let totalCostUsd = 0
+      let totalTokens = 0
+      let freeRequests = 0
+      let paidRequests = 0
+      const byOperation: Record<string, number> = {}
+      const byProvider: Record<string, number> = {}
+
+      results.forEach((row) => {
+        const cost = parseFloat(row.costUsdTotal)
+        totalCostUsd += cost
+        totalTokens += row.totalTokens
+
+        if (row.isFreeTier) {
+          freeRequests++
+        } else {
+          paidRequests++
+        }
+
+        byOperation[row.operationType] = (byOperation[row.operationType] || 0) + cost
+        byProvider[row.provider] = (byProvider[row.provider] || 0) + cost
+      })
+
+      const totalRequests = freeRequests + paidRequests
+      const freeTierRatio = totalRequests > 0 ? (freeRequests / totalRequests) * 100 : 0
+
+      return {
+        totalCostUsd,
+        totalTokens,
+        totalRequests,
+        freeRequests,
+        paidRequests,
+        freeTierRatio,
+        byOperation,
+        byProvider,
+      }
+    }),
+
+  /**
+   * Get top users by AI cost
+   */
+  getTopUsersByAICost: adminProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(10),
+        startDate: z.string().datetime().optional(),
+        endDate: z.string().datetime().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { aiCostTracking } = await import('@quoorum/db/schema')
+      const { gte, lte, and: andOp } = await import('drizzle-orm')
+
+      const conditions = []
+      if (input.startDate) {
+        conditions.push(gte(aiCostTracking.createdAt, new Date(input.startDate)))
+      }
+      if (input.endDate) {
+        conditions.push(lte(aiCostTracking.createdAt, new Date(input.endDate)))
+      }
+
+      const whereClause = conditions.length > 0 ? andOp(...conditions) : undefined
+
+      const results = await db
+        .select({
+          userId: aiCostTracking.userId,
+          costUsdTotal: sql<string>`SUM(${aiCostTracking.costUsdTotal})`,
+          totalTokens: sql<number>`SUM(${aiCostTracking.totalTokens})`,
+          requestCount: sql<number>`COUNT(*)`,
+        })
+        .from(aiCostTracking)
+        .where(whereClause)
+        .groupBy(aiCostTracking.userId)
+        .orderBy(desc(sql`SUM(${aiCostTracking.costUsdTotal})`))
+        .limit(input.limit)
+
+      // Get user details
+      const usersWithCost = await Promise.all(
+        results.map(async (row) => {
+          const [profile] = await db
+            .select({ name: profiles.name, email: profiles.email })
+            .from(profiles)
+            .where(eq(profiles.id, row.userId))
+            .limit(1)
+
+          return {
+            userId: row.userId,
+            name: profile?.name || 'Unknown',
+            email: profile?.email || 'Unknown',
+            totalCostUsd: parseFloat(row.costUsdTotal),
+            totalTokens: row.totalTokens,
+            requestCount: row.requestCount,
+          }
+        })
+      )
+
+      return usersWithCost
+    }),
+
+  /**
+   * Get AI cost breakdown by time period (daily/weekly/monthly)
+   */
+  getAICostTimeline: adminProcedure
+    .input(
+      z.object({
+        period: z.enum(['day', 'week', 'month']).default('day'),
+        startDate: z.string().datetime(),
+        endDate: z.string().datetime(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { aiCostTracking } = await import('@quoorum/db/schema')
+      const { gte, lte, and: andOp } = await import('drizzle-orm')
+
+      const truncFunc = input.period === 'day'
+        ? "DATE_TRUNC('day', created_at)"
+        : input.period === 'week'
+        ? "DATE_TRUNC('week', created_at)"
+        : "DATE_TRUNC('month', created_at)"
+
+      const results = await db.execute(sql`
+        SELECT
+          ${sql.raw(truncFunc)} as period,
+          SUM(cost_usd_total::numeric) as total_cost,
+          SUM(total_tokens) as total_tokens,
+          COUNT(*) as request_count
+        FROM ai_cost_tracking
+        WHERE created_at >= ${input.startDate}::timestamp
+          AND created_at <= ${input.endDate}::timestamp
+        GROUP BY ${sql.raw(truncFunc)}
+        ORDER BY period ASC
+      `)
+
+      return results.rows.map((row: any) => ({
+        period: row.period,
+        totalCostUsd: parseFloat(row.total_cost || '0'),
+        totalTokens: parseInt(row.total_tokens || '0'),
+        requestCount: parseInt(row.request_count || '0'),
+      }))
+    }),
+
+  // ============================================
+  // PERFORMANCE PROFILES
+  // ============================================
+
+  /**
+   * Get all performance profiles
+   */
+  getPerformanceProfiles: adminProcedure.query(async () => {
+    const result = await db.execute(sql`
+      SELECT *
+      FROM performance_profiles
+      WHERE is_active = true
+      ORDER BY cost_multiplier ASC
+    `)
+
+    return result
+  }),
+
+  /**
+   * Update user's performance level
+   */
+  updateUserPerformanceLevel: adminProcedure
+    .input(
+      z.object({
+        userId: z.string().uuid(),
+        performanceLevel: z.enum(['economic', 'balanced', 'performance']),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const result = await db.execute(sql`
+        UPDATE profiles
+        SET performance_level = ${input.performanceLevel},
+            updated_at = NOW()
+        WHERE user_id = ${input.userId}
+        RETURNING id, user_id, performance_level
+      `)
+
+      if (!result || result.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuario no encontrado',
+        })
+      }
+
+      return result[0]
+    }),
 })

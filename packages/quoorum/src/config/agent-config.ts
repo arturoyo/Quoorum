@@ -24,21 +24,21 @@ const ENV_CONFIG = {
     // Hermes (Dios de las Oportunidades) - Rápido y técnico
     // Free tier OK para optimización (no requiere alta precisión)
     provider: (process.env.OPTIMIZER_PROVIDER || 'google') as AgentConfig['provider'],
-    model: process.env.OPTIMIZER_MODEL || 'gemini-2.0-flash-exp', // Free tier
+    model: process.env.OPTIMIZER_MODEL || 'gemini-2.0-flash', // Free tier
     temperature: parseFloat(process.env.OPTIMIZER_TEMPERATURE || '0.7'),
   },
   critic: {
     // Ares (Dios de la Guerra) - Confrontacional y veloz
     // Free tier OK para crítica (puede ser más agresivo)
     provider: (process.env.CRITIC_PROVIDER || 'google') as AgentConfig['provider'],
-    model: process.env.CRITIC_MODEL || 'gemini-2.0-flash-exp', // Free tier
+    model: process.env.CRITIC_MODEL || 'gemini-2.0-flash', // Free tier
     temperature: parseFloat(process.env.CRITIC_TEMPERATURE || '0.5'),
   },
   analyst: {
     // Apolo (Dios de la Verdad) - Lógico y basado en datos
     // Free tier OK para análisis básico (puede usar datos del contexto)
     provider: (process.env.ANALYST_PROVIDER || 'google') as AgentConfig['provider'],
-    model: process.env.ANALYST_MODEL || 'gemini-2.0-flash-exp', // Free tier
+    model: process.env.ANALYST_MODEL || 'gemini-2.0-flash', // Free tier
     temperature: parseFloat(process.env.ANALYST_TEMPERATURE || '0.3'),
   },
   synthesizer: {
@@ -69,7 +69,7 @@ export function getAgentConfig(
     // Fall back to safe defaults (Gemini Free Tier)
     return {
       provider: 'google',
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       temperature: agentKey === 'optimizer' ? 0.7 : agentKey === 'critic' ? 0.5 : 0.3,
     }
   }
@@ -96,10 +96,10 @@ export function getAllAgentConfigs(): Record<
  */
 export function getFreeTierConfig(): typeof ENV_CONFIG {
   return {
-    optimizer: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.7 }, // Free
-    critic: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.5 }, // Free
+    optimizer: { provider: 'google', model: 'gemini-2.0-flash', temperature: 0.7 }, // Free
+    critic: { provider: 'google', model: 'gemini-2.0-flash', temperature: 0.5 }, // Free
     analyst: { provider: 'deepseek', model: 'deepseek-chat', temperature: 0.3 }, // Cheapest paid
-    synthesizer: { provider: 'google', model: 'gemini-2.0-flash-exp', temperature: 0.3 }, // Free
+    synthesizer: { provider: 'google', model: 'gemini-2.0-flash', temperature: 0.3 }, // Free
   }
 }
 
@@ -119,7 +119,7 @@ export function getPaidTierConfig(
     optimizer: { provider: 'openai' as const, model: 'gpt-4o-mini', temperature: 0.7 },
 
     // Critic: Deep analysis of risks (medium cost)
-    critic: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.5 },
+    critic: { provider: 'google' as const, model: 'gemini-2.0-flash', temperature: 0.5 },
 
     // Analyst: Data-driven insights (medium-high cost)
     analyst: { provider: 'openai' as const, model: 'gpt-4o', temperature: 0.3 },
@@ -166,13 +166,13 @@ export function getConfigByUserTier(
   // ⚡ OPTIMIZADO: Usar modelos más baratos cuando es posible, pero premium para síntesis
   const paidConfig = {
     // Optimizer: Free tier OK (no requiere alta precisión)
-    optimizer: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.7 },
+    optimizer: { provider: 'google' as const, model: 'gemini-2.0-flash', temperature: 0.7 },
     
     // Critic: Free tier OK (puede ser más agresivo)
-    critic: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.5 },
+    critic: { provider: 'google' as const, model: 'gemini-2.0-flash', temperature: 0.5 },
     
     // Analyst: Free tier OK (usa datos del contexto)
-    analyst: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.3 },
+    analyst: { provider: 'google' as const, model: 'gemini-2.0-flash', temperature: 0.3 },
     
     // Synthesizer: Claude 3.5 Sonnet (premium model for synthesis as promised)
     synthesizer: { provider: 'anthropic' as const, model: 'claude-3-5-sonnet-20241022', temperature: 0.3 },

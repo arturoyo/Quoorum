@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Continue"
 
-Write-Host "🔍 Checking Next.js Compilation Errors" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Checking Next.js Compilation Errors" -ForegroundColor Cyan
 Write-Host ("=" * 70) -ForegroundColor DarkGray
 
 $ErrorsFound = @()
@@ -11,7 +11,7 @@ $ErrorsFound = @()
 # Check .next directory for error files
 $NextDir = "apps\web\.next"
 if (Test-Path $NextDir) {
-    Write-Host "`n📁 Checking .next directory..." -ForegroundColor Gray
+    Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Checking .next directory..." -ForegroundColor Gray
     
     # Check for error overlay files
     $ErrorFiles = Get-ChildItem -Path $NextDir -Recurse -Filter "*error*" -ErrorAction SilentlyContinue
@@ -33,10 +33,10 @@ if (Test-Path $NextDir) {
 $TerminalDir = "$env:USERPROFILE\.cursor\projects\c-Quoorum\terminals"
 $LatestLog = Get-ChildItem -Path $TerminalDir -Filter "*.txt" -ErrorAction SilentlyContinue | 
     Sort-Object LastWriteTime -Descending | 
-    Select-Object -First 1
+    Select-Object -First [EMOJI]
 
 if ($LatestLog) {
-    Write-Host "`n📋 Checking terminal logs..." -ForegroundColor Gray
+    Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Checking terminal logs..." -ForegroundColor Gray
     $LogContent = Get-Content $LatestLog.FullName -Raw -ErrorAction SilentlyContinue
     
     # Look for compilation errors in Next.js output
@@ -54,11 +54,11 @@ if ($LatestLog) {
     foreach ($Pattern in $CompilationErrors) {
         if ($LogContent -match $Pattern) {
             $Matches = [regex]::Matches($LogContent, $Pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-            $LastMatch = $Matches[-1]
+            $LastMatch = $Matches[-[EMOJI]]
             
             if ($LastMatch) {
-                $StartPos = [Math]::Max(0, $LastMatch.Index - 300)
-                $EndPos = [Math]::Min($LogContent.Length, $LastMatch.Index + 500)
+                $StartPos = [Math]::Max(0, $LastMatch.Index - [EMOJI]00)
+                $EndPos = [Math]::Min($LogContent.Length, $LastMatch.Index + [EMOJI]00)
                 $Context = $LogContent.Substring($StartPos, $EndPos - $StartPos)
                 
                 $ErrorsFound += @{
@@ -93,7 +93,7 @@ if ($ErrorsFound.Count -eq 0) {
         }
         if ($Err.Context) {
             Write-Host "   Context:" -ForegroundColor Gray
-            $Lines = ($Err.Context -split "`n") | Where-Object { $_.Trim().Length -gt 0 } | Select-Object -First 10
+            $Lines = ($Err.Context -split "`n") | Where-Object { $_.Trim().Length -gt 0 } | Select-Object -First [EMOJI]0
             foreach ($Line in $Lines) {
                 Write-Host "   $Line" -ForegroundColor DarkGray
             }
@@ -101,5 +101,5 @@ if ($ErrorsFound.Count -eq 0) {
         Write-Host ""
     }
     
-    exit 1
+    exit [EMOJI]
 }

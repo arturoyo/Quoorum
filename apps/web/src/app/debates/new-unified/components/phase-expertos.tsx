@@ -13,10 +13,9 @@ import { Sparkles, Users, ArrowRight, Building2, UserCircle, AlertCircle, Coins 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { ExpertSelector } from '@/components/quoorum/expert-selector'
-import { DepartmentSelector } from '@/components/quoorum/department-selector'
-import { WorkerSelector } from '@/components/quoorum/worker-selector'
+import { ExpertSelector, DepartmentSelector, WorkerSelector } from '@/components/quoorum'
 import { DebateStickyHeader } from './debate-sticky-header'
+import { useBackstoryHeader } from '../hooks/use-backstory-header'
 import type { ExpertosState, ContextoState } from '../types'
 import type { PhaseCostEstimate } from '@quoorum/quoorum/analytics/phase-cost-estimator'
 import {
@@ -45,6 +44,7 @@ export function PhaseExpertos({
   currentPhaseCost,
 }: PhaseExpertosProps) {
   const router = useRouter()
+  const backstoryHeader = useBackstoryHeader()
   const { participantTypes } = state
   const atLeastOne = participantTypes.expertos || participantTypes.departamentos || participantTypes.trabajadores
   const expertsOk = !participantTypes.expertos || state.selectedExpertIds.length > 0
@@ -94,35 +94,36 @@ export function PhaseExpertos({
       <DebateStickyHeader
         phaseNumber={2}
         title="¿Quién interviene en el debate?"
+        subtitle={backstoryHeader.subtitle}
       />
       <div className="mt-4 mb-6 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-500/20 mb-4">
           <Users className="h-8 w-8 text-purple-400" />
         </div>
-        <p className="text-[var(--theme-text-secondary)]">
+        <p className="styles.colors.text.secondary">
           Elige uno, dos o los tres: expertos, departamentos y/o profesionales
         </p>
       </div>
 
       <div className="space-y-6">
         {/* Selector de tipos */}
-        <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] p-6">
-          <p className="text-sm font-medium text-[var(--theme-text-secondary)] mb-4">Quién interviene</p>
+        <div className="rounded-lg border styles.colors.border.default styles.colors.bg.secondary p-6">
+          <p className="text-sm font-medium styles.colors.text.secondary mb-4">Quién interviene</p>
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-3 cursor-pointer group">
               <Checkbox
                 checked={participantTypes.expertos}
                 onCheckedChange={() => toggleType('expertos')}
-                className="border-[var(--theme-border)] data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                className="styles.colors.border.default data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
               />
-              <span className="text-[var(--theme-text-primary)] group-hover:text-purple-300 transition-colors">Expertos</span>
+              <span className="styles.colors.text.primary group-hover:text-purple-300 transition-colors">Expertos</span>
               <Sparkles className="h-4 w-4 text-purple-400" />
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
               <Checkbox
                 checked={participantTypes.departamentos}
                 onCheckedChange={() => toggleType('departamentos')}
-                className="border-[var(--theme-border)] data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                className="styles.colors.border.default data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
               />
               <span className="text-white group-hover:text-purple-300 transition-colors">Departamentos</span>
               <Building2 className="h-4 w-4 text-purple-400" />
@@ -131,9 +132,9 @@ export function PhaseExpertos({
               <Checkbox
                 checked={participantTypes.trabajadores}
                 onCheckedChange={() => toggleType('trabajadores')}
-                className="border-[var(--theme-border)] data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                className="styles.colors.border.default data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
               />
-              <span className="text-[var(--theme-text-primary)] group-hover:text-purple-300 transition-colors">Profesionales</span>
+              <span className="styles.colors.text.primary group-hover:text-purple-300 transition-colors">Profesionales</span>
               <UserCircle className="h-4 w-4 text-purple-400" />
             </label>
           </div>
@@ -141,7 +142,7 @@ export function PhaseExpertos({
 
         {/* Expertos */}
         {participantTypes.expertos && (
-          <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] p-6">
+          <div className="rounded-lg border styles.colors.border.default styles.colors.bg.secondary p-6">
             <ExpertSelector
               selectedExpertIds={state.selectedExpertIds}
               onSelectionChange={(ids) => onParticipantUpdate({ selectedExpertIds: ids })}
@@ -154,7 +155,7 @@ export function PhaseExpertos({
 
         {/* Departamentos */}
         {participantTypes.departamentos && (
-          <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] p-6">
+          <div className="rounded-lg border styles.colors.border.default styles.colors.bg.secondary p-6">
             <DepartmentSelector
               selectedDepartmentIds={state.selectedDepartmentIds}
               onSelectionChange={(ids) => onParticipantUpdate({ selectedDepartmentIds: ids })}
@@ -167,7 +168,7 @@ export function PhaseExpertos({
 
         {/* Profesionales */}
         {participantTypes.trabajadores && (
-          <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] p-6">
+          <div className="rounded-lg border styles.colors.border.default styles.colors.bg.secondary p-6">
             <WorkerSelector
               selectedWorkerIds={state.selectedWorkerIds}
               onSelectionChange={(ids) => onParticipantUpdate({ selectedWorkerIds: ids })}

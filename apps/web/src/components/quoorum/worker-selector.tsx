@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, UserCircle, Info, Sparkles, Zap, Search } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -45,6 +45,7 @@ export function WorkerSelector({
   defaultOpen = false,
 }: WorkerSelectorProps) {
   const router = useRouter()
+  const openSettings = useOpenSettings()
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const [selectionMode, setSelectionMode] = useState<'auto' | 'manual'>('auto')
   const [searchQuery, setSearchQuery] = useState('')
@@ -194,7 +195,7 @@ export function WorkerSelector({
 
   if (loadingCompany) {
     return (
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
         </CardContent>
@@ -204,13 +205,13 @@ export function WorkerSelector({
 
   if (!company) {
     return (
-      <Card className="bg-[#111b21] border-[#2a3942]">
+      <Card className="styles.colors.bg.secondary styles.colors.border.default">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
+          <CardTitle className="flex items-center gap-2 styles.colors.text.primary">
             <UserCircle className="h-5 w-5" />
             Profesionales
           </CardTitle>
-          <CardDescription className="text-[#aebac1]">
+          <CardDescription className="styles.colors.text.secondary">
             Configura tu empresa primero para usar profesionales
           </CardDescription>
         </CardHeader>
@@ -227,33 +228,33 @@ export function WorkerSelector({
   }
 
   return (
-    <Card className="bg-[#111b21] border-[#2a3942]">
+    <Card className="styles.colors.bg.secondary styles.colors.border.default">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="flex items-center gap-2 styles.colors.text.primary">
               <UserCircle className="h-5 w-5" />
               Profesionales
             </CardTitle>
-            <CardDescription className="text-[#aebac1]">
+            <CardDescription className="styles.colors.text.secondary">
               {selectionMode === 'auto'
-                ? 'El sistema sugiere profesionales basándose en la pregunta y departamentos seleccionados'
-                : 'Selecciona manualmente los profesionales que intervendrán en el debate'}
+                ? 'El sistema sugiere profesionales bas�ndose en la pregunta y departamentos seleccionados'
+                : 'Selecciona manualmente los profesionales que intervendr�n en el debate'}
             </CardDescription>
           </div>
           <div className="flex gap-2">
             <Select value={selectionMode} onValueChange={(v) => setSelectionMode(v as 'auto' | 'manual')}>
-              <SelectTrigger className="w-[140px] border-[#2a3942] bg-[#2a3942] text-white">
+              <SelectTrigger className="w-[140px] styles.colors.border.default styles.colors.bg.input styles.colors.text.primary">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#111b21] border-[#2a3942]">
-                <SelectItem value="auto" className="text-white focus:bg-purple-600">
+              <SelectContent className="styles.colors.bg.secondary styles.colors.border.default">
+                <SelectItem value="auto" className="styles.colors.text.primary focus:bg-purple-600">
                   <span className="flex items-center gap-2">
                     <Zap className="h-4 w-4" />
-                    Automático
+                    Autom�tico
                   </span>
                 </SelectItem>
-                <SelectItem value="manual" className="text-white focus:bg-purple-600">
+                <SelectItem value="manual" className="styles.colors.text.primary focus:bg-purple-600">
                   <span className="flex items-center gap-2">
                     <Search className="h-4 w-4" />
                     Manual
@@ -267,11 +268,11 @@ export function WorkerSelector({
       <CardContent className="space-y-4">
         {/* Selected Workers */}
         {selectedWorkersData.length > 0 && (
-          <div className="space-y-3 pb-4 border-b border-white/10">
+          <div className="space-y-3 pb-4 border-b styles.colors.border.default">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold styles.colors.text.primary">
                   Profesionales Seleccionados
                 </span>
                 <Badge
@@ -285,7 +286,7 @@ export function WorkerSelector({
                 variant="ghost"
                 size="sm"
                 onClick={handleClearAll}
-                className="text-[#aebac1] hover:text-white hover:bg-purple-600/20"
+                className="styles.colors.text.secondary hover:styles.colors.text.primary hover:bg-purple-600/20"
               >
                 Limpiar
               </Button>
@@ -298,9 +299,9 @@ export function WorkerSelector({
                 >
                   <UserCircle className="h-4 w-4 text-purple-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{worker.name}</p>
-                    <p className="text-xs text-[#aebac1] truncate">
-                      {[worker.role, worker.expertise].filter(Boolean).join(' · ')}
+                    <p className="text-sm font-medium styles.colors.text.primary truncate">{worker.name}</p>
+                    <p className="text-xs styles.colors.text.secondary truncate">
+                      {[worker.role, worker.expertise].filter(Boolean).join(' � ')}
                     </p>
                   </div>
                   {worker.matchScore !== undefined && (
@@ -315,9 +316,9 @@ export function WorkerSelector({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleToggleWorker(worker.id)}
-                    className="h-6 w-6 p-0 text-[#8696a0] hover:text-white hover:bg-purple-600/20"
+                    className="h-6 w-6 p-0 styles.colors.text.tertiary hover:styles.colors.text.primary hover:bg-purple-600/20"
                   >
-                    ×
+                    �
                   </Button>
                 </div>
               ))}
@@ -329,7 +330,7 @@ export function WorkerSelector({
         <Accordion type="single" collapsible value={isOpen ? 'workers' : undefined} onValueChange={(v) => setIsOpen(v === 'workers')}>
           <AccordionItem value="workers" className="border-none">
             <AccordionTrigger className="hover:no-underline py-2">
-              <span className="text-sm font-medium text-[#aebac1]">
+              <span className="text-sm font-medium styles.colors.text.secondary">
                 {selectionMode === 'auto' ? 'Sugerencias de IA' : 'Todos los Profesionales'}
               </span>
             </AccordionTrigger>
@@ -338,11 +339,11 @@ export function WorkerSelector({
                 isLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
-                    <span className="ml-2 text-sm text-[#aebac1]">Analizando profesionales...</span>
+                    <span className="ml-2 text-sm styles.colors.text.secondary">Analizando profesionales...</span>
                   </div>
                 ) : suggestedWorkers && suggestedWorkers.length > 0 ? (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-[#aebac1]">
+                    <div className="flex items-center gap-2 text-sm styles.colors.text.secondary">
                       <Sparkles className="h-4 w-4 text-purple-400" />
                       <span>
                         {selectedDepartmentIds.length > 0
@@ -364,7 +365,7 @@ export function WorkerSelector({
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2">
-                                <p className="text-sm font-medium text-white group-hover:text-purple-300 transition-colors">
+                                <p className="text-sm font-medium styles.colors.text.primary group-hover:text-purple-300 transition-colors">
                                   {worker.name}
                                 </p>
                                 <Badge
@@ -374,14 +375,14 @@ export function WorkerSelector({
                                   {worker.matchScore}% afinidad
                                 </Badge>
                               </div>
-                              <p className="text-xs text-[#aebac1] mt-1">
-                                {[worker.role, worker.expertise].filter(Boolean).join(' · ')}
+                              <p className="text-xs styles.colors.text.secondary mt-1">
+                                {[worker.role, worker.expertise].filter(Boolean).join(' � ')}
                               </p>
                               {worker.reasons && worker.reasons.length > 0 && (
                                 <div className="mt-2 space-y-1">
                                   {worker.reasons.slice(0, 2).map((reason, idx) => (
-                                    <p key={idx} className="text-xs text-[#8696a0]">
-                                      • {reason}
+                                    <p key={idx} className="text-xs styles.colors.text.tertiary">
+                                      � {reason}
                                     </p>
                                   ))}
                                 </div>
@@ -392,7 +393,7 @@ export function WorkerSelector({
                       ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-[#8696a0]">
+                  <div className="text-center py-8 styles.colors.text.tertiary">
                     <p className="text-sm">No se encontraron sugerencias</p>
                     <p className="text-xs mt-1">Intenta cambiar a modo manual</p>
                   </div>
@@ -401,18 +402,18 @@ export function WorkerSelector({
                 <div className="space-y-4">
                   {/* Search */}
                   <div className="space-y-2">
-                    <Label className="text-[#aebac1]">Buscar profesionales</Label>
+                    <Label className="styles.colors.text.secondary">Buscar profesionales</Label>
                     <Input
                       placeholder="Buscar por nombre, rol o expertise..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-[#2a3942] border-[#2a3942] text-white placeholder:text-[#8696a0] focus-visible:ring-purple-500 focus-visible:border-purple-500"
+                      className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500 focus-visible:border-purple-500"
                     />
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-[#aebac1]">
+                    <span className="text-sm styles.colors.text.secondary">
                       {filteredWorkers.length} profesional(es) disponible(s)
                     </span>
                     <div className="flex gap-2">
@@ -421,7 +422,7 @@ export function WorkerSelector({
                         size="sm"
                         onClick={handleSelectAll}
                         disabled={filteredWorkers.length === 0}
-                        className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+                        className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:bg-purple-600 hover:border-purple-600"
                       >
                         Seleccionar Todos
                       </Button>
@@ -430,7 +431,7 @@ export function WorkerSelector({
                         size="sm"
                         onClick={handleClearAll}
                         disabled={selectedWorkerIds.length === 0}
-                        className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+                        className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:bg-purple-600 hover:border-purple-600"
                       >
                         Limpiar
                       </Button>
@@ -451,7 +452,7 @@ export function WorkerSelector({
                             key={worker.id}
                             className={cn(
                               'group flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors',
-                              'border-[#2a3942] hover:border-purple-500/50',
+                              'styles.colors.border.default hover:border-purple-500/50',
                               isSelected && 'border-purple-500 bg-purple-500/10'
                             )}
                             onClick={() => handleToggleWorker(worker.id)}
@@ -459,15 +460,15 @@ export function WorkerSelector({
                             <Checkbox
                               checked={isSelected}
                               onCheckedChange={() => handleToggleWorker(worker.id)}
-                              className="mt-1 border-[#2a3942] data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                              className="mt-1 styles.colors.border.default data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                             />
                             <div className="flex-1 min-w-0 space-y-1">
-                              <p className="font-medium text-white truncate">{worker.name}</p>
-                              <p className="text-xs text-[#8696a0] line-clamp-2">
-                                {[worker.role, worker.expertise].filter(Boolean).join(' · ') || 'Sin rol'}
+                              <p className="font-medium styles.colors.text.primary truncate">{worker.name}</p>
+                              <p className="text-xs styles.colors.text.tertiary line-clamp-2">
+                                {[worker.role, worker.expertise].filter(Boolean).join(' � ') || 'Sin rol'}
                               </p>
                               {worker.description && (
-                                <p className="text-xs text-[#aebac1] line-clamp-2">{worker.description}</p>
+                                <p className="text-xs styles.colors.text.secondary line-clamp-2">{worker.description}</p>
                               )}
                             </div>
                           </div>
@@ -475,7 +476,7 @@ export function WorkerSelector({
                       })}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-[#8696a0]">
+                    <div className="text-center py-8 styles.colors.text.tertiary">
                       <p className="text-sm">No se encontraron profesionales</p>
                       {searchQuery && (
                         <Button
@@ -484,7 +485,7 @@ export function WorkerSelector({
                           onClick={() => setSearchQuery('')}
                           className="mt-2 text-purple-400 hover:text-purple-300"
                         >
-                          Limpiar búsqueda
+                          Limpiar b�squeda
                         </Button>
                       )}
                     </div>
@@ -500,10 +501,10 @@ export function WorkerSelector({
           <div className="flex gap-2">
             <Info className="h-5 w-5 text-purple-400 flex-shrink-0" />
             <div className="space-y-1 text-sm">
-              <p className="font-medium text-purple-400">¿Qué son los Profesionales?</p>
-              <p className="text-[#aebac1]">
+              <p className="font-medium text-purple-400">�Qu� son los Profesionales?</p>
+              <p className="styles.colors.text.secondary">
                 Son representaciones virtuales de tu equipo que debaten con el contexto
-                de {company?.name || 'tu empresa'} y departamentos. En modo automático, el sistema
+                de {company?.name || 'tu empresa'} y departamentos. En modo autom�tico, el sistema
                 prioriza profesionales de los departamentos ya seleccionados.
               </p>
             </div>

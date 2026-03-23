@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DebateContextCard Component
  *
  * Collapsible card showing the debate context and background information.

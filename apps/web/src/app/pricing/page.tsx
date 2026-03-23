@@ -10,7 +10,7 @@ import {
   ArrowRight,
   Zap,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { AnimatedBackground } from "@/components/layout/animated-background";
 import {
@@ -155,17 +155,17 @@ export default function PricingPage() {
 
       {/* Header */}
       <section className="py-20 px-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-[var(--theme-text-primary)]">
+        <h1 className="text-4xl md:text-5xl font-bold styles.colors.text.primary">
           Precios simples y transparentes
         </h1>
-        <p className="text-[var(--theme-text-secondary)] mt-4 max-w-2xl mx-auto">
+        <p className="styles.colors.text.secondary mt-4 max-w-2xl mx-auto">
           Elige el plan que mejor se adapte a tus necesidades. Todos incluyen acceso a
           nuestros expertos IA y pueden escalarse según crezcas.
         </p>
 
         {/* Billing toggle */}
         <div className="flex items-center justify-center gap-4 mt-8">
-          <span className={`text-sm ${!isYearly ? "text-[var(--theme-text-primary)]" : "text-[var(--theme-text-secondary)]"}`}>
+          <span className={`text-sm ${!isYearly ? "styles.colors.text.primary" : "styles.colors.text.secondary"}`}>
             Mensualmente
           </span>
           <Switch
@@ -173,7 +173,7 @@ export default function PricingPage() {
             onCheckedChange={setIsYearly}
             className="data-[state=checked]:bg-purple-600"
           />
-          <span className={`text-sm ${isYearly ? "text-[var(--theme-text-primary)]" : "text-[var(--theme-text-secondary)]"}`}>
+          <span className={`text-sm ${isYearly ? "styles.colors.text.primary" : "styles.colors.text.secondary"}`}>
             Anualmente
           </span>
           {isYearly && (
@@ -211,12 +211,12 @@ export default function PricingPage() {
                     </div>
                   )}
 
-                  <h3 className="text-xl font-semibold text-[var(--theme-text-primary)]">{plan.name}</h3>
-                  <p className="text-[var(--theme-text-secondary)] text-sm mt-1 min-h-[40px]">{plan.description}</p>
+                  <h3 className="text-xl font-semibold styles.colors.text.primary">{plan.name}</h3>
+                  <p className="styles.colors.text.secondary text-sm mt-1 min-h-[40px]">{plan.description}</p>
 
                   <div className="mt-6">
-                    <span className="text-4xl font-bold text-[var(--theme-text-primary)]">{monthlyEquivalent}€</span>
-                    <span className="text-[var(--theme-text-secondary)]"> / mes</span>
+                    <span className="text-4xl font-bold styles.colors.text.primary">{monthlyEquivalent}€</span>
+                    <span className="styles.colors.text.secondary"> / mes</span>
                     {isYearly && savings > 0 && (
                       <p className="text-sm text-green-400 mt-1">
                         {savings}€ de ahorro al año
@@ -226,7 +226,7 @@ export default function PricingPage() {
 
                   <ul className="mt-6 space-y-3 flex-1">
                     {plan.featureList.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-3 text-[var(--theme-text-secondary)]">
+                      <li key={index} className="flex items-start gap-3 styles.colors.text.secondary">
                         <CheckCircle className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
                         <span className="text-sm">{feature}</span>
                       </li>
@@ -238,7 +238,7 @@ export default function PricingPage() {
                       className={`w-full ${
                         plan.popular
                           ? "bg-purple-600 hover:bg-purple-700 text-white"
-                          : "bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] hover:bg-[var(--theme-landing-card-hover)] text-[var(--theme-text-primary)]"
+                          : "bg-[var(--theme-landing-card)] border border-[var(--theme-landing-border)] hover:bg-[var(--theme-landing-card-hover)] styles.colors.text.primary"
                       }`}
                     >
                       {plan.cta}
@@ -255,7 +255,7 @@ export default function PricingPage() {
       {/* Feature Comparison */}
       <section className="py-20 px-4 bg-[var(--theme-landing-card)]">
         <div className="container mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-[var(--theme-text-primary)] text-center mb-12">
+          <h2 className="text-3xl font-bold styles.colors.text.primary text-center mb-12">
             Comparación de planes
           </h2>
 
@@ -263,26 +263,26 @@ export default function PricingPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[var(--theme-landing-border)]">
-                  <th className="text-left py-4 px-3 text-[var(--theme-text-secondary)] font-medium">Característica</th>
-                  <th className="text-center py-4 px-3 text-[var(--theme-text-primary)] font-medium">Free</th>
+                  <th className="text-left py-4 px-3 styles.colors.text.secondary font-medium">Característica</th>
+                  <th className="text-center py-4 px-3 styles.colors.text.primary font-medium">Free</th>
                   <th className="text-center py-4 px-3 text-purple-400 font-medium">Starter</th>
-                  <th className="text-center py-4 px-3 text-[var(--theme-text-primary)] font-medium">Pro</th>
-                  <th className="text-center py-4 px-3 text-[var(--theme-text-primary)] font-medium">Business</th>
+                  <th className="text-center py-4 px-3 styles.colors.text.primary font-medium">Pro</th>
+                  <th className="text-center py-4 px-3 styles.colors.text.primary font-medium">Business</th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonFeatures.map((feature) => (
                   <tr key={feature.name} className="border-b border-[var(--theme-landing-border)]">
-                    <td className="py-4 px-3 text-[var(--theme-text-secondary)] text-sm">{feature.name}</td>
+                    <td className="py-4 px-3 styles.colors.text.secondary text-sm">{feature.name}</td>
                     <td className="py-4 px-3 text-center">
                       {typeof feature.free === "boolean" ? (
                         feature.free ? (
                           <CheckCircle className="w-5 h-5 text-green-400 mx-auto" />
                         ) : (
-                          <X className="w-5 h-5 text-[var(--theme-text-tertiary)] mx-auto" />
+                          <X className="w-5 h-5 styles.colors.text.tertiary mx-auto" />
                         )
                       ) : (
-                        <span className="text-[var(--theme-text-secondary)] text-sm">{feature.free}</span>
+                        <span className="styles.colors.text.secondary text-sm">{feature.free}</span>
                       )}
                     </td>
                     <td className="py-4 px-3 text-center bg-purple-500/10">
@@ -290,10 +290,10 @@ export default function PricingPage() {
                         feature.starter ? (
                           <CheckCircle className="w-5 h-5 text-green-400 mx-auto" />
                         ) : (
-                          <X className="w-5 h-5 text-[var(--theme-text-tertiary)] mx-auto" />
+                          <X className="w-5 h-5 styles.colors.text.tertiary mx-auto" />
                         )
                       ) : (
-                        <span className="text-[var(--theme-text-primary)] text-sm">{feature.starter}</span>
+                        <span className="styles.colors.text.primary text-sm">{feature.starter}</span>
                       )}
                     </td>
                     <td className="py-4 px-3 text-center">
@@ -301,10 +301,10 @@ export default function PricingPage() {
                         feature.pro ? (
                           <CheckCircle className="w-5 h-5 text-green-400 mx-auto" />
                         ) : (
-                          <X className="w-5 h-5 text-[var(--theme-text-tertiary)] mx-auto" />
+                          <X className="w-5 h-5 styles.colors.text.tertiary mx-auto" />
                         )
                       ) : (
-                        <span className="text-[var(--theme-text-secondary)] text-sm">{feature.pro}</span>
+                        <span className="styles.colors.text.secondary text-sm">{feature.pro}</span>
                       )}
                     </td>
                     <td className="py-4 px-3 text-center">
@@ -312,10 +312,10 @@ export default function PricingPage() {
                         feature.business ? (
                           <CheckCircle className="w-5 h-5 text-green-400 mx-auto" />
                         ) : (
-                          <X className="w-5 h-5 text-[var(--theme-text-tertiary)] mx-auto" />
+                          <X className="w-5 h-5 styles.colors.text.tertiary mx-auto" />
                         )
                       ) : (
-                        <span className="text-[var(--theme-text-secondary)] text-sm">{feature.business}</span>
+                        <span className="styles.colors.text.secondary text-sm">{feature.business}</span>
                       )}
                     </td>
                   </tr>
@@ -329,10 +329,10 @@ export default function PricingPage() {
       {/* FAQs */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-3xl">
-          <h2 className="text-3xl font-bold text-[var(--theme-text-primary)] text-center mb-4">
+          <h2 className="text-3xl font-bold styles.colors.text.primary text-center mb-4">
             Preguntas frecuentes
           </h2>
-          <p className="text-[var(--theme-text-secondary)] text-center mb-12">
+          <p className="styles.colors.text.secondary text-center mb-12">
             ¿Tienes otras preguntas?{" "}
             <Link href="/soporte" className="text-purple-400 hover:text-purple-300">
               Contáctanos
@@ -346,10 +346,10 @@ export default function PricingPage() {
                 value={`item-${index}`}
                 className="border border-[var(--theme-landing-border)] rounded-lg px-6 bg-[var(--theme-landing-card)]"
               >
-                <AccordionTrigger className="text-[var(--theme-text-primary)] hover:text-purple-400 text-left">
+                <AccordionTrigger className="styles.colors.text.primary hover:text-purple-400 text-left">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-[var(--theme-text-secondary)]">
+                <AccordionContent className="styles.colors.text.secondary">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -362,8 +362,8 @@ export default function PricingPage() {
       <section className="py-20 px-4">
         <div className="container mx-auto">
           <div className="max-w-3xl mx-auto text-center p-12 rounded-3xl bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30">
-            <h2 className="text-3xl font-bold text-[var(--theme-text-primary)]">¿Aún tienes dudas?</h2>
-            <p className="text-[var(--theme-text-secondary)] mt-4">
+            <h2 className="text-3xl font-bold styles.colors.text.primary">¿Aún tienes dudas?</h2>
+            <p className="styles.colors.text.secondary mt-4">
               Empieza gratis y experimenta el poder de los debates de expertos IA. No
               requiere tarjeta de crédito.
             </p>
@@ -381,7 +381,7 @@ export default function PricingPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-[var(--theme-landing-border)] bg-[var(--theme-landing-card)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-landing-card-hover)] px-8 h-12"
+                  className="border-[var(--theme-landing-border)] bg-[var(--theme-landing-card)] styles.colors.text.primary hover:bg-[var(--theme-landing-card-hover)] px-8 h-12"
                 >
                   Hablar con Ventas
                 </Button>

@@ -137,14 +137,14 @@ describe('Forum Agents', () => {
 
   describe('estimateAgentCost', () => {
     it('should estimate cost for google free tier agent', () => {
-      // Default config uses gemini-2.0-flash-exp (free tier)
+      // Default config uses gemini-2.0-flash (free tier)
       const agent = QUOORUM_AGENTS['optimizer']!
       const cost = estimateAgentCost(agent, 1_000_000)
       expect(cost).toBe(0.0) // Free tier
     })
 
     it('should estimate cost for google free tier critic', () => {
-      // Default config uses gemini-2.0-flash-exp (free tier)
+      // Default config uses gemini-2.0-flash (free tier)
       const agent = QUOORUM_AGENTS['critic']!
       const cost = estimateAgentCost(agent, 1_000_000)
       expect(cost).toBe(0.0) // Free tier

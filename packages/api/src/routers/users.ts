@@ -135,4 +135,43 @@ export const usersRouter = router({
         .returning();
       return result[0] ?? null;
     }),
+
+  /**
+   * Get user's AI performance level preference
+   */
+  getPerformanceLevel: protectedProcedure.query(async ({ ctx }) => {
+    const [profile] = await ctx.db
+      .select({ performanceLevel: profiles.performanceLevel })
+      .from(profiles)
+      .where(eq(profiles.id, ctx.userId))
+      .limit(1);
+
+    return {
+      performanceLevel: (profile?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced',
+    };
+  }),
+
+  /**
+   * Update user's AI performance level preference
+   */
+  updatePerformanceLevel: protectedProcedure
+    .input(
+      z.object({
+        performanceLevel: z.enum(['economic', 'balanced', 'performance']),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [updated] = await ctx.db
+        .update(profiles)
+        .set({
+          performanceLevel: input.performanceLevel,
+          updatedAt: new Date(),
+        })
+        .where(eq(profiles.id, ctx.userId))
+        .returning();
+
+      return {
+        performanceLevel: (updated?.performanceLevel as 'economic' | 'balanced' | 'performance') || 'balanced',
+      };
+    }),
 });

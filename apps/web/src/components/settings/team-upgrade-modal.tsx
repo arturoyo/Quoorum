@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/select'
 import { CheckCircle, Loader2, Check } from 'lucide-react'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 interface TeamUpgradeModalProps {
   open: boolean
@@ -168,12 +168,12 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent nested className="bg-slate-900 border-purple-500/20 max-w-2xl">
+      <DialogContent nested className="styles.colors.bg.primary border-purple-500/20 max-w-2xl">
         <DialogHeader className="border-b-0 pb-0">
-          <DialogTitle className="text-2xl font-semibold text-white">
+          <DialogTitle className="text-2xl font-semibold styles.colors.text.primary">
             Obtener Equipo
           </DialogTitle>
-          <DialogDescription className="text-[var(--theme-text-secondary)]">
+          <DialogDescription className="styles.colors.text.secondary">
             Plan diseñado para equipos que necesitan colaboración y control de acceso
           </DialogDescription>
         </DialogHeader>
@@ -188,8 +188,8 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
               className={cn(
                 'relative p-4 rounded-lg border-2 transition-all text-left',
                 !isYearly
-                  ? 'bg-[#111b21] border-purple-500/40'
-                  : 'bg-[#0b141a] border-[#2a3942] hover:border-purple-500/20'
+                  ? 'styles.colors.bg.secondary border-purple-500/40'
+                  : 'styles.colors.bg.primary styles.colors.border.default hover:border-purple-500/20'
               )}
             >
               <div className="flex items-center justify-between mb-2">
@@ -198,7 +198,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                     'w-4 h-4 rounded-full border-2 flex items-center justify-center',
                     !isYearly
                       ? 'border-purple-500 bg-purple-500'
-                      : 'border-[#2a3942] bg-transparent'
+                      : 'styles.colors.border.default bg-transparent'
                   )}
                 >
                   {!isYearly && (
@@ -206,10 +206,10 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                   )}
                 </div>
               </div>
-              <div className="text-2xl font-bold text-white mb-0.5">
+              <div className="text-2xl font-bold styles.colors.text.primary mb-0.5">
                 {pricePerSeat}€
               </div>
-              <div className="text-xs text-[var(--theme-text-secondary)]">Por asiento / mes</div>
+              <div className="text-xs styles.colors.text.secondary">Por asiento / mes</div>
             </button>
 
             {/* Anual */}
@@ -219,8 +219,8 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
               className={cn(
                 'relative p-4 rounded-lg border-2 transition-all text-left',
                 isYearly
-                  ? 'bg-[#111b21] border-purple-500/40'
-                  : 'bg-[#0b141a] border-[#2a3942] hover:border-purple-500/20'
+                  ? 'styles.colors.bg.secondary border-purple-500/40'
+                  : 'styles.colors.bg.primary styles.colors.border.default hover:border-purple-500/20'
               )}
             >
               <div className="flex items-center justify-between mb-2">
@@ -229,27 +229,27 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                     'w-4 h-4 rounded-full border-2 flex items-center justify-center',
                     isYearly
                       ? 'border-purple-500 bg-purple-500'
-                      : 'border-[#2a3942] bg-transparent'
+                      : 'styles.colors.border.default bg-transparent'
                   )}
                 >
                   {isYearly && (
                     <div className="w-1.5 h-1.5 rounded-full bg-white" />
                   )}
                 </div>
-                <div className="bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded">
+                <div className="bg-blue-500 styles.colors.text.primary text-xs px-1.5 py-0.5 rounded">
                   Ahorra 17%
                 </div>
               </div>
-              <div className="text-2xl font-bold text-white mb-0.5">
+              <div className="text-2xl font-bold styles.colors.text.primary mb-0.5">
                 {Math.round(pricePerSeat * 12 * 0.83)}€
               </div>
-              <div className="text-xs text-[var(--theme-text-secondary)]">Por asiento / año</div>
+              <div className="text-xs styles.colors.text.secondary">Por asiento / año</div>
             </button>
           </div>
 
           {/* Team Seats Selector */}
           <div className="space-y-1.5">
-            <Label htmlFor="teamSeats" className="text-white text-sm">
+            <Label htmlFor="teamSeats" className="styles.colors.text.primary text-sm">
               Asientos del equipo
             </Label>
             <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                 variant="outline"
                 size="icon"
                 onClick={() => setTeamSeats(Math.max(1, teamSeats - 1))}
-                className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:bg-purple-600 hover:border-purple-600"
               >
                 -
               </Button>
@@ -271,14 +271,14 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                   const value = parseInt(e.target.value) || 1
                   setTeamSeats(Math.max(1, value))
                 }}
-                className="flex-1 bg-[#2a3942] border-[#2a3942] text-white text-center"
+                className="flex-1 styles.colors.bg.input styles.colors.border.default styles.colors.text.primary text-center"
               />
               <Button
                 type="button"
                 variant="outline"
                 size="icon"
                 onClick={() => setTeamSeats(teamSeats + 1)}
-                className="border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+                className="styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:bg-purple-600 hover:border-purple-600"
               >
                 +
               </Button>
@@ -287,7 +287,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
 
           {/* Credits per Seat Dropdown */}
           <div className="space-y-1.5">
-            <Label htmlFor="creditsPerSeat" className="text-white text-sm">
+            <Label htmlFor="creditsPerSeat" className="styles.colors.text.primary text-sm">
               Créditos por asiento
             </Label>
             <Select
@@ -296,16 +296,16 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
             >
               <SelectTrigger
                 id="creditsPerSeat"
-                className="bg-[#2a3942] border-[#2a3942] text-white"
+                className="styles.colors.bg.input styles.colors.border.default styles.colors.text.primary"
               >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#111b21] border-[#2a3942] max-h-[300px] z-[200]">
+              <SelectContent className="styles.colors.bg.secondary styles.colors.border.default max-h-[300px] z-[200]">
                 {CREDIT_OPTIONS_PER_SEAT.map((option) => (
                   <SelectItem
                     key={option.credits}
                     value={option.credits.toString()}
-                    className="text-white hover:bg-purple-600/20 focus:bg-purple-600/20"
+                    className="styles.colors.text.primary hover:bg-purple-600/20 focus:bg-purple-600/20"
                   >
                     <div className="flex items-center justify-between w-full">
                       <span>
@@ -319,31 +319,31 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-[var(--theme-text-tertiary)]">
+            <p className="text-xs styles.colors.text.tertiary">
               {pricePerSeat}€ por asiento / mes
             </p>
           </div>
 
           {/* Total Credits and Price in one row */}
           <div className="grid grid-cols-2 gap-3">
-            <Card className="bg-[#111b21] border-[#2a3942]">
+            <Card className="styles.colors.bg.secondary styles.colors.border.default">
               <CardContent className="p-4">
                 <div className="space-y-1">
-                  <Label className="text-white font-semibold text-sm">Créditos totales</Label>
-                  <p className="text-xs text-[var(--theme-text-secondary)]">
+                  <Label className="styles.colors.text.primary font-semibold text-sm">Créditos totales</Label>
+                  <p className="text-xs styles.colors.text.secondary">
                     Compartido por todos
                   </p>
-                  <p className="text-xl font-bold text-white">
+                  <p className="text-xl font-bold styles.colors.text.primary">
                     {totalCredits.toLocaleString()} / mes
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#111b21] border-[#2a3942]">
+            <Card className="styles.colors.bg.secondary styles.colors.border.default">
               <CardContent className="p-4">
                 <div className="space-y-1">
-                  <Label className="text-white font-semibold text-sm">Precio total</Label>
+                  <Label className="styles.colors.text.primary font-semibold text-sm">Precio total</Label>
                   <div className="flex items-baseline gap-1">
                     <AnimatePresence mode="wait">
                       <motion.span
@@ -352,15 +352,15 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -20, opacity: 0 }}
                         transition={{ duration: 0.3, ease: 'easeOut' }}
-                        className="text-xl font-bold text-white"
+                        className="text-xl font-bold styles.colors.text.primary"
                       >
                         {Math.round(displayPrice)}€
                       </motion.span>
                     </AnimatePresence>
-                    <span className="text-[var(--theme-text-secondary)] text-sm">/ {isYearly ? 'año' : 'mes'}</span>
+                    <span className="styles.colors.text.secondary text-sm">/ {isYearly ? 'año' : 'mes'}</span>
                   </div>
                   {isYearly && (
-                    <p className="text-xs text-[var(--theme-text-secondary)]">
+                    <p className="text-xs styles.colors.text.secondary">
                       {Math.round(yearlyMonthlyEquivalent)}€ / mes
                     </p>
                   )}
@@ -370,9 +370,9 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
           </div>
 
           {/* Features List */}
-          <Card className="bg-[#111b21] border-[#2a3942]">
+          <Card className="styles.colors.bg.secondary styles.colors.border.default">
             <CardHeader className="pb-3">
-              <CardTitle className="text-white text-base">Características incluidas</CardTitle>
+              <CardTitle className="styles.colors.text.primary text-base">Características incluidas</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <ul className="space-y-2">
@@ -380,8 +380,8 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
                   <li key={index} className="flex items-start gap-2">
                     <span className="text-lg">{feature.icon}</span>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-white">{feature.text}</p>
-                      <p className="text-xs text-[var(--theme-text-secondary)]">{feature.description}</p>
+                      <p className="text-sm font-semibold styles.colors.text.primary">{feature.text}</p>
+                      <p className="text-xs styles.colors.text.secondary">{feature.description}</p>
                     </div>
                   </li>
                 ))}
@@ -395,7 +395,7 @@ export function TeamUpgradeModal({ open, onOpenChange }: TeamUpgradeModalProps) 
             type="button"
             variant="outline"
             onClick={handleContactSales}
-            className="flex-1 border-[#2a3942] bg-[#2a3942] text-white hover:bg-purple-600 hover:border-purple-600"
+            className="flex-1 styles.colors.border.default styles.colors.bg.input styles.colors.text.primary hover:bg-purple-600 hover:border-purple-600"
           >
             Contacta con ventas
           </Button>

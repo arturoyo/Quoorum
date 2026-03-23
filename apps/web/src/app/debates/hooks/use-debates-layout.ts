@@ -5,17 +5,18 @@
  * Handles debates list, filtering, selection, and UI state.
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import { useParams, useRouter, usePathname } from 'next/navigation'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
+import { type debateStatusEnum } from '@quoorum/db/schema'
 
-type StatusFilter = 'all' | 'draft' | 'pending' | 'in_progress' | 'completed'
+type StatusFilter = 'all' | (typeof debateStatusEnum.enumValues)[number]
 
 export function useDebatesLayout() {
-  const params = useParams()
   const router = useRouter()
   const pathname = usePathname()
+  const hasInitializedSelection = useRef(false)
 
   // ═══════════════════════════════════════════════════════════
   // UI STATE
@@ -36,7 +37,7 @@ export function useDebatesLayout() {
   // ═══════════════════════════════════════════════════════════
   // DERIVED STATE
   // ═══════════════════════════════════════════════════════════
-  const selectedDebateId = params?.id as string | undefined
+  const [selectedDebateId, setSelectedDebateId] = useState<string | undefined>(undefined)
   const isDebateSelected = !!selectedDebateId
   // Only new-unified is the official route (others redirect here)
   const isNewDebate =
@@ -51,6 +52,26 @@ export function useDebatesLayout() {
   useEffect(() => {
     setIsLeftPanelCollapsed(isNewDebate)
   }, [isNewDebate])
+
+  // Initialize selection from route only once (e.g., /debates/:id)
+  useEffect(() => {
+    if (hasInitializedSelection.current) return
+    if (!pathname) return
+
+    const match = pathname.match(/^\/debates\/([^/]+)$/)
+    if (match && match[1] !== 'new-unified') {
+      setSelectedDebateId(match[1])
+    }
+
+    hasInitializedSelection.current = true
+  }, [pathname])
+
+  // Clear selection when creating a new debate
+  useEffect(() => {
+    if (isNewDebate && selectedDebateId) {
+      setSelectedDebateId(undefined)
+    }
+  }, [isNewDebate, selectedDebateId])
 
   // Load column width from localStorage
   useEffect(() => {
@@ -148,7 +169,8 @@ export function useDebatesLayout() {
     onSuccess: (_, variables) => {
       void utils.debates.list.invalidate()
       if (selectedDebateId === variables.id) {
-        router.push('/debates')
+        setSelectedDebateId(undefined)
+        router.replace('/debates')
       }
     },
   })
@@ -159,17 +181,14 @@ export function useDebatesLayout() {
 
   const handleDebateClick = useCallback(
     (debate: { id: string; status: string }) => {
-      if (debate.status === 'draft') {
-        router.push(`/debates/new-unified?draft=${debate.id}`)
-      } else {
-        router.push(`/debates/${debate.id}`)
-      }
+      setSelectedDebateId(debate.id)
+      router.replace(`/debates/${debate.id}`)
     },
     [router]
   )
 
   const handleNewDebate = useCallback(() => {
-    router.push('/debates/new-unified?new=1')
+    router.push('/debates/new-unified')
   }, [router])
 
   const handleClearSearch = useCallback(() => {
@@ -206,12 +225,16 @@ export function useDebatesLayout() {
       toast.success(
         `${selectedIds.length} debate${selectedIds.length > 1 ? 's' : ''} eliminado${selectedIds.length > 1 ? 's' : ''}`
       )
+      if (selectedDebateId && selectedIds.includes(selectedDebateId)) {
+        setSelectedDebateId(undefined)
+        router.replace('/debates')
+      }
       setSelectedDebates(new Set())
       setBulkDeleteDialogOpen(false)
     } catch {
       toast.error('Error al eliminar debates')
     }
-  }, [selectedDebates, deleteDebateMutation])
+  }, [selectedDebates, deleteDebateMutation, selectedDebateId, router])
 
   const toggleLeftPanel = useCallback(() => {
     setIsLeftPanelCollapsed(prev => !prev)

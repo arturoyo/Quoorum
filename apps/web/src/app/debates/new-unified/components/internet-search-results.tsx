@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import type { InternetSearchState } from '../types'
 
 interface InternetSearchResultsProps {
@@ -47,19 +47,19 @@ export function InternetSearchResults({
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 mb-4">
             <CheckCircle className="h-8 w-8 text-green-400" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)] mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold styles.colors.text.primary mb-2">
             Contexto de internet guardado
           </h2>
-          <p className="text-[var(--theme-text-tertiary)]">
+          <p className="styles.colors.text.tertiary">
             El contexto seleccionado está listo para usar. Puedes continuar o editar la selección.
           </p>
         </div>
 
-        <div className="bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded-lg p-6">
+        <div className="styles.colors.bg.secondary border styles.colors.border.default rounded-lg p-6">
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-[var(--theme-text-tertiary)] mb-3">Contexto preparado:</h3>
-            <div className="max-h-48 overflow-y-auto p-4 bg-[var(--theme-bg-primary)] rounded border border-[var(--theme-border)]">
-              <p className="text-sm text-[var(--theme-text-secondary)] whitespace-pre-wrap">
+            <h3 className="text-sm font-medium styles.colors.text.tertiary mb-3">Contexto preparado:</h3>
+            <div className="max-h-48 overflow-y-auto p-4 styles.colors.bg.primary rounded border styles.colors.border.default">
+              <p className="text-sm styles.colors.text.secondary whitespace-pre-wrap">
                 {internetSearch.context}
               </p>
             </div>
@@ -83,7 +83,7 @@ export function InternetSearchResults({
           <Button
             onClick={onEdit}
             variant="outline"
-            className="h-12 border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+            className="h-12 styles.colors.border.default styles.colors.bg.secondary styles.colors.text.primary hover:styles.colors.bg.tertiary"
           >
             <Edit2 className="mr-2 h-5 w-5" />
             Editar selección
@@ -91,7 +91,7 @@ export function InternetSearchResults({
           <Button
             onClick={onSkip}
             variant="ghost"
-            className="h-12 text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)]"
+            className="h-12 styles.colors.text.tertiary hover:styles.colors.text.primary"
           >
             <X className="mr-2 h-5 w-5" />
             Cancelar
@@ -109,7 +109,7 @@ export function InternetSearchResults({
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
           Resultados de búsqueda encontrados
         </h2>
-        <p className="text-[var(--theme-text-secondary)]">
+        <p className="styles.colors.text.secondary">
           Selecciona los resultados que quieres incluir o introduce un texto alternativo
         </p>
         {hasSelection && (
@@ -130,7 +130,7 @@ export function InternetSearchResults({
               "border transition-all cursor-pointer",
               result.selected
                 ? "bg-purple-500/10 border-purple-500/50"
-                : "bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] hover:border-purple-500/30"
+                : cn(styles.colors.bg.secondary, styles.colors.border.default, "hover:border-purple-500/30")
             )}
             onClick={() => onToggleResult(result.id)}
           >
@@ -142,7 +142,7 @@ export function InternetSearchResults({
                   className="mt-1"
                 />
                 <div className="flex-1">
-                  <CardTitle className="text-lg text-[var(--theme-text-primary)] flex items-center gap-2">
+                  <CardTitle className={cn("text-lg flex items-center gap-2", styles.colors.text.primary)}>
                     {result.title}
                     {result.url && (
                       <a
@@ -151,6 +151,8 @@ export function InternetSearchResults({
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
                         className="text-purple-400 hover:text-purple-300"
+                        title="Abrir fuente en nueva pestaña"
+                        aria-label="Abrir fuente en nueva pestaña"
                       >
                         <ExternalLink className="h-4 w-4" />
                       </a>
@@ -160,7 +162,7 @@ export function InternetSearchResults({
               </div>
             </CardHeader>
             <CardContent>
-              <CardDescription className="text-[var(--theme-text-secondary)] text-sm leading-relaxed">
+              <CardDescription className={cn("text-sm leading-relaxed", styles.colors.text.secondary)}>
                 {result.summary}
               </CardDescription>
             </CardContent>
@@ -170,7 +172,7 @@ export function InternetSearchResults({
 
       {/* Texto alternativo */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-[var(--theme-text-secondary)]">
+        <label className="text-sm font-medium styles.colors.text.secondary">
           O introduce un texto alternativo (opcional)
         </label>
         <Textarea
@@ -178,12 +180,12 @@ export function InternetSearchResults({
           onChange={(e) => onUpdateCustomText(e.target.value)}
           placeholder="Escribe aquí información adicional que quieras incluir en el contexto..."
           className={cn(
-            'min-h-[120px] bg-[var(--theme-bg-secondary)] border-[var(--theme-border)] text-[var(--theme-text-primary)]',
-            'placeholder:text-[var(--theme-text-tertiary)] focus-visible:ring-purple-500',
+            'min-h-[120px] styles.colors.bg.secondary styles.colors.border.default styles.colors.text.primary',
+            'placeholder:styles.colors.text.tertiary focus-visible:ring-purple-500',
             'focus-visible:border-purple-500 resize-y'
           )}
         />
-        <p className="text-xs text-[var(--theme-text-tertiary)]">
+        <p className="text-xs styles.colors.text.tertiary">
           Puedes combinar resultados seleccionados con tu propio texto
         </p>
       </div>
@@ -201,7 +203,7 @@ export function InternetSearchResults({
         <Button
           onClick={onSkip}
           variant="outline"
-          className="h-12 border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]"
+          className="h-12 styles.colors.border.default styles.colors.bg.secondary styles.colors.text.primary hover:styles.colors.bg.tertiary"
         >
           <X className="mr-2 h-5 w-5" />
           Continuar sin incluir

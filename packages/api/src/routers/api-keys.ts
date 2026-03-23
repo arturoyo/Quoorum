@@ -129,7 +129,7 @@ export const apiKeysRouter = router({
       // Soft delete
       await db
         .update(apiKeys)
-        .set({ revokedAt: new Date() })
+        .set({ deletedAt: new Date() })
         .where(eq(apiKeys.id, input.id));
 
       return { success: true };

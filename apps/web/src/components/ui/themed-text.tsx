@@ -13,7 +13,7 @@
  */
 
 import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 
 // ═══════════════════════════════════════════════════════════
 // Primary Text (Headings, Important Text)
@@ -29,8 +29,8 @@ const ThemedTextPrimary = forwardRef<HTMLElement, ThemedTextPrimaryProps>(
   ({ children, as: Component = 'p', className, ...props }, ref) => {
     return (
       <Component
-        ref={ref as React.Ref<HTMLParagraphElement>}
-        className={cn('text-[var(--theme-text-primary)]', className)}
+        ref={ref as unknown as React.Ref<any>}
+        className={cn(styles.colors.text.primary, className)}
         {...props}
       >
         {children}
@@ -55,8 +55,8 @@ const ThemedTextSecondary = forwardRef<HTMLElement, ThemedTextSecondaryProps>(
   ({ children, as: Component = 'p', className, ...props }, ref) => {
     return (
       <Component
-        ref={ref as React.Ref<HTMLParagraphElement>}
-        className={cn('text-[var(--theme-text-secondary)]', className)}
+        ref={ref as unknown as React.Ref<any>}
+        className={cn(styles.colors.text.secondary, className)}
         {...props}
       >
         {children}
@@ -81,8 +81,8 @@ const ThemedTextTertiary = forwardRef<HTMLElement, ThemedTextTertiaryProps>(
   ({ children, as: Component = 'p', className, ...props }, ref) => {
     return (
       <Component
-        ref={ref as React.Ref<HTMLParagraphElement>}
-        className={cn('text-[var(--theme-text-tertiary)]', className)}
+        ref={ref as unknown as React.Ref<any>}
+        className={cn(styles.colors.text.tertiary, className)}
         {...props}
       >
         {children}
@@ -107,8 +107,8 @@ const ThemedTextMuted = forwardRef<HTMLElement, ThemedTextMutedProps>(
   ({ children, as: Component = 'p', className, ...props }, ref) => {
     return (
       <Component
-        ref={ref as React.Ref<HTMLParagraphElement>}
-        className={cn('text-[var(--theme-text-muted)]', className)}
+        ref={ref as unknown as React.Ref<any>}
+        className={cn(styles.colors.text.muted, className)}
         {...props}
       >
         {children}

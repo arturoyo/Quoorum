@@ -24,7 +24,7 @@ try {
   // Only initialize if we have a non-empty secret key
   if (env.STRIPE_SECRET_KEY && env.STRIPE_SECRET_KEY.trim().length > 0) {
     stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2024-12-18.acacia' as any,
     })
     logger.info('Stripe client initialized successfully')
   } else {
@@ -318,6 +318,10 @@ export const billingRouter = router({
     // Find closest pack (round up to nearest available pack)
     const closestPack = availablePacks.find((pack) => pack >= requestedCredits) || availablePacks[availablePacks.length - 1]
     
+    if (!closestPack) {
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'No credit pack available' })
+    }
+    
     // Calculate price using formula
     const priceInCents = calculatePriceFromCredits(closestPack)
     
@@ -565,7 +569,7 @@ export const billingRouter = router({
     const { addCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
     const result = await addCredits(
       ctx.userId,
-      dailyCredits,
+      dailyCredits as number,
       undefined, // No hay subscriptionId para créditos diarios
       'daily_reset',
       `Créditos diarios de actualización (${ctx.user.tier} tier)`
@@ -650,7 +654,7 @@ export const billingRouter = router({
           const { addCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
           const result = await addCredits(
             usersId, // Use users.id, not profile.id
-            dailyCredits,
+            dailyCredits as number,
             undefined,
             'daily_reset',
             `Créditos diarios de actualización (${ctx.user.tier} tier)`
@@ -1087,7 +1091,7 @@ async function handleCreditPurchase(session: Stripe.Checkout.Session) {
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
-  const userId = invoice.subscription_details?.metadata?.userId
+  const userId = (invoice as any).metadata?.userId || (invoice as any).subscription_details?.metadata?.userId
 
   if (!userId) {
     logger.warn('Webhook invoice missing userId', {})
@@ -1181,8 +1185,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     .update(subscriptions)
     .set({
       status: status as any,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       updatedAt: new Date(),
     })

@@ -5,9 +5,9 @@
  */
 
 import { useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { api } from '@/lib/trpc/client'
-import { cn } from '@/lib/utils'
+import { cn, styles } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Badge } from '@/components/ui/badge'
@@ -62,8 +62,6 @@ export function DebateListItem({
   onToggleSelect,
 }: DebateListItemProps) {
   const router = useRouter()
-  const params = useParams()
-  const selectedDebateId = params?.id as string | undefined
 
   const [isHovered, setIsHovered] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -81,7 +79,7 @@ export function DebateListItem({
   const deleteDebateMutation = api.debates.delete.useMutation({
     onSuccess: (_, variables) => {
       void utils.debates.list.invalidate()
-      if (selectedDebateId === variables.id) {
+      if (isSelected && debate.id === variables.id) {
         router.push('/debates')
       }
     },
@@ -137,10 +135,10 @@ export function DebateListItem({
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       className={cn(
-        'relative w-full border-b border-[#2a3942] p-4 transition-all cursor-pointer group min-h-20',
+        'relative w-full border-b styles.colors.border.default p-4 transition-all cursor-pointer group min-h-20',
         isSelected
           ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-l-4 border-l-purple-500 shadow-lg shadow-purple-500/10'
-          : 'hover:bg-[#2a3942]'
+          : 'hover:bg-[var(--theme-bg-input)]'
       )}
     >
       {/* Icon/Checkbox */}
@@ -151,10 +149,15 @@ export function DebateListItem({
         {(isHovered || showCheckbox || isCheckboxSelected) ? (
           <Checkbox
             checked={isCheckboxSelected}
-            className="h-6 w-6 border-2 border-[#aebac1]/60 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 hover:border-purple-500"
+            className={cn(
+              'h-6 w-6 border-2',
+              'border-[var(--theme-text-secondary)]/60',
+              'data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600',
+              'hover:border-purple-500'
+            )}
           />
         ) : (
-          <ContextualIcon className="h-6 w-6 text-[#aebac1]" />
+          <ContextualIcon className="h-6 w-6 styles.colors.text.secondary" />
         )}
       </div>
 
@@ -166,7 +169,13 @@ export function DebateListItem({
                 type="text"
                 value={editedTitle}
                 onChange={(e) => setEditedTitle(e.target.value)}
-                className="flex-1 bg-[#374047] text-white text-sm px-2 py-1 rounded border border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className={cn(
+                  'flex-1 text-sm px-2 py-1 rounded border focus:outline-none focus:ring-1 focus:ring-blue-500',
+                  styles.colors.bg.tertiary,
+                  styles.colors.text.primary,
+                  'border-blue-500'
+                )}
+                aria-label="Editar título del debate"
                 autoFocus
                 onBlur={(e) => handleCancel(e as unknown as React.MouseEvent)}
                 onKeyDown={(e) => {
@@ -184,7 +193,7 @@ export function DebateListItem({
           )}
             <div className="mt-1 flex items-center gap-2">
             <span className={cn('h-2 w-2 rounded-full', statusColors[debate.status as keyof typeof statusColors])} />
-            <span className="text-xs text-[#aebac1]">
+            <span className="text-xs styles.colors.text.secondary">
               {statusLabels[debate.status as keyof typeof statusLabels]}
             </span>
               {debate.metadata?.scenarioId && (
@@ -200,21 +209,21 @@ export function DebateListItem({
             <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={handleEdit}
-                className="p-1.5 rounded hover:bg-[#374047] text-[#aebac1] hover:text-blue-400 transition-colors"
+                className="p-1.5 rounded hover:bg-[#374047] styles.colors.text.secondary hover:text-blue-400 transition-colors"
                 title="Editar nombre"
               >
                 <Pencil className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={handleDelete}
-                className="p-1.5 rounded hover:bg-[#374047] text-[#aebac1] hover:text-red-400 transition-colors"
+                className="p-1.5 rounded hover:bg-[#374047] styles.colors.text.secondary hover:text-red-400 transition-colors"
                 title="Eliminar debate"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             </div>
           )}
-          <span className="text-xs text-[#aebac1]">
+          <span className="text-xs styles.colors.text.secondary">
             {new Date(debate.createdAt).toLocaleString('es-ES', {
               day: '2-digit',
               month: '2-digit',

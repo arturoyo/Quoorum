@@ -165,7 +165,7 @@ export async function compressInput(context: string): Promise<string> {
     const compressionPrompt = INPUT_COMPRESSION_PROMPT + '\n\n' + context
 
     const response = await client.generate(compressionPrompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       temperature: 0.1,
       maxTokens: Math.min(estimatedTokens, 500),
     })
@@ -209,7 +209,7 @@ export async function decompressOutput(compressedMessage: string): Promise<strin
     const translationPrompt = TRANSLATION_PROMPT + '\n\n' + compressedMessage
 
     const response = await client.generate(translationPrompt, {
-      modelId: 'gemini-2.0-flash-exp',
+      modelId: 'gemini-2.0-flash',
       temperature: 0.3,
       maxTokens: 500,
     })

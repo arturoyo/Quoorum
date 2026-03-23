@@ -2,13 +2,13 @@
 # Monitors logs and automatically fixes common issues
 
 param(
-    [int]$CheckInterval = 10, # seconds
+    [int]$CheckInterval = [EMOJI]0, # seconds
     [switch]$AutoFix = $false
 )
 
 $ErrorActionPreference = "Continue"
 
-Write-Host "🤖 Smart Dev Monitor" -ForegroundColor Cyan
+Write-Host "[EMOJI][EMOJI][EMOJI][EMOJI] Smart Dev Monitor" -ForegroundColor Cyan
 Write-Host ("=" * 70) -ForegroundColor DarkGray
 Write-Host "   Auto-detection: [OK] Enabled" -ForegroundColor Green
 Write-Host "   Auto-fix: $(if ($AutoFix) { '[OK] Enabled' } else { '[ERROR] Disabled (use -AutoFix)' })" -ForegroundColor $(if ($AutoFix) { 'Green' } else { 'Yellow' })
@@ -17,17 +17,17 @@ Write-Host "   Check interval: ${CheckInterval}s`n" -ForegroundColor Gray
 $TerminalDir = "$env:USERPROFILE\.cursor\projects\c-Quoorum\terminals"
 $LastErrorCount = 0
 $FixAttempts = 0
-$MaxFixAttempts = 3
+$MaxFixAttempts = [EMOJI]
 
 while ($true) {
     try {
         # Get latest log
         $LatestLog = Get-ChildItem -Path $TerminalDir -Filter "*.txt" -ErrorAction SilentlyContinue | 
             Sort-Object LastWriteTime -Descending | 
-            Select-Object -First 1
+            Select-Object -First [EMOJI]
         
         if (-not $LatestLog) {
-            Write-Host "⏳ Waiting for dev server to start..." -ForegroundColor Yellow
+            Write-Host "[EMOJI][EMOJI]� Waiting for dev server to start..." -ForegroundColor Yellow
             Start-Sleep -Seconds $CheckInterval
             continue
         }
@@ -62,18 +62,18 @@ while ($true) {
             Write-Host ("=" * 70) -ForegroundColor DarkGray
             
             # Show error summary
-            & "$PSScriptRoot\check-dev-errors.ps1" | Out-Null
+            & "$PSScriptRoot\check-dev-errors.ps[EMOJI]" | Out-Null
             
             # Auto-fix if enabled
             if ($AutoFix -and $FixAttempts -lt $MaxFixAttempts) {
-                Write-Host "`n🔧 Attempting auto-fix..." -ForegroundColor Cyan
+                Write-Host "`n[EMOJI][EMOJI][EMOJI][EMOJI] Attempting auto-fix..." -ForegroundColor Cyan
                 $FixAttempts++
                 
-                $FixOutput = & "$PSScriptRoot\auto-fix-dev-errors.ps1" 2>&1
+                $FixOutput = & "$PSScriptRoot\auto-fix-dev-errors.ps[EMOJI]" [EMOJI]>&[EMOJI]
                 Write-Host $FixOutput
                 
                 # Wait a bit for fixes to take effect
-                Start-Sleep -Seconds 5
+                Start-Sleep -Seconds [EMOJI]
                 
                 # Re-check
                 $Content = Get-Content $LatestLog.FullName -Raw -ErrorAction SilentlyContinue

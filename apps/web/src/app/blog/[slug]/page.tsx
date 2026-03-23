@@ -1,4 +1,4 @@
-import { type Metadata } from "next";
+﻿import { type Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -11,7 +11,7 @@ import {
   Linkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/components/layout";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { blogPosts, getBlogPost, getRelatedPosts } from "../data";
 
@@ -118,6 +118,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://quoorum.com/blog/${post.slug}`)}`}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Compartir en X (Twitter)"
+              title="Compartir en X (Twitter)"
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[var(--theme-text-secondary)] hover:text-white hover:bg-white/10 transition-colors"
             >
               <Twitter className="w-4 h-4" />
@@ -126,6 +128,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://quoorum.com/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Compartir en LinkedIn"
+              title="Compartir en LinkedIn"
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[var(--theme-text-secondary)] hover:text-white hover:bg-white/10 transition-colors"
             >
               <Linkedin className="w-4 h-4" />
@@ -139,6 +143,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   });
                 }
               }}
+              aria-label="Compartir"
+              title="Compartir"
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[var(--theme-text-secondary)] hover:text-white hover:bg-white/10 transition-colors"
             >
               <Share2 className="w-4 h-4" />

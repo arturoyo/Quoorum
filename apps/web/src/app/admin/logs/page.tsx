@@ -20,10 +20,10 @@ export default function LogsPage() {
   }, [router])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0b141a]">
+    <div className="flex min-h-screen items-center justify-center styles.colors.bg.primary">
       <div className="text-center">
         <Loader2 className="w-8 h-8 text-purple-500 animate-spin mx-auto mb-4" />
-        <p className="text-[#aebac1]">Redirigiendo a Logs del Sistema...</p>
+        <p className="styles.colors.text.secondary">Redirigiendo a Logs del Sistema...</p>
       </div>
     </div>
   )
