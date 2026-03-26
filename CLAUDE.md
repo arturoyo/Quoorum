@@ -8,22 +8,22 @@
 
 ## 🚨 ANTES DE EMPEZAR - LECTURA OBLIGATORIA
 
+**Estado real del sistema documental:** este repo conserva referencias legacy a módulos que ya no están presentes. La fuente de verdad actual es este archivo más los documentos existentes en `docs/claude/`.
+
 **⚡ NUNCA empieces a codear sin leer esto primero:**
 
 ```
-1. Lee CLAUDE-CORE.md COMPLETO (5 min)
-   └─ Contiene las 10 reglas más críticas que DEBES conocer
+1. Lee este CLAUDE.md hasta la tabla de módulos (5 min)
+   └─ Resume las reglas y el estado operativo real del repo
 
 2. Lee ERRORES-COMETIDOS.md (10 min)
    └─ Errores históricos que NO debes repetir
 
-3. Según tu tarea, lee el módulo relevante (3-5 min)
+3. Según tu tarea, lee SOLO los módulos existentes en docs/claude/ (3-5 min)
    └─ Ver tabla de módulos abajo
 ```
 
-**🚨 Si no lees CLAUDE-CORE.md primero, cometerás errores críticos que ya están documentados.**
-
-**👉 EMPIEZA AQUÍ:** [CLAUDE-CORE.md](./CLAUDE-CORE.md) ← ⭐ **LEE ESTO PRIMERO** (5 min)
+**👉 EMPIEZA AQUÍ:** [docs/claude/INDEX.md](./docs/claude/INDEX.md) ← índice real de módulos existentes
 
 ---
 
@@ -33,21 +33,12 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 
 | # | Módulo | Propósito | Tiempo | Link |
 |---|--------|-----------|--------|------|
-| 00 | **CLAUDE-CORE** | ⭐ **Top 10 reglas críticas (INICIO OBLIGATORIO)** | 5 min | [CLAUDE-CORE.md](./CLAUDE-CORE.md) |
-| 01 | **Startup Protocol** | Protocolo de inicio obligatorio | 3 min | [01-startup-protocol.md](./docs/claude/01-startup-protocol.md) |
+| 00 | **Este CLAUDE.md** | ⭐ Resumen operativo actual del repo | 5 min | [CLAUDE.md](./CLAUDE.md) |
 | 02 | **Checkpoint Protocol** | Qué verificar antes de cada acción | 5 min | [02-checkpoint-protocol.md](./docs/claude/02-checkpoint-protocol.md) |
-| 03 | **Database** | PostgreSQL local, arquitectura híbrida | 10 min | [03-database.md](./docs/claude/03-database.md) |
 | 04 | **Rules** | Reglas inviolables de desarrollo | 15 min | [04-rules.md](./docs/claude/04-rules.md) |
 | 05 | **Patterns** | Patrones obligatorios (tRPC, Drizzle, etc.) | 20 min | [05-patterns.md](./docs/claude/05-patterns.md) |
-| 06 | **Prohibitions** | Prohibiciones absolutas (28 cosas que NUNCA hacer) | 10 min | [06-prohibitions.md](./docs/claude/06-prohibitions.md) |
-| 07 | **Stack** | Stack tecnológico y librerías aprobadas | 10 min | [07-stack.md](./docs/claude/07-stack.md) |
-| 08 | **Design System** | Paleta de colores, componentes UI, UX | 15 min | [08-design-system.md](./docs/claude/08-design-system.md) |
-| 09 | **Testing** | Estructura de tests, coverage mínimo | 10 min | [09-testing.md](./docs/claude/09-testing.md) |
-| 10 | **Security** | Checklist de seguridad obligatorio | 10 min | [10-security.md](./docs/claude/10-security.md) |
-| 11 | **FAQ** | Comandos útiles, troubleshooting, CI/CD | 5 min | [11-faq.md](./docs/claude/11-faq.md) |
-| 12 | **AI Systems** | Rate limiting, fallback, cost tracking para IA | 15 min | [12-ai-systems.md](./docs/claude/12-ai-systems.md) |
 
-**📖 Navegación:** Ver [docs/claude/INDEX.md](./docs/claude/INDEX.md) para mapa completo del sistema de documentación.
+**📖 Navegación:** Ver [docs/claude/INDEX.md](./docs/claude/INDEX.md) para el mapa actual. Si una ruta no existe, la referencia es legacy y no debe tratarse como fuente de verdad.
 
 ---
 
@@ -57,33 +48,15 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 
 | Keyword | Dónde encontrarlo |
 |---------|-------------------|
-| **Emojis en código (PROHIBIDO)** | [CLAUDE-CORE.md#regla-0](./CLAUDE-CORE.md) - ⚠️ CRÍTICO |
+| **Emojis en código (PROHIBIDO)** | [ERRORES-COMETIDOS.md](./ERRORES-COMETIDOS.md) - ⚠️ CRÍTICO |
 | **tRPC router pattern** | [05-patterns.md#trpc-router-pattern](./docs/claude/05-patterns.md) |
 | **React hooks rules** | [04-rules.md#react-hooks](./docs/claude/04-rules.md) |
-| **userId security filtering** | [10-security.md#userid-filtering](./docs/claude/10-security.md) |
-| **Database queries** | [03-database.md](./docs/claude/03-database.md) |
-| **Supabase vs PostgreSQL** | [03-database.md#arquitectura-hibrida](./docs/claude/03-database.md) |
+| **userId security filtering** | [05-patterns.md#trpc-router-pattern](./docs/claude/05-patterns.md) |
 | **Zod validation** | [05-patterns.md#validacion-zod](./docs/claude/05-patterns.md) |
 | **Drizzle ORM** | [05-patterns.md#schema-drizzle-pattern](./docs/claude/05-patterns.md) |
 | **Type inference from DB enums** | [05-patterns.md#type-inference](./docs/claude/05-patterns.md) - Rule #23 |
-| **Tests unitarios** | [09-testing.md](./docs/claude/09-testing.md) |
-| **Tests E2E (Playwright)** | [09-testing.md#tests-e2e](./docs/claude/09-testing.md) |
-| **Paleta de colores** | [08-design-system.md](./docs/claude/08-design-system.md) |
-| **Variables CSS de tema** | [08-design-system.md#variables-css](./docs/claude/08-design-system.md) |
-| **Prohibiciones absolutas** | [06-prohibitions.md](./docs/claude/06-prohibitions.md) |
-| **Estructura de archivos** | [01-startup-protocol.md#estructura-archivos](./docs/claude/01-startup-protocol.md) |
-| **Pre-commit checklist** | [11-faq.md#checklist-pre-commit](./docs/claude/11-faq.md) |
-| **Git restore from production** | [10-security.md#git-restore](./docs/claude/10-security.md) |
-| **AI rate limiting** | [12-ai-systems.md](./docs/claude/12-ai-systems.md) |
-| **AI fallback chains** | [12-ai-systems.md#fallback-chains](./docs/claude/12-ai-systems.md) |
 | **Landing page components** | [04-rules.md#landing-page](./docs/claude/04-rules.md) |
 | **Dashboard structure** | [04-rules.md#dashboard](./docs/claude/04-rules.md) |
-| **Imports duplicados** | [06-prohibitions.md#imports-duplicados](./docs/claude/06-prohibitions.md) |
-| **Foreign key violations** | [03-database.md#foreign-key-violations](./docs/claude/03-database.md) |
-| **ENV variables** | [10-security.md#env-variables](./docs/claude/10-security.md) |
-| **Monorepo structure** | [01-startup-protocol.md#monorepo-structure](./docs/claude/01-startup-protocol.md) |
-| **CI/CD (Vercel)** | [11-faq.md#cicd](./docs/claude/11-faq.md) |
-| **pnpm commands** | [11-faq.md#comandos-utiles](./docs/claude/11-faq.md) |
 | **Pre-commit untracked files** | Scripts automáticos detectan archivos sin trackear |
 
 **💡 TIP:** Usa la herramienta `Grep` para buscar cualquier keyword en este archivo o en módulos específicos.
@@ -98,23 +71,56 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 |---------------------------|------------------------|------------------|
 | **ANTES de empezar el día** | **`pnpm preflight`** | ⚡ Ejecutar PRE-FLIGHT CHECKS (2 min) |
 | **CUALQUIER cambio de código** | **[ERRORES-COMETIDOS.md](./ERRORES-COMETIDOS.md)** | ⚠️ ¿Ya cometimos este error antes? |
-| **Usar herramienta `Bash`** | [CLAUDE-CORE.md#regla-0](./CLAUDE-CORE.md) | ¿Contiene grep/sed/awk/cat/find? → Usar herramienta dedicada |
+| **Usar herramienta `Bash`** | [ERRORES-COMETIDOS.md](./ERRORES-COMETIDOS.md) | ¿Contiene grep/sed/awk/cat/find? → Revisa errores históricos antes |
 | **Modificar landing page** | [04-rules.md#landing-page](./docs/claude/04-rules.md) | ⚠️ Solo componentes oficiales |
 | **Modificar dashboard** | [04-rules.md#dashboard](./docs/claude/04-rules.md) | ⚠️ ÚNICO archivo - PointsWidget obligatorio |
-| **Restaurar desde producción** | [10-security.md#git-restore](./docs/claude/10-security.md) | ⚠️ `git checkout main --` |
-| **Crear nuevo archivo .tsx** | [01-startup-protocol.md#index-md](./docs/claude/01-startup-protocol.md) | ⚠️ CONSULTAR INDEX.md primero |
+| **Crear nuevo archivo .tsx** | [docs/claude/INDEX.md](./docs/claude/INDEX.md) | ⚠️ CONSULTAR módulos existentes primero |
 | **Escribir componente React** | [04-rules.md#react-hooks](./docs/claude/04-rules.md) | ⚠️ Hooks ANTES de early returns |
 | **Crear tRPC router** | [05-patterns.md#trpc-router-pattern](./docs/claude/05-patterns.md) | Validación Zod + filtro userId |
 | **Crear schema DB** | [05-patterns.md#schema-drizzle-pattern](./docs/claude/05-patterns.md) | Timestamps + relations + types |
-| **Hacer query a DB** | [10-security.md#userid-filtering](./docs/claude/10-security.md) | ¿Filtra por `userId`? |
-| **Modificar cualquier UI** | [08-design-system.md](./docs/claude/08-design-system.md) | ⚠️ Paleta oficial? Variables CSS? Verificar dark mode |
-| **Hacer commit** | [11-faq.md#checklist-pre-commit](./docs/claude/11-faq.md) | TypeCheck + Lint + Tests |
-| **Usar procedimiento tRPC** | [06-prohibitions.md#procedimientos-trpc](./docs/claude/06-prohibitions.md) | ⚠️ ¿El procedimiento existe en el router? |
-| **Importar componente/icono** | [06-prohibitions.md#imports-duplicados](./docs/claude/06-prohibitions.md) | ⚠️ ¿Ya existe import con este nombre? |
+| **Hacer commit** | [docs/claude/INDEX.md](./docs/claude/INDEX.md) | TypeCheck + Lint + Tests y validar estado real |
 | **Crear type/enum** | [05-patterns.md#type-inference](./docs/claude/05-patterns.md) | ⚠️ ¿Ya existe en DB? Inferir en lugar de duplicar |
 | **Silenciar tipo de error** | [05-patterns.md#error-handling](./docs/claude/05-patterns.md) | ⚠️ Actualizar AMBAS capas (console.error + React Query) o usar `silenced-error-types.ts` |
 
 **📖 Ver tabla completa:** [02-checkpoint-protocol.md](./docs/claude/02-checkpoint-protocol.md)
+
+---
+
+## ARQUITECTURA — Base de Datos e Infraestructura
+
+**Modelo híbrido:**
+- **Supabase** → Autenticación de usuarios (Auth)
+- **PostgreSQL** → Datos de negocio (debates, roadmap, profiles, etc.)
+
+**Entornos:**
+| Entorno | PostgreSQL | Auth |
+|---------|-----------|------|
+| Local (dev) | Docker container `quoorum-postgres` (compose en raíz) | Supabase client |
+| Producción | Pendiente: Supabase PostgreSQL remoto o PostgreSQL dedicado | Supabase client |
+
+**Variables críticas (`.env` / `.env.local`):**
+```
+DATABASE_URL=postgresql://postgres:password@localhost:5432/forum   # Local
+# Para producción usar la connection string de Supabase o DB remota
+```
+
+**Deploy:**
+- **Plataforma:** Vercel (Next.js)
+- **Config:** `vercel.json` en raíz
+- **CLI:** `npx vercel` (requiere `vercel login` previo — interactivo)
+- **Build:** `turbo build --filter=@quoorum/web`
+- **Estado actual:** No desplegado. Falta vincular proyecto y configurar env vars en Vercel dashboard.
+
+**Panel Admin:**
+- Ruta: `/admin/*` (requiere rol admin via Supabase Auth)
+- Páginas: Dashboard, Billing, Logs, Users, Prompts, Scenarios, **Roadmap** (nuevo, 26 Mar 2026)
+- Roadmap admin requiere migración DB: `pnpm db:generate && pnpm db:migrate` + seed `scripts/seed-roadmap.sql`
+
+**Estado real del typecheck (26 Mar 2026):**
+- `@quoorum/quoorum` — 0 errores (33 arreglados)
+- `@quoorum/db` — 0 errores
+- `@quoorum/api` — 270 errores pre-existentes (no bloqueantes para build Next.js)
+- Tests: 339 passing / 52 failing (integration tests requieren DB corriendo)
 
 ---
 
@@ -142,19 +148,11 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 
 | Métrica | Valor |
 |---------|-------|
-| **LOC Total** | 266,202 líneas |
-| **Packages** | 14 packages en monorepo |
-| **tRPC Procedures** | 85 routers, 836 procedures |
-| **DB Schemas** | 69 schemas (27 activos, 42 históricos) |
-| **React Components** | 304 componentes |
-| **AI Agents** | 22 agentes (4 debate + 18 expertos) |
-| **Expert Database** | 80+ expertos en 5 categorías |
-| **Tests Unitarios** | 328 passing (369 total) |
-| **Tests E2E** | 29 archivos Playwright |
-| **Test Coverage** | 80-100% en módulos core |
-| **Deuda Técnica** | ✅ 0 (`any` types eliminados, config centralizada) |
-| **Build Status** | ✅ Clean (0 type errors) |
-| **CI/CD** | Vercel (GitHub Actions NO usado por costos) |
+| **Estado documental** | Parcial | Este índice fue corregido para reflejar solo módulos existentes |
+| **Repo** | Limpio | `git status` vacío durante la auditoría |
+| **Tests** | No verde | `pnpm test` falló durante la auditoría |
+| **Typecheck** | No verde | `pnpm typecheck` falló en `@quoorum/api` |
+| **CI/CD** | Vercel | GitHub Actions no está configurado en este repo |
 
 **📖 Ver detalles:** [SYSTEM.md](./SYSTEM.md) y [PHASES.md](./PHASES.md)
 
@@ -220,12 +218,9 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 
 - **Reducción masiva:** CLAUDE.md de 184KB → 40KB (-78%)
 - **Eliminación redundancia:** De 40% a 5%
-- **Sistema modular:** 12 módulos especializados
+- **Sistema modular:** la versión original se dividió en módulos especializados
 - **Navegación mejorada:** Índice maestro con búsqueda rápida
-- **Nuevos módulos:**
-  - 12-ai-systems.md (AI Rate Limiting & Fallback)
-  - Estructura de archivos añadida a 01-startup-protocol.md
-  - CI/CD y Checklist Pre-Commit añadidos a 11-faq.md
+- **Nota de auditoría 2026-03:** parte de los módulos históricos ya no existe en `docs/claude/`; usa solo rutas presentes en el repo
 
 **Beneficios:**
 - ✅ Más fácil de mantener (cambiar info una sola vez)
@@ -267,14 +262,14 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 ### Documentación modular:
 
 - **[docs/claude/INDEX.md](./docs/claude/INDEX.md)** - Mapa completo de módulos
-- **[docs/claude/](./docs/claude/)** - Directorio con 12 módulos especializados
+- **[docs/claude/](./docs/claude/)** - Directorio con los módulos especializados actualmente versionados
 
 ---
 
 ## 🎯 FLUJO DE TRABAJO RECOMENDADO
 
 ```
-1. Leo CLAUDE-CORE.md (5 min) ✅ Ahora
+1. Leo CLAUDE.md + docs/claude/INDEX.md (5 min) ✅ Ahora
    ↓
 2. Leo ERRORES-COMETIDOS.md (10 min) ⚠️ CRÍTICO
    ↓
