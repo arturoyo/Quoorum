@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: quoorum
     ports:
-      - "5433:5432"  # Puerto 5433 para no conflictuar con jarkis
+      - "5434:5432"  # Puerto 5434 para no conflictuar con otros proyectos del host
     volumes:
       - quoorum_postgres_data:/var/lib/postgresql/data
     healthcheck:

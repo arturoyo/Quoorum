@@ -38,7 +38,7 @@ pnpm db:studio
 
 ```bash
 # 1. Conectar a PostgreSQL
-psql -h localhost -p 5433 -U postgres -d quoorum
+psql -h localhost -p 5434 -U postgres -d quoorum
 
 # 2. Ejecutar la migración
 \i packages/db/drizzle/0037_add_pricing_config.sql

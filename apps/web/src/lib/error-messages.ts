@@ -59,7 +59,7 @@ function formatTechnicalError(message: string): string {
   }
 
   // Errores de base de datos
-  if (message.includes('database') || message.includes('ECONNREFUSED :5433')) {
+  if (message.includes('database') || message.includes('ECONNREFUSED :5434')) {
     return 'Error de base de datos. Por favor, contacta con soporte.'
   }
 

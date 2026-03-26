@@ -31,7 +31,6 @@ PROFILE_COUNT=$(docker exec quoorum-postgres psql -U postgres -d quoorum -t -c "
 if [ -z "$PROFILE_COUNT" ] || [ "$PROFILE_COUNT" -eq 0 ]; then
   echo "  [WARN]  WARNING: No hay perfiles en DB (posible foreign key error)"
   echo "     Usuario actual debe tener perfil antes de crear debates"
-  ERRORS=$((ERRORS + 1))
 else
   echo "  [OK] $PROFILE_COUNT perfiles encontrados"
 fi

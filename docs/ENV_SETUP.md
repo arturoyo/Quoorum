@@ -36,7 +36,7 @@ Edita `.env.local` y configura al menos estas variables:
 
 ```env
 # 🔴 CRÍTICAS (Requeridas)
-DATABASE_URL="postgresql://user:password@localhost:5432/quoorum"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5434/quoorum"
 NEXT_PUBLIC_SUPABASE_URL="https://xxx.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJ..."
 OPENAI_API_KEY="sk-..."

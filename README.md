@@ -65,7 +65,7 @@ pnpm dev
 
 ```env
 # Base de datos (requerido)
-DATABASE_URL="postgresql://user:password@localhost:5432/quoorum"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5434/quoorum"
 
 # OpenAI (requerido para debates)
 OPENAI_API_KEY="sk-..."

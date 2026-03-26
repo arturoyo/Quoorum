@@ -99,8 +99,8 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | Producción | Pendiente: Supabase PostgreSQL remoto o PostgreSQL dedicado | Supabase client |
 
 **Variables críticas (`.env` / `.env.local`):**
-```
-DATABASE_URL=postgresql://postgres:password@localhost:5432/forum   # Local
+``` 
+DATABASE_URL=postgresql://postgres:postgres@localhost:5434/quoorum   # Local
 # Para producción usar la connection string de Supabase o DB remota
 ```
 

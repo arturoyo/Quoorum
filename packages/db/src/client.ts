@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema/index";
 
-const connectionString = process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5433/quoorum";
+const connectionString = process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5434/quoorum";
 
 // #region agent log
 fetch('http://127.0.0.1:7242/ingest/904a4f4c-b744-40dc-870a-654c1b1871a1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'packages/db/src/client.ts:5',message:'DB client init - DATABASE_URL check',data:{hasEnvVar:!!process.env.DATABASE_URL,connectionString:connectionString.replace(/:[^:@]+@/,':****@'),fallbackUsed:!process.env.DATABASE_URL},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});

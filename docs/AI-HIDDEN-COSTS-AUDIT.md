@@ -215,7 +215,7 @@ GROUP BY user_id, operation_type, provider, date
 
 ### Fase 1: Aplicar Migración ✅
 ```bash
-psql "postgresql://postgres:postgres@localhost:5433/quoorum" \
+psql "postgresql://postgres:postgres@localhost:5434/quoorum" \
   -f "packages/db/drizzle/0038_add_ai_cost_tracking.sql"
 ```
 

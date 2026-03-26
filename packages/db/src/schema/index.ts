@@ -34,7 +34,7 @@ export type { NewProfile, Profile } from "./profiles";
 export { rounds } from "./rounds";
 export type { NewRound, Round, RoundStatus } from "./rounds";
 
-export { users } from "./users";
+export { users, userTierEnum } from "./users";
 export type { NewUser, User } from "./users";
 
 export { votes } from "./votes";
