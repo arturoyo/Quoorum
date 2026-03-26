@@ -130,6 +130,13 @@ export interface FinalSynthesisResult {
   model: string
 }
 
+interface SynthesisAIResponse {
+  text: string
+  usage?: {
+    totalTokens: number
+  }
+}
+
 export async function generateFinalSynthesis(
   sessionId: string,
   question: string,
@@ -169,7 +176,7 @@ export async function generateFinalSynthesis(
       modelId,
       temperature: 0.2, // Baja temperatura para precisión
       maxTokens: 2000,
-    })
+    }) as SynthesisAIResponse
 
     // Parse JSON response
     const synthesisText = response.text.trim()

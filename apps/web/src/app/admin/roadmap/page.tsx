@@ -39,6 +39,11 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
+import type {
+  RoadmapCategory,
+  RoadmapPriority,
+  RoadmapStatus,
+} from "@quoorum/db/schema"
 import {
   MapPin,
   Plus,
@@ -50,14 +55,6 @@ import {
   AlertTriangle,
   Target,
 } from "lucide-react"
-
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-
-type RoadmapStatus = "planned" | "in_progress" | "completed" | "blocked"
-type RoadmapPriority = "low" | "medium" | "high" | "critical"
-type RoadmapCategory = "feature" | "bugfix" | "infra" | "docs"
 
 const PRIORITY_COLORS: Record<RoadmapPriority, string> = {
   critical: "bg-red-500/20 text-red-300 border-red-500/30",

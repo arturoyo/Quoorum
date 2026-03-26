@@ -9,8 +9,10 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useParams, useRouter, usePathname } from 'next/navigation'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
+import type { debateStatusEnum } from '@quoorum/db/schema'
 
-type StatusFilter = 'all' | 'draft' | 'pending' | 'in_progress' | 'completed'
+type DebateStatus = (typeof debateStatusEnum.enumValues)[number]
+type StatusFilter = 'all' | DebateStatus
 
 export function useDebatesLayout() {
   const params = useParams()
@@ -125,7 +127,12 @@ export function useDebatesLayout() {
 
     // Sort: draft > in_progress > pending > completed
     filtered.sort((a, b) => {
-      const statusOrder = { draft: 0, in_progress: 1, pending: 2, completed: 3 }
+      const statusOrder: Partial<Record<DebateStatus, number>> = {
+        draft: 0,
+        in_progress: 1,
+        pending: 2,
+        completed: 3,
+      }
       const orderA = statusOrder[a.status as keyof typeof statusOrder] ?? 4
       const orderB = statusOrder[b.status as keyof typeof statusOrder] ?? 4
 

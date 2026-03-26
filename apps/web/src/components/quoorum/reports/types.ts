@@ -5,7 +5,7 @@
  */
 
 import { CheckCircle, Loader2, AlertCircle, Clock, FileText } from 'lucide-react'
-import type { quoorumReportTypeEnum } from '@quoorum/db/schema'
+import type { forumReportFormatEnum, quoorumReportTypeEnum } from '@quoorum/db/schema'
 
 // ═══════════════════════════════════════════════════════════
 // INTERFACES
@@ -72,7 +72,7 @@ export interface ScheduledReport {
 // Includes: 'single_debate' | 'weekly_summary' | 'monthly_summary' | 'deal_analysis' | 'expert_performance' | 'custom'
 export type ReportType = (typeof quoorumReportTypeEnum.enumValues)[number]
 
-export type ReportFormat = 'pdf' | 'html' | 'markdown'
+export type ReportFormat = (typeof forumReportFormatEnum.enumValues)[number]
 
 export type ScheduleFrequency = 'daily' | 'weekly' | 'monthly'
 

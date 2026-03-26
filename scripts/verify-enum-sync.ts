@@ -130,12 +130,14 @@ function detectHardcodedEnums(file: string, content: string): HardcodedEnum[] {
       for (const match of matches) {
         const suspectedEnum = detectWhichEnum(match[0])
 
-        detected.push({
-          file: relative(process.cwd(), file),
-          line: index + 1,
-          content: line.trim(),
-          suspectedEnum,
-        })
+        if (suspectedEnum) {
+          detected.push({
+            file: relative(process.cwd(), file),
+            line: index + 1,
+            content: line.trim(),
+            suspectedEnum,
+          })
+        }
       }
     }
   })
