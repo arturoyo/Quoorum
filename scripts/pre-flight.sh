@@ -72,9 +72,23 @@ fi
 
 # 7. Verificar imports (NO .js extensions en TypeScript)
 echo "→ Verificando imports de TypeScript..."
+count_import_extension_errors() {
+  local checker_script="$1"
+  shift
+
+  if [ ! -f "$checker_script" ]; then
+    echo "0"
+    return 0
+  fi
+
+  local matches
+  matches=$("$@" 2>&1 | grep -c "Found .js extension" || true)
+  printf '%s\n' "${matches:-0}" | tail -n 1
+}
+
 if command -v pwsh &> /dev/null; then
   # Windows con PowerShell
-  IMPORT_ERRORS=$(pwsh -NoProfile -File scripts/check-imports-simple.ps1 2>&1 | grep -c "Found .js extension" || echo "0")
+  IMPORT_ERRORS=$(count_import_extension_errors scripts/check-imports-simple.ps1 pwsh -NoProfile -File scripts/check-imports-simple.ps1)
   if [ "$IMPORT_ERRORS" -gt 0 ]; then
     echo "  [ERROR] Encontrados $IMPORT_ERRORS archivos con .js extensions"
     echo "     Ejecuta: pwsh -File scripts/fix-imports.ps1"
@@ -84,10 +98,10 @@ if command -v pwsh &> /dev/null; then
   fi
 else
   # Linux/macOS con bash
-  IMPORT_ERRORS=$(bash scripts/check-imports-simple.sh 2>&1 | grep -c "Found .js extension" || echo "0")
+  IMPORT_ERRORS=$(count_import_extension_errors scripts/check-imports-simple.sh bash scripts/check-imports-simple.sh)
   if [ "$IMPORT_ERRORS" -gt 0 ]; then
     echo "  [ERROR] Encontrados archivos con .js extensions"
-    echo "     Ejecuta: bash scripts/check-imports-simple.sh"
+    echo "     Ejecuta: tsx scripts/validate-imports.ts"
     ERRORS=$((ERRORS + 1))
   else
     echo "  [OK] Todos los imports correctos (sin .js extensions)"

@@ -182,8 +182,8 @@ export async function generateFinalSynthesis(
 
     const synthesis: FinalSynthesis = JSON.parse(jsonText)
 
-    // Calculate cost for tracking
-    const tokensUsed = 0
+    // Calculate cost for tracking using provider-reported usage when available.
+    const tokensUsed = response.usage?.totalTokens ?? 0
     const costUsd = trackCost('final-synthesis', modelId, tokensUsed, 'system')
 
     quoorumLogger.info('[Final Synthesis] Synthesis generated successfully', {
