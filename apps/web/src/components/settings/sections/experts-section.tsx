@@ -66,7 +66,7 @@ export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
     description: '',
     systemPrompt: '',
     category: '',
-    provider: 'google' as 'openai' | 'anthropic' | 'google' | 'groq',
+    provider: 'google' as 'openai' | 'anthropic' | 'google' | 'groq' | 'optym',
     model: 'gemini-2.0-flash-exp',
     temperature: 0.7,
     maxTokens: undefined as number | undefined,
@@ -306,6 +306,9 @@ export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
                       </SelectItem>
                       <SelectItem value="openai">
                         OpenAI
+                      </SelectItem>
+                      <SelectItem value="optym">
+                        OPTYM
                       </SelectItem>
                       <SelectItem value="anthropic">
                         Anthropic

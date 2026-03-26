@@ -96,6 +96,7 @@ Responde SOLO con un JSON válido con esta estructura:
 }
 
 NO incluyas markdown, solo JSON puro.`
+const USE_MOCK_AI = process.env['FORUM_USE_MOCK_AI'] === '1'
 
 /**
  * Analiza una pregunta para identificar áreas, temáticas y complejidad
@@ -104,6 +105,24 @@ export async function analyzeQuestion(
   question: string,
   context?: string
 ): Promise<QuestionAnalysis> {
+  if (USE_MOCK_AI) {
+    return {
+      question,
+      areas: [
+        { area: 'LLMs', weight: 0.6, reasoning: 'Relevancia en la selección de herramientas de IA' },
+        { area: 'Programming', weight: 0.4, reasoning: 'Impacto en la productividad de desarrollo' },
+      ],
+      topics: [
+        { name: 'chatgpt', relevance: 0.9 },
+        { name: 'perplexity', relevance: 0.85 },
+      ],
+      complexity: 3,
+      decisionType: 'operational',
+      recommendedExperts: ['critic'],
+      reasoning: 'Mock: ambos modelos son útiles, depende del contexto y de la fase de desarrollo.',
+    }
+  }
+
   const fullPrompt = `${QUESTION_ANALYZER_PROMPT}
 
 Pregunta: ${question}

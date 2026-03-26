@@ -173,7 +173,7 @@ export interface ForumAgentConfig {
   name: string
   role: 'optimizer' | 'critic' | 'analyst' | 'synthesizer'
   prompt: string
-  provider: 'openai' | 'anthropic' | 'deepseek' | 'google'
+  provider: 'openai' | 'anthropic' | 'deepseek' | 'google' | 'optym'
   model: string
   temperature: number
 }
@@ -218,8 +218,8 @@ export const QUOORUM_AGENTS: Record<string, ForumAgentConfig> = {
     role: 'synthesizer',
     prompt:
       'Eres un sintetizador experto. Identifica patrones, extrae opciones, calcula % de exito, genera ranking.',
-    provider: 'openai',
-    model: 'gpt-4o',
+    provider: 'optym',
+    model: 'optym-balanced',
     temperature: 0.3,
   },
 } as const

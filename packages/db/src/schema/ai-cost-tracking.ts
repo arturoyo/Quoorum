@@ -61,7 +61,7 @@ export const AI_OPERATION_TYPES = [
 
 export type AIOperationType = (typeof AI_OPERATION_TYPES)[number]
 
-export const AI_PROVIDERS = ['openai', 'anthropic', 'google', 'groq', 'deepseek'] as const
+export const AI_PROVIDERS = ['openai', 'anthropic', 'google', 'groq', 'deepseek', 'optym'] as const
 export type AIProvider = (typeof AI_PROVIDERS)[number]
 
 // ============================================================================

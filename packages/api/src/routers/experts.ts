@@ -5,7 +5,7 @@ import { experts, companies } from "@quoorum/db";
 import { logger } from "../lib/logger";
 
 type ExpertAIConfig = {
-  provider: 'openai' | 'anthropic' | 'google' | 'groq'
+  provider: 'openai' | 'anthropic' | 'google' | 'groq' | 'optym'
   model: string
   apiKey?: string
   temperature?: number
@@ -13,7 +13,7 @@ type ExpertAIConfig = {
 }
 
 const aiConfigSchema = z.object({
-  provider: z.enum(["openai", "anthropic", "google", "groq"]),
+  provider: z.enum(["openai", "anthropic", "google", "groq", "optym"]),
   model: z.string(),
   apiKey: z.string().optional(),
   temperature: z.number().min(0).max(2).optional(),

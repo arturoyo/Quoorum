@@ -99,9 +99,18 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 | Producción | Pendiente: Supabase PostgreSQL remoto o PostgreSQL dedicado | Supabase client |
 
 **Variables críticas (`.env` / `.env.local`):**
-``` 
+```
 DATABASE_URL=postgresql://postgres:postgres@localhost:5434/quoorum   # Local
 # Para producción usar la connection string de Supabase o DB remota
+```
+
+**Integración Optym (nuevo)**  
+Establece las variables `OPTYM_API_KEY` y `OPTYM_BASE_URL` para enrutar las solicitudes de debate
+por el gateway de optym.pro y aprovechar la lógica de `optym-balanced`. Cuando la clave existe,
+los agentes sintetizadores usan el provider `optym` y se sigue validando este stack en `scripts/verify_docs.sh`.
+```
+OPTYM_API_KEY=optym_main_key
+OPTYM_BASE_URL=https://api.optym.pro/v1
 ```
 
 **Deploy:**

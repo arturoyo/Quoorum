@@ -70,7 +70,7 @@ export const workers = pgTable('workers', {
   // AI Configuration (similar to experts)
   systemPrompt: text('system_prompt').notNull(), // Custom prompt for this worker
   aiConfig: jsonb('ai_config').$type<{
-    provider: 'openai' | 'anthropic' | 'google' | 'groq'
+    provider: 'openai' | 'anthropic' | 'google' | 'groq' | 'optym'
     model: string
     temperature?: number
     maxTokens?: number

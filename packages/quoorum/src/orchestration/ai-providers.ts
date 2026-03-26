@@ -57,6 +57,65 @@ export class LiteLLMProvider implements AIProvider {
   }
 }
 
+const OPTYM_MODELS = [
+  'optym-balanced',
+  'optym-conservative',
+  'optym-aggressive',
+  'optym-auto',
+  'optym-fast',
+  'optym-quality',
+] as const
+
+// ============================================================================
+// OPTYM PROVIDER
+// ============================================================================
+
+export class OptymProvider implements AIProvider {
+  private apiKey: string
+  private baseUrl: string
+  private model: string
+
+  constructor(options?: { apiKey?: string; model?: string; baseUrl?: string }) {
+    this.apiKey = options?.apiKey || process.env['OPTYM_API_KEY'] || ''
+    this.baseUrl = options?.baseUrl || process.env['OPTYM_BASE_URL'] || 'https://api.optym.pro/v1'
+    this.model = options?.model || 'optym-balanced'
+  }
+
+  async generateResponse(prompt: string, options?: GenerateOptions): Promise<string> {
+    if (!this.apiKey) {
+      throw new Error('OPTYM_API_KEY is required')
+    }
+
+    const messages: Array<{ role: string; content: string }> = []
+
+    if (options?.systemPrompt) {
+      messages.push({ role: 'system', content: options.systemPrompt })
+    }
+    messages.push({ role: 'user', content: prompt })
+
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages,
+        max_tokens: options?.maxTokens || 2048,
+        temperature: options?.temperature || 0.7,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`OPTYM error: ${response.status} ${response.statusText}`)
+    }
+
+    const data = (await response.json()) as { choices: Array<{ message: { content: string } }> }
+    return data.choices[0]?.message?.content || ''
+  }
+}
+
 // ============================================================================
 // OPENAI PROVIDER
 // ============================================================================
@@ -234,7 +293,7 @@ export class GroqProvider implements AIProvider {
 // FACTORY FUNCTIONS
 // ============================================================================
 
-export type ProviderType = 'litellm' | 'openai' | 'anthropic' | 'gemini' | 'groq' | 'mock'
+export type ProviderType = 'litellm' | 'optym' | 'openai' | 'anthropic' | 'gemini' | 'groq' | 'mock'
 
 /**
  * Create an AI provider instance
@@ -243,6 +302,10 @@ export function createProvider(type: ProviderType, options?: Record<string, unkn
   switch (type) {
     case 'litellm':
       return new LiteLLMProvider(options as { baseUrl?: string; apiKey?: string; model?: string })
+    case 'optym':
+      return new OptymProvider(
+        options as { apiKey?: string; model?: string; baseUrl?: string }
+      )
     case 'openai':
       return new OpenAIProvider(options as { apiKey?: string; model?: string })
     case 'anthropic':
@@ -270,6 +333,9 @@ export function getDefaultProvider(): AIProvider {
   if (process.env['LITELLM_API_KEY'] || process.env['LITELLM_MASTER_KEY']) {
     return new LiteLLMProvider()
   }
+  if (process.env['OPTYM_API_KEY']) {
+    return new OptymProvider()
+  }
   if (process.env['OPENAI_API_KEY']) {
     return new OpenAIProvider()
   }
@@ -296,6 +362,7 @@ export function hasRealProvider(): boolean {
   return !!(
     process.env['LITELLM_API_KEY'] ||
     process.env['LITELLM_MASTER_KEY'] ||
+    process.env['OPTYM_API_KEY'] ||
     process.env['OPENAI_API_KEY'] ||
     process.env['ANTHROPIC_API_KEY'] ||
     process.env['GOOGLE_AI_API_KEY'] ||

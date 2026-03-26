@@ -11,7 +11,7 @@ import { z } from 'zod'
 // ============================================================================
 
 export type AgentRole = 'optimizer' | 'critic' | 'analyst' | 'synthesizer'
-export type AIProviderType = 'openai' | 'anthropic' | 'deepseek' | 'google' | 'groq'
+export type AIProviderType = 'openai' | 'anthropic' | 'deepseek' | 'google' | 'groq' | 'optym'
 
 export interface AgentConfig {
   key: string

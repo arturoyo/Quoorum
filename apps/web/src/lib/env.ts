@@ -23,6 +23,8 @@ const env = {
   
   // OpenAI (Critical for AI features)
   openaiApiKey: process.env.OPENAI_API_KEY,
+  optymApiKey: process.env.OPTYM_API_KEY,
+  optymBaseUrl: process.env.OPTYM_BASE_URL || 'https://api.optym.pro/v1',
   
   // App
   appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
@@ -114,9 +116,9 @@ export function validateEnv(): EnvValidationResult {
     missing.critical.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
   }
 
-  if (!env.openaiApiKey) {
-    errors.push('OPENAI_API_KEY is required for AI features');
-    missing.critical.push('OPENAI_API_KEY');
+  if (!env.openaiApiKey && !env.optymApiKey) {
+    errors.push('OPENAI_API_KEY or OPTYM_API_KEY is required for AI features');
+    missing.critical.push('OPENAI_API_KEY / OPTYM_API_KEY');
   }
 
   // ============================================
@@ -275,6 +277,11 @@ export const envConfig = {
       apiKey: env.litellmApiKey,
       url: env.litellmUrl,
       enabled: !!env.litellmApiKey,
+    },
+    optym: {
+      apiKey: env.optymApiKey,
+      baseUrl: env.optymBaseUrl,
+      enabled: !!env.optymApiKey,
     },
   },
   

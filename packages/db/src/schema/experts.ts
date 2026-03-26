@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, uuid, varchar, jsonb, boolean } from "drizzle-orm/pg-core";
 
-export type AIProvider = "openai" | "anthropic" | "google" | "groq";
+export type AIProvider = "openai" | "anthropic" | "google" | "groq" | "optym";
 
 export interface AIConfig {
   provider: AIProvider;

@@ -4,12 +4,14 @@ import { anthropicProvider } from "./anthropic";
 import { deepseekProvider } from "./deepseek";
 import { googleProvider } from "./google";
 import { groqProvider } from "./groq";
+import { optymProvider } from "./optym";
 import { openaiProvider } from "./openai";
 
 export { anthropicProvider } from "./anthropic";
 export { deepseekProvider } from "./deepseek";
 export { googleProvider } from "./google";
 export { groqProvider } from "./groq";
+export { optymProvider } from "./optym";
 export { openaiProvider } from "./openai";
 
 const providers: Record<AIProvider, ProviderFactory> = {
@@ -18,6 +20,7 @@ const providers: Record<AIProvider, ProviderFactory> = {
   google: googleProvider,
   groq: groqProvider,
   deepseek: deepseekProvider,
+  optym: optymProvider,
 };
 
 export function getProvider(name: AIProvider): ProviderFactory {

@@ -70,6 +70,10 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5434/quoorum"
 # OpenAI (requerido para debates)
 OPENAI_API_KEY="sk-..."
 
+# Optym (para routing inteligente, opcional)
+OPTYM_API_KEY="optym_test_key"
+OPTYM_BASE_URL="https://api.optym.pro/v1"
+
 # Pinecone (opcional, para búsqueda vectorial)
 PINECONE_API_KEY="..."
 PINECONE_INDEX="quoorum-debates"
@@ -389,6 +393,10 @@ El sistema soporta múltiples providers:
 ```env
 # OpenAI (principal)
 OPENAI_API_KEY="sk-..."
+
+# Optym (routing inteligente, se activa cuando existe la API key)
+OPTYM_API_KEY="optym_test_key"
+OPTYM_BASE_URL="https://api.optym.pro/v1"
 
 # Anthropic (fallback)
 ANTHROPIC_API_KEY="sk-ant-..."

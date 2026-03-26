@@ -86,6 +86,7 @@ Responde SOLO con un JSON válido con esta estructura:
 }
 
 NO incluyas markdown, solo JSON puro.`
+const USE_MOCK_AI = process.env['FORUM_USE_MOCK_AI'] === '1'
 
 /**
  * Hace matching inteligente de profesionales usando IA
@@ -110,6 +111,19 @@ export async function matchWorkersWithAI(
     selectedDepartmentIds = [],
     companyContext,
   } = options
+
+  if (USE_MOCK_AI) {
+    const sliced = availableWorkers.slice(0, Math.min(maxWorkers, availableWorkers.length))
+    return sliced.map((worker, index) => ({
+      worker: {
+        ...worker,
+        departmentIds: worker.departmentIds,
+      },
+      matchScore: 75 - index * 3,
+      reasons: [`Mock worker match for ${worker.name}`],
+      synergy: index > 0 ? [sliced[0].id] : undefined,
+    }))
+  }
 
   try {
     // Preparar información de profesionales para la IA

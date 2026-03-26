@@ -6,7 +6,7 @@
  */
 
 type WorkerAIConfig = {
-  provider: 'openai' | 'anthropic' | 'google' | 'groq'
+  provider: 'openai' | 'anthropic' | 'google' | 'groq' | 'optym'
   model: string
   apiKey?: string
   temperature?: number

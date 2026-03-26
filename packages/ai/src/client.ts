@@ -10,6 +10,7 @@ import { logger } from "./lib/logger";
 import type { AIClient, AIResponse, GenerateOptions } from "./types";
 
 const DEFAULT_MODEL_ID = "gemini-2.0-flash-exp"; // Using Gemini free tier to avoid OpenAI quota issues
+const USE_MOCK_CLIENT = process.env["FORUM_USE_MOCK_AI"] === "1";
 
 class ForumAIClient implements AIClient {
   async generate(prompt: string, options?: GenerateOptions): Promise<AIResponse> {
@@ -113,7 +114,7 @@ class ForumAIClient implements AIClient {
     });
   }
 
-  private getProviderFromModelId(modelId: string): "openai" | "anthropic" | "google" | "groq" | "deepseek" {
+  private getProviderFromModelId(modelId: string): "openai" | "anthropic" | "google" | "groq" | "deepseek" | "optym" {
     if (modelId.startsWith("gpt-") || modelId.startsWith("o1") || modelId.startsWith("o3")) {
       return "openai";
     }
@@ -129,20 +130,49 @@ class ForumAIClient implements AIClient {
     if (modelId.startsWith("deepseek-")) {
       return "deepseek";
     }
+    if (modelId.startsWith("optym-")) {
+      return "optym";
+    }
     // Default to Google (free tier)
     logger.warn(`Unknown model prefix for "${modelId}", defaulting to Google Gemini`);
     return "google";
   }
 }
 
-let clientInstance: ForumAIClient | null = null;
+class MockAIClient implements AIClient {
+  async generate(prompt: string, options?: GenerateOptions): Promise<AIResponse> {
+    const text = `Mock AI response for "${prompt}"${options?.systemPrompt ? ` (system prompt: ${options.systemPrompt})` : ""}`;
+    return {
+      text,
+      usage: {
+        promptTokens: 25,
+        completionTokens: 30,
+        totalTokens: 55,
+      },
+      finishReason: "stop",
+    };
+  }
+
+  async generateWithSystem(
+    systemPrompt: string,
+    userPrompt: string,
+    options?: Omit<GenerateOptions, "systemPrompt">
+  ): Promise<AIResponse> {
+    return this.generate(userPrompt, {
+      ...options,
+      systemPrompt,
+    });
+  }
+}
+
+let clientInstance: AIClient | null = null;
 
 /**
  * Get the AI client instance (singleton)
  */
 export function getAIClient(): AIClient {
   if (!clientInstance) {
-    clientInstance = new ForumAIClient();
+    clientInstance = USE_MOCK_CLIENT ? new MockAIClient() : new ForumAIClient();
   }
   return clientInstance;
 }

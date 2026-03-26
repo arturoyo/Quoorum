@@ -6,11 +6,13 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     },
     "./providers": {
       "types": "./dist/providers/index.d.ts",
-      "import": "./dist/providers/index.js"
+      "import": "./dist/providers/index.js",
+      "require": "./dist/providers/index.js"
     }
   },
   "scripts": {

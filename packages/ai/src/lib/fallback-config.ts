@@ -11,7 +11,7 @@
  * - Claude Haiku: $0.25 (input) + $1.25 (output)
  */
 
-export type ProviderName = 'google' | 'deepseek' | 'groq' | 'openai' | 'anthropic'
+export type ProviderName = 'google' | 'deepseek' | 'groq' | 'openai' | 'anthropic' | 'optym'
 
 export interface FallbackModel {
   provider: ProviderName
@@ -31,6 +31,13 @@ export const FALLBACK_ORDER: FallbackModel[] = [
     displayName: 'Gemini 2.0 Flash',
     costPerMillion: 0,
     isFree: true,
+  },
+  {
+    provider: 'optym',
+    modelId: 'optym-balanced',
+    displayName: 'OPTYM (balanced)',
+    costPerMillion: 0.22,
+    isFree: false,
   },
   {
     provider: 'deepseek',

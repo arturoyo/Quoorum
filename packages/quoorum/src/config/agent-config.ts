@@ -11,7 +11,7 @@ import { quoorumLogger } from '../logger'
 
 // Zod schema for validation
 const AgentProviderConfigSchema = z.object({
-  provider: z.enum(['openai', 'anthropic', 'google', 'groq', 'deepseek']),
+  provider: z.enum(['openai', 'anthropic', 'google', 'groq', 'deepseek', 'optym']),
   model: z.string().min(1),
   temperature: z.number().min(0).max(1),
 })
@@ -45,8 +45,8 @@ const ENV_CONFIG = {
     // Atenea (Diosa de la Sabiduría) - Sabio y conclusivo
     // ⚡ OPTIMIZADO: gpt-4o-mini es más barato que claude-sonnet pero mejor que gemini para síntesis
     // Costo: $0.15/1M tokens vs $3.0/1M tokens (claude-sonnet) = 95% más barato
-    provider: (process.env.SYNTHESIZER_PROVIDER || 'openai') as AgentConfig['provider'],
-    model: process.env.SYNTHESIZER_MODEL || 'gpt-4o-mini', // Optimized: mejor calidad/precio que gemini para síntesis
+    provider: (process.env.SYNTHESIZER_PROVIDER || 'optym') as AgentConfig['provider'],
+    model: process.env.SYNTHESIZER_MODEL || 'optym-balanced', // Optimized: mejor calidad/precio y routing inteligente
     temperature: parseFloat(process.env.SYNTHESIZER_TEMPERATURE || '0.3'),
   },
 }
@@ -125,7 +125,7 @@ export function getPaidTierConfig(
     analyst: { provider: 'openai' as const, model: 'gpt-4o', temperature: 0.3 },
 
     // Synthesizer: Strategic synthesis (PREMIUM - highest cost)
-    synthesizer: { provider: 'anthropic' as const, model: 'claude-sonnet-4-20250514', temperature: 0.3 },
+    synthesizer: { provider: 'optym' as const, model: 'optym-balanced', temperature: 0.3 },
   }
 
   // Return specific role config if requested

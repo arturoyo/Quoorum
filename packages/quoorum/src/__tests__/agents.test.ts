@@ -47,7 +47,7 @@ describe('Forum Agents', () => {
       expect(QUOORUM_AGENTS['optimizer']!.provider).toBe('google')
       expect(QUOORUM_AGENTS['critic']!.provider).toBe('google')
       expect(QUOORUM_AGENTS['analyst']!.provider).toBe('google')
-      expect(QUOORUM_AGENTS['synthesizer']!.provider).toBe('openai')
+      expect(QUOORUM_AGENTS['synthesizer']!.provider).toBe('optym')
     })
 
     it('should have appropriate temperatures', () => {
@@ -150,11 +150,11 @@ describe('Forum Agents', () => {
       expect(cost).toBe(0.0) // Free tier
     })
 
-    it('should estimate cost for openai synthesizer', () => {
+    it('should estimate cost for optym synthesizer', () => {
       // Default config uses gpt-4o-mini
       const agent = QUOORUM_AGENTS['synthesizer']!
       const cost = estimateAgentCost(agent, 1_000_000)
-      expect(cost).toBe(0.15) // gpt-4o-mini rate
+      expect(cost).toBe(0.22) // proxy for optym-balanced routing
     })
 
     it('should scale cost proportionally', () => {

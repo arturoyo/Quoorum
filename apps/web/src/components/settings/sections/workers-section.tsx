@@ -100,7 +100,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
     description: '',
     responsibilities: '',
     systemPrompt: '',
-    provider: 'google' as 'openai' | 'anthropic' | 'google' | 'groq',
+    provider: 'google' as 'openai' | 'anthropic' | 'google' | 'groq' | 'optym',
     model: 'gemini-2.0-flash-exp',
     temperature: 0.7,
     maxTokens: undefined as number | undefined,
@@ -471,12 +471,13 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
                     <SelectTrigger id="provider" className="bg-[var(--theme-bg-input)] border-[var(--theme-border)] text-[var(--theme-text-primary)]">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="google">Google</SelectItem>
-                      <SelectItem value="openai">OpenAI</SelectItem>
-                      <SelectItem value="anthropic">Anthropic</SelectItem>
-                      <SelectItem value="groq">Groq</SelectItem>
-                    </SelectContent>
+                      <SelectContent>
+                        <SelectItem value="google">Google</SelectItem>
+                        <SelectItem value="openai">OpenAI</SelectItem>
+                        <SelectItem value="optym">OPTYM</SelectItem>
+                        <SelectItem value="anthropic">Anthropic</SelectItem>
+                        <SelectItem value="groq">Groq</SelectItem>
+                      </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">

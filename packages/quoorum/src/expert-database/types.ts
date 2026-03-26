@@ -7,7 +7,7 @@
 /**
  * AI Provider types supported by experts
  */
-export type ExpertProvider = 'openai' | 'anthropic' | 'deepseek' | 'google' | 'groq'
+export type ExpertProvider = 'openai' | 'anthropic' | 'deepseek' | 'google' | 'groq' | 'optym'
 
 /**
  * Expert Profile

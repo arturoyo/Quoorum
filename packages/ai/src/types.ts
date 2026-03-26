@@ -1,6 +1,6 @@
 import type { LanguageModelV1 } from "ai";
 
-export type AIProvider = "openai" | "anthropic" | "google" | "groq" | "deepseek";
+export type AIProvider = "openai" | "anthropic" | "google" | "groq" | "deepseek" | "optym";
 
 export interface AIConfig {
   provider: AIProvider;

@@ -223,6 +223,12 @@ const COST_PER_MILLION_TOKENS: Record<string, number> = {
   'gemini-2.0-flash-exp': 0.0, // Free tier
   'gemini-1.5-flash': 0.075,
   'gemini-1.5-pro': 1.25,
+  'optym-balanced': 0.22,
+  'optym-conservative': 0.22,
+  'optym-aggressive': 0.22,
+  'optym-auto': 0.22,
+  'optym-fast': 0.22,
+  'optym-quality': 0.22,
 }
 
 export function estimateAgentCost(agent: AgentConfig, tokens: number): number {
