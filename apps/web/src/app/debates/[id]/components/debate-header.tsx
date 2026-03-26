@@ -19,13 +19,14 @@ const statusConfig: Record<DebateStatus, StatusConfig> = {
   in_progress: { label: 'En progreso', color: 'bg-blue-500', icon: Loader2 },
   completed: { label: 'Completado', color: 'bg-green-500', icon: CheckCircle2 },
   failed: { label: 'Fallido', color: 'bg-red-500', icon: AlertTriangle },
+  cancelled: { label: 'Cancelado', color: 'bg-slate-500', icon: AlertTriangle },
 }
 
 interface DebateHeaderProps {
   debate: {
     id: string
     question: string
-    status: string
+    status: DebateStatus | string
     consensusScore?: number | null
     metadata?: {
       title?: string
@@ -36,12 +37,14 @@ interface DebateHeaderProps {
       scenarioName?: string
     } | null
     rounds?: Array<{ messages?: unknown[] }> | null
-    experts?: string[] | null
+    experts?: Array<string | { id: string; name: string }> | null
   }
 }
 
 export function DebateHeader({ debate }: DebateHeaderProps) {
-  const status = debate.status as DebateStatus
+  const status: DebateStatus = debate.status in statusConfig
+    ? (debate.status as DebateStatus)
+    : 'draft'
   const StatusIcon = statusConfig[status]?.icon
 
   const displayTitle = debate.metadata?.title || debate.question
@@ -133,7 +136,7 @@ export function DebateHeader({ debate }: DebateHeaderProps) {
       {/* Interactive Controls */}
       <InteractiveControls
         debateId={debate.id}
-        status={debate.status}
+        status={status}
         isPaused={debate.metadata?.paused === true}
         className="px-4 pb-3 border-t border-white/10 pt-3"
       />

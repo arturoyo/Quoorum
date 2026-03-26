@@ -1,4 +1,5 @@
 import { router } from "./trpc";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import {
   auditRouter,
   consensusRouter,
@@ -53,6 +54,8 @@ import {
   adminPricingRouter,
   // Admin Prompts
   adminPromptsRouter,
+  // Admin Roadmap
+  adminRoadmapRouter,
 } from "./routers/index";
 
 export const appRouter = router({
@@ -109,9 +112,13 @@ export const appRouter = router({
   adminPricing: adminPricingRouter,
   // Admin Prompts Management
   adminPrompts: adminPromptsRouter,
+  // Admin Roadmap
+  adminRoadmap: adminRoadmapRouter,
 });
 
 export type AppRouter = typeof appRouter;
+export type RouterInputs = inferRouterInputs<AppRouter>;
+export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 export { router, publicProcedure, protectedProcedure, createContext } from "./trpc";
 export type { Context } from "./trpc";

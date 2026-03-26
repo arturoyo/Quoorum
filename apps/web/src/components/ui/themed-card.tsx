@@ -30,6 +30,16 @@ interface ThemedCardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string
 }
 
+type ThemedCardComponent = React.ForwardRefExoticComponent<
+  ThemedCardProps & React.RefAttributes<HTMLDivElement>
+> & {
+  Header: typeof ThemedCardHeader
+  Title: typeof ThemedCardTitle
+  Description: typeof ThemedCardDescription
+  Content: typeof ThemedCardContent
+  Footer: typeof ThemedCardFooter
+}
+
 export const ThemedCard = forwardRef<HTMLDivElement, ThemedCardProps>(
   ({ children, variant = 'default', className, ...props }, ref) => {
     const variantClasses = {
@@ -53,7 +63,7 @@ export const ThemedCard = forwardRef<HTMLDivElement, ThemedCardProps>(
       </div>
     )
   }
-)
+) as ThemedCardComponent
 
 ThemedCard.displayName = 'ThemedCard'
 

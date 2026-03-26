@@ -278,6 +278,7 @@ export const adminQuoorumRouter = router({
         // Run debate
         const result = await runDebate({
           sessionId: session.id,
+          userId: ctx.user.id,
           question: session.question,
           context,
           onMessageGenerated: async (message) => {

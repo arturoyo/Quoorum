@@ -200,10 +200,10 @@ export async function runEisenhowerMatrix(
     const priorityClient = getAIClient()
 
     // Step 1: Classify tasks
-    const classificationResponse = await classifierClient.generateWithSystem(
-      CLASSIFIER_AGENT_CONFIG.systemPrompt ?? '',
+    const classificationResponse = await classifierClient.generate(
       `${contextPrompt}\n\nOutput format:\n{\n  "tasks": [\n    {\n      "task": "...",\n      "quadrant": "Q1" | "Q2" | "Q3" | "Q4",\n      "urgency": 85,\n      "importance": 90,\n      "rationale": "...",\n      "recommendedAction": "..."\n    }\n  ]\n}`,
       {
+        systemPrompt: CLASSIFIER_AGENT_CONFIG.systemPrompt ?? '',
         modelId: CLASSIFIER_AGENT_CONFIG.model,
         temperature: CLASSIFIER_AGENT_CONFIG.temperature,
         maxTokens: 3000,
@@ -252,15 +252,12 @@ Output format:
   "keyInsights": ["Insight 1", "Insight 2", "Insight 3"]
 }`
 
-    const priorityResponse = await priorityClient.generateWithSystem(
-      PRIORITY_AGENT_CONFIG.systemPrompt ?? '',
-      priorityPrompt,
-      {
-        modelId: PRIORITY_AGENT_CONFIG.model,
-        temperature: PRIORITY_AGENT_CONFIG.temperature,
-        maxTokens: 1000,
-      }
-    )
+    const priorityResponse = await priorityClient.generate(priorityPrompt, {
+      systemPrompt: PRIORITY_AGENT_CONFIG.systemPrompt ?? '',
+      modelId: PRIORITY_AGENT_CONFIG.model,
+      temperature: PRIORITY_AGENT_CONFIG.temperature,
+      maxTokens: 1000,
+    })
 
     const priorityRecommendation = JSON.parse(priorityResponse.text) as
       EisenhowerMatrixOutput['priorityRecommendation']

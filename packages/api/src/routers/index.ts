@@ -62,3 +62,6 @@ export { adminPricingRouter } from "./admin-pricing";
 
 // Admin Prompts Management
 export { adminPromptsRouter } from "./admin-prompts";
+
+// Admin Roadmap
+export { adminRoadmapRouter } from "./admin-roadmap";

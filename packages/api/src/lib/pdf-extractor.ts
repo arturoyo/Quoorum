@@ -4,6 +4,7 @@
  * Extracts text content from PDF files using pdfjs-dist
  */
 
+import type { TextItem } from 'pdfjs-dist/types/src/display/api'
 import { logger } from './logger'
 
 // Dynamic import for pdfjs-dist (ESM compatible)
@@ -14,7 +15,6 @@ async function getPdfjs() {
     pdfjsLib = await import('pdfjs-dist')
 
     // Configure worker - use fake worker for Node.js
-    // @ts-expect-error - pdfjs types are complex
     pdfjsLib.GlobalWorkerOptions.workerSrc = ''
   }
   return pdfjsLib
@@ -47,7 +47,7 @@ export async function extractPdfText(buffer: ArrayBuffer): Promise<string> {
 
       // Combine text items from page
       const pageText = textContent.items
-        .filter((item): item is { str: string } => 'str' in item)
+        .filter((item): item is TextItem => 'str' in item)
         .map((item) => item.str)
         .join(' ')
 

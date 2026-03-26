@@ -14,7 +14,10 @@ import { quoorumLogger } from '../logger'
 
 const PINECONE_API_KEY = process.env['PINECONE_API_KEY']
 const PINECONE_ENVIRONMENT = process.env['PINECONE_ENVIRONMENT'] || 'us-east-1'
-const PINECONE_INDEX = process.env['PINECONE_INDEX'] || 'forum-debates'
+const PINECONE_INDEX =
+  process.env['PINECONE_INDEX'] ||
+  process.env['PINECONE_INDEX_NAME'] ||
+  'quoorum-debates'
 
 const openai = new OpenAI({
   apiKey: process.env['OPENAI_API_KEY'],

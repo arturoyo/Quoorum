@@ -116,11 +116,11 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/forum   # Local
 - Páginas: Dashboard, Billing, Logs, Users, Prompts, Scenarios, **Roadmap** (nuevo, 26 Mar 2026)
 - Roadmap admin requiere migración DB: `pnpm db:generate && pnpm db:migrate` + seed `scripts/seed-roadmap.sql`
 
-**Estado real del typecheck (26 Mar 2026):**
-- `@quoorum/quoorum` — 0 errores (33 arreglados)
-- `@quoorum/db` — 0 errores
-- `@quoorum/api` — 270 errores pre-existentes (no bloqueantes para build Next.js)
-- Tests: 339 passing / 52 failing (integration tests requieren DB corriendo)
+**Estado real de validación local (26 Mar 2026):**
+- `pnpm test:unit` — ✅ verde (`19` files, `356` tests)
+- `pnpm test` — incluye integración y depende de PostgreSQL local
+- `pnpm typecheck` — ❌ sigue fallando, con la mayor concentración de errores en `packages/api`
+- Riesgo operativo actual: la documentación y los unit tests están más alineados que el typecheck del monorepo
 
 ---
 
@@ -144,14 +144,15 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/forum   # Local
 
 ## 📊 ESTADÍSTICAS DEL PROYECTO
 
-**Estado actual (27 Ene 2026):**
+**Estado actual (26 Mar 2026):**
 
 | Métrica | Valor |
 |---------|-------|
-| **Estado documental** | Parcial | Este índice fue corregido para reflejar solo módulos existentes |
-| **Repo** | Limpio | `git status` vacío durante la auditoría |
-| **Tests** | No verde | `pnpm test` falló durante la auditoría |
-| **Typecheck** | No verde | `pnpm typecheck` falló en `@quoorum/api` |
+| **Estado documental** | Parcial pero alineado | `CLAUDE.md` y `docs/claude/` apuntan solo a módulos existentes |
+| **Repo** | No asumir limpio | valida `git status` antes de operar |
+| **Tests unitarios** | Verde | `pnpm test:unit` pasa |
+| **Tests de integración** | Requieren DB local | `pnpm test` mezcla unit + integration |
+| **Typecheck** | No verde | `pnpm typecheck` falla sobre todo en `packages/api` |
 | **CI/CD** | Vercel | GitHub Actions no está configurado en este repo |
 
 **📖 Ver detalles:** [SYSTEM.md](./SYSTEM.md) y [PHASES.md](./PHASES.md)
@@ -179,23 +180,23 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/forum   # Local
 
 ## 🔍 PUNTOS CIEGOS CONOCIDOS
 
-**Estado actual (27 Ene 2026):**
+**Estado actual (26 Mar 2026):**
 
 | Área | Estado | Detalles |
 |------|--------|----------|
-| Quoorum Debates System | ✅ Activo | 20+ routers, 27 schemas, 369 test cases |
+| Quoorum Debates System | ✅ Activo | superficie amplia en `packages/api` y `packages/quoorum` |
 | AI Rate Limiting System | ✅ Implementado | 4 componentes completos (16 Ene 2026) |
 | AI Config (agents) | ✅ Refactorizado | config/agent-config.ts + env vars |
 | AI Config (expertos) | ✅ Refactorizado | config/expert-config.ts + 80+ expertos |
 | **Deuda técnica IA** | ✅ **= 0** | **Todo configurable via env vars** |
 | Deuda técnica (`any`) | ✅ 0 any types | Eliminados en 50+ archivos |
 | Tests output | ✅ Funcionando | vitest 4.0.17 + reporters |
-| Tests (unit) | ✅ 328 passing | 369 total (41 integration need DB) |
-| Tests coverage | ✅ Medido | prompt-builder 100%, meta-moderator 94% |
-| E2E Tests | ✅ Verificado | 29 archivos Playwright |
-| Type errors | ✅ Resueltos | Build limpio |
+| Tests (unit) | ✅ Verificado | `356` tests verdes con `pnpm test:unit` |
+| Tests coverage | ⚠️ No tratar como canónica | volver a medir antes de afirmar cifras |
+| E2E Tests | ⚠️ Existen en repo | no asumirse verificados por esta auditoría |
+| Type errors | ❌ Persisten | `pnpm typecheck` falla, principalmente en `packages/api` |
 | GitHub Actions | ❌ No configurado | Deliberado: usa Husky + Vercel CI |
-| **Documentación** | ✅ **Refactorizada** | **Sistema modular (27 Ene 2026)** |
+| **Documentación** | ✅ **Refactorizada parcialmente** | **sistema modular limpiado de referencias rotas en marzo 2026** |
 
 **📖 Ver detalles completos:** [PHASES.md - Puntos Ciegos](./PHASES.md)
 
@@ -310,8 +311,10 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/forum   # Local
 pnpm preflight        # Pre-flight checks (2 min)
 pnpm typecheck        # TypeScript check
 pnpm lint             # Linter
-pnpm test             # Tests unitarios
+pnpm test:unit        # Suite unitaria sin integración con PostgreSQL
+pnpm test             # Suite completa (incluye integración y puede requerir DB local)
 pnpm test:e2e         # Tests E2E
+pnpm validate:env     # Validación de variables críticas y nombres legacy
 pnpm db:studio        # Drizzle Studio
 ```
 

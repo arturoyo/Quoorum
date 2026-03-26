@@ -5,7 +5,7 @@
  * quality monitoring y meta-moderación
  */
 
-import { getAIClient, retryWithBackoff } from '@quoorum/ai'
+import { getAIClient } from '@quoorum/ai'
 import { quoorumLogger } from './logger'
 import { QUOORUM_AGENTS, AGENT_ORDER, estimateAgentCost, getAgentsByTier } from './agents'
 import { estimateTokens, getRoleEmoji, compressInput, decompressOutput } from './ultra-language'
@@ -32,8 +32,37 @@ import { getExpertProviderConfig } from './config/expert-config'
 
 const MAX_ROUNDS = 20
 const MAX_TOKENS_PER_MESSAGE = 50
-const COMPLEXITY_THRESHOLD = 5 // Complejidad >= 5 activa modo dinámico
-const MAX_AREAS_STATIC = 2 // <= 2 áreas usa modo estático
+
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  config: {
+    maxRetries: number
+    initialDelay: number
+    maxDelay: number
+    backoffMultiplier: number
+    jitter?: boolean
+    retryableErrors?: string[]
+  }
+): Promise<T> {
+  let attempt = 0
+  let delay = config.initialDelay
+  let lastError: unknown
+
+  while (attempt <= config.maxRetries) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error
+      if (attempt === config.maxRetries) break
+      const jitterFactor = config.jitter ? 0.75 + Math.random() * 0.5 : 1
+      await new Promise((resolve) => setTimeout(resolve, delay * jitterFactor))
+      delay = Math.min(Math.round(delay * config.backoffMultiplier), config.maxDelay)
+      attempt += 1
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(String(lastError))
+}
 
 // ============================================================================
 // TYPES
@@ -200,7 +229,7 @@ function estimateRoundsNeeded(complexity: number, areasCount: number): number {
 
 async function determineDebateMode(
   question: string,
-  forceMode?: 'static' | 'dynamic',
+  _forceMode?: 'static' | 'dynamic',
   selectedExpertIds?: string[],
   selectedDepartmentIds?: string[],
   userTier: 'free' | 'starter' | 'pro' | 'business' | 'enterprise' = 'free'
@@ -343,7 +372,7 @@ async function determineDebateMode(
   const combinedOrder: string[] = []
 
   // Start with Optimista (fixed, using tier-based config)
-  combinedAgents.push(tierAgents.optimizer)
+  combinedAgents.push(tierAgents.optimizer!)
   combinedOrder.push('optimizer')
 
   // Add expert specialists (inserted after optimizer)
@@ -357,14 +386,14 @@ async function determineDebateMode(
   })
 
   // Continue with core agents (skip optimizer as we already added it, using tier-based config)
-  combinedAgents.push(tierAgents.critic)
+  combinedAgents.push(tierAgents.critic!)
   combinedOrder.push('critic')
 
-  combinedAgents.push(tierAgents.analyst)
+  combinedAgents.push(tierAgents.analyst!)
   combinedOrder.push('analyst')
 
   // Always end with Synthesizer (fixed at the end, using tier-based config)
-  combinedAgents.push(tierAgents.synthesizer)
+  combinedAgents.push(tierAgents.synthesizer!)
   combinedOrder.push('synthesizer')
 
   const totalAgents = combinedAgents.length
@@ -395,7 +424,7 @@ function expertToAgentConfig(expert: ExpertProfile): AgentConfig {
 // STATIC MODE (Original behavior)
 // ============================================================================
 
-async function runStaticDebate(options: {
+export async function runStaticDebate(options: {
   sessionId: string
   question: string
   context: LoadedContext
@@ -847,7 +876,7 @@ async function generateAgentResponse(input: GenerateAgentResponseInput): Promise
     const expandedContent = await decompressOutput(compressedContent)
 
     // Calcular tokens usados (usar el comprimido para cálculo de costo)
-    const tokensUsed = response.usage?.totalTokens ?? estimateTokens(compressedContent)
+    const tokensUsed = estimateTokens(compressedContent)
     const costUsd = estimateAgentCost(agent, tokensUsed)
 
     return {

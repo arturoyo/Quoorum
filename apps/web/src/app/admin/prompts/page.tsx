@@ -7,7 +7,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -53,22 +52,15 @@ export default function AdminPromptsPage() {
   const [testResult, setTestResult] = useState<string | null>(null)
 
   // Queries
-  const { data: allPrompts = [], isLoading, refetch } = useQuery({
-    queryKey: ['admin-prompts-list'],
-    queryFn: async () => {
-      const response = await api.adminPrompts.list.query()
-      return response as Prompt[]
-    },
+  const { data: allPrompts = [], isLoading, refetch } = api.adminPrompts.list.useQuery(undefined, {
+    select: (response) => response as unknown as Prompt[],
   })
 
   // Mutations
-  const updatePromptMutation = useMutation({
-    mutationFn: async (data: { id: string; updates: Partial<Prompt> }) => {
-      return await api.adminPrompts.update.mutate(data)
-    },
+  const updatePromptMutation = api.adminPrompts.update.useMutation({
     onSuccess: () => {
       toast.success('Prompt actualizado correctamente')
-      refetch()
+      void refetch()
       setIsEditing(false)
       setSelectedPrompt(null)
     },
@@ -77,13 +69,10 @@ export default function AdminPromptsPage() {
     },
   })
 
-  const deletePromptMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await api.adminPrompts.delete.mutate({ id })
-    },
+  const deletePromptMutation = api.adminPrompts.delete.useMutation({
     onSuccess: () => {
       toast.success('Prompt eliminado correctamente')
-      refetch()
+      void refetch()
       setSelectedPrompt(null)
     },
     onError: () => {
@@ -91,13 +80,7 @@ export default function AdminPromptsPage() {
     },
   })
 
-  const testPromptMutation = useMutation({
-    mutationFn: async (data: { promptId: string; testInput: string }) => {
-      return await api.adminPrompts.test.mutate({
-        promptId: data.promptId,
-        testInput: data.testInput,
-      })
-    },
+  const testPromptMutation = api.adminPrompts.test.useMutation({
     onSuccess: (data) => {
       setTestResult(data.response)
       toast.success('Prompt probado exitosamente')
@@ -135,7 +118,7 @@ export default function AdminPromptsPage() {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar este prompt?')) return
-    await deletePromptMutation.mutateAsync(id)
+    await deletePromptMutation.mutateAsync({ id })
   }
 
   const handleTestPrompt = async () => {

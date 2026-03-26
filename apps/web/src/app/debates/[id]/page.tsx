@@ -79,6 +79,9 @@ export default function DebatePage({ params }: DebatePageProps) {
   // RENDER
   // ═══════════════════════════════════════════════════════════
 
+  const debateTitle = typeof debate.metadata?.title === 'string' ? debate.metadata.title : undefined
+  const hasResults = Array.isArray(debate.finalRanking) && debate.finalRanking.length > 0
+
   return (
     <div className="flex h-screen flex-col bg-slate-950">
       {/* Phase Indicator */}
@@ -93,7 +96,7 @@ export default function DebatePage({ params }: DebatePageProps) {
           {/* Context Card - Always Visible at Start */}
           {debate.context && (
             <DebateContextCard
-              question={debate.metadata?.title || undefined}
+              question={debateTitle}
               context={debate.context}
               status={debate.status}
               hasRounds={!!debate.rounds && debate.rounds.length > 0}
@@ -157,18 +160,13 @@ export default function DebatePage({ params }: DebatePageProps) {
         </div>
       </div>
 
-      {/* Final Synthesis (Executive Summary) */}
-      {debate.status === 'completed' && debate.finalSynthesis && (
-        <DebateSynthesis synthesis={debate.finalSynthesis} />
-      )}
-
       {/* Final Ranking (Bottom Sheet) */}
-      {debate.status === 'completed' && debate.finalRanking && (
+      {debate.status === 'completed' && hasResults && (
         <DebateRanking ranking={debate.finalRanking as RankingOption[]} />
       )}
 
       {/* Visualizations Section - Only for completed debates with actual results */}
-      {debate.status === 'completed' && (debate.finalSynthesis || debate.finalRanking) && (
+      {debate.status === 'completed' && hasResults && (
         <div className="border-t border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/60 px-4 py-6">
           <div className="mx-auto max-w-4xl space-y-6">
             {/* Export Button */}

@@ -11,7 +11,6 @@ import type {
   DebateRound,
   RouterCondition,
   RouterConfig,
-  RouterRule,
   AgentRole,
   RankedOption,
 } from './types'

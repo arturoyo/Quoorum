@@ -10,10 +10,10 @@
 
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and, desc, isNull, sql, or, gte } from 'drizzle-orm'
+import { eq, and, desc, sql, or } from 'drizzle-orm'
 import { router, protectedProcedure, publicProcedure } from '../trpc'
 import { db } from '@quoorum/db'
-import { referralCodes, referrals, profiles } from '@quoorum/db/schema'
+import { referralCodes, referrals, profiles, users } from '@quoorum/db/schema'
 import { logger } from '../lib/logger'
 import { inngest } from '../lib/inngest-client'
 

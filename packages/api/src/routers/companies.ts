@@ -80,6 +80,13 @@ export const companiesRouter = router({
           })
           .returning()
 
+        if (!company) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to create company',
+          })
+        }
+
         logger.info('Company created', {
           companyId: company.id,
           userId: ctx.userId,
@@ -118,6 +125,13 @@ export const companiesRouter = router({
                   userId: ctx.userId,
                 })
                 .returning()
+
+              if (!company) {
+                throw new TRPCError({
+                  code: 'INTERNAL_SERVER_ERROR',
+                  message: 'Failed to create company after profile sync',
+                })
+              }
 
               logger.info('Company created after profile sync', {
                 companyId: company.id,
@@ -170,6 +184,13 @@ export const companiesRouter = router({
         })
         .where(and(eq(companies.id, id), eq(companies.userId, ctx.userId)))
         .returning()
+
+      if (!updated) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update company',
+        })
+      }
 
       logger.info('Company updated', {
         companyId: updated.id,

@@ -373,25 +373,25 @@ export function ExpertFeedbackPanel({ debateId, experts, onComplete }: ExpertFee
           <Label className="text-[#e9edef]">Aspectos Detallados (opcional)</Label>
           <div className="space-y-2">
             <AspectRating
-              icon={Lightbulb}
+              Icon={Lightbulb}
               label="Perspicacia"
               value={currentFeedback.insightfulness}
               onChange={(val) => updateCurrentFeedback({ insightfulness: val })}
             />
             <AspectRating
-              icon={Target}
+              Icon={Target}
               label="Relevancia"
               value={currentFeedback.relevance}
               onChange={(val) => updateCurrentFeedback({ relevance: val })}
             />
             <AspectRating
-              icon={Eye}
+              Icon={Eye}
               label="Claridad"
               value={currentFeedback.clarity}
               onChange={(val) => updateCurrentFeedback({ clarity: val })}
             />
             <AspectRating
-              icon={Sparkles}
+              Icon={Sparkles}
               label="Accionabilidad"
               value={currentFeedback.actionability}
               onChange={(val) => updateCurrentFeedback({ actionability: val })}

@@ -11,7 +11,7 @@
  */
 
 import { createHash } from 'crypto'
-import type { DebateResult, DebateMessage, DebateRound } from '../types'
+import type { DebateResult, DebateRound } from '../types'
 import { quoorumLogger } from '../logger'
 
 // ============================================================================

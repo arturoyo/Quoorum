@@ -12,6 +12,14 @@ import { validateEnv, envConfig } from '../apps/web/src/lib/env';
 
 console.log('[INFO] Validating environment variables...\n');
 
+const legacyWarnings: string[] = [];
+if (process.env.FROM_EMAIL && !process.env.QUOORUM_EMAIL_FROM) {
+  legacyWarnings.push('FROM_EMAIL is legacy. Prefer QUOORUM_EMAIL_FROM as the canonical sender variable.');
+}
+if (process.env.PINECONE_INDEX_NAME && !process.env.PINECONE_INDEX) {
+  legacyWarnings.push('PINECONE_INDEX_NAME is legacy. Prefer PINECONE_INDEX as the canonical index variable.');
+}
+
 const result = validateEnv();
 
 // Print results
@@ -31,7 +39,15 @@ if (result.warnings.length > 0) {
   console.warn('');
 }
 
-if (result.valid && result.warnings.length === 0) {
+if (legacyWarnings.length > 0) {
+  console.warn('[WARN] LEGACY VARIABLE NAMES:\n');
+  legacyWarnings.forEach((warning, index) => {
+    console.warn(`  ${index + 1}. ${warning}`);
+  });
+  console.warn('');
+}
+
+if (result.valid && result.warnings.length === 0 && legacyWarnings.length === 0) {
   console.log('[OK] All environment variables are configured correctly!\n');
 } else if (result.valid) {
   console.log('[OK] Critical variables are set. Some optional features may be disabled.\n');

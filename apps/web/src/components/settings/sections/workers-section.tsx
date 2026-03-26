@@ -271,6 +271,11 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
   }
 
   const handleLoadTemplate = (template: NonNullable<typeof libraryWorkers>[number]) => {
+    const templatePrompt =
+      'systemPrompt' in template && typeof template.systemPrompt === 'string'
+        ? template.systemPrompt
+        : ''
+
     setFormData({
       name: template.name,
       role: template.role as any,
@@ -278,7 +283,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
       expertise: template.expertise,
       description: template.description || '',
       responsibilities: template.responsibilities || '',
-      systemPrompt: template.systemPrompt || '',
+      systemPrompt: templatePrompt,
       provider: template.aiConfig.provider,
       model: template.aiConfig.model,
       temperature: template.aiConfig.temperature || 0.7,

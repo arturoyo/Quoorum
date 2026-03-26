@@ -9,6 +9,7 @@
  * All state management is centralized in usePersonalization hook.
  */
 
+import type { RefObject } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -141,7 +142,7 @@ export function PersonalizationSection({ isInModal = false, initialTab }: Person
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
               onDrop={handleDropInDialog}
-              fileInputRef={fileInputRef}
+              fileInputRef={fileInputRef as RefObject<HTMLInputElement>}
               onFileChange={(e) => {
                 const file = e.target.files?.[0]
                 if (file) processFile(file, false)
@@ -157,7 +158,7 @@ export function PersonalizationSection({ isInModal = false, initialTab }: Person
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onClick={() => quickUploadRef.current?.click()}
-            inputRef={quickUploadRef}
+            inputRef={quickUploadRef as RefObject<HTMLInputElement>}
             onFileChange={handleFileUpload}
           />
 

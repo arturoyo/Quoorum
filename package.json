@@ -11,6 +11,8 @@
     "lint:fix": "turbo lint:fix",
     "typecheck": "turbo typecheck",
     "test": "vitest run",
+    "test:unit": "vitest run --exclude packages/api/src/routers/__tests__/debates-integration.test.ts --exclude packages/quoorum/src/billing/__tests__/credit-transactions.test.ts",
+    "test:integration": "vitest run packages/api/src/routers/__tests__/debates-integration.test.ts packages/quoorum/src/billing/__tests__/credit-transactions.test.ts",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "clean": "turbo clean && rm -rf node_modules",

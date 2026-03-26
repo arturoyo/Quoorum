@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure, publicProcedure, adminProcedure } from "../trpc";
+import { router, protectedProcedure, adminProcedure } from "../trpc";
 import { db } from "@quoorum/db";
 import { systemLogs } from "@quoorum/db/schema";
 import { desc, and, eq, gte, lte, like, or } from "drizzle-orm";

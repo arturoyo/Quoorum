@@ -7,12 +7,19 @@
  */
 
 import { z } from 'zod'
-import { eq, and, isNull, or, like, inArray } from 'drizzle-orm'
+import { eq, and, or, like, inArray } from 'drizzle-orm'
 import { router, protectedProcedure } from '../trpc'
 import { workers, departments, companies, workerDepartments } from '@quoorum/db'
-import type { AIConfig } from '@quoorum/ai'
 import { TRPCError } from '@trpc/server'
 import { logger } from '../lib/logger'
+
+type WorkerAIConfig = {
+  provider: 'openai' | 'anthropic' | 'google' | 'groq'
+  model: string
+  apiKey?: string
+  temperature?: number
+  maxTokens?: number
+}
 
 const aiConfigSchema = z.object({
   provider: z.enum(['openai', 'anthropic', 'google', 'groq']),
@@ -20,7 +27,7 @@ const aiConfigSchema = z.object({
   apiKey: z.string().optional(),
   temperature: z.number().min(0).max(2).optional(),
   maxTokens: z.number().positive().optional(),
-}) satisfies z.ZodType<AIConfig>
+}) satisfies z.ZodType<WorkerAIConfig>
 
 export const workersRouter = router({
   /**
@@ -197,6 +204,7 @@ export const workersRouter = router({
           'custom',
         ]),
         departmentId: z.string().uuid().optional(),
+        departmentIds: z.array(z.string().uuid()).optional(),
         expertise: z.string().min(1),
         description: z.string().optional(),
         responsibilities: z.string().optional(),
@@ -252,6 +260,13 @@ export const workersRouter = router({
         })
         .returning()
 
+      if (!newWorker) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se pudo crear el profesional',
+        })
+      }
+
       // Asociar profesional a departamentos (muchos a muchos)
       if (input.departmentIds && input.departmentIds.length > 0) {
         // Verificar que los departamentos pertenecen al usuario
@@ -273,13 +288,13 @@ export const workersRouter = router({
           })
         }
 
-        // Insertar relaciones
-        await ctx.db.insert(workerDepartments).values(
-          input.departmentIds.map((deptId) => ({
-            workerId: newWorker.id,
-            departmentId: deptId,
-          }))
-        )
+          // Insertar relaciones
+          await ctx.db.insert(workerDepartments).values(
+            input.departmentIds.map((deptId: string) => ({
+              workerId: newWorker.id,
+              departmentId: deptId,
+            }))
+          )
       }
 
       return newWorker

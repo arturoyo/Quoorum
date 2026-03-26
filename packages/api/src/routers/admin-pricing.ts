@@ -20,7 +20,6 @@ import {
 } from '@quoorum/db'
 import { TRPCError } from '@trpc/server'
 import {
-  analyzeProfitMargin,
   analyzeAllTiers,
   validatePricingConfig,
   validateTierConfig,
@@ -149,6 +148,14 @@ export const adminPricingRouter = router({
     .input(updateGlobalConfigSchema)
     .mutation(async ({ ctx, input }) => {
       const { creditMultiplier, usdPerCredit, changeReason } = input
+      const changedByUserId = ctx.userId
+
+      if (!changedByUserId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'User ID requerido',
+        })
+      }
 
       // Validate new config
       const validation = validatePricingConfig({ creditMultiplier, usdPerCredit })
@@ -205,7 +212,7 @@ export const adminPricingRouter = router({
             creditMultiplier: newConfig.creditMultiplier,
             usdPerCredit: newConfig.usdPerCredit,
           },
-          changedBy: ctx.userId,
+          changedBy: changedByUserId,
           changeReason,
         })
       }
@@ -267,6 +274,14 @@ export const adminPricingRouter = router({
     .input(createTierConfigSchema)
     .mutation(async ({ ctx, input }) => {
       const { changeReason, ...configData } = input
+      const changedByUserId = ctx.userId
+
+      if (!changedByUserId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'User ID requerido',
+        })
+      }
 
       // Get global config for validation
       const [globalConfig] = await db
@@ -302,7 +317,7 @@ export const adminPricingRouter = router({
         .insert(tierPricingConfig)
         .values({
           ...configData,
-          createdBy: ctx.userId,
+          createdBy: changedByUserId,
           changeReason,
         })
         .returning()
@@ -314,7 +329,7 @@ export const adminPricingRouter = router({
           entityType: 'tier_pricing_config',
           entityId: newConfig.id,
           newValues: configData,
-          changedBy: ctx.userId,
+          changedBy: changedByUserId,
           changeReason,
         })
       }
@@ -329,6 +344,14 @@ export const adminPricingRouter = router({
     .input(updateTierConfigSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, changeReason, ...updates } = input
+      const changedByUserId = ctx.userId
+
+      if (!changedByUserId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'User ID requerido',
+        })
+      }
 
       // Get current config
       const [currentConfig] = await db
@@ -397,7 +420,7 @@ export const adminPricingRouter = router({
           entityId: id,
           oldValues: currentConfig,
           newValues: updates,
-          changedBy: ctx.userId,
+          changedBy: changedByUserId,
           changeReason,
         })
       }
@@ -417,6 +440,14 @@ export const adminPricingRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { id, changeReason } = input
+      const changedByUserId = ctx.userId
+
+      if (!changedByUserId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'User ID requerido',
+        })
+      }
 
       // Get current config
       const [currentConfig] = await db
@@ -448,7 +479,7 @@ export const adminPricingRouter = router({
         entityType: 'tier_pricing_config',
         entityId: id,
         oldValues: currentConfig,
-        changedBy: ctx.userId,
+        changedBy: changedByUserId,
         changeReason,
       })
 

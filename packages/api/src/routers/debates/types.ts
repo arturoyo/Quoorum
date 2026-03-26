@@ -140,11 +140,11 @@ export interface DebateRecord {
   id: string;
   userId: string;
   question: string;
-  context: DebateContext;
+  context: DebateContext | null;
   mode: string;
   status: string;
   visibility: string;
-  metadata: DebateMetadata;
+  metadata: DebateMetadata | null;
   createdAt: Date;
   updatedAt: Date;
 }

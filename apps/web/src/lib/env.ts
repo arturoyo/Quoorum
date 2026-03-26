@@ -35,12 +35,12 @@ const env = {
   
   // Email (Important for notifications)
   resendApiKey: process.env.RESEND_API_KEY,
-  fromEmail: process.env.FROM_EMAIL || 'Quoorum <noreply@quoorum.pro>',
+  fromEmail: process.env.QUOORUM_EMAIL_FROM || process.env.FROM_EMAIL || 'Quoorum <noreply@quoorum.pro>',
   
   // Optional: Pinecone
   pineconeApiKey: process.env.PINECONE_API_KEY,
   pineconeEnvironment: process.env.PINECONE_ENVIRONMENT || 'us-east-1-aws',
-  pineconeIndexName: process.env.PINECONE_INDEX_NAME || 'quoorum-debates',
+  pineconeIndexName: process.env.PINECONE_INDEX || process.env.PINECONE_INDEX_NAME || 'quoorum-debates',
   
   // Optional: Redis
   redisUrl: process.env.REDIS_URL || process.env.UPSTASH_REDIS_REST_URL,

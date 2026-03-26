@@ -84,16 +84,14 @@ export function FrameworkSelector({
         isOpen) {
       // Auto-select top suggested framework
       const topFramework = suggestedFrameworks[0]
+      if (!topFramework) return
 
       logger.info('[FrameworkSelector] Auto-selecting framework:', {
         frameworkId: topFramework.id,
         slug: topFramework.slug,
         matchScore: topFramework.matchScore
       })
-
-      if (topFramework) {
-        onSelectionChange(topFramework.id)
-      }
+      onSelectionChange(topFramework.id)
     }
   }, [suggestedFrameworks, selectionMode, isOpen, selectedFrameworkId, onSelectionChange])
 

@@ -25,19 +25,21 @@ import {
   checkMonthlyCreditsRenewals,
 } from '@quoorum/workers/functions/monthly-credits-assignment'
 
+const inngestFunctions = [
+  quoorumDebateCompleted,
+  quoorumDebateFailed,
+  quoorumSendNotification,
+  quoorumWeeklyDigest,
+  quoorumScheduledReportsWorker,
+  quoorumGenerateReport,
+  quoorumExpertPerformanceUpdate,
+  nextjsAutoHealer,
+  nextjsAutoHealerManual,
+  assignMonthlyCredits,
+  checkMonthlyCreditsRenewals,
+] as unknown[]
+
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [
-    quoorumDebateCompleted,
-    quoorumDebateFailed,
-    quoorumSendNotification,
-    quoorumWeeklyDigest,
-    quoorumScheduledReportsWorker,
-    quoorumGenerateReport,
-    quoorumExpertPerformanceUpdate,
-    nextjsAutoHealer,
-    nextjsAutoHealerManual,
-    assignMonthlyCredits,
-    checkMonthlyCreditsRenewals,
-  ],
-})
+  functions: inngestFunctions,
+} as Parameters<typeof serve>[0])

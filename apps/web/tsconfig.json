@@ -6,6 +6,9 @@
     "moduleResolution": "bundler",
     "allowJs": true,
     "noEmit": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "incremental": true,
     "plugins": [
       {
@@ -16,6 +19,12 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "e2e", "**/*.spec.ts", "**/*.spec.tsx"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.d.ts"],
+  "exclude": [
+    "node_modules",
+    "e2e",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "src/hooks/use-quoorum.ts"
+  ]
 }

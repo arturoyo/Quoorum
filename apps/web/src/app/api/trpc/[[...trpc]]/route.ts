@@ -1,5 +1,6 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter, systemLogger, validateEnvironmentOrThrow } from "@quoorum/api";
+import type { Database, User } from "@quoorum/db";
 import { db } from "@quoorum/db";
 import { profiles, users, adminUsers } from "@quoorum/db/schema";
 import { eq, sql } from "drizzle-orm";
@@ -16,7 +17,23 @@ try {
   // In production, this should be caught by monitoring
 }
 
-const createContext = async (opts?: FetchCreateContextFnOptions) => {
+type TRPCContext = {
+  db: Database;
+  user: User | null;
+  userId: string | null;
+  supabase?: null;
+  authUserId?: string | null;
+};
+
+const unauthenticatedContext = (): TRPCContext => ({
+  db,
+  user: null,
+  userId: null,
+  supabase: null,
+  authUserId: null,
+});
+
+const createContext = async (opts?: FetchCreateContextFnOptions): Promise<TRPCContext> => {
   try {
     // Get cookies from request headers
     const cookieHeader = opts?.req.headers.get("cookie") || "";
@@ -56,7 +73,7 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       if (bypassCookie) {
         if (secretToken) {
           const [email, token] = bypassCookie.split(':');
-          if (token === secretToken) {
+          if (email && token === secretToken) {
             userEmail = email;
           } else {
             systemLogger.warn("[tRPC Context] Invalid bypass token", { hasToken: !!token, isLocalHost });
@@ -78,13 +95,7 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
 
     if (!userEmail) {
       systemLogger.debug("[tRPC Context] No user email in cookies - unauthenticated");
-      return {
-        db,
-        user: null,
-        userId: null,
-        supabase: null,
-        authUserId: null,
-      };
+      return unauthenticatedContext();
     }
 
     systemLogger.debug("[tRPC Context] PostgreSQL-only mode - looking up user", { email: userEmail });
@@ -99,13 +110,7 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
 
     if (!profile) {
       systemLogger.warn("[tRPC Context] Profile not found in PostgreSQL", { email: userEmail });
-      return {
-        db,
-        user: null,
-        userId: null,
-        supabase: null,
-        authUserId: null,
-      };
+      return unauthenticatedContext();
     }
 
     systemLogger.debug("[tRPC Context] Profile found", { profileId: profile.id, email: profile.email, queryTimeMs: Date.now() - startTime });
@@ -138,6 +143,14 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
           isActive: true,
         })
         .returning();
+
+      if (!newUser) {
+        systemLogger.error("[tRPC Context] Failed to create user record", new Error("User creation returned no rows"), {
+          email: userEmail,
+          profileId: profile.id,
+        });
+        return unauthenticatedContext();
+      }
 
       dbUser = newUser;
       systemLogger.info("[tRPC Context] User created", { userId: dbUser.id, role: dbUser.role });
@@ -176,17 +189,11 @@ const createContext = async (opts?: FetchCreateContextFnOptions) => {
       user: finalUser,
       userId: profile.id, // Use profile.id for foreign keys (quoorum_debates.user_id, etc.)
       supabase: null, // Not using Supabase
-      authUserId: profile.userId, // Original user ID from auth system (if any)
+      authUserId: profile.userId ?? null, // Original user ID from auth system (if any)
     };
   } catch (error) {
     systemLogger.error("[tRPC Context] Error creating context", error as Error);
-    return {
-      db,
-      user: null,
-      userId: null,
-      supabase: null,
-      authUserId: null,
-    };
+    return unauthenticatedContext();
   }
 };
 

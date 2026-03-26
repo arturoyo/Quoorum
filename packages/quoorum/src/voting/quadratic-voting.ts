@@ -288,7 +288,7 @@ function calculateConfidence(
 export function calculatePointsVote(
   votes: Map<string, Map<string, number>>, // expertId -> (option -> points)
   options: string[],
-  totalPointsPerExpert: number = 100
+  _totalPointsPerExpert: number = 100
 ): RankedOption[] {
   const optionScores = new Map<string, number>()
 
@@ -296,7 +296,7 @@ export function calculatePointsVote(
     let totalScore = 0
     let voterCount = 0
 
-    for (const [expertId, allocations] of votes.entries()) {
+    for (const [, allocations] of votes.entries()) {
       const points = allocations.get(option) || 0
       if (points > 0) {
         totalScore += points

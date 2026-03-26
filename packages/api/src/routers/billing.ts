@@ -24,7 +24,7 @@ try {
   // Only initialize if we have a non-empty secret key
   if (env.STRIPE_SECRET_KEY && env.STRIPE_SECRET_KEY.trim().length > 0) {
     stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2025-12-15.clover',
     })
     logger.info('Stripe client initialized successfully')
   } else {
@@ -109,18 +109,6 @@ const SERVICE_MULTIPLIER = 1.75 // Multiplicador de servicio (1.75x)
 function calculatePriceFromCredits(credits: number): number {
   // Precio en centavos USD = créditos * 0.01 * 100
   return Math.round(credits * CREDIT_PRICE_PER_UNIT * 100)
-}
-
-// Función para calcular créditos basado en precio (en centavos USD)
-function calculateCreditsFromPrice(priceInCents: number): number {
-  // Créditos = precio en centavos / (0.01 * 100)
-  return Math.round(priceInCents / (CREDIT_PRICE_PER_UNIT * 100))
-}
-
-// Función para calcular créditos desde coste API USD (con multiplicador de servicio)
-function calculateCreditsFromApiCost(apiCostUsd: number): number {
-  // Créditos = ⌈(Coste API USD × 1.75) / 0.01⌉
-  return Math.ceil((apiCostUsd * SERVICE_MULTIPLIER) / CREDIT_PRICE_PER_UNIT)
 }
 
 // Credit packs (one-time purchases) - Generados con la fórmula
@@ -316,7 +304,13 @@ export const billingRouter = router({
     const availablePacks = CREDIT_AMOUNTS.slice().sort((a, b) => a - b)
     
     // Find closest pack (round up to nearest available pack)
-    const closestPack = availablePacks.find((pack) => pack >= requestedCredits) || availablePacks[availablePacks.length - 1]
+    const closestPack = availablePacks.find((pack) => pack >= requestedCredits) ?? availablePacks[availablePacks.length - 1]
+    if (closestPack === undefined) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'No hay paquetes de créditos configurados',
+      })
+    }
     
     // Calculate price using formula
     const priceInCents = calculatePriceFromCredits(closestPack)
@@ -559,7 +553,7 @@ export const billingRouter = router({
       business: 100, // 100 créditos diarios para business
     }
     
-    const dailyCredits = DAILY_CREDITS_BY_TIER[ctx.user.tier] || DAILY_CREDITS_BY_TIER.free
+    const dailyCredits = DAILY_CREDITS_BY_TIER[ctx.user.tier] ?? DAILY_CREDITS_BY_TIER.free ?? 10
     
     // Añadir créditos usando la función de credit-transactions
     const { addCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
@@ -645,7 +639,7 @@ export const billingRouter = router({
             business: 100,
           }
           
-          const dailyCredits = DAILY_CREDITS_BY_TIER[ctx.user.tier] || DAILY_CREDITS_BY_TIER.free
+          const dailyCredits = DAILY_CREDITS_BY_TIER[ctx.user.tier] ?? DAILY_CREDITS_BY_TIER.free ?? 10
           
           const { addCredits } = await import('@quoorum/quoorum/billing/credit-transactions')
           const result = await addCredits(
@@ -1087,7 +1081,12 @@ async function handleCreditPurchase(session: Stripe.Checkout.Session) {
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
-  const userId = invoice.subscription_details?.metadata?.userId
+  const invoiceWithMetadata = invoice as Stripe.Invoice & {
+    subscription_details?: { metadata?: Record<string, string> }
+    period_start?: number
+    period_end?: number
+  }
+  const userId = invoiceWithMetadata.subscription_details?.metadata?.userId
 
   if (!userId) {
     logger.warn('Webhook invoice missing userId', {})
@@ -1121,8 +1120,8 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   await db
     .update(subscriptions)
     .set({
-      currentPeriodStart: new Date(invoice.period_start * 1000),
-      currentPeriodEnd: new Date(invoice.period_end * 1000),
+      currentPeriodStart: new Date((invoiceWithMetadata.period_start ?? Math.floor(Date.now() / 1000)) * 1000),
+      currentPeriodEnd: new Date((invoiceWithMetadata.period_end ?? Math.floor(Date.now() / 1000)) * 1000),
       updatedAt: new Date(),
     })
     .where(eq(subscriptions.id, sub.id))
@@ -1162,6 +1161,10 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const subscriptionWithPeriods = subscription as Stripe.Subscription & {
+    current_period_start?: number
+    current_period_end?: number
+  }
   logger.info('Webhook processing subscription update', { subscriptionId: subscription.id })
 
   // Map Stripe status to our enum
@@ -1181,8 +1184,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     .update(subscriptions)
     .set({
       status: status as any,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date((subscriptionWithPeriods.current_period_start ?? Math.floor(Date.now() / 1000)) * 1000),
+      currentPeriodEnd: new Date((subscriptionWithPeriods.current_period_end ?? Math.floor(Date.now() / 1000)) * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       updatedAt: new Date(),
     })

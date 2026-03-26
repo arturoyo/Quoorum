@@ -9,7 +9,10 @@ if (!resend && process.env.NODE_ENV === "development") {
   logWarning("RESEND_API_KEY is not set. Emails will not be sent.");
 }
 
-const FROM_EMAIL = process.env.FROM_EMAIL || "Quoorum <noreply@quoorum.ai>";
+const FROM_EMAIL =
+  process.env.QUOORUM_EMAIL_FROM ||
+  process.env.FROM_EMAIL ||
+  "Quoorum <noreply@quoorum.pro>";
 
 export interface EmailOptions {
   to: string;

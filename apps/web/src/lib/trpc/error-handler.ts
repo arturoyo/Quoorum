@@ -18,6 +18,10 @@ export interface TRPCErrorInfo {
   errorData?: Record<string, unknown>
 }
 
+function asErrorRecord(error: Error): Record<string, unknown> {
+  return error as unknown as Record<string, unknown>
+}
+
 /**
  * Clasifica un error de tRPC y retorna información útil
  */
@@ -140,7 +144,7 @@ export function classifyTRPCError(error: unknown): TRPCErrorInfo {
 
   // Error con status code
   if (error instanceof Error) {
-    const errorObj = error as Record<string, unknown>
+    const errorObj = asErrorRecord(error)
     
     // 401 Unauthorized - Verificar ANTES de PAYMENT_REQUIRED (más común)
     // Verificar desde múltiples fuentes:
@@ -235,7 +239,7 @@ export function classifyTRPCError(error: unknown): TRPCErrorInfo {
       
       // Si el error tiene responseBody, intentar extraer el mensaje del servidor
       if (error instanceof Error) {
-        const errorObj = error as Record<string, unknown>
+        const errorObj = asErrorRecord(error)
         if (errorObj.responseBody) {
           try {
             const responseBody = errorObj.responseBody as unknown
@@ -365,7 +369,7 @@ export function handleTRPCError(error: unknown, context?: string): TRPCErrorInfo
 
   // Si el error tiene propiedades adicionales (como status, code, etc.), incluirlas
   if (error instanceof Error) {
-    const errorObj = error as Record<string, unknown>
+    const errorObj = asErrorRecord(error)
     if (errorObj.status) errorDetails.status = errorObj.status
     if (errorObj.code) errorDetails.code = errorObj.code
     if (errorObj.cause) errorDetails.cause = errorObj.cause
@@ -386,7 +390,7 @@ export function handleTRPCError(error: unknown, context?: string): TRPCErrorInfo
       errorData: errorInfo.errorData,
     })
     // No mostrar toast aquí - el componente manejará el error específicamente
-    return // Salir temprano para evitar logging adicional
+    return errorInfo
   }
 
   // Verificar si es UNAUTHORIZED ANTES de loggear - estos son esperados cuando el usuario no está autenticado
@@ -394,7 +398,7 @@ export function handleTRPCError(error: unknown, context?: string): TRPCErrorInfo
     // Error de autenticación - NO mostrar toast ni loggear como error
     // Estos errores se manejan con el flag `enabled` en los queries
     // No hacer nada - silenciar completamente
-    return // Salir temprano para evitar logging adicional
+    return errorInfo
   }
 
   // Verificar si es NETWORK ANTES de loggear - estos son temporales (servidor no disponible, sin conexión)
@@ -408,7 +412,7 @@ export function handleTRPCError(error: unknown, context?: string): TRPCErrorInfo
         message: errorInfo.message,
       })
     }
-    return // Salir temprano para evitar logging adicional
+    return errorInfo
   }
   
   if (isNetworkOrFetch) {
@@ -432,8 +436,6 @@ export function handleTRPCError(error: unknown, context?: string): TRPCErrorInfo
         onClick: () => window.location.reload(),
       },
     })
-  } else if (errorInfo.type === 'network') {
-    // Sin toast: QueryClient reintenta hasta 3 veces; evitar spam de toasts
   } else if (errorInfo.type === 'server') {
     // Usar el mensaje extraído del servidor si está disponible
     const description = errorInfo.message !== 'Error del servidor. Por favor, intenta más tarde.'

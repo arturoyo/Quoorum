@@ -18,7 +18,7 @@ describe('Expert Database', () => {
       const expert = getExpert('april_dunford')
       expect(expert).toBeDefined()
       expect(expert?.name).toBe('April Dunford')
-      expect(expert?.title).toBe('Positioning Expert')
+      expect(expert?.title).toBe('Experto en Posicionamiento')
     })
 
     it('should return undefined for non-existent expert', () => {
@@ -153,7 +153,7 @@ describe('Expert Database', () => {
         expect(typeof expert.perspective).toBe('string')
         expect(typeof expert.systemPrompt).toBe('string')
         expect(typeof expert.temperature).toBe('number')
-        expect(['openai', 'anthropic', 'deepseek']).toContain(expert.provider)
+        expect(['openai', 'anthropic', 'deepseek', 'google']).toContain(expert.provider)
         expect(typeof expert.modelId).toBe('string')
 
         // Value checks

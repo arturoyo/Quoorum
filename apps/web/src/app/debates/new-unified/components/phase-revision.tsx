@@ -40,7 +40,7 @@ export function PhaseRevision({
   state,
   contexto,
   expertos,
-  estrategia: _estrategia,
+  estrategia,
   onEditPhase,
   onCreateDebate,
   isCreating,

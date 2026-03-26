@@ -121,10 +121,15 @@ export function DebateProgressCascade({
         if (existingIndex >= 0) {
           // Update existing phase
           const updated = [...prev];
+          const existingPhase = updated[existingIndex]
+          if (!existingPhase) {
+            return prev
+          }
+
           updated[existingIndex] = {
             ...processingStatus,
-            id: updated[existingIndex].id,
-            isExpanded: updated[existingIndex].isExpanded,
+            id: existingPhase.id,
+            isExpanded: existingPhase.isExpanded,
           };
           return updated;
         } else {
@@ -226,7 +231,7 @@ export function DebateProgressCascade({
                 const isCurrent = index === phases.length - 1 && status === "in_progress";
                 const phaseColor = PHASE_COLORS[phase.phase] || "text-[var(--theme-text-secondary)]";
                 const phaseIcon = PHASE_ICONS[phase.phase] || <Circle className="h-5 w-5" />;
-                const hasMessages = phase.roundMessages && phase.roundMessages.length > 0;
+                const hasMessages = (phase.roundMessages?.length ?? 0) > 0;
 
                 return (
                   <motion.div
@@ -281,7 +286,7 @@ export function DebateProgressCascade({
                           )}
                           {hasMessages && (
                             <Badge variant="outline" className="text-xs text-white bg-slate-800/50">
-                              {phase.roundMessages.length} mensajes
+                              {phase.roundMessages?.length ?? 0} mensajes
                             </Badge>
                           )}
                         </div>

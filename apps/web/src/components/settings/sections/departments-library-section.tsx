@@ -191,7 +191,7 @@ export function DepartmentsLibrarySection({ isInModal = false }: DepartmentsLibr
           )}
         >
           {predefinedDepartments.map((dept, index) => (
-            <Card key={dept.id || `dept-${index}`} className="relative border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl hover:border-purple-500/30 transition-colors">
+            <Card key={dept.type || `dept-${index}`} className="relative border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] backdrop-blur-xl hover:border-purple-500/30 transition-colors">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1 space-y-1">
@@ -266,7 +266,7 @@ export function DepartmentsLibrarySection({ isInModal = false }: DepartmentsLibr
                   variant="outline"
                   size="sm"
                   className="w-full border-purple-500/40 text-purple-300 hover:bg-purple-500/20"
-                  onClick={() => handleUseTemplate({ id: dept.id, name: dept.name, type: dept.type })}
+                  onClick={() => handleUseTemplate({ id: dept.type, name: dept.name, type: dept.type })}
                   disabled={!company || createFromTemplate.isPending}
                 >
                   <Copy className="mr-2 h-3 w-3" />

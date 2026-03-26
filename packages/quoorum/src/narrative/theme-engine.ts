@@ -7,7 +7,7 @@
  */
 
 import type { AgentRole, AIProviderType } from '../types'
-import { AVAILABLE_THEMES, getCharacterByRole, type NarrativeCharacter, type NarrativeTheme } from './themes'
+import { AVAILABLE_THEMES, getCharacterByRole, type NarrativeTheme } from './themes'
 
 // ============================================================================
 // TYPES

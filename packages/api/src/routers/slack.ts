@@ -12,7 +12,6 @@ import { db } from '@quoorum/db'
 import { quoorumDebates, profiles } from '@quoorum/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { logger } from '../lib/logger'
-import { createHmac, timingSafeEqual } from 'crypto'
 
 // ============================================================================
 // ROUTER
@@ -143,6 +142,13 @@ export const slackRouter = router({
           },
         })
         .returning()
+
+      if (!debate) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se pudo crear el debate desde Slack',
+        })
+      }
 
       logger.info('Debate created from Slack', {
         debateId: debate.id,

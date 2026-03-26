@@ -160,7 +160,12 @@ export function ScenariosSection({ isInModal = false }: ScenariosSectionProps) {
         promptVariables: editingScenarioData.promptVariables || {},
         successMetrics: editingScenarioData.successMetrics || [],
         agentBehaviorOverrides: editingScenarioData.agentBehaviorOverrides || {},
-        tokenOptimization: editingScenarioData.tokenOptimization || { enabled: true },
+        tokenOptimization: {
+          enabled: true,
+          maxTokensPerMessage: 1000,
+          compressionEnabled: true,
+          ...(editingScenarioData.tokenOptimization || {}),
+        },
         generateCertificate: editingScenarioData.generateCertificate ?? true,
         certificateTemplate: editingScenarioData.certificateTemplate || '',
         minTier: editingScenarioData.minTier || 'free',

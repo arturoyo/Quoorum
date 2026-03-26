@@ -42,6 +42,9 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
       },
     }
   )
+  const errorDetails = typeof (debate?.metadata as Record<string, unknown> | undefined)?.errorDetails === 'string'
+    ? String((debate?.metadata as Record<string, unknown>).errorDetails)
+    : undefined
   
   // Update local state from query
   useEffect(() => {
@@ -185,7 +188,7 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
             
             <div className="space-y-2">
               <p className="text-lg font-medium text-[var(--theme-text-primary)]">{statusInfo.title}</p>
-              <p className="text-sm text-[var(--theme-text-tertiary)]">{statusInfo.message}</p>
+              <p className="text-sm text-[var(--theme-text-tertiary)]">{String(statusInfo.message)}</p>
               
               {/* Show processing progress if available */}
               {processingInfo && processingInfo.progress > 0 && (
@@ -227,9 +230,9 @@ export function PhaseDebate({ state, onSendMessage, isLoading }: PhaseDebateProp
                       </span>
                     </div>
                   )}
-                  {debateStatus === 'failed' && debate?.metadata?.errorDetails && (
+                  {debateStatus === 'failed' && errorDetails && (
                     <div className="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-300">
-                      {String(debate.metadata.errorDetails)}
+                      {errorDetails}
                     </div>
                   )}
                 </div>

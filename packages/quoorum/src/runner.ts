@@ -4,13 +4,13 @@
  * Ejecuta debates multi-agente hasta alcanzar consenso
  */
 
-import { getAIClient, retryWithBackoff } from '@quoorum/ai'
+import { getAIClient } from '@quoorum/ai'
 import { QUOORUM_AGENTS, AGENT_ORDER, estimateAgentCost } from './agents'
 import { ULTRA_OPTIMIZED_PROMPT, estimateTokens, getRoleEmoji, compressInput, decompressOutput } from './ultra-language'
 import { checkConsensus } from './consensus'
 import { deductCredits, refundCredits, hasSufficientCredits } from './billing/credit-transactions'
 import { convertUsdToCredits } from './analytics/cost'
-import { selectTheme, assignDebateIdentities, type AssignedIdentity, type ThemeSelection } from './narrative/theme-engine'
+import { selectTheme, assignDebateIdentities, type AssignedIdentity } from './narrative/theme-engine'
 import { determineAgentOrder, getActiveRuleDescription } from './router-engine'
 import { generateFinalSynthesis } from './final-synthesis'
 import { quoorumLogger } from './logger'
@@ -32,6 +32,37 @@ import type {
 
 const MAX_ROUNDS = 20
 const MAX_TOKENS_PER_MESSAGE = 50 // Ultra-optimized messages should be ~15 tokens
+
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  config: {
+    maxRetries: number
+    initialDelay: number
+    maxDelay: number
+    backoffMultiplier: number
+    jitter?: boolean
+    retryableErrors?: string[]
+  }
+): Promise<T> {
+  let attempt = 0
+  let delay = config.initialDelay
+  let lastError: unknown
+
+  while (attempt <= config.maxRetries) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error
+      if (attempt === config.maxRetries) break
+      const jitterFactor = config.jitter ? 0.75 + Math.random() * 0.5 : 1
+      await new Promise((resolve) => setTimeout(resolve, delay * jitterFactor))
+      delay = Math.min(Math.round(delay * config.backoffMultiplier), config.maxDelay)
+      attempt += 1
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(String(lastError))
+}
 
 // ============================================================================
 // MAIN RUNNER
@@ -479,7 +510,7 @@ export async function generateAgentResponse(
     const expandedContent = await decompressOutput(compressedContent)
 
     // Calcular tokens usados (usar el comprimido para cálculo de costo)
-    const tokensUsed = response.usage?.totalTokens ?? estimateTokens(compressedContent)
+    const tokensUsed = estimateTokens(compressedContent)
     const costUsd = estimateAgentCost(agent, tokensUsed)
 
     return {

@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   CreditCard,
   FileText,
+  MapPin,
   Shield,
   ChevronLeft,
   ChevronRight
@@ -37,6 +38,11 @@ const adminNavItems: NavItem[] = [
     href: "/admin/logs",
     label: "Logs",
     icon: FileText,
+  },
+  {
+    href: "/admin/roadmap",
+    label: "Roadmap",
+    icon: MapPin,
   },
 ]
 

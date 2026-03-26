@@ -5,7 +5,13 @@
  * and customize for their company structure.
  */
 
-import type { AIConfig } from '@quoorum/ai'
+type WorkerAIConfig = {
+  provider: 'openai' | 'anthropic' | 'google' | 'groq'
+  model: string
+  apiKey?: string
+  temperature?: number
+  maxTokens?: number
+}
 
 export interface WorkerTemplate {
   name: string
@@ -14,7 +20,7 @@ export interface WorkerTemplate {
   description: string
   responsibilities: string
   systemPrompt: string
-  aiConfig: AIConfig
+  aiConfig: WorkerAIConfig
   avatar?: string
   category: 'executive' | 'management' | 'technical' | 'sales' | 'marketing' | 'operations' | 'support'
 }

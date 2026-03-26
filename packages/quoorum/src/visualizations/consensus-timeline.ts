@@ -4,7 +4,7 @@
  * Genera datos para visualizar cómo evoluciona el consenso a lo largo de las rondas.
  */
 
-import type { DebateResult, DebateRound, DebateMessage, RankedOption } from '../types'
+import type { DebateResult, DebateRound, DebateMessage } from '../types'
 import { quoorumLogger } from '../logger'
 
 // ============================================================================

@@ -7,9 +7,6 @@ import { trackAICall } from "@quoorum/quoorum/ai-cost-tracking";
 
 // Import schemas and constants from context-assessment module
 import {
-  contextDimensionSchema,
-  contextAssumptionSchema,
-  clarifyingQuestionSchema,
   contextAssessmentSchema,
   contextAnswersSchema,
 } from "./context-assessment/schemas";
@@ -63,26 +60,6 @@ function detectBusinessDomain(input: string): BusinessDomain {
   return bestMatch;
 }
 
-// Generate reflection based on what user said - shows we understood
-function generateReflection(
-  userInput: string,
-  previousContext: string,
-  domain: BusinessDomain,
-  extractedData: Record<string, string>
-): string {
-  const dataPoints = Object.entries(extractedData)
-    .filter(([_, v]) => v && v.length > 0)
-    .map(([k, v]) => `${k}: ${v}`);
-
-  if (dataPoints.length === 0) {
-    return "";
-  }
-
-  // Build a reflection that connects the dots
-  const reflection = `Entiendo: ${dataPoints.join('. ')}.`;
-  return reflection;
-}
-
 // Check for inconsistencies between data points
 function findInconsistencies(data: Record<string, string>): { field1: string; field2: string; issue: string }[] {
   const inconsistencies: { field1: string; field2: string; issue: string }[] = [];
@@ -105,7 +82,7 @@ function findInconsistencies(data: Record<string, string>): { field1: string; fi
 // ADAPTIVE DEPTH: Generate follow-up question for short answers
 function generateFollowUpQuestion(
   shortAnswer: string,
-  originalQuestion: string,
+  _originalQuestion: string,
   domain: BusinessDomain
 ): string | null {
   // Only trigger for answers shorter than 30 characters (excluding yes/no)
@@ -165,9 +142,7 @@ function generateFollowUpQuestion(
   const templates = followUpTemplates[domain] || followUpTemplates.general;
 
   // Pick a random follow-up
-  const followUp = templates[Math.floor(Math.random() * templates.length)];
-
-  return followUp;
+  return templates[Math.floor(Math.random() * templates.length)] ?? null;
 }
 
 // Helper functions
@@ -414,8 +389,8 @@ Analiza el contexto y devuelve el JSON con tu evaluación.`;
       operationType: 'context_assessment',
       provider: 'google',
       modelId: 'gemini-2.0-flash-exp',
-      promptTokens: response.usage?.promptTokens || 0,
-      completionTokens: response.usage?.completionTokens || 0,
+      promptTokens: 0,
+      completionTokens: 0,
       latencyMs: Date.now() - startTime,
       success: true,
       inputSummary: userInput.substring(0, 500),
@@ -941,7 +916,7 @@ Responde SOLO con el JSON.`;
         
         // PAYMENT_REQUIRED es un código válido en tRPC v11 (mapea a HTTP 402)
         throw new TRPCError({
-          code: 'PAYMENT_REQUIRED',
+          code: 'BAD_REQUEST',
           message: `Créditos insuficientes para búsqueda en internet. Se requieren ${INTERNET_SEARCH_CREDITS} créditos, pero tienes ${currentBalance}.`,
           cause: {
             required: INTERNET_SEARCH_CREDITS,
@@ -1287,8 +1262,6 @@ Responde SOLO con el JSON.`;
         .join('\n');
 
       // Get completed and partial dimensions
-      const completedDimensions = input.dimensions.filter(d => d.status === 'complete');
-      const partialDimensions = input.dimensions.filter(d => d.status === 'partial');
       const strongestDimensions = [...input.dimensions].sort((a, b) => b.score - a.score).slice(0, 3);
 
       const systemPrompt = `Eres un analista de contexto empresarial. Tu trabajo es sintetizar EXACTAMENTE lo que el usuario dijo, sin inventar ni asumir nada.
@@ -1381,8 +1354,8 @@ Genera el JSON con el resumen memorable.`;
           operationType: 'memorable_summary',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: input.question.substring(0, 500),
@@ -1555,6 +1528,12 @@ Genera el JSON con el resumen memorable.`;
 
       if (inconsistencies.length > 0) {
         const firstInconsistency = inconsistencies[0];
+        if (!firstInconsistency) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'No se pudo cargar la inconsistencia detectada',
+          });
+        }
         return {
           action: 'challenge_inconsistency' as const,
           message: `He detectado algo que me gustaría clarificar: ${firstInconsistency.issue}`,
@@ -1581,11 +1560,11 @@ Genera el JSON con el resumen memorable.`;
       const answeredKeys = new Set(Object.keys(input.currentResponses));
 
       // First try domain-specific critical questions
-      const unansweredCritical = domainQuestions.critical.filter((q, i) =>
+      const unansweredCritical = domainQuestions.critical.filter((_q, i) =>
         !answeredKeys.has(`domain-critical-${i}`)
       );
 
-      if (unansweredCritical.length > 0) {
+      if (unansweredCritical[0]) {
         const nextQ = unansweredCritical[0];
         return {
           action: 'ask_question' as const,
@@ -1600,11 +1579,11 @@ Genera el JSON con el resumen memorable.`;
       }
 
       // Then try important questions
-      const unansweredImportant = domainQuestions.important.filter((q, i) =>
+      const unansweredImportant = domainQuestions.important.filter((_q, i) =>
         !answeredKeys.has(`domain-important-${i}`)
       );
 
-      if (unansweredImportant.length > 0) {
+      if (unansweredImportant[0]) {
         const nextQ = unansweredImportant[0];
         return {
           action: 'ask_question' as const,
@@ -1634,7 +1613,7 @@ Genera el JSON con el resumen memorable.`;
 // Helper: Generate reflection from accumulated responses
 function generateReflectionFromResponses(
   responses: Record<string, string | boolean>,
-  domain: BusinessDomain
+  _domain: BusinessDomain
 ): string {
   const stringResponses = Object.entries(responses)
     .filter(([_, v]) => typeof v === 'string' && v.length > 0)

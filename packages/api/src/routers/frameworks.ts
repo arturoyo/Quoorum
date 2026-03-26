@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure, publicProcedure } from "../trpc";
 import { db } from "@quoorum/db/client";
 import { frameworks, debateFrameworks } from "@quoorum/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { getAIClient } from "@quoorum/ai";
 import { logger } from "../lib/logger";
@@ -156,11 +156,11 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
         // Track AI cost
         void trackAICall({
           userId: ctx.userId,
-          operationType: 'frameworks_suggestion',
+          operationType: 'generic_ai_call',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: input.question.substring(0, 500),
@@ -226,7 +226,7 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
         // Track failed AI call
         void trackAICall({
           userId: ctx.userId,
-          operationType: 'frameworks_suggestion',
+          operationType: 'generic_ai_call',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
           promptTokens: 0,
@@ -256,7 +256,7 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
    */
   runProsAndCons: protectedProcedure
     .input(prosAndConsInputSchema)
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       try {
         // Get user backstory for context
         const userBackstory = input.userBackstory || undefined;
@@ -288,7 +288,7 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
    */
   runSWOTAnalysis: protectedProcedure
     .input(swotAnalysisInputSchema)
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       try {
         // Get user backstory for context
         const userBackstory = input.userBackstory || undefined;
@@ -317,7 +317,7 @@ ${input.context ? `Contexto adicional: "${input.context}"` : ''}
    */
   runEisenhowerMatrix: protectedProcedure
     .input(eisenhowerMatrixInputSchema)
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       try {
         // Get user backstory for context
         const userBackstory = input.userBackstory || undefined;

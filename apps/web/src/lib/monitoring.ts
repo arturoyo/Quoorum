@@ -22,6 +22,10 @@ export function logError(error: Error, context?: LogContext): void {
   // Sentry.captureException(error, { extra: context });
 }
 
+export function captureException(error: Error, context?: LogContext): void {
+  logError(error, context)
+}
+
 export function logInfo(message: string, data?: LogContext): void {
   if (isDev) {
     console.info("[Quoorum]", message, data);

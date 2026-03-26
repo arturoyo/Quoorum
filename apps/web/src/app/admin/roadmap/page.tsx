@@ -144,6 +144,15 @@ export default function AdminRoadmapPage() {
     limit: 100,
     offset: 0,
   })
+  const roadmapStats = statsData as
+    | {
+        total: number
+        planned: number
+        in_progress: number
+        completed: number
+        blocked: number
+      }
+    | undefined
 
   const items = listData?.items || []
 
@@ -195,6 +204,12 @@ export default function AdminRoadmapPage() {
   }
 
   const handleOpenEdit = (item: typeof items[number]) => {
+    const formattedDueDate = item.dueDate instanceof Date
+      ? item.dueDate.toISOString().split("T")[0] ?? ""
+      : item.dueDate
+        ? new Date(item.dueDate).toISOString().split("T")[0] ?? ""
+        : ""
+
     setEditingId(item.id)
     setFormData({
       title: item.title,
@@ -202,7 +217,7 @@ export default function AdminRoadmapPage() {
       status: item.status as RoadmapStatus,
       priority: item.priority as RoadmapPriority,
       category: item.category as RoadmapCategory,
-      dueDate: item.dueDate ? new Date(item.dueDate).toISOString().split("T")[0] : "",
+      dueDate: formattedDueDate,
     })
     setDialogOpen(true)
   }
@@ -282,7 +297,7 @@ export default function AdminRoadmapPage() {
               <div>
                 <p className="text-sm text-[var(--theme-text-secondary)]">Planned</p>
                 <p className="text-2xl font-bold text-white">
-                  {statsLoading ? "-" : statsData?.planned ?? 0}
+                  {statsLoading ? "-" : roadmapStats?.planned ?? 0}
                 </p>
               </div>
             </div>
@@ -298,7 +313,7 @@ export default function AdminRoadmapPage() {
               <div>
                 <p className="text-sm text-[var(--theme-text-secondary)]">In Progress</p>
                 <p className="text-2xl font-bold text-white">
-                  {statsLoading ? "-" : statsData?.in_progress ?? 0}
+                  {statsLoading ? "-" : roadmapStats?.in_progress ?? 0}
                 </p>
               </div>
             </div>
@@ -314,7 +329,7 @@ export default function AdminRoadmapPage() {
               <div>
                 <p className="text-sm text-[var(--theme-text-secondary)]">Completed</p>
                 <p className="text-2xl font-bold text-white">
-                  {statsLoading ? "-" : statsData?.completed ?? 0}
+                  {statsLoading ? "-" : roadmapStats?.completed ?? 0}
                 </p>
               </div>
             </div>
@@ -330,7 +345,7 @@ export default function AdminRoadmapPage() {
               <div>
                 <p className="text-sm text-[var(--theme-text-secondary)]">Blocked</p>
                 <p className="text-2xl font-bold text-white">
-                  {statsLoading ? "-" : statsData?.blocked ?? 0}
+                  {statsLoading ? "-" : roadmapStats?.blocked ?? 0}
                 </p>
               </div>
             </div>
@@ -347,7 +362,7 @@ export default function AdminRoadmapPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="bg-slate-900/50 border border-white/10 mb-4">
               <TabsTrigger value="all" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-                All ({statsData?.total ?? 0})
+                All ({roadmapStats?.total ?? 0})
               </TabsTrigger>
               <TabsTrigger value="planned" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 Planned

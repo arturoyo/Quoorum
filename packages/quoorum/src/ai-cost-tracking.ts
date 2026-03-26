@@ -218,7 +218,7 @@ export async function getUserAICost(
   byOperation: Record<AIOperationType, number>
   byProvider: Record<AIProvider, number>
 }> {
-  const { and, eq, gte, lte, sql } = await import('drizzle-orm')
+  const { and, eq, gte, lte } = await import('drizzle-orm')
 
   const results = await db
     .select({

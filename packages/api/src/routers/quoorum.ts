@@ -1104,9 +1104,6 @@ async function runDebateAsync(
       .set({ status: 'in_progress', startedAt: new Date() })
       .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)))
 
-    // Track if refund was issued (to avoid double refund on error)
-    let refundIssued = false
-
     try {
       // Get user tier for model selection
       const { getUserTier } = await import('../lib/user-tier')
@@ -1182,8 +1179,6 @@ async function runDebateAsync(
         'refund',
         'Refund unused credits after debate completion'
       )
-      refundIssued = refundResult.success
-      
       if (refundResult.success) {
         logger.info('Credits refunded after debate completion', {
           debateId,

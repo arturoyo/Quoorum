@@ -47,7 +47,7 @@ interface Notification {
   title: string
   message: string
   debateId?: string
-  read: boolean
+  read?: boolean
   createdAt: Date
 }
 
@@ -313,13 +313,20 @@ export function NotificationsSidebar({
     // Add notifications
     if (notifications) {
       notifications.forEach((n) => {
+        const rawNotification = n as typeof n & { read?: boolean }
+        const normalizedNotification: Notification = {
+          ...rawNotification,
+          debateId: n.debateId ?? undefined,
+          read: typeof rawNotification.read === 'boolean' ? rawNotification.read : false,
+        }
+
         items.push({
           id: `notification-${n.id}`,
           type: 'notification',
           title: n.title,
           subtitle: n.message,
           createdAt: new Date(n.createdAt),
-          data: n,
+          data: normalizedNotification,
         })
       })
     }

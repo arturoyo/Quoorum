@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../trpc";
 import { db } from "@quoorum/db";
 import { apiKeys } from "@quoorum/db/schema";
-import { eq, and, isNull, desc } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { createHash, randomBytes } from "crypto";
 
 // ═══════════════════════════════════════════════════════════
@@ -129,7 +129,10 @@ export const apiKeysRouter = router({
       // Soft delete
       await db
         .update(apiKeys)
-        .set({ revokedAt: new Date() })
+        .set({
+          isActive: false,
+          updatedAt: new Date(),
+        })
         .where(eq(apiKeys.id, input.id));
 
       return { success: true };

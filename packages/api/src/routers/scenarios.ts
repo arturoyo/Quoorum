@@ -7,10 +7,10 @@
 
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
-import { eq, and, desc, isNull, or, ilike, inArray, sql } from 'drizzle-orm'
+import { eq, and, desc, or, ilike, sql } from 'drizzle-orm'
 import { router, publicProcedure, protectedProcedure, adminProcedure } from '../trpc'
 import { db } from '@quoorum/db'
-import { scenarios, scenarioUsage, profiles } from '@quoorum/db'
+import { scenarios, scenarioUsage } from '@quoorum/db'
 import { logger } from '../lib/logger'
 import { scenarioConfigSchema } from '@quoorum/quoorum/scenarios/types'
 
@@ -18,7 +18,7 @@ import { scenarioConfigSchema } from '@quoorum/quoorum/scenarios/types'
 // SCHEMAS
 // ============================================
 
-const createScenarioSchema = scenarioConfigSchema.omit({ id: true, createdAt: true, updatedAt: true, usageCount: true, avgQualityScore: true })
+const createScenarioSchema = scenarioConfigSchema.omit({ id: true })
 
 const updateScenarioSchema = scenarioConfigSchema.partial().extend({
   id: z.string().uuid(),
@@ -223,7 +223,7 @@ export const scenariosRouter = router({
    */
   delete: adminProcedure
     .input(z.object({ id: z.string().uuid() }))
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       // Soft delete: set status to archived
       const [updated] = await db
         .update(scenarios)

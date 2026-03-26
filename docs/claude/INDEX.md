@@ -8,10 +8,10 @@
 ## 🎯 INICIO RÁPIDO
 
 ### Para tareas cotidianas (5 min)
-→ Lee **[CLAUDE-CORE.md](../../CLAUDE-CORE.md)**
+→ Lee **[CLAUDE.md](../../CLAUDE.md)** y este índice
 
 ### Para implementar features (10-15 min)
-→ Lee **CLAUDE-CORE.md** + módulos específicos según tu tarea
+→ Lee **[CLAUDE.md](../../CLAUDE.md)** + módulos específicos existentes
 
 ### Para referencia completa (30+ min)
 → Lee **[CLAUDE.md](../../CLAUDE.md)** (56K tokens)
@@ -24,44 +24,37 @@
 
 | Módulo | Archivo | Contenido | Tiempo |
 |--------|---------|-----------|--------|
-| **Inicio Rápido** | [CLAUDE-CORE.md](../../CLAUDE-CORE.md) | Top 10 reglas críticas | 5 min |
+| **Inicio Rápido** | [CLAUDE.md](../../CLAUDE.md) | Resumen operativo actual | 5 min |
 | **Errores Históricos** | [ERRORES-COMETIDOS.md](../../ERRORES-COMETIDOS.md) | Errores que NO repetir | 10 min |
 
 ### 📖 Fundamentos
 
 | # | Módulo | Archivo | Contenido |
 |---|--------|---------|-----------|
-| 01 | **Protocolo de Inicio** | [01-startup-protocol.md](./01-startup-protocol.md) | Orden de lectura, setup inicial |
 | 02 | **Checkpoint Protocol** | [02-checkpoint-protocol.md](./02-checkpoint-protocol.md) | Tabla de verificaciones pre-acción |
-| 03 | **Base de Datos** | [03-database.md](./03-database.md) | PostgreSQL local, Supabase Auth |
 
 ### 🔴 Reglas y Prohibiciones
 
 | # | Módulo | Archivo | Contenido |
 |---|--------|---------|-----------|
 | 04 | **Reglas Inviolables** | [04-rules.md](./04-rules.md) | 22 reglas NO negociables |
-| 06 | **Prohibiciones Absolutas** | [06-prohibitions.md](./06-prohibitions.md) | 28 cosas que NUNCA hacer |
 
 ### 🛠️ Implementación
 
 | # | Módulo | Archivo | Contenido |
 |---|--------|---------|-----------|
 | 05 | **Patrones Obligatorios** | [05-patterns.md](./05-patterns.md) | tRPC, Drizzle, Error Handling (2 capas) |
-| 07 | **Stack Tecnológico** | [07-stack.md](./07-stack.md) | Tech stack aprobado |
-| 08 | **Design System** | [08-design-system.md](./08-design-system.md) | Paleta colores, componentes UI |
 
 ### ✅ Calidad y Seguridad
 
 | # | Módulo | Archivo | Contenido |
 |---|--------|---------|-----------|
-| 09 | **Testing** | [09-testing.md](./09-testing.md) | Unit, E2E, coverage |
-| 10 | **Seguridad** | [10-security.md](./10-security.md) | Validación, autorización, sanitización |
 
 ### 🔧 Referencia
 
 | # | Módulo | Archivo | Contenido |
 |---|--------|---------|-----------|
-| 11 | **FAQ y Comandos** | [11-faq.md](./11-faq.md) | Comandos útiles, troubleshooting |
+| 11 | **Referencia viva** | [../../README.md](../../README.md) | Setup, comandos y estado general |
 
 ---
 
@@ -70,10 +63,9 @@
 ### 📱 Implementar Feature Frontend
 
 **Lee (15 min):**
-1. [CLAUDE-CORE.md](../../CLAUDE-CORE.md) - Reglas críticas
+1. [CLAUDE.md](../../CLAUDE.md) - Estado operativo real
 2. [04-rules.md](./04-rules.md) - Regla #13 (UX/Design)
 3. [05-patterns.md](./05-patterns.md) - Estructura componentes
-4. [08-design-system.md](./08-design-system.md) - Paleta colores
 
 **Verifica:**
 - [ ] Variables CSS (no hardcodear colores)
@@ -85,10 +77,9 @@
 ### 🔌 Implementar Feature Backend
 
 **Lee (15 min):**
-1. [CLAUDE-CORE.md](../../CLAUDE-CORE.md) - Reglas críticas
-2. [03-database.md](./03-database.md) - PostgreSQL local
-3. [05-patterns.md](./05-patterns.md) - tRPC Router Pattern
-4. [10-security.md](./10-security.md) - Validación userId
+1. [CLAUDE.md](../../CLAUDE.md) - Estado operativo real
+2. [05-patterns.md](./05-patterns.md) - tRPC Router Pattern
+3. [04-rules.md](./04-rules.md) - Convenciones y límites
 
 **Verifica:**
 - [ ] Schema Drizzle con timestamps
@@ -101,9 +92,8 @@
 ### 🎨 Modificar UI/Componentes
 
 **Lee (10 min):**
-1. [CLAUDE-CORE.md](../../CLAUDE-CORE.md) - Reglas críticas
+1. [CLAUDE.md](../../CLAUDE.md) - Estado operativo real
 2. [04-rules.md](./04-rules.md) - Regla #13 (UX/Design)
-3. [08-design-system.md](./08-design-system.md) - Variables CSS
 
 **Verifica:**
 - [ ] Usa variables CSS de tema
@@ -116,9 +106,9 @@
 ### 🔐 Implementar Autenticación/Seguridad
 
 **Lee (15 min):**
-1. [CLAUDE-CORE.md](../../CLAUDE-CORE.md) - Reglas críticas
-2. [03-database.md](./03-database.md) - Arquitectura híbrida
-3. [10-security.md](./10-security.md) - Checklist seguridad
+1. [CLAUDE.md](../../CLAUDE.md) - Estado operativo real
+2. [04-rules.md](./04-rules.md) - Reglas del repo
+3. [05-patterns.md](./05-patterns.md) - Patrones y validación
 
 **Verifica:**
 - [ ] Supabase solo para Auth
@@ -131,8 +121,8 @@
 ### 🧪 Escribir Tests
 
 **Lee (10 min):**
-1. [CLAUDE-CORE.md](../../CLAUDE-CORE.md) - Reglas críticas
-2. [09-testing.md](./09-testing.md) - Patrones de testing
+1. [CLAUDE.md](../../CLAUDE.md) - Estado operativo real
+2. [README.md](../../README.md) - Comandos de testing actuales
 
 **Verifica:**
 - [ ] Coverage mínimo 80%
@@ -145,8 +135,8 @@
 ### 🐛 Debugging / Troubleshooting
 
 **Lee (5 min):**
-1. [11-faq.md](./11-faq.md) - FAQ y comandos
-2. [06-prohibitions.md](./06-prohibitions.md) - Errores comunes
+1. [README.md](../../README.md) - Comandos y setup
+2. [04-rules.md](./04-rules.md) - Errores comunes del repo
 
 **Comandos útiles:**
 ```bash
@@ -196,14 +186,14 @@ Grep pattern="keyword" path="CLAUDE.md" output_mode="content"
 
 ### Actualizar documentación:
 
-1. **Cambio crítico** → Actualizar [CLAUDE-CORE.md](../../CLAUDE-CORE.md)
+1. **Cambio crítico** → Actualizar [CLAUDE.md](../../CLAUDE.md)
 2. **Nueva regla** → Añadir a [04-rules.md](./04-rules.md)
 3. **Nuevo patrón** → Añadir a [05-patterns.md](./05-patterns.md)
-4. **Cambio en stack** → Actualizar [07-stack.md](./07-stack.md)
+4. **Cambio en stack** → Documentarlo en [README.md](../../README.md)
 
 ### Verificar sincronización:
 
-- [ ] CLAUDE-CORE.md refleja cambios críticos
+- [ ] CLAUDE.md refleja cambios críticos
 - [ ] Módulos están actualizados
 - [ ] CLAUDE.md es la fuente de verdad
 - [ ] Ejemplos de código funcionan
@@ -212,7 +202,7 @@ Grep pattern="keyword" path="CLAUDE.md" output_mode="content"
 
 ## 💡 TIPS FINALES
 
-✅ **Usa CLAUDE-CORE.md** para trabajo diario (5 min)
+✅ **Usa CLAUDE.md** para trabajo diario (5 min)
 ✅ **Consulta módulos** para tareas específicas (3-5 min)
 ✅ **Busca en CLAUDE.md** para referencia completa
 ✅ **Pregunta ANTES** si no encuentras la respuesta

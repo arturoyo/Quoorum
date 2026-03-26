@@ -1,9 +1,16 @@
 import { z } from "zod";
-import { eq, and, isNull, or, like, inArray } from "drizzle-orm";
+import { eq, and, isNull, or, like } from "drizzle-orm";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { experts, companies } from "@quoorum/db";
-import type { AIConfig } from "@quoorum/ai";
 import { logger } from "../lib/logger";
+
+type ExpertAIConfig = {
+  provider: 'openai' | 'anthropic' | 'google' | 'groq'
+  model: string
+  apiKey?: string
+  temperature?: number
+  maxTokens?: number
+}
 
 const aiConfigSchema = z.object({
   provider: z.enum(["openai", "anthropic", "google", "groq"]),
@@ -11,7 +18,7 @@ const aiConfigSchema = z.object({
   apiKey: z.string().optional(),
   temperature: z.number().min(0).max(2).optional(),
   maxTokens: z.number().positive().optional(),
-}) satisfies z.ZodType<AIConfig>;
+}) satisfies z.ZodType<ExpertAIConfig>;
 
 export const expertsRouter = router({
   getById: publicProcedure
@@ -28,7 +35,7 @@ export const expertsRouter = router({
   /** Get id+name for multiple experts (e.g. Phase 4 review). */
   getByIds: publicProcedure
     .input(z.object({ ids: z.array(z.string().min(1)).max(50) })) // Acepta slugs (ej: "april_dunford") o UUIDs
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       if (input.ids.length === 0) return [];
       
       // Los expertos del sistema tienen slugs, los personalizados tienen UUIDs

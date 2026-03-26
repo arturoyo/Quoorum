@@ -7,7 +7,7 @@
 
 import { getAIClient } from '@quoorum/ai'
 import { quoorumLogger } from '../logger'
-import type { DebateResult, DebateMessage, DebateRound } from '../types'
+import type { DebateResult, DebateMessage } from '../types'
 
 // ============================================================================
 // TYPES
@@ -229,15 +229,12 @@ ${message.content}
 
 Extrae la estructura argumentativa.`
 
-  const response = await aiClient.generateWithSystem(
+  const response = await aiClient.generate(userPrompt, {
     systemPrompt,
-    userPrompt,
-    {
-      modelId: 'gemini-2.0-flash-exp',
-      temperature: 0.3,
-      maxTokens: 2000,
-    }
-  )
+    modelId: 'gemini-2.0-flash-exp',
+    temperature: 0.3,
+    maxTokens: 2000,
+  })
 
   try {
     const parsed = JSON.parse(response.text) as ExtractionResult

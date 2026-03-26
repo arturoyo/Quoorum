@@ -201,8 +201,14 @@ export default function AdminBillingPage() {
       return
     }
 
+    const targetTier = tierConfigs?.find((config) => config.tier === tier)
+    if (!targetTier) {
+      toast.error("Tier configuration not found")
+      return
+    }
+
     await updateTierConfig.mutateAsync({
-      tier,
+      id: targetTier.id,
       monthlyPriceUsd: monthlyPriceUsd * 100, // Convert to cents
       monthlyCredits,
       changeReason: tierFormData.changeReason,
@@ -904,7 +910,9 @@ export default function AdminBillingPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <Badge variant={change.changeType === 'global' ? 'default' : 'secondary'}>
-                            {change.changeType === 'global' ? 'Global Config' : `Tier: ${change.tier}`}
+                            {change.changeType === 'global'
+                              ? 'Global Config'
+                              : `Entity: ${change.entityType}`}
                           </Badge>
                           <div className="text-sm text-muted-foreground mt-1">
                             {new Date(change.changedAt).toLocaleString()}
@@ -935,11 +943,6 @@ export default function AdminBillingPage() {
                           </pre>
                         </div>
                       </div>
-                      {change.impactSummary && (
-                        <div className="mt-2 text-sm text-muted-foreground">
-                          <span className="font-medium">Impact:</span> {change.impactSummary}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>

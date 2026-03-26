@@ -11,6 +11,19 @@ import { logger } from './logger'
 const promptCache = new Map<string, { prompt: string; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
+function extractRows<T = Record<string, unknown>>(result: unknown): T[] {
+  if (Array.isArray(result)) {
+    return result as T[]
+  }
+
+  if (result && typeof result === 'object' && 'rows' in result) {
+    const rows = (result as { rows?: unknown }).rows
+    return Array.isArray(rows) ? (rows as T[]) : []
+  }
+
+  return []
+}
+
 /**
  * Get system prompt from DB or fallback to default
  * @param key Prompt key (e.g., 'debates.generateCriticalQuestions')
@@ -36,9 +49,10 @@ export async function getSystemPrompt(
         AND is_active = true
       LIMIT 1
     `)
+    const rows = extractRows(result)
 
-    if (result.rows && result.rows.length > 0) {
-      const row = result.rows[0] as Record<string, unknown>
+    if (rows.length > 0) {
+      const row = rows[0] as Record<string, unknown>
       const prompt = typeof row.prompt === 'string' ? row.prompt : String(row.prompt || '')
       
       // Cache the result

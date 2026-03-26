@@ -29,7 +29,7 @@ vi.mock('../logger', () => ({
 
 // Mock cost calculation
 vi.mock('../analytics/cost', () => ({
-  calculateTokenCost: () => 0.015, // Mock cost
+  trackCost: () => 0.015,
 }))
 
 import { getAIClient } from '@quoorum/ai'
@@ -335,7 +335,6 @@ describe('generateFinalSynthesis', () => {
       modelId: 'gpt-4o',
       temperature: 0.2,
       maxTokens: 2000,
-      responseFormat: 'json',
     })
   })
 })

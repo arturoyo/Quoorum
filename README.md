@@ -1,5 +1,7 @@
 # Quoorum - Sistema de Deliberación Multi-Agente con IA
 
+> Estado actual del repo: hay documentación, tests e integraciones en transición. Antes de asumir que el proyecto está "verde", ejecuta `pnpm typecheck`, `pnpm test` y revisa [CLAUDE.md](./CLAUDE.md).
+
 > **Quoorum es la única plataforma que simula un Comité Ejecutivo de expertos de IA (la Capa de Inteligencia Corporativa) para debatir, criticar y sintetizar la mejor decisión estratégica, eliminando los sesgos humanos y la lentitud de las reuniones, y entregando un consenso accionable en minutos.**
 
 **🌐 Website:** [quoorum.pro](https://quoorum.pro)
@@ -74,6 +76,9 @@ PINECONE_INDEX="quoorum-debates"
 
 # Redis (opcional, para cache)
 REDIS_URL="redis://localhost:6379"
+
+# Email (opcional)
+QUOORUM_EMAIL_FROM="Quoorum <noreply@quoorum.pro>"
 
 # Aplicación
 NEXT_PUBLIC_APP_URL="https://quoorum.pro"
@@ -332,28 +337,25 @@ pnpm --filter @quoorum/quoorum test
 pnpm --filter @quoorum/api test
 ```
 
+`pnpm test` incluye pruebas que requieren PostgreSQL local. Si no tienes DB levantada, parte de la suite de integración fallará.
+
 ### Cobertura de Tests
 
-- ✅ 166 tests passing
-- ✅ Runner y consenso
-- ✅ Quality Monitor
-- ✅ Meta-Moderador
-- ✅ Learning System
-- ✅ Question Similarity
-- ✅ Expert Matcher
-- ✅ API routers
+- La cobertura y el conteo exacto deben obtenerse ejecutando `pnpm test:coverage`.
+- No uses cifras hardcodeadas de tests pasados como señal de salud actual.
+- El estado operativo real debe verificarse en tu entorno local antes de mergear o desplegar.
 
 ---
 
 ## CI/CD
 
-El proyecto usa GitHub Actions para CI/CD:
+Este repo no incluye GitHub Actions en su estado actual.
 
-- **Validate**: TypeScript check en todo el monorepo
-- **Test**: Tests unitarios (API + Quoorum Engine)
-- **Build**: Build de producción
+- Desarrollo local: scripts de validación (`pnpm validate:env`, `pnpm typecheck`, `pnpm test`)
+- Hooks locales: Husky
+- Deploy: Vercel para la app web
 
-Ver `.github/workflows/ci.yml` para detalles.
+Si necesitas CI en GitHub, hay que crear `.github/workflows/` explícitamente; no existe hoy.
 
 ---
 

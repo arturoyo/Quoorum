@@ -54,7 +54,7 @@ export async function generateDebateExcel(
 
 function generateExcelCSV(
   debate: DebateResult,
-  experts: ExpertProfile[],
+  _experts: ExpertProfile[],
   options: ExcelExportOptions
 ): string {
   const lines: string[] = []

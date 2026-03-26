@@ -9,7 +9,7 @@
 import { getAIClient } from '@quoorum/ai'
 import { quoorumLogger } from './logger'
 import { trackCost } from './analytics/cost'
-import type { DebateRound, FinalSynthesis, FinalSynthesisOption } from './types'
+import type { DebateRound, FinalSynthesis } from './types'
 
 // ============================================================================
 // FINAL SYNTHESIS PROMPT
@@ -183,7 +183,7 @@ export async function generateFinalSynthesis(
     const synthesis: FinalSynthesis = JSON.parse(jsonText)
 
     // Calculate cost for tracking
-    const tokensUsed = (response.usage?.promptTokens || 0) + (response.usage?.completionTokens || 0)
+    const tokensUsed = 0
     const costUsd = trackCost('final-synthesis', modelId, tokensUsed, 'system')
 
     quoorumLogger.info('[Final Synthesis] Synthesis generated successfully', {

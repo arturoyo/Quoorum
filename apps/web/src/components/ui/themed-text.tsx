@@ -12,7 +12,6 @@
  * <ThemedText.Muted>Texto atenuado</ThemedText.Muted>
  */
 
-import { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 
 // ═══════════════════════════════════════════════════════════
@@ -25,18 +24,10 @@ interface ThemedTextPrimaryProps extends React.HTMLAttributes<HTMLElement> {
   className?: string
 }
 
-const ThemedTextPrimary = forwardRef<HTMLElement, ThemedTextPrimaryProps>(
-  ({ children, as: Component = 'p', className, ...props }, ref) => {
-    return (
-      <Component
-        ref={ref as React.Ref<HTMLParagraphElement>}
-        className={cn('text-[var(--theme-text-primary)]', className)}
-        {...props}
-      >
-        {children}
-      </Component>
-    )
-  }
+const ThemedTextPrimary = ({ children, as: Component = 'p', className, ...props }: ThemedTextPrimaryProps) => (
+  <Component className={cn('text-[var(--theme-text-primary)]', className)} {...props}>
+    {children}
+  </Component>
 )
 
 ThemedTextPrimary.displayName = 'ThemedText.Primary'
@@ -51,18 +42,10 @@ interface ThemedTextSecondaryProps extends React.HTMLAttributes<HTMLElement> {
   className?: string
 }
 
-const ThemedTextSecondary = forwardRef<HTMLElement, ThemedTextSecondaryProps>(
-  ({ children, as: Component = 'p', className, ...props }, ref) => {
-    return (
-      <Component
-        ref={ref as React.Ref<HTMLParagraphElement>}
-        className={cn('text-[var(--theme-text-secondary)]', className)}
-        {...props}
-      >
-        {children}
-      </Component>
-    )
-  }
+const ThemedTextSecondary = ({ children, as: Component = 'p', className, ...props }: ThemedTextSecondaryProps) => (
+  <Component className={cn('text-[var(--theme-text-secondary)]', className)} {...props}>
+    {children}
+  </Component>
 )
 
 ThemedTextSecondary.displayName = 'ThemedText.Secondary'
@@ -77,18 +60,10 @@ interface ThemedTextTertiaryProps extends React.HTMLAttributes<HTMLElement> {
   className?: string
 }
 
-const ThemedTextTertiary = forwardRef<HTMLElement, ThemedTextTertiaryProps>(
-  ({ children, as: Component = 'p', className, ...props }, ref) => {
-    return (
-      <Component
-        ref={ref as React.Ref<HTMLParagraphElement>}
-        className={cn('text-[var(--theme-text-tertiary)]', className)}
-        {...props}
-      >
-        {children}
-      </Component>
-    )
-  }
+const ThemedTextTertiary = ({ children, as: Component = 'p', className, ...props }: ThemedTextTertiaryProps) => (
+  <Component className={cn('text-[var(--theme-text-tertiary)]', className)} {...props}>
+    {children}
+  </Component>
 )
 
 ThemedTextTertiary.displayName = 'ThemedText.Tertiary'
@@ -103,18 +78,10 @@ interface ThemedTextMutedProps extends React.HTMLAttributes<HTMLElement> {
   className?: string
 }
 
-const ThemedTextMuted = forwardRef<HTMLElement, ThemedTextMutedProps>(
-  ({ children, as: Component = 'p', className, ...props }, ref) => {
-    return (
-      <Component
-        ref={ref as React.Ref<HTMLParagraphElement>}
-        className={cn('text-[var(--theme-text-muted)]', className)}
-        {...props}
-      >
-        {children}
-      </Component>
-    )
-  }
+const ThemedTextMuted = ({ children, as: Component = 'p', className, ...props }: ThemedTextMutedProps) => (
+  <Component className={cn('text-[var(--theme-text-muted)]', className)} {...props}>
+    {children}
+  </Component>
 )
 
 ThemedTextMuted.displayName = 'ThemedText.Muted'

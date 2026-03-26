@@ -177,32 +177,32 @@ export function getAgentsByTier(
   const optimizerTierConfig = getConfigByUserTier(userTier, 'optimizer')
   const criticTierConfig = getConfigByUserTier(userTier, 'critic')
   const analystTierConfig = getConfigByUserTier(userTier, 'analyst')
-  const synthesizerTierConfig = getConfigByUserTier(userTier, 'synthesizer')
+  const synthesizerConfig = getConfigByUserTier(userTier, 'synthesizer')
 
   // Synthesizer config is already handled by getConfigByUserTier
   // Starter+ tiers automatically get Claude 3.5 Sonnet for synthesis
 
   return {
     optimizer: {
-      ...QUOORUM_AGENTS.optimizer,
+      ...QUOORUM_AGENTS.optimizer!,
       provider: optimizerTierConfig.provider,
       model: optimizerTierConfig.model,
       temperature: optimizerTierConfig.temperature,
     },
     critic: {
-      ...QUOORUM_AGENTS.critic,
+      ...QUOORUM_AGENTS.critic!,
       provider: criticTierConfig.provider,
       model: criticTierConfig.model,
       temperature: criticTierConfig.temperature,
     },
     analyst: {
-      ...QUOORUM_AGENTS.analyst,
+      ...QUOORUM_AGENTS.analyst!,
       provider: analystTierConfig.provider,
       model: analystTierConfig.model,
       temperature: analystTierConfig.temperature,
     },
     synthesizer: {
-      ...QUOORUM_AGENTS.synthesizer,
+      ...QUOORUM_AGENTS.synthesizer!,
       provider: synthesizerConfig.provider,
       model: synthesizerConfig.model,
       temperature: synthesizerConfig.temperature,

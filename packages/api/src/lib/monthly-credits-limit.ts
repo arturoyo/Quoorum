@@ -47,12 +47,12 @@ export async function getUserMonthlyCreditLimit(userId: string): Promise<number>
 
     if (!subscription) {
       // No active subscription = free tier
-      return PLAN_MONTHLY_CREDIT_LIMITS.free
+      return PLAN_MONTHLY_CREDIT_LIMITS.free ?? 100
     }
 
     // Use monthlyCredits from subscription if set, otherwise use tier default
     const tier = subscription.tier || 'free'
-    const tierLimit = PLAN_MONTHLY_CREDIT_LIMITS[tier] ?? PLAN_MONTHLY_CREDIT_LIMITS.free
+    const tierLimit = PLAN_MONTHLY_CREDIT_LIMITS[tier] ?? PLAN_MONTHLY_CREDIT_LIMITS.free ?? 100
     const monthlyCredits = subscription.monthlyCredits ?? 0
     return monthlyCredits > 0
       ? monthlyCredits
@@ -63,7 +63,7 @@ export async function getUserMonthlyCreditLimit(userId: string): Promise<number>
       userId,
     })
     // Fallback to free tier limit
-    return PLAN_MONTHLY_CREDIT_LIMITS.free
+    return PLAN_MONTHLY_CREDIT_LIMITS.free ?? 100
   }
 }
 

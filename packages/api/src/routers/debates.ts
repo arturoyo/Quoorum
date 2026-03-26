@@ -10,10 +10,9 @@ import { z } from "zod";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { router, protectedProcedure, expensiveRateLimitedProcedure } from "../trpc";
 import { db } from "@quoorum/db";
-import { quoorumDebates, users, userContextFiles as userContextFilesTable, profiles, companies, departments, workers, debateFrameworks, scenarios, scenarioUsage } from "@quoorum/db/schema";
-import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator, buildCorporateContext, selectTheme, applyScenario, appliedScenarioToRunOptions } from "@quoorum/quoorum";
-import { searchInternet } from "@quoorum/quoorum/context-loader";
-import type { ExpertProfile, PatternType, DebateResult, DebateSequence } from "@quoorum/quoorum";
+import { quoorumDebates, userContextFiles as userContextFilesTable, profiles, companies, departments, workers, debateFrameworks, scenarios } from "@quoorum/db/schema";
+import { runDynamicDebate, notifyDebateComplete, selectStrategy, DebateOrchestrator, buildCorporateContext, selectTheme, applyScenario } from "@quoorum/quoorum";
+import type { ExpertProfile, PatternType, DebateResult, DebateSequence, DebateRound, RankedOption } from "@quoorum/quoorum";
 import { logger } from "../lib/logger";
 import { getSystemPrompt } from "../lib/get-system-prompt";
 import { systemLogger } from "../lib/system-logger";
@@ -23,6 +22,57 @@ import { trackAICall } from "@quoorum/quoorum/ai-cost-tracking";
 
 // Import types from debates module
 import type { DebateContext, ContextQuestion, ContextEvaluation, CorporateContext, DebateRecord, DebateMetadata, AdditionalContextItem } from "./debates/types";
+
+function requireProfileId(profileId: string | null): string {
+  if (!profileId) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Perfil de usuario no disponible",
+    });
+  }
+
+  return profileId;
+}
+
+function getExpertCategories(experts: ExpertProfile[]): string[] {
+  return Array.from(
+    new Set(
+      experts.flatMap((expert) => [
+        ...expert.expertise,
+        ...expert.topics,
+      ]).filter((value): value is string => Boolean(value))
+    )
+  ).slice(0, 15);
+}
+
+function toDebateResult(debate: {
+  id: string
+  question: string
+  status: string | null
+  consensusScore: number | null
+  rounds: unknown
+  finalRanking: unknown
+  totalCostUsd: number | null
+  totalCreditsUsed: number | null
+  totalRounds: number | null
+}): DebateResult {
+  const status: DebateResult["status"] =
+    debate.status === "completed" || debate.status === "failed"
+      ? debate.status
+      : "running";
+
+  return {
+    sessionId: debate.id,
+    status,
+    question: debate.question,
+    consensusScore: debate.consensusScore ?? 0,
+    rounds: (debate.rounds as DebateRound[] | null) ?? [],
+    finalRanking: (debate.finalRanking as RankedOption[] | null) ?? [],
+    totalCostUsd: debate.totalCostUsd ?? 0,
+    totalCreditsUsed: debate.totalCreditsUsed ?? 0,
+    totalRounds: debate.totalRounds ?? ((debate.rounds as DebateRound[] | null)?.length ?? 0),
+  };
+}
 
 // ============================================
 // HELPER: BUILD FULL USER CONTEXT FOR AI
@@ -186,7 +236,7 @@ async function buildFullUserContext(userId: string): Promise<string> {
         description: departments.description,
       })
       .from(departments)
-      .where(eq(departments.userId, userId))
+      .where(company ? eq(departments.companyId, company.id) : sql`false`)
       .limit(20);
 
     if (userDepartments.length > 0) {
@@ -229,9 +279,7 @@ async function buildFullUserContext(userId: string): Promise<string> {
     // 6. Get available expert categories
     const { getAllExperts } = await import("@quoorum/quoorum");
     const allExperts = getAllExperts(true); // companyOnly = true
-    const expertCategories = Array.from(
-      new Set(allExperts.map((e) => e.category).filter(Boolean))
-    ).slice(0, 15);
+    const expertCategories = getExpertCategories(allExperts);
 
     if (expertCategories.length > 0) {
       contextParts.push("=== ÁREAS DE EXPERTISE DISPONIBLES ===");
@@ -284,6 +332,7 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       // ============================================================================
       // VALIDATE QUESTION QUALITY (before creating debate)
       // ============================================================================
@@ -298,44 +347,6 @@ export const debatesRouter = router({
           message: validation.reason || "La pregunta no es válida",
         });
       }
-
-      // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
-      // Find or create profile for this user
-      let [profile] = await db
-        .select()
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1);
-
-      // If profile doesn't exist, create it
-      if (!profile) {
-        logger.warn('Profile not found for user, creating one', {
-          userId: ctx.user.id,
-          email: ctx.user.email
-        });
-        
-        const [newProfile] = await db
-          .insert(profiles)
-          .values({
-            userId: ctx.user.id, // Reference to users.id (Supabase Auth)
-            email: ctx.user.email,
-            name: ctx.user.name || ctx.user.email.split('@')[0],
-            role: ctx.user.role || 'user',
-            isActive: true,
-          })
-          .returning();
-        
-        if (!newProfile) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Error al crear el perfil del usuario",
-          });
-        }
-        
-        profile = newProfile;
-      }
-
-      const profileId = profile.id; // Use profile.id for foreign key
 
       logger.info("Creating draft debate", {
         userId: ctx.user.id,
@@ -416,44 +427,7 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // User is already verified in protectedProcedure middleware
-      // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
-      // Find or create profile for this user
-      let [profile] = await db
-        .select()
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1);
-
-      // If profile doesn't exist, create it
-      if (!profile) {
-        logger.warn('Profile not found for user, creating one', {
-          userId: ctx.user.id,
-          email: ctx.user.email
-        });
-        
-        const [newProfile] = await db
-          .insert(profiles)
-          .values({
-            userId: ctx.user.id, // Reference to users.id (Supabase Auth)
-            email: ctx.user.email,
-            name: ctx.user.name || ctx.user.email.split('@')[0],
-            role: ctx.user.role || 'user',
-            isActive: true,
-          })
-          .returning();
-        
-        if (!newProfile) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Error al crear el perfil del usuario",
-          });
-        }
-        
-        profile = newProfile;
-      }
-
-      const profileId = profile.id; // Use profile.id for foreign key
+      const profileId = requireProfileId(ctx.userId);
 
       // ============================================================================
       // SCENARIO APPLICATION (if scenarioId provided)
@@ -782,22 +756,7 @@ export const debatesRouter = router({
   get: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
-      // Find profile for this user
-      let [profile] = await db
-        .select()
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1);
-
-      if (!profile) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Perfil de usuario no encontrado",
-        });
-      }
-
-      const profileId = profile.id; // Use profile.id for foreign key
+      const profileId = requireProfileId(ctx.userId);
 
       // Use Drizzle ORM for local PostgreSQL
       const [debate] = await db
@@ -829,9 +788,11 @@ export const debatesRouter = router({
         limit: z.number().min(1).max(50).default(10),
         offset: z.number().min(0).default(0),
         status: z.enum(["draft", "pending", "in_progress", "completed", "failed", "cancelled"]).optional(),
+        tags: z.array(z.string()).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       const startTime = Date.now();
       try {
         logger.info('[debates.list] Starting query', {
@@ -840,28 +801,11 @@ export const debatesRouter = router({
           input,
         });
 
-        // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
-        // Find profile for this user - optimizado con select solo de id
-        const profileStartTime = Date.now();
-        const [profile] = await db
-          .select({ id: profiles.id })
-          .from(profiles)
-          .where(eq(profiles.email, ctx.user.email))
-          .limit(1);
-
-        const profileTime = Date.now() - profileStartTime;
+        const profileTime = 0;
         logger.info('[debates.list] Profile query completed', {
           profileTime,
-          profileFound: !!profile,
+          profileFound: true,
         });
-
-        if (!profile) {
-          // If profile doesn't exist, return empty list (user has no debates yet)
-          logger.info('[debates.list] No profile found, returning empty list');
-          return [];
-        }
-
-        const profileId = profile.id; // Use profile.id for foreign key
 
         const conditions = [
           eq(quoorumDebates.userId, profileId), // Use profileId, not ctx.user.id
@@ -1036,6 +980,7 @@ export const debatesRouter = router({
   cancel: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       const [debate] = await db
         .select()
         .from(quoorumDebates)
@@ -1088,6 +1033,7 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       // Use Drizzle ORM directly for local PostgreSQL
       // First, get existing debate to verify ownership and merge metadata
       const [existingDebate] = await db
@@ -1147,22 +1093,7 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
-      // Find profile for this user
-      const [profile] = await db
-        .select({ id: profiles.id })
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1);
-
-      if (!profile) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Perfil de usuario no encontrado",
-        });
-      }
-
-      const profileId = profile.id; // Use profile.id for foreign key
+      const profileId = requireProfileId(ctx.userId);
 
       // Get existing debate to verify ownership
       const [existingDebate] = await db
@@ -1225,22 +1156,7 @@ export const debatesRouter = router({
   delete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      // IMPORTANT: quoorum_debates.user_id references profiles.id, not users.id
-      // Find profile for this user
-      const [profile] = await db
-        .select({ id: profiles.id })
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1);
-
-      if (!profile) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Perfil de usuario no encontrado",
-        });
-      }
-
-      const profileId = profile.id; // Use profile.id for foreign key
+      const profileId = requireProfileId(ctx.userId);
 
       // Use Drizzle ORM directly for local PostgreSQL
       // Verify ownership first
@@ -1292,12 +1208,13 @@ export const debatesRouter = router({
     .query(({ input }) => {
       // Use Theme Engine to analyze question
       const themeSelection = selectTheme(input.question, input.context);
+      const primaryCharacter = Object.values(themeSelection.theme.characters)[0];
 
       return {
         themeId: themeSelection.themeId,
         themeName: themeSelection.theme.name,
         themeDescription: themeSelection.theme.description,
-        themeEmoji: themeSelection.theme.emoji,
+        themeEmoji: primaryCharacter?.emoji ?? null,
         reason: themeSelection.reason,
         confidence: themeSelection.confidence,
         shouldUseTheme: themeSelection.confidence >= 0.4, // Threshold check
@@ -1318,19 +1235,7 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Get profile
-      const [profile] = await db
-        .select({ id: profiles.id })
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1)
-
-      if (!profile) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Perfil de usuario no encontrado',
-        })
-      }
+      const profileId = requireProfileId(ctx.userId);
 
       // Get debate
       const [debate] = await db
@@ -1339,7 +1244,7 @@ export const debatesRouter = router({
         .where(
           and(
             eq(quoorumDebates.id, input.debateId),
-            eq(quoorumDebates.userId, profile.id)
+            eq(quoorumDebates.userId, profileId)
           )
         )
 
@@ -1351,15 +1256,7 @@ export const debatesRouter = router({
       }
 
       // Convert debate to DebateResult format
-      const debateResult: DebateResult = {
-        sessionId: debate.id,
-        question: debate.question,
-        consensusScore: debate.consensusScore || 0,
-        rounds: (debate.rounds as DebateRound[] | null) || [],
-        finalRanking: (debate.finalRanking as RankedOption[] | null) || [],
-        totalCostUsd: debate.totalCostUsd || 0,
-        totalCreditsUsed: debate.totalCreditsUsed || 0,
-      }
+      const debateResult = toDebateResult(debate)
 
       // Get experts
       const experts: ExpertProfile[] = (debate.experts as Array<{
@@ -1411,19 +1308,7 @@ export const debatesRouter = router({
   getArgumentTree: protectedProcedure
     .input(z.object({ debateId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      // Get profile
-      const [profile] = await db
-        .select({ id: profiles.id })
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1)
-
-      if (!profile) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Perfil de usuario no encontrado',
-        })
-      }
+      const profileId = requireProfileId(ctx.userId);
 
       // Get debate
       const [debate] = await db
@@ -1432,7 +1317,7 @@ export const debatesRouter = router({
         .where(
           and(
             eq(quoorumDebates.id, input.debateId),
-            eq(quoorumDebates.userId, profile.id)
+            eq(quoorumDebates.userId, profileId)
           )
         )
 
@@ -1451,15 +1336,7 @@ export const debatesRouter = router({
       }
 
       // Convert to DebateResult
-      const debateResult: DebateResult = {
-        sessionId: debate.id,
-        question: debate.question,
-        consensusScore: debate.consensusScore || 0,
-        rounds: (debate.rounds as DebateRound[] | null) || [],
-        finalRanking: (debate.finalRanking as RankedOption[] | null) || [],
-        totalCostUsd: debate.totalCostUsd || 0,
-        totalCreditsUsed: debate.totalCreditsUsed || 0,
-      }
+      const debateResult = toDebateResult(debate)
 
       // Build argument tree
       const { buildArgumentTree } = await import('@quoorum/quoorum/argument-intelligence')
@@ -1474,19 +1351,7 @@ export const debatesRouter = router({
   getConsensusTimeline: protectedProcedure
     .input(z.object({ debateId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      // Get profile
-      const [profile] = await db
-        .select({ id: profiles.id })
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1)
-
-      if (!profile) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Perfil de usuario no encontrado',
-        })
-      }
+      const profileId = requireProfileId(ctx.userId);
 
       // Get debate
       const [debate] = await db
@@ -1495,7 +1360,7 @@ export const debatesRouter = router({
         .where(
           and(
             eq(quoorumDebates.id, input.debateId),
-            eq(quoorumDebates.userId, profile.id)
+            eq(quoorumDebates.userId, profileId)
           )
         )
 
@@ -1507,15 +1372,7 @@ export const debatesRouter = router({
       }
 
       // Convert to DebateResult
-      const debateResult: DebateResult = {
-        sessionId: debate.id,
-        question: debate.question,
-        consensusScore: debate.consensusScore || 0,
-        rounds: (debate.rounds as DebateRound[] | null) || [],
-        finalRanking: (debate.finalRanking as RankedOption[] | null) || [],
-        totalCostUsd: debate.totalCostUsd || 0,
-        totalCreditsUsed: debate.totalCreditsUsed || 0,
-      }
+      const debateResult = toDebateResult(debate)
 
       // Generate timeline
       const { generateConsensusTimeline } = await import('@quoorum/quoorum/visualizations/consensus-timeline')
@@ -1534,19 +1391,7 @@ export const debatesRouter = router({
   getEvidence: protectedProcedure
     .input(z.object({ debateId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      // Get profile
-      const [profile] = await db
-        .select({ id: profiles.id })
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1)
-
-      if (!profile) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Perfil de usuario no encontrado',
-        })
-      }
+      const profileId = requireProfileId(ctx.userId);
 
       // Get debate
       const [debate] = await db
@@ -1555,7 +1400,7 @@ export const debatesRouter = router({
         .where(
           and(
             eq(quoorumDebates.id, input.debateId),
-            eq(quoorumDebates.userId, profile.id)
+            eq(quoorumDebates.userId, profileId)
           )
         )
 
@@ -1574,15 +1419,7 @@ export const debatesRouter = router({
       }
 
       // Convert to DebateResult
-      const debateResult: DebateResult = {
-        sessionId: debate.id,
-        question: debate.question,
-        consensusScore: debate.consensusScore || 0,
-        rounds: (debate.rounds as DebateRound[] | null) || [],
-        finalRanking: (debate.finalRanking as RankedOption[] | null) || [],
-        totalCostUsd: debate.totalCostUsd || 0,
-        totalCreditsUsed: debate.totalCreditsUsed || 0,
-      }
+      const debateResult = toDebateResult(debate)
 
       // Generate evidence
       const { generateDecisionEvidence } = await import('@quoorum/quoorum/governance/decision-evidence')
@@ -1606,19 +1443,7 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Get profile
-      const [profile] = await db
-        .select({ id: profiles.id })
-        .from(profiles)
-        .where(eq(profiles.email, ctx.user.email))
-        .limit(1)
-
-      if (!profile) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Perfil de usuario no encontrado',
-        })
-      }
+      const profileId = requireProfileId(ctx.userId);
 
       // Get debate
       const [debate] = await db
@@ -1627,7 +1452,7 @@ export const debatesRouter = router({
         .where(
           and(
             eq(quoorumDebates.id, input.debateId),
-            eq(quoorumDebates.userId, profile.id)
+            eq(quoorumDebates.userId, profileId)
           )
         )
 
@@ -1820,6 +1645,7 @@ export const debatesRouter = router({
   status: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       const [debate] = await db
         .select({
           id: quoorumDebates.id,
@@ -1857,6 +1683,7 @@ export const debatesRouter = router({
   pause: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       const [debate] = await db
         .select({ status: quoorumDebates.status })
         .from(quoorumDebates)
@@ -1905,6 +1732,7 @@ export const debatesRouter = router({
   resume: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       const [debate] = await db
         .select({ status: quoorumDebates.status, metadata: quoorumDebates.metadata })
         .from(quoorumDebates)
@@ -1958,6 +1786,7 @@ export const debatesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       const [debate] = await db
         .select({ status: quoorumDebates.status, context: quoorumDebates.context })
         .from(quoorumDebates)
@@ -2020,6 +1849,7 @@ export const debatesRouter = router({
   forceConsensus: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      const profileId = requireProfileId(ctx.userId);
       const [debate] = await db
         .select({ status: quoorumDebates.status })
         .from(quoorumDebates)
@@ -2102,8 +1932,8 @@ export const debatesRouter = router({
           operationType: 'debate_phase_estrategia',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: input.contextInfo.substring(0, 500),
@@ -2198,7 +2028,7 @@ export const debatesRouter = router({
       const hasCredits = await hasSufficientCredits(usersId, QUESTION_GENERATION_CREDITS);
       if (!hasCredits) {
         throw new TRPCError({
-          code: "PAYMENT_REQUIRED",
+          code: "BAD_REQUEST",
           message: `Créditos insuficientes. Se requieren ${QUESTION_GENERATION_CREDITS} créditos para generar preguntas críticas.`,
         });
       }
@@ -2357,16 +2187,12 @@ ANÁLISIS REQUERIDO:
 
 IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO uses plantillas genéricas.`;
 
-        const response = await aiClient.generateWithSystem(
+        const response = await aiClient.generate(userPrompt, {
           systemPrompt,
-          userPrompt,
-          {
-            modelId: "gemini-2.0-flash-exp",
-            temperature: 0.9, // Aumentado para más creatividad y especificidad
-            maxTokens: 1200, // Aumentado para permitir preguntas más detalladas
-            responseFormat: "json",
-          }
-        );
+          modelId: "gemini-2.0-flash-exp",
+          temperature: 0.9, // Aumentado para más creatividad y especificidad
+          maxTokens: 1200, // Aumentado para permitir preguntas más detalladas
+        });
 
         const questions = parseQuestions(response.text, "critical");
 
@@ -2376,8 +2202,8 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
           operationType: 'context_assessment',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: input.question.substring(0, 500),
@@ -2473,7 +2299,7 @@ IMPORTANTE: Las preguntas deben ser únicas y específicas a esta decisión. NO 
       const hasCredits = await hasSufficientCredits(usersId, VALIDATION_CREDITS);
       if (!hasCredits) {
         throw new TRPCError({
-          code: "PAYMENT_REQUIRED",
+          code: "BAD_REQUEST",
           message: `Créditos insuficientes. Se requieren ${VALIDATION_CREDITS} créditos para validar la respuesta.`,
         });
       }
@@ -2549,18 +2375,17 @@ RESPONDE JSON:
         // Construir contexto de respuestas anteriores para detectar contradicciones
         const previousContext = input.previousAnswers && Object.keys(input.previousAnswers).length > 0
           ? `\n\nRespuestas anteriores del usuario:\n${Object.entries(input.previousAnswers)
-              .map(([qId, ans]) => `- ${ans}`)
+              .map(([_qId, ans]) => `- ${ans}`)
               .join('\n')}\n\nVerifica si esta nueva respuesta contradice información previa.`
           : ''
 
-        const response = await aiClient.generateWithSystem(
-          systemPrompt,
+        const response = await aiClient.generate(
           `Pregunta: "${input.question}"\n\nRespuesta del usuario: "${input.answer}"${previousContext}\n\nEvalúa la relevancia, utilidad y calidad de esta respuesta.`,
           {
+            systemPrompt,
             modelId: "gemini-2.0-flash-exp",
             temperature: 0.3, // Baja temperatura para validación más estricta
             maxTokens: 600,
-            responseFormat: "json",
           }
         );
 
@@ -2592,7 +2417,7 @@ RESPONDE JSON:
         // Override: respuestas largas y razonablemente relevantes no se consideran vagas
         if (isVague && input.answer.length >= 80 && relevanceScore >= 55) {
           isVague = false;
-          qualityIssues = qualityIssues.filter((q) => q !== "vague" && q !== "generic");
+          qualityIssues = qualityIssues.filter((q: string) => q !== "vague" && q !== "generic");
         }
 
         // Track AI cost
@@ -2601,8 +2426,8 @@ RESPONDE JSON:
           operationType: 'context_assessment',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: `Q: ${input.question.substring(0, 200)} | A: ${input.answer.substring(0, 200)}`,
@@ -2700,7 +2525,7 @@ RESPONDE JSON:
       const hasCredits = await hasSufficientCredits(usersId, EVALUATION_CREDITS);
       if (!hasCredits) {
         throw new TRPCError({
-          code: "PAYMENT_REQUIRED",
+          code: "BAD_REQUEST",
           message: `Créditos insuficientes. Se requieren ${EVALUATION_CREDITS} créditos para evaluar el contexto.`,
         });
       }
@@ -2797,14 +2622,13 @@ RESPONDE JSON:
   ]
 }`;
 
-        const response = await aiClient.generateWithSystem(
-          systemPrompt,
+        const response = await aiClient.generate(
           `Pregunta: "${input.question}"\n\nContexto:\n${fullContextSummary}\n\nEvalúa y genera 2-3 follow-ups solo si es necesario.`,
           {
+            systemPrompt,
             modelId: "gemini-2.0-flash-exp",
             temperature: 0.6,
             maxTokens: 1000,
-            responseFormat: "json",
           }
         );
 
@@ -2824,8 +2648,8 @@ RESPONDE JSON:
           operationType: 'context_assessment',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: input.question.substring(0, 500),
@@ -2938,18 +2762,14 @@ ${input.context ? `\nContexto adicional: "${input.context}"` : ""}
 
 Genera ${questionCount} contextual${input.mode === 'quick' ? '' : 'es'} DINÁMICA${input.mode === 'quick' ? '' : 'S'} con tipos de respuesta óptimos.
 ${input.mode === 'quick' ? 'Recuerda: SOLO 1 pregunta, la más esencial.' : ''}
-${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes lo obvio.' : ''}`;
+${fullContext ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes lo obvio.' : ''}`;
 
-        const response = await aiClient.generateWithSystem(
+        const response = await aiClient.generate(userPrompt, {
           systemPrompt,
-          userPrompt,
-          {
-            modelId: "gemini-2.0-flash-exp",
-            temperature: 0.7,
-            maxTokens: 1000,
-            responseFormat: "json",
-          }
-        );
+          modelId: "gemini-2.0-flash-exp",
+          temperature: 0.7,
+          maxTokens: 1000,
+        });
 
         // Parse and validate response
         let questions;
@@ -3009,8 +2829,8 @@ ${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes l
           operationType: 'context_assessment',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: input.question.substring(0, 500),
@@ -3019,7 +2839,7 @@ ${backstory ? 'IMPORTANTE: Ya conoces al usuario (perfil arriba), NO preguntes l
 
         logger.info("[Contextual Questions] Generated successfully", {
           count: questions.length,
-          types: questions.map((q: ContextQuestion) => `${q.type}:${q.questionType}`),
+          types: questions.map((q: { type?: string; questionType: string }) => `${q.type ?? "question"}:${q.questionType}`),
         });
 
         return questions;
@@ -3112,16 +2932,12 @@ IMPORTANTE:
 - Varía el enfoque y perspectiva
 - Las respuestas deben ser naturales y útiles`;
 
-        const response = await aiClient.generateWithSystem(
+        const response = await aiClient.generate(userPrompt, {
           systemPrompt,
-          userPrompt,
-          {
-            modelId: "gemini-2.0-flash-exp",
-            temperature: 0.9, // Alta creatividad para respuestas únicas
-            maxTokens: 800,
-            responseFormat: "json",
-          }
-        );
+          modelId: "gemini-2.0-flash-exp",
+          temperature: 0.9, // Alta creatividad para respuestas únicas
+          maxTokens: 800,
+        });
 
         const parsed = parseAIJson<{ suggestions: Array<{ id: string; text: string; description: string }> }>(response.text);
 
@@ -3175,8 +2991,8 @@ IMPORTANTE:
           operationType: 'context_assessment',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: input.question.substring(0, 500),
@@ -3240,7 +3056,7 @@ IMPORTANTE:
         const userDepartments = await db
           .select()
           .from(departments)
-          .where(eq(departments.userId, ctx.userId))
+          .where(company ? eq(departments.companyId, company.id) : sql`false`)
           .limit(20);
 
         const userWorkers = await db
@@ -3268,9 +3084,7 @@ IMPORTANTE:
 
         const { getAllExperts } = await import("@quoorum/quoorum");
         const allExperts = getAllExperts(true);
-        const expertCategories = Array.from(
-          new Set(allExperts.map((e) => e.category).filter(Boolean))
-        ).slice(0, 15);
+        const expertCategories = getExpertCategories(allExperts);
 
         logger.info("[getUserContextHub] Context retrieved", {
           userId: ctx.userId,
@@ -3409,10 +3223,10 @@ RESPONDE JSON (sin markdown):
   "subtitle": "Subtítulo motivador aquí"
 }`;
 
-        const response = await aiClient.generateWithSystem(
-          systemPrompt,
+        const response = await aiClient.generate(
           "Genera un prompt personalizado basado en el contexto del usuario.",
           {
+            systemPrompt,
             modelId: "gemini-2.0-flash-exp",
             temperature: 0.8,
             maxTokens: 200,
@@ -3431,8 +3245,8 @@ RESPONDE JSON (sin markdown):
           operationType: 'context_assessment',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: `Context: ${(fullContext || '').substring(0, 300)}`,
@@ -3558,15 +3372,12 @@ NOTA: No hay contexto específico disponible. El usuario debe configurar su Perf
           requestedCount: input.count,
         });
 
-        const response = await aiClient.generateWithSystem(
+        const response = await aiClient.generate(userPrompt, {
           systemPrompt,
-          userPrompt,
-          {
-            modelId: "gemini-2.0-flash-exp", // Free tier
-            temperature: 0.8, // Creative but focused
-            maxTokens: 1000,
-          }
-        );
+          modelId: "gemini-2.0-flash-exp", // Free tier
+          temperature: 0.8, // Creative but focused
+          maxTokens: 1000,
+        });
 
         // Parse JSON response
         const parsed = parseAIJson<{ questions: string[] }>(response.text);
@@ -3595,8 +3406,8 @@ NOTA: No hay contexto específico disponible. El usuario debe configurar su Perf
           operationType: 'context_assessment',
           provider: 'google',
           modelId: 'gemini-2.0-flash-exp',
-          promptTokens: response.usage?.promptTokens || 0,
-          completionTokens: response.usage?.completionTokens || 0,
+          promptTokens: 0,
+          completionTokens: 0,
           latencyMs: Date.now() - startTime,
           success: true,
           inputSummary: `Context: ${(fullContext || '').substring(0, 300)}`,
@@ -3653,7 +3464,7 @@ async function runDebateAsync(
   pattern?: PatternType, // Patrón de orquestación (simple, tournament, adversarial, etc.)
   selectedExpertIds?: string[], // IDs de expertos personalizados seleccionados por el usuario
   selectedDepartmentIds?: string[], // IDs de departamentos corporativos seleccionados por el usuario
-        selectedWorkerIds?: string[] // IDs de profesionales que intervienen (orquestador aún no los usa)
+  _selectedWorkerIds?: string[] // IDs de profesionales que intervienen (orquestador aún no los usa)
 ): Promise<void> {
   // ============================================================================
   // CONVERT PROFILE ID TO USERS ID (for credit transactions)
@@ -3753,6 +3564,7 @@ async function runDebateAsync(
 
   // Track if refund was issued (to avoid double refund on error)
   let refundIssued = false
+  let result: DebateResult | DebateSequence | undefined
 
   try {
     logger.info("Starting debate execution", {
@@ -3896,10 +3708,6 @@ async function runDebateAsync(
 
     // Determine execution strategy for agents within rounds
     let finalExecutionStrategy: 'sequential' | 'parallel' = executionStrategy || 'sequential'
-
-    // Use orchestrated debate for complex patterns (tournament, adversarial, ensemble, etc.)
-    // Simple pattern uses direct runner (core + experts in one debate)
-    let result: DebateResult | DebateSequence
 
     if (finalPattern === 'simple') {
       // SIMPLE PATTERN: Use runDynamicDebate directly (core + experts in single debate)
@@ -4291,7 +4099,7 @@ async function updateProcessingStatus(
         totalRounds,
         timestamp: new Date().toISOString(),
         roundMessages: roundMessages ?? [],
-      },
+      } as any,
       updatedAt: new Date(),
     })
     .where(and(eq(quoorumDebates.id, debateId), eq(quoorumDebates.userId, userId)));

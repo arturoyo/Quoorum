@@ -57,7 +57,7 @@ export function useDebateDetail(debateId: string) {
 
     const colors: Record<string, string> = {}
     Array.from(experts).forEach((expert, idx) => {
-      colors[expert] = EXPERT_COLORS[idx % EXPERT_COLORS.length] || EXPERT_COLORS[0]
+      colors[expert] = EXPERT_COLORS[idx % EXPERT_COLORS.length] ?? 'bg-purple-600'
     })
 
     setExpertColors(colors)
@@ -72,9 +72,10 @@ export function useDebateDetail(debateId: string) {
     return debate?.rounds?.flatMap((round: { messages?: RoundMessage[] }, roundIdx: number) =>
       round.messages?.map((msg: RoundMessage, msgIdx: number) => ({
         ...msg,
+        timestamp: msg.timestamp ?? '',
         roundNumber: roundIdx + 1,
         messageId: `${roundIdx}-${msgIdx}`,
-      }))
+      })) ?? []
     ) ?? []
   }, [debate?.rounds])
 

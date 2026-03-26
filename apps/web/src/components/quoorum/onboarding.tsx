@@ -7,7 +7,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLocalStorage } from '~/hooks/use-forum'
+import { useLocalStorage } from '@/hooks/use-quoorum'
 
 // ============================================================================
 // TYPES

@@ -100,7 +100,7 @@ function replacePromptVariables(
   // Step 1: Handle {{#if var}}...{{/if}} blocks (simple conditional)
   // Remove entire block if variable is empty/undefined
   const conditionalRegex = /\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g
-  result = result.replace(conditionalRegex, (match, varName, content) => {
+  result = result.replace(conditionalRegex, (_match, varName, content) => {
     const value = values[varName]
     if (value && value.trim()) {
       // Variable has value, keep content and replace variables inside
@@ -117,6 +117,9 @@ function replacePromptVariables(
 
   for (const match of matches) {
     const varName = match[1]
+    if (!varName) {
+      continue
+    }
     const varDef = variableDefs[varName]
 
     // Get value from provided values or use default

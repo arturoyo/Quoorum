@@ -11,6 +11,7 @@ import {
   Zap,
   FileText,
   Bell,
+  DollarSign,
   Loader2,
 } from 'lucide-react'
 
@@ -232,7 +233,7 @@ export function AnalyticsDashboard() {
 
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-4">
-          <NotificationsCenter showPreferences={true} />
+          <NotificationsCenter />
         </TabsContent>
 
         {/* Quality Tab */}

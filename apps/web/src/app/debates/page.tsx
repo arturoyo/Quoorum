@@ -407,12 +407,12 @@ export default function DebatesPage() {
                   <CardContent>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
-                        {debate.metadata?.pattern && (
+                        {typeof debate.metadata?.pattern === 'string' && (
                           <Badge
                             variant="outline"
                             className="border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs"
                           >
-                            {getPatternLabel(debate.metadata.pattern as string)}
+                            {getPatternLabel(debate.metadata.pattern)}
                           </Badge>
                         )}
                         {debate.metadata?.tags && Array.isArray(debate.metadata.tags) && debate.metadata.tags.length > 0 && (

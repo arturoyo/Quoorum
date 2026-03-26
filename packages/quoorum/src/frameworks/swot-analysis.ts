@@ -255,48 +255,44 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
     const [strengthsResponse, weaknessesResponse, opportunitiesResponse, threatsResponse] =
       await Promise.all([
         // STRENGTHS
-        strengthsClient.generateWithSystem(
-          STRENGTHS_AGENT_CONFIG.systemPrompt ?? '',
+        strengthsClient.generate(
           `${contextPrompt}\n\nOutput format:\n{\n  "strengths": [\n    {\n      "title": "...",\n      "description": "...",\n      "impact": 85\n    }\n  ]\n}`,
           {
+            systemPrompt: STRENGTHS_AGENT_CONFIG.systemPrompt ?? '',
             modelId: STRENGTHS_AGENT_CONFIG.model,
-
             temperature: STRENGTHS_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
         ),
 
         // WEAKNESSES
-        weaknessesClient.generateWithSystem(
-          WEAKNESSES_AGENT_CONFIG.systemPrompt ?? '',
+        weaknessesClient.generate(
           `${contextPrompt}\n\nOutput format:\n{\n  "weaknesses": [\n    {\n      "title": "...",\n      "description": "...",\n      "severity": 70\n    }\n  ]\n}`,
           {
+            systemPrompt: WEAKNESSES_AGENT_CONFIG.systemPrompt ?? '',
             modelId: WEAKNESSES_AGENT_CONFIG.model,
-
             temperature: WEAKNESSES_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
         ),
 
         // OPPORTUNITIES
-        opportunitiesClient.generateWithSystem(
-          OPPORTUNITIES_AGENT_CONFIG.systemPrompt ?? '',
+        opportunitiesClient.generate(
           `${contextPrompt}\n\nOutput format:\n{\n  "opportunities": [\n    {\n      "title": "...",\n      "description": "...",\n      "potential": 80\n    }\n  ]\n}`,
           {
+            systemPrompt: OPPORTUNITIES_AGENT_CONFIG.systemPrompt ?? '',
             modelId: OPPORTUNITIES_AGENT_CONFIG.model,
-
             temperature: OPPORTUNITIES_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
         ),
 
         // THREATS
-        threatsClient.generateWithSystem(
-          THREATS_AGENT_CONFIG.systemPrompt ?? '',
+        threatsClient.generate(
           `${contextPrompt}\n\nOutput format:\n{\n  "threats": [\n    {\n      "title": "...",\n      "description": "...",\n      "risk": 65\n    }\n  ]\n}`,
           {
+            systemPrompt: THREATS_AGENT_CONFIG.systemPrompt ?? '',
             modelId: THREATS_AGENT_CONFIG.model,
-
             temperature: THREATS_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -342,16 +338,12 @@ Output format:
   "wtStrategies": "WT (Weaknesses + Threats):\n1. ...\n2. ..."
 }`
 
-    const strategiesResponse = await strategistClient.generateWithSystem(
-      STRATEGIST_AGENT_CONFIG.systemPrompt ?? '',
-      strategiesPrompt,
-      {
-        modelId: STRATEGIST_AGENT_CONFIG.model,
-
-        temperature: STRATEGIST_AGENT_CONFIG.temperature,
-        maxTokens: 1500,
-      }
-    )
+    const strategiesResponse = await strategistClient.generate(strategiesPrompt, {
+      systemPrompt: STRATEGIST_AGENT_CONFIG.systemPrompt ?? '',
+      modelId: STRATEGIST_AGENT_CONFIG.model,
+      temperature: STRATEGIST_AGENT_CONFIG.temperature,
+      maxTokens: 1500,
+    })
 
     const strategies = JSON.parse(strategiesResponse.text) as SWOTAnalysisOutput['strategies']
 

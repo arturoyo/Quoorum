@@ -45,6 +45,7 @@ export function WorkerSelector({
   defaultOpen = false,
 }: WorkerSelectorProps) {
   const router = useRouter()
+  const openSettings = useOpenSettings()
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const [selectionMode, setSelectionMode] = useState<'auto' | 'manual'>('auto')
   const [searchQuery, setSearchQuery] = useState('')

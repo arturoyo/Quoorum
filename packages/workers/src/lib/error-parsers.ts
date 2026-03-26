@@ -15,6 +15,12 @@ export interface DetectedError {
   fixStrategy?: string
 }
 
+function toInt(value: string | undefined): number | undefined {
+  if (!value) return undefined
+  const parsed = parseInt(value, 10)
+  return Number.isNaN(parsed) ? undefined : parsed
+}
+
 /**
  * Parser de errores de TypeScript
  */
@@ -25,13 +31,19 @@ export function parseTypeScriptErrors(output: string): DetectedError[] {
   let match
   while ((match = tsErrorRegex.exec(output)) !== null) {
     const [, file, line, column, code, message] = match
+    const parsedLine = toInt(line)
+    const parsedColumn = toInt(column)
+
+    if (!file || !parsedLine || !parsedColumn || !code || !message) {
+      continue
+    }
 
     const error: DetectedError = {
       type: 'typescript',
       severity: classifyTypeScriptSeverity(code, message),
       file: file.trim(),
-      line: parseInt(line),
-      column: parseInt(column),
+      line: parsedLine,
+      column: parsedColumn,
       message: message.trim(),
       code,
       rawError: match[0],
@@ -56,13 +68,19 @@ export function parseESLintErrors(output: string): DetectedError[] {
   let match
   while ((match = eslintRegex.exec(output)) !== null) {
     const [, file, line, column, severity, rule, message] = match
+    const parsedLine = toInt(line)
+    const parsedColumn = toInt(column)
+
+    if (!file || !parsedLine || !parsedColumn || !severity || !rule || !message) {
+      continue
+    }
 
     const error: DetectedError = {
       type: 'eslint',
       severity: severity === 'error' ? 'moderate' : 'safe',
       file: file.trim(),
-      line: parseInt(line),
-      column: parseInt(column),
+      line: parsedLine,
+      column: parsedColumn,
       message: message.trim(),
       code: rule,
       rawError: match[0],
@@ -86,11 +104,16 @@ export function parseBuildErrors(output: string): DetectedError[] {
   const moduleNotFoundRegex = /Module not found: Can't resolve '([^']+)'/g
   let match
   while ((match = moduleNotFoundRegex.exec(output)) !== null) {
+    const missingDependency = match[1]
+    if (!missingDependency) {
+      continue
+    }
+
     errors.push({
       type: 'build',
       severity: 'moderate',
       file: 'package.json',
-      message: `Missing dependency: ${match[1]}`,
+      message: `Missing dependency: ${missingDependency}`,
       code: 'MODULE_NOT_FOUND',
       rawError: match[0],
       autoFixable: true,
@@ -101,11 +124,16 @@ export function parseBuildErrors(output: string): DetectedError[] {
   // Pattern 2: Syntax errors
   const syntaxErrorRegex = /SyntaxError: ([^\n]+)/g
   while ((match = syntaxErrorRegex.exec(output)) !== null) {
+    const syntaxMessage = match[1]
+    if (!syntaxMessage) {
+      continue
+    }
+
     errors.push({
       type: 'build',
       severity: 'dangerous',
       file: 'unknown',
-      message: match[1],
+      message: syntaxMessage,
       code: 'SYNTAX_ERROR',
       rawError: match[0],
       autoFixable: false,
@@ -118,7 +146,7 @@ export function parseBuildErrors(output: string): DetectedError[] {
 /**
  * Clasifica la severidad de errores TypeScript
  */
-function classifyTypeScriptSeverity(code: string, message: string): DetectedError['severity'] {
+function classifyTypeScriptSeverity(code: string, _message: string): DetectedError['severity'] {
   // Safe fixes (formatting, imports)
   if (code.match(/TS1003|TS1005|TS1109/)) {
     return 'safe' // Import/syntax errors
@@ -155,7 +183,7 @@ function isTypeScriptAutoFixable(code: string, message: string): boolean {
 /**
  * Obtiene la estrategia de fix para errores TypeScript
  */
-function getTypeScriptFixStrategy(code: string, message: string): string | undefined {
+function getTypeScriptFixStrategy(code: string, _message: string): string | undefined {
   if (code === 'TS1003' || code === 'TS1005') {
     return 'fix-malformed-imports'
   }
@@ -205,13 +233,19 @@ export function parseRuntimeErrors(logOutput: string): DetectedError[] {
 
   while ((match = runtimeErrorRegex.exec(logOutput)) !== null) {
     const [, message, file, line, column] = match
+    const parsedLine = toInt(line)
+    const parsedColumn = toInt(column)
+
+    if (!message || !file || !parsedLine || !parsedColumn) {
+      continue
+    }
 
     errors.push({
       type: 'runtime',
       severity: 'dangerous',
       file: file.trim(),
-      line: parseInt(line),
-      column: parseInt(column),
+      line: parsedLine,
+      column: parsedColumn,
       message: message.trim(),
       rawError: match[0],
       autoFixable: false, // Runtime errors need human review
@@ -262,6 +296,10 @@ export async function parseEmojiErrors(
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i]
+        if (line === undefined) {
+          continue
+        }
+
         const lineNumber = i + 1
 
         // Detectar console.log/error/warn/info/debug con emojis
@@ -290,7 +328,7 @@ export async function parseEmojiErrors(
           })
         }
       }
-    } catch (err) {
+    } catch {
       // Ignorar errores de lectura (archivo no existe, permisos, etc.)
       continue
     }

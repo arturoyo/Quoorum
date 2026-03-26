@@ -11,8 +11,6 @@ import { generateDebateExcel } from './excel-export'
 import type { DebateResult } from '../types'
 import type { ExpertProfile } from '../expert-database'
 import type { PDFExportOptions } from '../pdf-export'
-import type { PowerPointExportOptions } from './powerpoint-export'
-import type { ExcelExportOptions } from './excel-export'
 import { quoorumLogger } from '../logger'
 
 // ============================================================================

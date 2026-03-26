@@ -268,13 +268,16 @@ export function analyzeBusinessQuestion(question: string, searchContext?: string
 
   if (analysis.questionType === 'a_or_b') {
     const orMatch = text.match(/(.{10,50}?)\s+o\s+(.{10,50}?)[\?\.]/);
-    if (orMatch) {
-      analysis.coreDilemma = `${orMatch[1].trim()} vs ${orMatch[2].trim()}`;
+    const firstOption = orMatch?.[1]
+    const secondOption = orMatch?.[2]
+    if (firstOption && secondOption) {
+      analysis.coreDilemma = `${firstOption.trim()} vs ${secondOption.trim()}`;
     }
   } else if (analysis.questionType === 'should_i') {
     const actionMatch = text.match(/debería\s+(.{10,60}?)[\?\.]/);
-    if (actionMatch) {
-      analysis.coreDilemma = actionMatch[1].trim();
+    const action = actionMatch?.[1]
+    if (action) {
+      analysis.coreDilemma = action.trim();
     }
   }
 

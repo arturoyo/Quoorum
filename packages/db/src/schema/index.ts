@@ -173,3 +173,7 @@ export type {
   AIOperationType,
   AIProvider,
 } from "./ai-cost-tracking";
+
+// Roadmap
+export { roadmapItems, roadmapStatusEnum, roadmapPriorityEnum, roadmapCategoryEnum } from "./roadmap";
+export type { RoadmapItem, NewRoadmapItem, RoadmapStatus, RoadmapPriority, RoadmapCategory } from "./roadmap";

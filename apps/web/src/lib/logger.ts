@@ -121,7 +121,7 @@ class ClientLogger {
         };
         
         // Capturar propiedades adicionales si existen (status, code, etc.)
-        const errorRecord = value as Record<string, unknown>;
+        const errorRecord = value as unknown as Record<string, unknown>;
         for (const key of ['status', 'statusText', 'code', 'cause', 'responseBody']) {
           if (key in errorRecord) {
             errorObj[key] = errorRecord[key];
@@ -129,7 +129,7 @@ class ClientLogger {
         }
         
         return JSON.stringify(errorObj, null, 2);
-      } catch (e) {
+      } catch {
         return `Error: ${value.name} - ${value.message}`;
       }
     }
@@ -139,7 +139,7 @@ class ClientLogger {
         // Usar un Set para rastrear objetos visitados y evitar referencias circulares
         const visited = new WeakSet();
         
-        return JSON.stringify(value, (key, val) => {
+        return JSON.stringify(value, (_key, val) => {
           // Evitar referencias circulares
           if (val && typeof val === 'object') {
             if (visited.has(val)) {
@@ -164,7 +164,7 @@ class ClientLogger {
           
           return val;
         }, 2);
-      } catch (e) {
+      } catch {
         // Si falla la serialización, intentar toString
         try {
           return String(value);
@@ -215,7 +215,7 @@ class ClientLogger {
         }
         
         // Verificar propiedades del error
-        const errorObj = errorOrMetadata as Record<string, unknown>;
+        const errorObj = errorOrMetadata as unknown as Record<string, unknown>;
         if (!shouldSilence && (errorObj.status === 401 || errorObj.status === 402)) {
           shouldSilence = true;
         }

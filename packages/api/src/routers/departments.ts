@@ -294,6 +294,13 @@ export const departmentsRouter = router({
         })
         .returning()
 
+      if (!department) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create department',
+        })
+      }
+
       logger.info('Department created', {
         departmentId: department.id,
         companyId: input.companyId,
@@ -348,6 +355,13 @@ export const departmentsRouter = router({
         })
         .where(eq(departments.id, id))
         .returning()
+
+      if (!updated) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update department',
+        })
+      }
 
       logger.info('Department updated', {
         departmentId: updated.id,
@@ -450,6 +464,13 @@ export const departmentsRouter = router({
           isPredefined: true,
         })
         .returning()
+
+      if (!department) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create department from template',
+        })
+      }
 
       logger.info('Department created from template', {
         departmentId: department.id,
@@ -569,7 +590,7 @@ export const departmentsRouter = router({
           departmentContext: dept.departmentContext,
           basePrompt: dept.basePrompt,
           icon: dept.icon,
-          agentRole: dept.agentRole,
+          agentRole: dept.agentRole ?? dept.name,
         })),
         {
           minDepartments: 3,
@@ -605,7 +626,7 @@ export const departmentsRouter = router({
 /**
  * Match departments based on question analysis
  */
-function matchDepartments(
+export function matchDepartments(
   departments: Array<{
     id: string
     name: string

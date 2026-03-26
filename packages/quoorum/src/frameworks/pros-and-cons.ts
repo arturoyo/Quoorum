@@ -218,10 +218,10 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
     // Run agents in parallel (except synthesizer, which needs the others)
     const [prosResponse, consResponse, analysisResponse] = await Promise.all([
       // PROS (Optimizer)
-      prosClient.generateWithSystem(
-        PROS_AGENT_CONFIG.systemPrompt ?? '',
+      prosClient.generate(
         `${contextPrompt}\n\nOutput format:\n{\n  "pros": [\n    {\n      "title": "...",\n      "description": "...",\n      "weight": 80\n    }\n  ]\n}`,
         {
+          systemPrompt: PROS_AGENT_CONFIG.systemPrompt ?? '',
           modelId: PROS_AGENT_CONFIG.model,
           temperature: PROS_AGENT_CONFIG.temperature,
           maxTokens: 2000,
@@ -229,10 +229,10 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
       ),
 
       // CONS (Critic)
-      consClient.generateWithSystem(
-        CONS_AGENT_CONFIG.systemPrompt ?? '',
+      consClient.generate(
         `${contextPrompt}\n\nOutput format:\n{\n  "cons": [\n    {\n      "title": "...",\n      "description": "...",\n      "weight": 70\n    }\n  ]\n}`,
         {
+          systemPrompt: CONS_AGENT_CONFIG.systemPrompt ?? '',
           modelId: CONS_AGENT_CONFIG.model,
           temperature: CONS_AGENT_CONFIG.temperature,
           maxTokens: 2000,
@@ -240,10 +240,10 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
       ),
 
       // ANALYSIS (Analyst)
-      analystClient.generateWithSystem(
-        ANALYST_AGENT_CONFIG.systemPrompt ?? '',
+      analystClient.generate(
         `${contextPrompt}\n\nOutput format:\n{\n  "feasibility": "...",\n  "contextNotes": "..."\n}`,
         {
+          systemPrompt: ANALYST_AGENT_CONFIG.systemPrompt ?? '',
           modelId: ANALYST_AGENT_CONFIG.model,
           temperature: ANALYST_AGENT_CONFIG.temperature,
           maxTokens: 1500,
@@ -282,15 +282,12 @@ Output format:
   "confidence": 75
 }`
 
-    const synthesisResponse = await synthesizerClient.generateWithSystem(
-      SYNTHESIZER_AGENT_CONFIG.systemPrompt ?? '',
-      synthesisPrompt,
-      {
-        modelId: SYNTHESIZER_AGENT_CONFIG.model,
-        temperature: SYNTHESIZER_AGENT_CONFIG.temperature,
-        maxTokens: 1000,
-      }
-    )
+    const synthesisResponse = await synthesizerClient.generate(synthesisPrompt, {
+      systemPrompt: SYNTHESIZER_AGENT_CONFIG.systemPrompt ?? '',
+      modelId: SYNTHESIZER_AGENT_CONFIG.model,
+      temperature: SYNTHESIZER_AGENT_CONFIG.temperature,
+      maxTokens: 1000,
+    })
 
     const recommendation = JSON.parse(synthesisResponse.text) as ProsAndConsOutput['recommendation']
 

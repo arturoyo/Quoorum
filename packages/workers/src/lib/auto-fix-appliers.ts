@@ -12,6 +12,10 @@ export interface FixResult {
   error?: string
 }
 
+function getLine(lines: string[], lineIndex: number): string | null {
+  return lines[lineIndex] ?? null
+}
+
 /**
  * Aplica un fix automático basado en la estrategia
  */
@@ -86,7 +90,8 @@ async function fixMalformedImports(error: DetectedError): Promise<FixResult> {
 
   // Buscar patrón de import duplicado
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim().startsWith('import {') && lines[i + 1]?.trim().startsWith('import {')) {
+    const currentLine = lines[i]
+    if (currentLine?.trim().startsWith('import {') && lines[i + 1]?.trim().startsWith('import {')) {
       // Import duplicado encontrado
       changes.push(`Removed duplicate import statement at line ${i + 1}`)
 
@@ -100,11 +105,17 @@ async function fixMalformedImports(error: DetectedError): Promise<FixResult> {
   if (!fixed) {
     // Intentar otra estrategia: buscar imports incompletos
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim()
+      const line = lines[i]
+      if (line === undefined) {
+        continue
+      }
 
       // Detectar líneas que parecen imports pero sin "import"
       if (!line.startsWith('import') && line.match(/^\w+,?$/) && i > 0) {
-        const prevLine = lines[i - 1].trim()
+        const prevLine = lines[i - 1]
+        if (prevLine === undefined) {
+          continue
+        }
         if (prevLine.startsWith('import {')) {
           // Mover esta línea dentro del import anterior
           changes.push(`Fixed incomplete import at line ${i + 1}`)
@@ -150,7 +161,16 @@ async function removeConsoleLogs(error: DetectedError): Promise<FixResult> {
   }
 
   const lineIndex = error.line - 1
-  const originalLine = lines[lineIndex]
+  const originalLine = getLine(lines, lineIndex)
+
+  if (originalLine === null) {
+    return {
+      success: false,
+      file: error.file,
+      changes: [],
+      error: `Line ${error.line} is out of range`,
+    }
+  }
 
   // Comentar la línea en lugar de eliminarla (más seguro)
   if (originalLine.includes('console.log') || originalLine.includes('console.error')) {
@@ -232,7 +252,16 @@ async function changeLetToConst(error: DetectedError): Promise<FixResult> {
   }
 
   const lineIndex = error.line - 1
-  const originalLine = lines[lineIndex]
+  const originalLine = getLine(lines, lineIndex)
+
+  if (originalLine === null) {
+    return {
+      success: false,
+      file: error.file,
+      changes: [],
+      error: `Line ${error.line} is out of range`,
+    }
+  }
 
   if (originalLine.includes('let ')) {
     lines[lineIndex] = originalLine.replace(/\blet\b/, 'const')
@@ -270,7 +299,16 @@ async function changeVarToConst(error: DetectedError): Promise<FixResult> {
   }
 
   const lineIndex = error.line - 1
-  const originalLine = lines[lineIndex]
+  const originalLine = getLine(lines, lineIndex)
+
+  if (originalLine === null) {
+    return {
+      success: false,
+      file: error.file,
+      changes: [],
+      error: `Line ${error.line} is out of range`,
+    }
+  }
 
   if (originalLine.includes('var ')) {
     lines[lineIndex] = originalLine.replace(/\bvar\b/, 'const')
@@ -308,7 +346,16 @@ async function replaceAnyWithUnknown(error: DetectedError): Promise<FixResult> {
   }
 
   const lineIndex = error.line - 1
-  const originalLine = lines[lineIndex]
+  const originalLine = getLine(lines, lineIndex)
+
+  if (originalLine === null) {
+    return {
+      success: false,
+      file: error.file,
+      changes: [],
+      error: `Line ${error.line} is out of range`,
+    }
+  }
 
   // Reemplazar : any por : unknown
   if (originalLine.includes(': any')) {
@@ -375,7 +422,16 @@ async function replaceEmojiWithText(error: DetectedError): Promise<FixResult> {
   }
 
   const lineIndex = error.line - 1
-  const originalLine = lines[lineIndex]
+  const originalLine = getLine(lines, lineIndex)
+
+  if (originalLine === null) {
+    return {
+      success: false,
+      file: error.file,
+      changes: [],
+      error: `Line ${error.line} is out of range`,
+    }
+  }
 
   // REGLA SIMPLE: NUNCA usar emojis en código. Reemplazar TODOS con [EMOJI] genérico.
   // No intentamos mapear cada emoji específico - simplemente los eliminamos/reemplazamos.
@@ -384,7 +440,15 @@ async function replaceEmojiWithText(error: DetectedError): Promise<FixResult> {
   // Crear regex para encontrar TODOS los emojis Unicode posibles (mismo patrón que en error-parsers.ts)
   const emojiPattern = /[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{1FAB0}-\u{1FABF}\u{1FAC0}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F1E0}-\u{1F1FF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{200D}\u{20E3}\u{FE0F}]/gu
 
-  let modifiedLine = originalLine
+  let modifiedLine = getLine(lines, lineIndex)
+  if (modifiedLine === null) {
+    return {
+      success: false,
+      file: error.file,
+      changes: [],
+      error: `Line ${error.line} is out of range`,
+    }
+  }
   const changes: string[] = []
   let hasChanges = false
 
@@ -401,7 +465,7 @@ async function replaceEmojiWithText(error: DetectedError): Promise<FixResult> {
     const prevLine = lines[lineIndex - 1]?.trim() || ''
     if (!prevLine.includes('Removed emoji') && !prevLine.includes('avoid UTF-8')) {
       // Añadir comentario en la línea anterior si es posible
-      const indent = originalLine.match(/^(\s*)/)?.[1] || ''
+      const indent = modifiedLine.match(/^(\s*)/)?.[1] || ''
       lines.splice(lineIndex, 0, `${indent}// Removed emoji to avoid UTF-8 encoding issues on Windows`)
       // Actualizar índice después del splice
       lines[lineIndex + 1] = modifiedLine

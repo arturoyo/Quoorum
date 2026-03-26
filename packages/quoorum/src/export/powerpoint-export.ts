@@ -59,7 +59,7 @@ export async function generateDebatePowerPoint(
 
 function generatePowerPointHTML(
   debate: DebateResult,
-  experts: ExpertProfile[],
+  _experts: ExpertProfile[],
   options: PowerPointExportOptions
 ): string {
   const theme = options.slideTheme || 'dark'
@@ -118,7 +118,7 @@ function generatePowerPointHTML(
       ${(debate.finalRanking || [])
         .slice(0, 5)
         .map(
-          (opt, idx) =>
+          (opt) =>
             `<li><strong>${opt.option}</strong> - ${opt.successRate?.toFixed(1) || 'N/A'}%</li>`
         )
         .join('')}
@@ -129,9 +129,9 @@ function generatePowerPointHTML(
   ${(debate.rounds || [])
     .slice(0, 5)
     .map(
-      (round, idx) => `
+      (round) => `
   <div class="slide">
-    <h2 class="slide-title">Ronda ${round.round || idx + 1}</h2>
+    <h2 class="slide-title">Ronda ${round.round}</h2>
     ${(round.messages || [])
       .slice(0, 3)
       .map(

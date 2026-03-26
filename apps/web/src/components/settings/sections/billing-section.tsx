@@ -251,7 +251,7 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <p className="text-2xl font-bold text-[var(--theme-text-primary)]">{currentPlan?.dailyCredits || 0}</p>
+              <p className="text-2xl font-bold text-[var(--theme-text-primary)]">{currentPlan?.credits || 0}</p>
               <p className="text-sm text-[var(--theme-text-tertiary)]">Se actualizan automáticamente cada día a las 01:00 UTC</p>
             </div>
           </CardContent>
@@ -377,21 +377,31 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
                         ${invoice.amount.toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right">
-                        {invoice.invoicePdf ? (
+                        {typeof invoice.invoicePdf === 'string' ? (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(invoice.invoicePdf, '_blank')}
+                            onClick={() => {
+                              const invoicePdfUrl = invoice.invoicePdf
+                              if (typeof invoicePdfUrl === 'string') {
+                                window.open(invoicePdfUrl, '_blank')
+                              }
+                            }}
                             className="text-purple-300 hover:text-purple-200 hover:bg-purple-500/10"
                           >
                             <Download className="h-4 w-4 mr-1" />
                             Descargar
                           </Button>
-                        ) : invoice.hostedInvoiceUrl ? (
+                        ) : typeof invoice.hostedInvoiceUrl === 'string' ? (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(invoice.hostedInvoiceUrl, '_blank')}
+                            onClick={() => {
+                              const hostedInvoiceUrl = invoice.hostedInvoiceUrl
+                              if (typeof hostedInvoiceUrl === 'string') {
+                                window.open(hostedInvoiceUrl, '_blank')
+                              }
+                            }}
                             className="text-purple-300 hover:text-purple-200 hover:bg-purple-500/10"
                           >
                             <Download className="h-4 w-4 mr-1" />

@@ -40,6 +40,28 @@ interface Notification {
   createdAt: Date
 }
 
+function normalizeNotification(
+  notification: Record<string, unknown> & {
+    id: string
+    type: Notification['type']
+    title: string
+    message: string
+    debateId?: string | null
+    createdAt: Date
+    read?: boolean
+  }
+): Notification {
+  return {
+    id: notification.id,
+    type: notification.type,
+    title: notification.title,
+    message: notification.message,
+    debateId: notification.debateId ?? undefined,
+    createdAt: notification.createdAt,
+    read: typeof notification.read === 'boolean' ? notification.read : false,
+  }
+}
+
 // ============================================================================
 // Sub-components
 // ============================================================================
@@ -210,6 +232,10 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
     },
   })
 
+  const normalizedNotifications = notifications?.map((notification) =>
+    normalizeNotification(notification as Parameters<typeof normalizeNotification>[0])
+  )
+
   return (
     <Card className="border-[#2a3942] bg-[#202c33]">
       <CardHeader className="border-b border-[#2a3942]">
@@ -286,14 +312,14 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-[#8696a0]" />
               </div>
-            ) : !notifications || notifications.length === 0 ? (
+            ) : !normalizedNotifications || normalizedNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <BellOff className="h-12 w-12 text-[#8696a0]" />
                 <p className="mt-4 text-[#8696a0]">No hay notificaciones</p>
               </div>
             ) : (
               <>
-                {notifications.map((notification) => (
+                {normalizedNotifications.map((notification) => (
                   <NotificationItem
                     key={notification.id}
                     notification={notification}
@@ -313,14 +339,14 @@ export function NotificationsCenter({ onNotificationClick }: NotificationsCenter
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-[#8696a0]" />
               </div>
-            ) : !notifications || notifications.length === 0 ? (
+            ) : !normalizedNotifications || normalizedNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <CheckCircle2 className="h-12 w-12 text-[#00a884]" />
                 <p className="mt-4 text-[#8696a0]">Estás al día!</p>
                 <p className="text-sm text-[#8696a0]">No tienes notificaciones sin leer</p>
               </div>
             ) : (
-              notifications.map((notification) => (
+              normalizedNotifications.map((notification) => (
                 <NotificationItem
                   key={notification.id}
                   notification={notification}

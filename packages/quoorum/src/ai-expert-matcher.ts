@@ -9,7 +9,7 @@
  */
 
 import { getAIClient, parseAIJson } from '@quoorum/ai'
-import { getAllExperts, getExpert, type ExpertProfile } from './expert-database'
+import { getExpert, type ExpertProfile } from './expert-database'
 import type { QuestionAnalysis } from './question-analyzer'
 import { quoorumLogger as logger } from './logger'
 

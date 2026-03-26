@@ -29,6 +29,11 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
     icon: '📊',
   })
 
+  const normalizedAgentRole =
+    formData.agentRole === 'critic' || formData.agentRole === 'synthesizer'
+      ? formData.agentRole
+      : 'analyst'
+
   // Queries
   const { data: company } = api.companies.get.useQuery()
 
@@ -68,9 +73,9 @@ export function DepartmentsSection({ isInModal = false }: DepartmentsSectionProp
       name: formData.name,
       description: formData.description || undefined,
       departmentContext: formData.departmentContext,
-      basePrompt: formData.basePrompt || undefined,
+      basePrompt: formData.basePrompt || '',
       customPrompt: formData.customPrompt || undefined,
-      agentRole: formData.agentRole,
+      agentRole: normalizedAgentRole,
       temperature: formData.temperature,
       icon: formData.icon || undefined,
       type: 'custom',

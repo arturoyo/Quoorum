@@ -9,7 +9,7 @@ import { TRPCError } from '@trpc/server'
 import { router, protectedProcedure } from '../trpc'
 import { db } from '@quoorum/db'
 import { teamMembers, profiles } from '@quoorum/db/schema'
-import { eq, and, desc, isNull, or } from 'drizzle-orm'
+import { eq, and, desc, or } from 'drizzle-orm'
 import { logger } from '../lib/logger'
 import { sendTeamInvitationEmail } from '@quoorum/workers'
 import crypto from 'crypto'
@@ -142,13 +142,20 @@ export const teamMembersRouter = router({
         })
         .returning()
 
+      if (!invitation) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se pudo crear la invitación',
+        })
+      }
+
       // Send invitation email (non-blocking)
       void sendTeamInvitationEmail(
         input.email,
         inviterName,
         invitationToken,
         input.role
-      ).then((result) => {
+      ).then((result: { success: boolean; error?: string }) => {
         if (result.success) {
           logger.info('Team invitation email sent', { email: input.email })
         } else {

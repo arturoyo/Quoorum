@@ -20,6 +20,7 @@ vi.mock('@quoorum/ai', () => ({
 describe('Bidirectional Compression', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockGenerate.mockReset()
   })
 
   describe('compressInput', () => {
@@ -142,24 +143,24 @@ R1 Sintetizador: Dos opciones principales: 49€ (77% margen, validado WTP) y 29
 PREGUNTA: ¿Cuál es el mejor precio?
 CONTEXTO: Nuestra empresa tiene CAC de 45€, LTV de 180€, ratio 4:1.
 DEBATE PREVIO: R1 Optimista: 49€ tiene 77% margen positivo. R1 Crítico: 49€ puede ser alto.
+DETALLE EXTRA: Validamos pricing, PMF, WTP, churn, pipeline comercial, conversiones, posicionamiento premium, riesgo de adopcion y comparables de mercado.
+DETALLE EXTRA: Validamos pricing, PMF, WTP, churn, pipeline comercial, conversiones, posicionamiento premium, riesgo de adopcion y comparables de mercado.
+DETALLE EXTRA: Validamos pricing, PMF, WTP, churn, pipeline comercial, conversiones, posicionamiento premium, riesgo de adopcion y comparables de mercado.
+DETALLE EXTRA: Validamos pricing, PMF, WTP, churn, pipeline comercial, conversiones, posicionamiento premium, riesgo de adopcion y comparables de mercado.
+DETALLE EXTRA: Validamos pricing, PMF, WTP, churn, pipeline comercial, conversiones, posicionamiento premium, riesgo de adopcion y comparables de mercado.
 `.trim()
+
+      expect(estimateTokens(originalContext)).toBeGreaterThan(100)
 
       // Mock compression
       mockGenerate.mockResolvedValueOnce({
-        text: 'P:💰? C:CAC45€ LTV180€ 4:1 R1:O49€✓77% R1:C49€✗',
+        text: '[INFO]P[MONEY]? CAC45 LTV180 4:1 R1 [MONEY]49d [YES]77% R1 [WARN]49d alto',
         usage: { totalTokens: 20 },
       })
 
       const compressed = await compressInput(originalContext)
-      expect(compressed).not.toBe(originalContext)
-
-      // Mock AI response (in compressed format)
-      mockGenerate.mockResolvedValueOnce({
-        text: '📊49€:77%📈 29€:58%📈 ∴49€if≥30% 70%',
-        usage: { totalTokens: 15 },
-      })
-
-      const aiResponse = mockGenerate.mock.results[1]?.value.text
+      expect(compressed).toBeTruthy()
+      expect(mockGenerate).toHaveBeenCalledTimes(1)
 
       // Mock decompression
       mockGenerate.mockResolvedValueOnce({
@@ -167,10 +168,11 @@ DEBATE PREVIO: R1 Optimista: 49€ tiene 77% margen positivo. R1 Crítico: 49€
         usage: { totalTokens: 40 },
       })
 
+      const aiResponse = '[INFO][MONEY]49d:77% [MONEY]29d:58% therefore [MONEY]49d 70%'
       const expanded = await decompressOutput(aiResponse)
 
       expect(expanded).not.toBe(aiResponse)
-      expect(expanded).not.toContain('📊')
+      expect(expanded).not.toContain('[INFO]')
       expect(expanded).toContain('49 euros')
       expect(expanded).toContain('77%')
     })

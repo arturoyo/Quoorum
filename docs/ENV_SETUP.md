@@ -98,7 +98,7 @@ STRIPE_SECRET_KEY=sk_live_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 RESEND_API_KEY=re_...
-FROM_EMAIL=Quoorum <noreply@quoorum.pro>
+QUOORUM_EMAIL_FROM=Quoorum <noreply@quoorum.pro>
 ```
 
 #### Variables Opcionales (añadir si usas esas features)
@@ -106,7 +106,7 @@ FROM_EMAIL=Quoorum <noreply@quoorum.pro>
 ```env
 PINECONE_API_KEY=...
 PINECONE_ENVIRONMENT=us-east-1-aws
-PINECONE_INDEX_NAME=quoorum-debates
+PINECONE_INDEX=quoorum-debates
 REDIS_URL=redis://...
 # Google Custom Search API (Prioridad 1 - Se usa antes que Serper)
 GOOGLE_CUSTOM_SEARCH_API_KEY=...
@@ -146,7 +146,7 @@ Vercel ejecutará la validación automáticamente durante el build. Si hay error
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Clave pública Stripe | Stripe Dashboard |
 | `STRIPE_WEBHOOK_SECRET` | Secret para webhooks | Stripe Dashboard → Webhooks |
 | `RESEND_API_KEY` | API Key de Resend | [Resend Dashboard](https://resend.com/api-keys) |
-| `FROM_EMAIL` | Email remitente | Tu dominio verificado en Resend |
+| `QUOORUM_EMAIL_FROM` | Email remitente | Tu dominio verificado en Resend |
 
 ### 🟡 OPCIONALES (Funcionalidades avanzadas)
 
@@ -238,7 +238,7 @@ Antes de hacer deploy a Vercel, verifica:
 - [ ] `NEXT_PUBLIC_APP_URL` apunta a la URL de producción
 - [ ] `DATABASE_URL` apunta a la base de datos de producción
 - [ ] Variables de Stripe son de producción (no test)
-- [ ] `FROM_EMAIL` usa un dominio verificado
+- [ ] `QUOORUM_EMAIL_FROM` usa un dominio verificado
 - [ ] Ejecutaste `pnpm validate:env` localmente sin errores
 
 ---

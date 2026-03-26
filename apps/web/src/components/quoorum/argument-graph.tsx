@@ -27,7 +27,27 @@ import { Button } from '@/components/ui/button'
 import { Filter, Download, ZoomIn, ZoomOut } from 'lucide-react'
 import { api } from '@/lib/trpc/client'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { ArgumentTree, ArgumentNode, ArgumentEdge } from '@quoorum/quoorum/argument-intelligence'
+
+interface ArgumentNode {
+  id: string
+  type: 'premise' | 'conclusion' | 'objection' | 'support'
+  content: string
+  expert: string
+  round: number
+  strength: number
+}
+
+interface ArgumentEdge {
+  from: string
+  to: string
+  type: 'supports' | 'attacks' | 'cites' | 'agrees_with' | 'disagrees_with'
+  strength: number
+}
+
+interface ArgumentTree {
+  nodes: ArgumentNode[]
+  edges: ArgumentEdge[]
+}
 
 interface ArgumentGraphProps {
   debateId: string
@@ -323,11 +343,9 @@ export function ArgumentGraph({ debateId }: ArgumentGraphProps) {
             <Background color="#2a3942" gap={16} />
             <Controls
               style={{
-                button: {
-                  backgroundColor: '#111b21',
-                  color: '#ffffff',
-                  border: '1px solid #2a3942',
-                },
+                backgroundColor: '#111b21',
+                color: '#ffffff',
+                border: '1px solid #2a3942',
               }}
             />
             <MiniMap
