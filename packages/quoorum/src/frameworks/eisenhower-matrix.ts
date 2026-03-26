@@ -69,6 +69,10 @@ const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'te
 }
 
 const CLASSIFIER_AGENT_CONFIG: AgentConfig = {
+  key: 'eisenhower-classifier',
+  name: 'Task Classifier',
+  role: 'analyst',
+  prompt: 'Classify tasks by urgency and importance',
   ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el TASK CLASSIFIER, un experto en priorización según la Matriz de Eisenhower.
@@ -115,6 +119,10 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const PRIORITY_AGENT_CONFIG: AgentConfig = {
+  key: 'eisenhower-priority',
+  name: 'Priority Strategist',
+  role: 'synthesizer',
+  prompt: 'Create prioritization strategy from task classification',
   ...getFrameworkAgentConfig(),
   temperature: 0.3,
   systemPrompt: `Eres el PRIORITY STRATEGIST, un experto en time management y productividad.
@@ -193,7 +201,7 @@ export async function runEisenhowerMatrix(
 
     // Step 1: Classify tasks
     const classificationResponse = await classifierClient.generateWithSystem(
-      CLASSIFIER_AGENT_CONFIG.systemPrompt,
+      CLASSIFIER_AGENT_CONFIG.systemPrompt ?? '',
       `${contextPrompt}\n\nOutput format:\n{\n  "tasks": [\n    {\n      "task": "...",\n      "quadrant": "Q1" | "Q2" | "Q3" | "Q4",\n      "urgency": 85,\n      "importance": 90,\n      "rationale": "...",\n      "recommendedAction": "..."\n    }\n  ]\n}`,
       {
         modelId: CLASSIFIER_AGENT_CONFIG.model,
@@ -245,7 +253,7 @@ Output format:
 }`
 
     const priorityResponse = await priorityClient.generateWithSystem(
-      PRIORITY_AGENT_CONFIG.systemPrompt,
+      PRIORITY_AGENT_CONFIG.systemPrompt ?? '',
       priorityPrompt,
       {
         modelId: PRIORITY_AGENT_CONFIG.model,

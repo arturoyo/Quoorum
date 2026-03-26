@@ -70,6 +70,10 @@ const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'te
 }
 
 const STRENGTHS_AGENT_CONFIG: AgentConfig = {
+  key: 'swot-strengths',
+  name: 'Strengths Analyzer',
+  role: 'analyst',
+  prompt: 'Analyze and identify internal strengths',
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el STRENGTHS ANALYST, un experto en identificar fortalezas internas.
@@ -93,6 +97,10 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const WEAKNESSES_AGENT_CONFIG: AgentConfig = {
+  key: 'swot-weaknesses',
+  name: 'Weaknesses Analyzer',
+  role: 'critic',
+  prompt: 'Analyze and identify internal weaknesses',
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el WEAKNESSES ANALYST, un experto en identificar debilidades internas.
@@ -116,6 +124,10 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const OPPORTUNITIES_AGENT_CONFIG: AgentConfig = {
+  key: 'swot-opportunities',
+  name: 'Opportunities Analyzer',
+  role: 'optimizer',
+  prompt: 'Analyze and identify external opportunities',
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el OPPORTUNITIES ANALYST, un experto en identificar oportunidades externas.
@@ -139,6 +151,10 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const THREATS_AGENT_CONFIG: AgentConfig = {
+  key: 'swot-threats',
+  name: 'Threats Analyzer',
+  role: 'critic',
+  prompt: 'Analyze and identify external threats',
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el THREATS ANALYST, un experto en identificar amenazas externas.
@@ -162,6 +178,10 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const STRATEGIST_AGENT_CONFIG: AgentConfig = {
+  key: 'swot-strategist',
+  name: 'SWOT Strategist',
+  role: 'synthesizer',
+  prompt: 'Synthesize SWOT dimensions into actionable strategies',
   ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el STRATEGIST, un experto en crear estrategias SWOT accionables.
@@ -236,11 +256,11 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
       await Promise.all([
         // STRENGTHS
         strengthsClient.generateWithSystem(
-          STRENGTHS_AGENT_CONFIG.systemPrompt,
+          STRENGTHS_AGENT_CONFIG.systemPrompt ?? '',
           `${contextPrompt}\n\nOutput format:\n{\n  "strengths": [\n    {\n      "title": "...",\n      "description": "...",\n      "impact": 85\n    }\n  ]\n}`,
           {
             modelId: STRENGTHS_AGENT_CONFIG.model,
-            provider: STRENGTHS_AGENT_CONFIG.provider,
+
             temperature: STRENGTHS_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -248,11 +268,11 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
 
         // WEAKNESSES
         weaknessesClient.generateWithSystem(
-          WEAKNESSES_AGENT_CONFIG.systemPrompt,
+          WEAKNESSES_AGENT_CONFIG.systemPrompt ?? '',
           `${contextPrompt}\n\nOutput format:\n{\n  "weaknesses": [\n    {\n      "title": "...",\n      "description": "...",\n      "severity": 70\n    }\n  ]\n}`,
           {
             modelId: WEAKNESSES_AGENT_CONFIG.model,
-            provider: WEAKNESSES_AGENT_CONFIG.provider,
+
             temperature: WEAKNESSES_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -260,11 +280,11 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
 
         // OPPORTUNITIES
         opportunitiesClient.generateWithSystem(
-          OPPORTUNITIES_AGENT_CONFIG.systemPrompt,
+          OPPORTUNITIES_AGENT_CONFIG.systemPrompt ?? '',
           `${contextPrompt}\n\nOutput format:\n{\n  "opportunities": [\n    {\n      "title": "...",\n      "description": "...",\n      "potential": 80\n    }\n  ]\n}`,
           {
             modelId: OPPORTUNITIES_AGENT_CONFIG.model,
-            provider: OPPORTUNITIES_AGENT_CONFIG.provider,
+
             temperature: OPPORTUNITIES_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -272,11 +292,11 @@ export async function runSWOTAnalysis(input: SWOTAnalysisInput): Promise<SWOTAna
 
         // THREATS
         threatsClient.generateWithSystem(
-          THREATS_AGENT_CONFIG.systemPrompt,
+          THREATS_AGENT_CONFIG.systemPrompt ?? '',
           `${contextPrompt}\n\nOutput format:\n{\n  "threats": [\n    {\n      "title": "...",\n      "description": "...",\n      "risk": 65\n    }\n  ]\n}`,
           {
             modelId: THREATS_AGENT_CONFIG.model,
-            provider: THREATS_AGENT_CONFIG.provider,
+
             temperature: THREATS_AGENT_CONFIG.temperature,
             maxTokens: 2000,
           }
@@ -323,11 +343,11 @@ Output format:
 }`
 
     const strategiesResponse = await strategistClient.generateWithSystem(
-      STRATEGIST_AGENT_CONFIG.systemPrompt,
+      STRATEGIST_AGENT_CONFIG.systemPrompt ?? '',
       strategiesPrompt,
       {
         modelId: STRATEGIST_AGENT_CONFIG.model,
-        provider: STRATEGIST_AGENT_CONFIG.provider,
+
         temperature: STRATEGIST_AGENT_CONFIG.temperature,
         maxTokens: 1500,
       }
@@ -355,8 +375,8 @@ Output format:
       executionTimeMs,
     }
   } catch (error) {
-    quoorumLogger.error('Failed to run SWOT Analysis', {
-      error: error instanceof Error ? error.message : String(error),
+    quoorumLogger.error('Failed to run SWOT Analysis', error instanceof Error ? error : undefined, {
+      error: String(error),
       question: input.question,
     })
     throw error

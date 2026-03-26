@@ -6,7 +6,7 @@
 
 import { db } from '@quoorum/db'
 import { aiCostTracking, type AIOperationType, type AIProvider } from '@quoorum/db/schema'
-import { logger } from './logger'
+import { quoorumLogger as logger } from './logger'
 
 // ============================================================================
 // PRICING DATA (cost per 1M tokens)
@@ -67,7 +67,8 @@ export function calculateAICost(
   }
 
   // Find model pricing (exact match or fallback)
-  let pricing = providerPricing[modelId as keyof typeof providerPricing]
+  type ModelPricing = { readonly prompt: number; readonly completion: number }
+  let pricing: ModelPricing | undefined = providerPricing[modelId as keyof typeof providerPricing]
 
   // Fallback: if model not found, try to find similar model
   if (!pricing) {
@@ -76,7 +77,7 @@ export function calculateAICost(
       modelId.includes(key) || key.includes(modelId.split('-')[0] ?? '')
     )
     if (similarModelKey) {
-      pricing = providerPricing[similarModelKey as keyof typeof providerPricing]
+      pricing = providerPricing[similarModelKey as keyof typeof providerPricing] as ModelPricing
       logger.info(`[AI Cost Tracking] Using similar model pricing: ${similarModelKey} for ${modelId}`)
     } else {
       logger.warn(`[AI Cost Tracking] Unknown model: ${modelId} for provider ${provider}`, { provider, modelId })

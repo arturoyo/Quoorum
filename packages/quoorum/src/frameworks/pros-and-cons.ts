@@ -65,6 +65,10 @@ const getFrameworkAgentConfig = (): Pick<AgentConfig, 'provider' | 'model' | 'te
 }
 
 const PROS_AGENT_CONFIG: AgentConfig = {
+  key: 'pros-optimizer',
+  name: 'Pros Analyzer',
+  role: 'optimizer',
+  prompt: 'Identify advantages and benefits',
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el OPTIMIZER, un experto en identificar ventajas y oportunidades.
@@ -87,6 +91,10 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const CONS_AGENT_CONFIG: AgentConfig = {
+  key: 'cons-critic',
+  name: 'Cons Analyzer',
+  role: 'critic',
+  prompt: 'Identify risks and disadvantages',
   ...getFrameworkAgentConfig(),
   temperature: 0.6,
   systemPrompt: `Eres el CRITIC, un experto en identificar riesgos y desventajas.
@@ -109,6 +117,10 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const ANALYST_AGENT_CONFIG: AgentConfig = {
+  key: 'pros-cons-analyst',
+  name: 'Feasibility Analyst',
+  role: 'analyst',
+  prompt: 'Evaluate feasibility and context',
   ...getFrameworkAgentConfig(),
   temperature: 0.4,
   systemPrompt: `Eres el ANALYST, un experto en evaluar factibilidad y contexto.
@@ -132,6 +144,10 @@ Output SOLO JSON válido sin texto adicional.`,
 }
 
 const SYNTHESIZER_AGENT_CONFIG: AgentConfig = {
+  key: 'pros-cons-synthesizer',
+  name: 'Decision Synthesizer',
+  role: 'synthesizer',
+  prompt: 'Create balanced recommendation from pros and cons',
   ...getFrameworkAgentConfig(),
   temperature: 0.3,
   systemPrompt: `Eres el SYNTHESIZER, un experto en crear recomendaciones balanceadas.
@@ -203,7 +219,7 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
     const [prosResponse, consResponse, analysisResponse] = await Promise.all([
       // PROS (Optimizer)
       prosClient.generateWithSystem(
-        PROS_AGENT_CONFIG.systemPrompt,
+        PROS_AGENT_CONFIG.systemPrompt ?? '',
         `${contextPrompt}\n\nOutput format:\n{\n  "pros": [\n    {\n      "title": "...",\n      "description": "...",\n      "weight": 80\n    }\n  ]\n}`,
         {
           modelId: PROS_AGENT_CONFIG.model,
@@ -214,7 +230,7 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
 
       // CONS (Critic)
       consClient.generateWithSystem(
-        CONS_AGENT_CONFIG.systemPrompt,
+        CONS_AGENT_CONFIG.systemPrompt ?? '',
         `${contextPrompt}\n\nOutput format:\n{\n  "cons": [\n    {\n      "title": "...",\n      "description": "...",\n      "weight": 70\n    }\n  ]\n}`,
         {
           modelId: CONS_AGENT_CONFIG.model,
@@ -225,7 +241,7 @@ export async function runProsAndCons(input: ProsAndConsInput): Promise<ProsAndCo
 
       // ANALYSIS (Analyst)
       analystClient.generateWithSystem(
-        ANALYST_AGENT_CONFIG.systemPrompt,
+        ANALYST_AGENT_CONFIG.systemPrompt ?? '',
         `${contextPrompt}\n\nOutput format:\n{\n  "feasibility": "...",\n  "contextNotes": "..."\n}`,
         {
           modelId: ANALYST_AGENT_CONFIG.model,
@@ -267,7 +283,7 @@ Output format:
 }`
 
     const synthesisResponse = await synthesizerClient.generateWithSystem(
-      SYNTHESIZER_AGENT_CONFIG.systemPrompt,
+      SYNTHESIZER_AGENT_CONFIG.systemPrompt ?? '',
       synthesisPrompt,
       {
         modelId: SYNTHESIZER_AGENT_CONFIG.model,
