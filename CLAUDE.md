@@ -157,6 +157,8 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5434/quoorum   # Local
 
 **📖 Ver detalles:** [SYSTEM.md](./SYSTEM.md) y [PHASES.md](./PHASES.md)
 
+**Pendiente manual consolidado:** ver [QUE-FALTA.md](./QUE-FALTA.md) para secrets reales, perfil local, revisión de Compose y checklist de reentrada.
+
 ---
 
 ## 📞 CONTACTO Y ESCALACIÓN
