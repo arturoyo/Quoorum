@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
@@ -44,6 +43,29 @@ import {
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
+interface SuggestedExpert {
+  id: string
+  name: string
+  title: string
+  expertise: string[]
+  matchScore: number
+  role: 'primary' | 'secondary' | 'critic'
+  reasons: string[]
+}
+
+interface LibraryExpert {
+  id: string
+  name: string
+  expertise: string | string[] | null
+  description: string | null
+  category: string | null
+}
+
+interface LibraryCategoryCounts {
+  total: number
+  byCategory: Record<string, number>
+}
+
 interface ExpertSelectorProps {
   selectedExpertIds: string[]
   onSelectionChange: (expertIds: string[]) => void
@@ -83,7 +105,7 @@ export function ExpertSelector({
   const useAutoSuggestions = selectionMode === 'auto'
 
   // Get auto-suggested experts when question is available (only in auto mode)
-  const { data: suggestedExperts, isLoading: isLoadingSuggestions } = api.experts.suggest.useQuery(
+  const { data: suggestedExpertsRaw, isLoading: isLoadingSuggestions } = api.experts.suggest.useQuery(
     { question: question || '', context: context || '' },
     {
       enabled: isOpen && !!question && question.length >= 10 && selectionMode === 'auto',
@@ -92,16 +114,20 @@ export function ExpertSelector({
   )
 
   // Get category counts first (fast, shows structure immediately) - only in manual mode
-  const { data: categoryCounts } = api.experts.libraryCategoryCounts.useQuery(
+  const { data: categoryCountsRaw } = api.experts.libraryCategoryCounts.useQuery(
     { activeOnly: true },
     { enabled: isOpen && selectionMode === 'manual' }
   )
 
   // Get all experts from library (load in background) - only in manual mode
-  const { data: customExperts, isLoading: isLoadingCustom } = api.experts.libraryList.useQuery(
+  const { data: customExpertsRaw, isLoading: isLoadingCustom } = api.experts.libraryList.useQuery(
     { activeOnly: true, limit: 100 },
     { enabled: isOpen && selectionMode === 'manual' }
   )
+
+  const suggestedExperts = suggestedExpertsRaw as SuggestedExpert[] | undefined
+  const categoryCounts = categoryCountsRaw as LibraryCategoryCounts | undefined
+  const customExperts = customExpertsRaw as LibraryExpert[] | undefined
 
   // Auto-select suggested experts when they arrive (only if no selection yet and in auto mode)
   useEffect(() => {
@@ -154,7 +180,6 @@ export function ExpertSelector({
           selected.push({
             id: e.id,
             name: e.name,
-            category: e.category,
             expertise: e.expertise,
             matchScore: e.matchScore,
             isSuggested: true,
@@ -170,8 +195,8 @@ export function ExpertSelector({
           selected.push({
             id: e.id,
             name: e.name,
-            category: e.category,
-            expertise: e.expertise || e.description,
+            category: e.category ?? undefined,
+            expertise: e.expertise || e.description || undefined,
             isSuggested: false,
           })
         })
@@ -551,43 +576,11 @@ export function ExpertSelector({
                   <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
                   <span className="text-sm text-[var(--theme-text-secondary)]">Cargando expertos y categorías...</span>
                 </div>
-                {/* Show category structure with loading skeletons */}
-                {categoryCounts?.byCategory ? (
-                  <Accordion type="multiple" className="space-y-2">
-                    {Object.entries(categoryCounts.byCategory).map(([category, count]) => {
-                      const categoryLabel = CATEGORIES.find((c) => c.value === category)?.label || category
-                      return (
-                        <AccordionItem
-                          key={category}
-                          value={category}
-                          className="border-white/10 bg-slate-800/30 rounded-lg px-4"
-                        >
-                          <AccordionTrigger className="text-white hover:no-underline py-3">
-                            <div className="flex items-center gap-3">
-                              <h3 className="text-sm font-semibold">{categoryLabel}</h3>
-                              <Badge variant="outline" className="border-purple-500/40 text-purple-300 bg-purple-500/10 text-xs">
-                                {count}
-                              </Badge>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="pt-2 pb-4">
-                            <div className="space-y-2">
-                              {[1, 2, 3].map((i) => (
-                                <Skeleton key={i} className="h-16 w-full bg-slate-800/60 animate-pulse" />
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )
-                    })}
-                  </Accordion>
-                ) : (
-                  <div className="space-y-2">
-                    {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} className="h-16 w-full bg-slate-800/60 animate-pulse" />
-                    ))}
-                  </div>
-                )}
+                <div className="space-y-2">
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-16 w-full bg-slate-800/60 animate-pulse" />
+                  ))}
+                </div>
               </div>
             ) : (
               /* Manual/Custom Experts Section - Grouped by Category */

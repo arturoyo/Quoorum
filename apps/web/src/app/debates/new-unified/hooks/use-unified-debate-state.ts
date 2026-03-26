@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useUnifiedDebateState Hook
  * 
@@ -19,6 +18,9 @@ import type {
   RevisionState,
   DebateState,
   ContextEvaluation,
+  InternetSearchResult,
+  Message,
+  Question,
 } from '../types'
 
 const INITIAL_INTERNET_SEARCH = {
@@ -85,6 +87,31 @@ const INITIAL_PROGRESS: PhaseProgress = {
   estrategia: 0,
   revision: 0,
   debate: 0,
+}
+
+function normalizeQuestion(
+  question: Partial<Question> & { content: string },
+  fallbackId: string
+): Question {
+  const validTypes: ReadonlyArray<Question['questionType']> = ['yes_no', 'multiple_choice', 'free_text']
+  const baseType = validTypes.includes(question.questionType as Question['questionType'])
+    ? (question.questionType as Question['questionType'])
+    : 'free_text'
+
+  const normalizedType =
+    baseType === 'multiple_choice' && (!question.options || question.options.length === 0)
+      ? 'free_text'
+      : baseType
+
+  return {
+    id: question.id || fallbackId,
+    content: question.content,
+    priority: question.priority || 'medium',
+    questionType: normalizedType,
+    options: question.options,
+    answer: question.answer,
+    expectedAnswerType: question.expectedAnswerType,
+  }
 }
 
 // Helper para obtener la clave de storage basada en sessionId
@@ -511,24 +538,19 @@ export function useUnifiedDebateState(urlSessionId?: string) {
 
       // Ensure all questions have ALL required fields (id, priority, questionType)
       // IMPORTANTE: Normalizar questionType para evitar que falten campos de input
-      const validTypes = ['yes_no', 'multiple_choice', 'free_text'] as const
-      const questions = rawQuestions.map((q, i) => {
-        // Validar que questionType sea uno de los tipos válidos
-        const normalizedType = validTypes.includes(q.questionType)
-          ? q.questionType
-          : 'free_text' // Por defecto, usar texto libre
+      const questions: Question[] = rawQuestions.map((q, i) =>
+        normalizeQuestion(q as Partial<Question> & { content: string }, `q-${Date.now()}-${i}`)
+      )
 
-        return {
-          ...q,
-          id: q.id || `q-${Date.now()}-${i}`,
-          priority: (q.priority || 'medium') as 'critical' | 'high' | 'medium' | 'low',
-          questionType: normalizedType,
-          // Si es multiple_choice pero no tiene options, cambiar a free_text
-          ...(normalizedType === 'multiple_choice' && (!q.options || q.options.length === 0)
-            ? { questionType: 'free_text' as const }
-            : {}),
-        }
-      })
+      const firstQuestionMessage: Message | null = questions.length > 0
+        ? {
+            id: `ai-${Date.now()}`,
+            role: 'ai',
+            content: questions[0]!.content,
+            type: 'question',
+            timestamp: new Date(),
+          }
+        : null
 
       setContexto((prev) => ({
         ...prev,
@@ -538,17 +560,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         realCreditsDeducted: prev.realCreditsDeducted + (response.creditsDeducted ?? 0),
         messages: [
           ...prev.messages,
-          ...(questions.length > 0
-            ? [
-                {
-                  id: `ai-${Date.now()}`,
-                  role: 'ai',
-                  content: questions[0]!.content,
-                  type: 'question',
-                  timestamp: new Date(),
-                },
-              ]
-            : []),
+          ...(firstQuestionMessage ? [firstQuestionMessage] : []),
         ],
       }))
 
@@ -624,32 +636,21 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       const nextPhase = allowMore && contexto.phase === 'critical' ? 'deep' : 'ready'
       // Ensure follow-up questions have ALL required fields (id, priority, questionType)
       // IMPORTANTE: Normalizar questionType para evitar que falten campos de input
-      const followUpWithIds = result.followUpQuestions.map((q, i) => {
-        // Validar que questionType sea uno de los tipos válidos
-        const validTypes = ['yes_no', 'multiple_choice', 'free_text'] as const
-        const normalizedType = validTypes.includes(q.questionType)
-          ? q.questionType
-          : 'free_text' // Por defecto, usar texto libre para preguntas de seguimiento
-
-        return {
-          ...q,
-          id: q.id || `followup-${Date.now()}-${i}`,
-          priority: (q.priority || 'medium') as 'critical' | 'high' | 'medium' | 'low',
-          questionType: normalizedType,
-          // Si es multiple_choice pero no tiene options, cambiar a free_text
-          ...(normalizedType === 'multiple_choice' && (!q.options || q.options.length === 0)
-            ? { questionType: 'free_text' as const }
-            : {}),
-        }
-      })
+      const followUpWithIds: Question[] = result.followUpQuestions.map((q, i) =>
+        normalizeQuestion(q as Partial<Question> & { content: string }, `followup-${Date.now()}-${i}`)
+      )
+      const normalizedEvaluation: ContextEvaluation = {
+        ...result,
+        followUpQuestions: followUpWithIds,
+      }
 
       // Actualizar créditos reales deducidos si la evaluación retornó créditos deducidos
       const creditsDeducted = (result as { creditsDeducted?: number }).creditsDeducted || 0
       
       setContexto((prev) => ({
         ...prev,
-        evaluation: result,
-        contextScore: result.score,
+        evaluation: normalizedEvaluation,
+        contextScore: normalizedEvaluation.score,
         phase: nextPhase,
         questions: allowMore ? followUpWithIds : prev.questions,
         currentQuestionIndex: allowMore ? 0 : prev.currentQuestionIndex,
@@ -659,7 +660,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
           {
             id: `eval-${Date.now()}`,
             role: 'ai',
-            content: buildEvaluationMessage(result),
+            content: buildEvaluationMessage(normalizedEvaluation),
             type: 'evaluation',
             timestamp: new Date(),
           },
@@ -679,7 +680,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         // Si aún faltan preguntas, el progreso refleja la calidad actual del contexto
         // Usar el score de calidad directamente (0-100) como progreso base
         // Añadir un pequeño bonus por número de respuestas (máx 10%)
-        const qualityProgress = result.score // 0-100 (ej: 65)
+        const qualityProgress = normalizedEvaluation.score // 0-100 (ej: 65)
         const answersBonus = Math.min(10, totalAnswersCount * 2) // Máx 10% bonus
         const calculatedProgress = Math.min(90, qualityProgress + answersBonus) // Máx 90% hasta completar
         updatePhaseProgress(1, calculatedProgress)
@@ -687,7 +688,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
       setIsEvaluating(false)
 
       if (allowMore) {
-        const firstFollowUp = result.followUpQuestions[0]!
+        const firstFollowUp = normalizedEvaluation.followUpQuestions[0]!
         setContexto((prev) => ({
           ...prev,
           messages: [
@@ -928,8 +929,8 @@ export function useUnifiedDebateState(urlSessionId?: string) {
         sections.push(`- Fase completada: ${contexto.phase === 'ready' ? 'Completa' : contexto.phase === 'deep' ? 'Profunda' : contexto.phase === 'critical' ? 'Crítica' : 'Inicial'}`)
         sections.push(`- Total de preguntas respondidas: ${Object.keys(contexto.answers).length}`)
         if (contexto.evaluation) {
-          sections.push(`- Nivel de preparación: ${contexto.evaluation.readinessLevel}`)
-          sections.push(`- Resumen de evaluación: ${contexto.evaluation.summary}`)
+          sections.push(`- Continuar preguntando: ${contexto.evaluation.shouldContinue ? 'Sí' : 'No'}`)
+          sections.push(`- Evaluación: ${contexto.evaluation.reasoning}`)
         }
         sections.push('')
         
@@ -1348,7 +1349,7 @@ export function useUnifiedDebateState(urlSessionId?: string) {
     }
 
     // Usar el contexto como respuesta a la pregunta actual
-    handleAnswer(contexto.internetSearch.context, contexto.internetSearch.currentQuestionId)
+    void handleAnswer(contexto.internetSearch.context)
 
     // Limpiar el estado de búsqueda de internet para esta pregunta
     setContexto((prev) => ({
