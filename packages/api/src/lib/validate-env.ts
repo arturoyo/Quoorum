@@ -26,16 +26,6 @@ const REQUIRED_ENV_VARS = {
     example: 'postgresql://user:password@localhost:5432/dbname',
   },
 
-  // Authentication
-  SUPABASE_URL: {
-    description: 'Supabase project URL',
-    example: 'https://xxx.supabase.co',
-  },
-  SUPABASE_ANON_KEY: {
-    description: 'Supabase anon/public key',
-    example: 'eyJxxx...',
-  },
-
   // Next.js
   NEXT_PUBLIC_APP_URL: {
     description: 'Public URL of the application',
@@ -90,11 +80,7 @@ export function validateEnvironment(): EnvValidationResult {
 
   // Check required vars
   for (const [key, config] of Object.entries(REQUIRED_ENV_VARS)) {
-    // For Supabase vars, also check NEXT_PUBLIC_ prefixed versions
-    let value = process.env[key]
-    if (!value && (key === 'SUPABASE_URL' || key === 'SUPABASE_ANON_KEY')) {
-      value = process.env[`NEXT_PUBLIC_${key}`]
-    }
+    const value = process.env[key]
 
     if (!value) {
       errors.push(

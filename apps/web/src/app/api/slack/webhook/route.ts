@@ -20,7 +20,6 @@ async function createWebhookContext() {
     db,
     user: null,
     userId: null,
-    supabase: null,
     authUserId: null,
   }
 }

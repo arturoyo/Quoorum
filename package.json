@@ -4,7 +4,7 @@
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "build": "turbo build",
-    "predev": "pwsh -NoProfile -File scripts/auto-fix-dev.ps1",
+    "predev": "echo '[INFO] Skipping auto-fix (pwsh not available on Linux)'",
     "dev": "turbo dev",
     "dev:no-fix": "turbo dev",
     "lint": "turbo lint",

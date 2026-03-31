@@ -332,14 +332,6 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
             </p>
           </div>
 
-          <Link href="/docs/api" className="block mt-4">
-            <Button
-              variant="outline"
-              className="w-full border-[var(--theme-border)] text-[var(--theme-text-primary)] hover:bg-purple-500/10"
-            >
-              Ver Documentación Completa
-            </Button>
-          </Link>
         </CardContent>
       </Card>
     </div>

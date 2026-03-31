@@ -233,8 +233,8 @@ export function QuoorumUpgradePrompt({ addonInfo }: QuoorumUpgradePromptProps) {
 
             <p className="mt-4 text-sm text-[#8696a0]">
               ¿Tienes dudas?{' '}
-              <Link href="/settings/addons" className="text-[#00a884] hover:underline">
-                Ver todos los add-ons
+              <Link href="/settings/billing" className="text-[#00a884] hover:underline">
+                Ver planes y opciones
               </Link>
             </p>
           </div>

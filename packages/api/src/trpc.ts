@@ -11,7 +11,6 @@ export interface Context {
   db: Database;
   user: User | null;
   userId: string | null;
-  supabase?: null; // Legacy field, kept for compatibility
   authUserId?: string | null;
 }
 

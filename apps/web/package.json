@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "pwsh -NoProfile -File ../../scripts/auto-fix-dev.ps1",
+    "predev": "echo '[INFO] Skipping auto-fix (pwsh not available on Linux)'",
     "dev": "next dev -p 3000",
     "dev:no-fix": "next dev -p 3000",
     "dev:webpack": "next dev -p 3000 --webpack",

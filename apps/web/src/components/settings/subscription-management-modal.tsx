@@ -647,7 +647,7 @@ export function SubscriptionManagementModal({ open, onOpenChange, onAddCreditsCl
         <div className="flex items-center justify-between px-6 pb-6 pt-4 border-t border-white/10 flex-shrink-0">
           <div className="text-sm text-[var(--theme-text-secondary)]">
             ¿Tienes un problema? Ve al{' '}
-            <Link href="/help" className="text-purple-400 hover:text-purple-300 underline">
+            <Link href="/settings" className="text-purple-400 hover:text-purple-300 underline">
               Centro de Ayuda
             </Link>
             .

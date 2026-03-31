@@ -56,12 +56,14 @@ export async function verifySessionToken(
  */
 export async function setSessionCookie(token: string): Promise<void> {
   const cookieStore = await cookies();
+  const isProduction = process.env.NODE_ENV === "production";
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isProduction,
     sameSite: "lax",
     maxAge: SESSION_MAX_AGE,
     path: "/",
+    ...(isProduction && { domain: ".quoorum.pro" }),
   });
 }
 
@@ -78,12 +80,14 @@ export async function getSessionCookie(): Promise<string | null> {
  */
 export async function clearSessionCookie(): Promise<void> {
   const cookieStore = await cookies();
+  const isProduction = process.env.NODE_ENV === "production";
   cookieStore.set(SESSION_COOKIE_NAME, "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isProduction,
     sameSite: "lax",
     maxAge: 0,
     path: "/",
+    ...(isProduction && { domain: ".quoorum.pro" }),
   });
 }
 

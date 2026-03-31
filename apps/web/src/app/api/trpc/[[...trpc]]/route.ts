@@ -22,7 +22,6 @@ type TRPCContext = {
   db: Database;
   user: User | null;
   userId: string | null;
-  supabase?: null;
   authUserId?: string | null;
 };
 
@@ -30,7 +29,6 @@ const unauthenticatedContext = (): TRPCContext => ({
   db,
   user: null,
   userId: null,
-  supabase: null,
   authUserId: null,
 });
 
@@ -208,7 +206,6 @@ const createContext = async (opts?: FetchCreateContextFnOptions): Promise<TRPCCo
       db,
       user: finalUser,
       userId: profile.id, // Use profile.id for foreign keys (quoorum_debates.user_id, etc.)
-      supabase: null, // Not using Supabase
       authUserId: profile.userId ?? null, // Original user ID from auth system (if any)
     };
   } catch (error) {

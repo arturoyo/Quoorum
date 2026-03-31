@@ -1,15 +1,21 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SignJWT, jwtVerify } from "jose";
+import { jwtVerify } from "jose";
 
 const SESSION_COOKIE_NAME = "session-token";
+const APP_HOST = "app.quoorum.pro";
+const LANDING_HOST = "quoorum.pro";
 
 // Routes that require authentication
-// NOTE: /api/trpc is NOT included here because tRPC routers handle their own auth
-// via protectedProcedure. Blocking at middleware level prevents public procedures.
-const protectedRoutes = ["/dashboard", "/debates", "/settings"];
+const protectedRoutes = ["/dashboard", "/debates", "/settings", "/admin", "/experts", "/scenarios", "/frameworks"];
 
 // Routes that should redirect to dashboard if already authenticated
 const authRoutes = ["/login", "/signup", "/forgot-password"];
+
+// Routes that only belong on the landing (quoorum.pro)
+const landingOnlyRoutes = ["/"];
+
+// Routes that only belong on the app (app.quoorum.pro)
+const appRoutes = [...protectedRoutes, ...authRoutes, "/api"];
 
 function getSecret(): Uint8Array {
   const secret = process.env.AUTH_SECRET || "quoorum-dev-secret-change-in-production";
@@ -28,8 +34,9 @@ async function verifyToken(token: string): Promise<{ userId: string; email: stri
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.headers.get("host")?.split(":")[0] || "";
 
-  // Skip middleware for static files and API routes that handle their own auth
+  // Skip middleware for static files
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
@@ -39,36 +46,64 @@ export async function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    request: { headers: request.headers },
   });
 
-  // Check if the route is protected
+  const isLandingHost = hostname === LANDING_HOST || hostname === `www.${LANDING_HOST}`;
+  const isAppHost = hostname === APP_HOST;
+  const isDev = !isLandingHost && !isAppHost; // localhost or other
+
+  // --- Domain routing ---
+
+  if (isLandingHost) {
+    // On landing domain: redirect app routes to app.quoorum.pro
+    const isAppRoute = appRoutes.some((r) => pathname === r || pathname.startsWith(r + "/"));
+    if (isAppRoute) {
+      return NextResponse.redirect(`https://${APP_HOST}${pathname}${request.nextUrl.search}`);
+    }
+    // Allow landing page and any other marketing pages
+    return response;
+  }
+
+  if (isAppHost) {
+    // On app domain: redirect root to dashboard or login
+    if (pathname === "/") {
+      const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+      const session = sessionToken ? await verifyToken(sessionToken) : null;
+      if (session) {
+        return NextResponse.redirect(`https://${APP_HOST}/dashboard`);
+      }
+      return NextResponse.redirect(`https://${APP_HOST}/login`);
+    }
+  }
+
+  // --- Auth checks (app domain or dev) ---
+
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
-  // Skip auth check for non-protected, non-auth routes
   if (!isProtectedRoute && !isAuthRoute) {
     return response;
   }
 
-  // Verify JWT session from cookie
   const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const session = sessionToken ? await verifyToken(sessionToken) : null;
 
-  // Redirect to login if accessing protected route without auth
   if (isProtectedRoute && !session) {
-    const redirectUrl = new URL("/login", request.url);
-    redirectUrl.searchParams.set("redirectTo", pathname);
-    return NextResponse.redirect(redirectUrl);
+    const loginUrl = isDev
+      ? new URL("/login", request.url)
+      : new URL(`https://${APP_HOST}/login`);
+    loginUrl.searchParams.set("redirectTo", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect to dashboard if accessing auth routes while authenticated
   if (isAuthRoute && session) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const dashUrl = isDev
+      ? new URL("/dashboard", request.url)
+      : new URL(`https://${APP_HOST}/dashboard`);
+    return NextResponse.redirect(dashUrl);
   }
 
   return response;
@@ -76,13 +111,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
