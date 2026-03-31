@@ -56,11 +56,13 @@ export async function executeSubDebate(
     const result = await runForumDebate({
       sessionId: `${context.sessionId}-${debate.id}`,
       question: fullQuestion,
-      context: { sources: [], combinedContext: inheritedContext || 'Orquestación de debates' },
+      context: { sources: [], combinedContext: inheritedContext || 'Orquestacion de debates' },
       forceMode: 'dynamic',
     })
 
-    const winner = result.ranking?.[0]
+    // Use finalRanking (the actual field set by the runner), not ranking (optional alias)
+    const effectiveRanking = result.finalRanking ?? result.ranking ?? []
+    const winner = effectiveRanking[0]
     const consensusScore = result.consensus ?? result.consensusScore ?? 0.5
     const qualityScore = result.rounds.length > 0 ? 70 : 50
 
@@ -70,14 +72,15 @@ export async function executeSubDebate(
       consensusScore,
       qualityScore,
       topOption: winner?.option ?? 'No determinado',
-      ranking: result.ranking?.map((r, index) => ({
+      ranking: effectiveRanking.map((r, index) => ({
         option: r.option,
-        score: r.score ?? 0,
+        score: r.score ?? r.successRate ?? 0,
         confidence: r.confidence ?? (1 - index * 0.2),
         reasoning: r.reasoning ?? '',
-      })) ?? [],
+      })),
       cost: result.totalCostUsd ?? debate.estimatedCost,
       rounds: result.rounds.length,
+      debateRounds: result.rounds, // Store actual round data for persistence
     }
 
     const conclusionSummary = `[${debate.id}] ${debate.question}: ${subResult.topOption} (Consenso: ${(subResult.consensusScore * 100).toFixed(0)}%)`

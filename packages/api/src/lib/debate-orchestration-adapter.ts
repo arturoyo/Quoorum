@@ -9,7 +9,7 @@ import type { DebateSequence, DebateResult, DebateRound, RankedOption } from '@q
 
 /**
  * Convert DebateSequence (orchestration format) to DebateResult (core format)
- * This allows orchestrated debates (tournament, adversarial, ensemble, etc.) 
+ * This allows orchestrated debates (tournament, adversarial, ensemble, etc.)
  * to work seamlessly with the existing UI that expects DebateResult
  */
 export function debateSequenceToResult(
@@ -23,10 +23,17 @@ export function debateSequenceToResult(
 
   for (const phaseResult of sequence.results) {
     for (const debateResult of phaseResult.debateResults) {
-      // Each SubDebateResult represents a complete debate
-      // We create rounds from the ranking/options
-      if (debateResult.ranking && debateResult.ranking.length > 0) {
-        // Create a round from the top options of this sub-debate
+      // Prefer actual debate rounds stored during execution (contains real AI messages)
+      const storedRounds = (debateResult as { debateRounds?: DebateRound[] }).debateRounds
+      if (storedRounds && storedRounds.length > 0) {
+        for (const storedRound of storedRounds) {
+          allRounds.push({
+            ...storedRound,
+            round: roundNumber++,
+          })
+        }
+      } else if (debateResult.ranking && debateResult.ranking.length > 0) {
+        // Fallback: reconstruct a summary round from ranking data
         const round: DebateRound = {
           round: roundNumber++,
           messages: debateResult.ranking.slice(0, 3).map((r, idx) => ({

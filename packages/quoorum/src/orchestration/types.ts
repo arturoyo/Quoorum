@@ -139,6 +139,8 @@ export interface SubDebateResult {
   ranking: RankedOption[]
   cost: number
   rounds: number
+  /** Actual debate rounds with messages - stored for persistence */
+  debateRounds?: import('../types').DebateRound[]
 }
 
 export interface RankedOption {
