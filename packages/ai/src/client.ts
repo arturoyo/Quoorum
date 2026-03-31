@@ -9,7 +9,7 @@ import { getFallbackChain } from "./lib/fallback-config";
 import { logger } from "./lib/logger";
 import type { AIClient, AIResponse, GenerateOptions } from "./types";
 
-const DEFAULT_MODEL_ID = "gemini-2.0-flash-exp"; // Using Gemini free tier to avoid OpenAI quota issues
+const DEFAULT_MODEL_ID = "gemini-2.0-flash"; // Using Gemini free tier as default
 const USE_MOCK_CLIENT = process.env["FORUM_USE_MOCK_AI"] === "1";
 
 class ForumAIClient implements AIClient {

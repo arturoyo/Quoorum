@@ -117,7 +117,7 @@ export class OpenAIProvider implements AIProvider {
 
   constructor(options?: { apiKey?: string; model?: string }) {
     this.apiKey = options?.apiKey || process.env['OPENAI_API_KEY'] || ''
-    this.model = options?.model || 'gpt-4o-mini'
+    this.model = options?.model || 'gemini-2.0-flash'
   }
 
   async generateResponse(prompt: string, options?: GenerateOptions): Promise<string> {

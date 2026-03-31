@@ -116,16 +116,16 @@ export function getPaidTierConfig(
   // Full config for all agents
   const fullConfig = {
     // Optimizer: Fast iteration, creative options (medium cost)
-    optimizer: { provider: 'openai' as const, model: 'gpt-4o-mini', temperature: 0.7 },
+    optimizer: { provider: 'google' as const, model: 'gemini-2.0-flash', temperature: 0.7 },
 
     // Critic: Deep analysis of risks (medium cost)
-    critic: { provider: 'google' as const, model: 'gemini-2.0-flash-exp', temperature: 0.5 },
+    critic: { provider: 'anthropic' as const, model: 'claude-haiku-4-5-20251001', temperature: 0.5 },
 
     // Analyst: Data-driven insights (medium-high cost)
-    analyst: { provider: 'openai' as const, model: 'gpt-4o', temperature: 0.3 },
+    analyst: { provider: 'google' as const, model: 'gemini-2.0-flash', temperature: 0.3 },
 
     // Synthesizer: Strategic synthesis (PREMIUM - highest cost)
-    synthesizer: { provider: 'optym' as const, model: 'optym-balanced', temperature: 0.3 },
+    synthesizer: { provider: 'anthropic' as const, model: 'claude-haiku-4-5-20251001', temperature: 0.3 },
   }
 
   // Return specific role config if requested

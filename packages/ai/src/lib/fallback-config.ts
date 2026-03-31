@@ -27,7 +27,7 @@ export interface FallbackModel {
 export const FALLBACK_ORDER: FallbackModel[] = [
   {
     provider: 'google',
-    modelId: 'gemini-2.0-flash-exp',
+    modelId: 'gemini-2.0-flash',
     displayName: 'Gemini 2.0 Flash',
     costPerMillion: 0,
     isFree: true,
@@ -62,9 +62,9 @@ export const FALLBACK_ORDER: FallbackModel[] = [
   },
   {
     provider: 'anthropic',
-    modelId: 'claude-3-5-haiku-20241022',
-    displayName: 'Claude 3.5 Haiku',
-    costPerMillion: 0.75, // (0.25 + 1.25) / 2
+    modelId: 'claude-haiku-4-5-20251001',
+    displayName: 'Claude Haiku 4.5',
+    costPerMillion: 0.75,
     isFree: false,
   },
 ]
