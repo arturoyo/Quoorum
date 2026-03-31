@@ -111,12 +111,6 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@supabase/ssr':
-        specifier: ^0.5.2
-        version: 0.5.2(@supabase/supabase-js@2.90.1)
-      '@supabase/supabase-js':
-        specifier: ^2.49.1
-        version: 2.90.1
       '@tanstack/react-query':
         specifier: ^4.36.1
         version: 4.42.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -129,6 +123,9 @@ importers:
       '@trpc/server':
         specifier: ^10.45.4
         version: 10.45.4
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -147,6 +144,9 @@ importers:
       inngest:
         specifier: ^3.20.0
         version: 3.49.3(@opentelemetry/core@2.4.0(@opentelemetry/api@1.9.0))(next@15.5.9(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)(zod@3.25.76)
+      jose:
+        specifier: ^6.2.2
+        version: 6.2.2
       lucide-react:
         specifier: ^0.460.0
         version: 0.460.0(react@19.2.3)
@@ -190,6 +190,9 @@ importers:
         specifier: ^0.18.5
         version: 0.18.5
     devDependencies:
+      '@types/bcryptjs':
+        specifier: ^3.0.0
+        version: 3.0.0
       '@types/node':
         specifier: ^22.10.0
         version: 22.19.5
@@ -2651,35 +2654,6 @@ packages:
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
-  '@supabase/auth-js@2.90.1':
-    resolution: {integrity: sha512-vxb66dgo6h3yyPbR06735Ps+dK3hj0JwS8w9fdQPVZQmocSTlKUW5MfxSy99mN0XqCCuLMQ3jCEiIIUU23e9ng==}
-    engines: {node: '>=20.0.0'}
-
-  '@supabase/functions-js@2.90.1':
-    resolution: {integrity: sha512-x9mV9dF1Lam9qL3zlpP6mSM5C9iqMPtF5B/tU1Jj/F0ufX5mjDf9ghVBaErVxmrQJRL4+iMKWKY2GnODkpS8tw==}
-    engines: {node: '>=20.0.0'}
-
-  '@supabase/postgrest-js@2.90.1':
-    resolution: {integrity: sha512-jh6vqzaYzoFn3raaC0hcFt9h+Bt+uxNRBSdc7PfToQeRGk7PDPoweHsbdiPWREtDVTGKfu+PyPW9e2jbK+BCgQ==}
-    engines: {node: '>=20.0.0'}
-
-  '@supabase/realtime-js@2.90.1':
-    resolution: {integrity: sha512-PWbnEMkcQRuor8jhObp4+Snufkq8C6fBp+MchVp2qBPY1NXk/c3Iv3YyiFYVzo0Dzuw4nAlT4+ahuPggy4r32w==}
-    engines: {node: '>=20.0.0'}
-
-  '@supabase/ssr@0.5.2':
-    resolution: {integrity: sha512-n3plRhr2Bs8Xun1o4S3k1CDv17iH5QY9YcoEvXX3bxV1/5XSasA0mNXYycFmADIdtdE6BG9MRjP5CGIs8qxC8A==}
-    peerDependencies:
-      '@supabase/supabase-js': ^2.43.4
-
-  '@supabase/storage-js@2.90.1':
-    resolution: {integrity: sha512-GHY+Ps/K/RBfRj7kwx+iVf2HIdqOS43rM2iDOIDpapyUnGA9CCBFzFV/XvfzznGykd//z2dkGZhlZZprsVFqGg==}
-    engines: {node: '>=20.0.0'}
-
-  '@supabase/supabase-js@2.90.1':
-    resolution: {integrity: sha512-U8KaKGLUgTIFHtwEW1dgw1gK7XrdpvvYo7nzzqPx721GqPe8WZbAiLh/hmyKLGBYQ/mmQNr20vU9tWSDZpii3w==}
-    engines: {node: '>=20.0.0'}
-
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
 
@@ -2721,6 +2695,10 @@ packages:
   '@types/aws-lambda@8.10.159':
     resolution: {integrity: sha512-SAP22WSGNN12OQ8PlCzGzRCZ7QDCwI85dQZbmpz7+mAk+L7j+wI7qnvmdKh+o7A5LaOp6QnOZ2NJphAZQTTHQg==}
 
+  '@types/bcryptjs@3.0.0':
+    resolution: {integrity: sha512-WRZOuCuaz8UcZZE4R5HXTco2goQSI2XxjGY3hbM/xDvwmqFWd4ivooImsMx65OKM6CtNKbnZ5YL+YwAwK7c1dg==}
+    deprecated: This is a stub types definition. bcryptjs provides its own type definitions, so you do not need this installed.
+
   '@types/bunyan@1.8.11':
     resolution: {integrity: sha512-758fRH7umIMk5qt5ELmRMff4mLDlN+xyYzC+dkPTdKwbSkJFvz6xwyScrytPU0QIBbRRwbiE8/BIg8bpajerNQ==}
 
@@ -2729,9 +2707,6 @@ packages:
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
-
-  '@types/cookie@0.6.0':
-    resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
 
   '@types/d3-array@3.2.2':
     resolution: {integrity: sha512-hOLWVbm7uRza0BYXpIIW5pxfrKe0W+D5lrFiAEYR+pb6w3N2SwSMaJbXdUfSEv+dT4MfHBLtn5js0LAWaO6otw==}
@@ -2870,9 +2845,6 @@ packages:
 
   '@types/pg@8.15.6':
     resolution: {integrity: sha512-NoaMtzhxOrubeL/7UZuNTrejB4MPAJ0RpxZqXQf2qXuVlTPuG6Y8p4u9dKRaue4yjmC7ZhzVO2/Yyyn25znrPQ==}
-
-  '@types/phoenix@1.6.7':
-    resolution: {integrity: sha512-oN9ive//QSBkf19rfDv45M7eZPi0eEXylht2OLEXicu5b4KoQ1OzXIw+xDSGWxSxe1JmepRR/ZH283vsu518/Q==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -3157,6 +3129,11 @@ packages:
   basic-ftp@5.1.0:
     resolution: {integrity: sha512-RkaJzeJKDbaDWTIPiJwubyljaEPwpVWkm9Rt5h9Nd6h7tEXTJ3VB4qxdZBioV7JO5yLUaOKwz7vDOzlncUsegw==}
     engines: {node: '>=10.0.0'}
+    deprecated: Security vulnerability fixed in 5.2.0, please upgrade
+
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
+    hasBin: true
 
   bignumber.js@9.3.1:
     resolution: {integrity: sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ==}
@@ -3314,10 +3291,6 @@ packages:
   consola@3.4.2:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
     engines: {node: ^14.18.0 || >=16.10.0}
-
-  cookie@0.7.2:
-    resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
-    engines: {node: '>= 0.6'}
 
   copy-anything@4.0.5:
     resolution: {integrity: sha512-7Vv6asjS4gMOuILabD3l739tsaxFQmC+a7pLZm02zyvs8p977bL3zEgq3yDk5rn9B0PbYgIv++jmHcuUab4RhA==}
@@ -3954,10 +3927,6 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  iceberg-js@0.8.1:
-    resolution: {integrity: sha512-1dhVQZXhcHje7798IVM+xoo/1ZdVfzOMIc8/rgVSijRK38EDqOJoGula9N/8ZI5RD8QTxNQtK/Gozpr+qUqRRA==}
-    engines: {node: '>=20.0.0'}
-
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
@@ -4096,6 +4065,9 @@ packages:
   jiti@1.21.7:
     resolution: {integrity: sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==}
     hasBin: true
+
+  jose@6.2.2:
+    resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -7491,50 +7463,6 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@supabase/auth-js@2.90.1':
-    dependencies:
-      tslib: 2.8.1
-
-  '@supabase/functions-js@2.90.1':
-    dependencies:
-      tslib: 2.8.1
-
-  '@supabase/postgrest-js@2.90.1':
-    dependencies:
-      tslib: 2.8.1
-
-  '@supabase/realtime-js@2.90.1':
-    dependencies:
-      '@types/phoenix': 1.6.7
-      '@types/ws': 8.18.1
-      tslib: 2.8.1
-      ws: 8.19.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@supabase/ssr@0.5.2(@supabase/supabase-js@2.90.1)':
-    dependencies:
-      '@supabase/supabase-js': 2.90.1
-      '@types/cookie': 0.6.0
-      cookie: 0.7.2
-
-  '@supabase/storage-js@2.90.1':
-    dependencies:
-      iceberg-js: 0.8.1
-      tslib: 2.8.1
-
-  '@supabase/supabase-js@2.90.1':
-    dependencies:
-      '@supabase/auth-js': 2.90.1
-      '@supabase/functions-js': 2.90.1
-      '@supabase/postgrest-js': 2.90.1
-      '@supabase/realtime-js': 2.90.1
-      '@supabase/storage-js': 2.90.1
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
@@ -7568,6 +7496,10 @@ snapshots:
 
   '@types/aws-lambda@8.10.159': {}
 
+  '@types/bcryptjs@3.0.0':
+    dependencies:
+      bcryptjs: 3.0.3
+
   '@types/bunyan@1.8.11':
     dependencies:
       '@types/node': 22.19.5
@@ -7580,8 +7512,6 @@ snapshots:
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 22.19.5
-
-  '@types/cookie@0.6.0': {}
 
   '@types/d3-array@3.2.2': {}
 
@@ -7750,8 +7680,6 @@ snapshots:
       '@types/node': 22.19.5
       pg-protocol: 1.11.0
       pg-types: 2.2.0
-
-  '@types/phoenix@1.6.7': {}
 
   '@types/react-dom@19.2.3(@types/react@19.2.8)':
     dependencies:
@@ -8066,6 +7994,8 @@ snapshots:
   basic-ftp@5.1.0:
     optional: true
 
+  bcryptjs@3.0.3: {}
+
   bignumber.js@9.3.1: {}
 
   binary-extensions@2.3.0: {}
@@ -8210,8 +8140,6 @@ snapshots:
   confbox@0.1.8: {}
 
   consola@3.4.2: {}
-
-  cookie@0.7.2: {}
 
   copy-anything@4.0.5:
     dependencies:
@@ -8859,8 +8787,6 @@ snapshots:
 
   husky@9.1.7: {}
 
-  iceberg-js@0.8.1: {}
-
   ignore@5.3.2: {}
 
   ignore@7.0.5: {}
@@ -8976,6 +8902,8 @@ snapshots:
       '@isaacs/cliui': 8.0.2
 
   jiti@1.21.7: {}
+
+  jose@6.2.2: {}
 
   joycon@3.1.1: {}
 

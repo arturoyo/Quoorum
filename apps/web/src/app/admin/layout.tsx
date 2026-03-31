@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/auth/use-auth"
 import { cn } from "@/lib/utils"
 import { AppHeader } from "@/components/layout/app-header"
 import {
@@ -53,14 +53,13 @@ export default function AdminLayout({
 }) {
   const router = useRouter()
   const pathname = usePathname()
-  const supabase = createClient()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   // Auth check
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null
       if (!user) {
         router.push("/login")
       } else {
@@ -68,7 +67,7 @@ export default function AdminLayout({
       }
     }
     void checkAuth()
-  }, [router, supabase.auth])
+  }, [router])
 
   if (!isAuthenticated) {
     return null

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
+import { changePasswordAction } from '@/lib/auth/actions'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,8 +34,7 @@ interface SecuritySectionProps {
 
 export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
   const router = useRouter()
-  const supabase = createClient()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { isAuthenticated, signOut } = useAuth()
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -43,21 +43,6 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
   })
   const [isSaving, setIsSaving] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-
-  // Auth check (runs BEFORE query)
-  useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        if (!isInModal) {
-          router.push('/login')
-        }
-        return
-      }
-      setIsAuthenticated(true)
-    }
-    checkAuth()
-  }, [router, supabase.auth, isInModal])
 
   // Queries (only execute when authenticated)
   const { data: sessions, isLoading, refetch } = api.sessions.list.useQuery(
@@ -68,7 +53,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
   // Mutations
   const revokeSession = api.sessions.revoke.useMutation({
     onSuccess: () => {
-      toast.success('Sesión cerrada')
+      toast.success('Sesion cerrada')
       void refetch()
     },
     onError: (error) => {
@@ -78,42 +63,43 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
 
   const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('Las contraseñas no coinciden')
+      toast.error('Las contrasenas no coinciden')
       return
     }
 
     if (passwordData.newPassword.length < 8) {
-      toast.error('La contraseña debe tener al menos 8 caracteres')
+      toast.error('La contrasena debe tener al menos 8 caracteres')
       return
     }
 
     setIsSaving(true)
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: passwordData.newPassword,
-      })
+      const result = await changePasswordAction(
+        passwordData.currentPassword,
+        passwordData.newPassword
+      )
 
-      if (error) {
-        toast.error('Error al cambiar la contraseña')
+      if (!result.success) {
+        toast.error(result.error || 'Error al cambiar la contrasena')
         return
       }
 
-      toast.success('Contraseña actualizada correctamente')
+      toast.success('Contrasena actualizada correctamente')
       setPasswordData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       })
     } catch {
-      toast.error('Error al cambiar la contraseña')
+      toast.error('Error al cambiar la contrasena')
     } finally {
       setIsSaving(false)
     }
   }
 
   const handleRevokeSession = (sessionId: string) => {
-    if (confirm('¿Estás seguro de que quieres cerrar esta sesión?')) {
+    if (confirm('Estas seguro de que quieres cerrar esta sesion?')) {
       revokeSession.mutate({ sessionId })
     }
   }
@@ -121,11 +107,11 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
-      await supabase.auth.signOut()
-      toast.success('Sesión cerrada correctamente')
+      await signOut()
+      toast.success('Sesion cerrada correctamente')
       router.push('/login')
     } catch {
-      toast.error('Error al cerrar sesión')
+      toast.error('Error al cerrar sesion')
     } finally {
       setIsLoggingOut(false)
     }
@@ -133,7 +119,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
 
   const getPasswordStrength = (password: string): { level: number; label: string; color: string } => {
     if (password.length === 0) return { level: 0, label: '', color: '' }
-    if (password.length < 6) return { level: 1, label: 'Débil', color: 'text-red-400' }
+    if (password.length < 6) return { level: 1, label: 'Debil', color: 'text-red-400' }
     if (password.length < 10) return { level: 2, label: 'Media', color: 'text-yellow-400' }
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password)) {
       return { level: 2, label: 'Media', color: 'text-yellow-400' }
@@ -153,9 +139,9 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
 
   const passwordRequirements = [
     { met: passwordData.newPassword.length >= 8, text: 'Al menos 8 caracteres' },
-    { met: /[A-Z]/.test(passwordData.newPassword), text: 'Una mayúscula' },
-    { met: /[a-z]/.test(passwordData.newPassword), text: 'Una minúscula' },
-    { met: /[0-9]/.test(passwordData.newPassword), text: 'Un número' },
+    { met: /[A-Z]/.test(passwordData.newPassword), text: 'Una mayuscula' },
+    { met: /[a-z]/.test(passwordData.newPassword), text: 'Una minuscula' },
+    { met: /[0-9]/.test(passwordData.newPassword), text: 'Un numero' },
   ]
 
   return (
@@ -171,9 +157,9 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
       {/* Logout Card */}
       <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Cerrar Sesión</CardTitle>
+          <CardTitle className="text-[var(--theme-text-primary)]">Cerrar Sesion</CardTitle>
           <CardDescription className="text-[var(--theme-text-secondary)]">
-            Cierra tu sesión actual en este dispositivo
+            Cierra tu sesion actual en este dispositivo
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -186,12 +172,12 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
             {isLoggingOut ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Cerrando sesión...
+                Cerrando sesion...
               </>
             ) : (
               <>
                 <LogOut className="mr-2 h-4 w-4" />
-                Cerrar sesión
+                Cerrar sesion
               </>
             )}
           </Button>
@@ -200,15 +186,15 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
 
       <Card className="bg-[var(--theme-bg-secondary)] border-[var(--theme-border)]">
         <CardHeader>
-          <CardTitle className="text-[var(--theme-text-primary)]">Cambiar Contraseña</CardTitle>
+          <CardTitle className="text-[var(--theme-text-primary)]">Cambiar Contrasena</CardTitle>
           <CardDescription className="text-[var(--theme-text-secondary)]">
-            Actualiza tu contraseña regularmente para mantener tu cuenta segura
+            Actualiza tu contrasena regularmente para mantener tu cuenta segura
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="currentPassword" className="text-[var(--theme-text-secondary)]">
-              Contraseña actual
+              Contrasena actual
             </Label>
             <Input
               id="currentPassword"
@@ -223,7 +209,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
 
           <div className="space-y-2">
             <Label htmlFor="newPassword" className="text-[var(--theme-text-secondary)]">
-              Nueva contraseña
+              Nueva contrasena
             </Label>
             <Input
               id="newPassword"
@@ -256,7 +242,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword" className="text-[var(--theme-text-secondary)]">
-              Confirmar nueva contraseña
+              Confirmar nueva contrasena
             </Label>
             <Input
               id="confirmPassword"
@@ -271,7 +257,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
 
           {passwordData.newPassword && (
             <div className="p-4 rounded-lg bg-[var(--theme-bg-tertiary)] space-y-2">
-              <p className="text-sm text-[var(--theme-text-tertiary)] mb-2">La contraseña debe incluir:</p>
+              <p className="text-sm text-[var(--theme-text-tertiary)] mb-2">La contrasena debe incluir:</p>
               {passwordRequirements.map((req, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   {req.met ? (
@@ -300,7 +286,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                Cambiar Contraseña
+                Cambiar Contrasena
               </>
             )}
           </Button>
@@ -311,7 +297,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
         <CardHeader>
           <CardTitle className="text-[var(--theme-text-primary)]">Sesiones Activas</CardTitle>
           <CardDescription className="text-[var(--theme-text-secondary)]">
-            Gestiona dónde has iniciado sesión con tu cuenta
+            Gestiona donde has iniciado sesion con tu cuenta
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -323,7 +309,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
           ) : (
             <div className="space-y-4">
               {sessions?.map((session) => {
-                const isCurrent = false // TODO: Detectar sesión actual desde ctx.sessionToken
+                const isCurrent = false
                 return (
                   <div
                     key={session.id}
@@ -337,7 +323,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
                         )}
                       </div>
                       <p className="text-sm text-[var(--theme-text-tertiary)] mt-1">
-                        {session.location || 'Ubicación desconocida'} •{' '}
+                        {session.location || 'Ubicacion desconocida'} •{' '}
                         {new Date(session.lastActive).toLocaleString('es-ES')}
                       </p>
                     </div>
@@ -349,7 +335,7 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
                         disabled={revokeSession.isLoading}
                         className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
                       >
-                        Cerrar sesión
+                        Cerrar sesion
                       </Button>
                     )}
                   </div>
@@ -364,16 +350,16 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
         <CardHeader>
           <CardTitle className="text-yellow-500 dark:text-yellow-400 flex items-center gap-2">
             <AlertTriangle className="w-5 h-5" />
-            Autenticación de Dos Factores
+            Autenticacion de Dos Factores
           </CardTitle>
           <CardDescription className="text-[var(--theme-text-secondary)]">
-            Añade una capa extra de seguridad a tu cuenta
+            Anade una capa extra de seguridad a tu cuenta
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-[var(--theme-text-secondary)] mb-4">
-            La autenticación de dos factores (2FA) protege tu cuenta requiriendo un código
-            adicional al iniciar sesión.
+            La autenticacion de dos factores (2FA) protege tu cuenta requiriendo un codigo
+            adicional al iniciar sesion.
           </p>
           <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
             Configurar 2FA
@@ -387,13 +373,13 @@ export function SecuritySection({ isInModal = false }: SecuritySectionProps) {
         <CardHeader>
           <CardTitle className="text-red-500 dark:text-red-400">Eliminar Cuenta</CardTitle>
           <CardDescription className="text-[var(--theme-text-secondary)]">
-            Esta acción es permanente y no se puede deshacer
+            Esta accion es permanente y no se puede deshacer
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-[var(--theme-text-secondary)] mb-4">
-            Si eliminas tu cuenta, perderás acceso a todos tus debates, configuraciones y
-            datos. Esta acción no se puede revertir.
+            Si eliminas tu cuenta, perderas acceso a todos tus debates, configuraciones y
+            datos. Esta accion no se puede revertir.
           </p>
           <Button
             variant="outline"

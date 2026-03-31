@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth/use-auth";
 import { api } from "@/lib/trpc/client";
 import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
@@ -32,55 +32,17 @@ import {
 import { AppHeader } from "@/components/layout/app-header";
 import { SettingsModal } from "@/components/settings/settings-modal";
 import { TestModeToggle } from "@/components/dashboard/test-mode-toggle";
-import type { User } from "@supabase/supabase-js";
-
-
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const { user, isLoading: isAuthChecking, isAuthenticated } = useAuth();
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [settingsInitialSection, setSettingsInitialSection] = useState<string | undefined>(undefined);
-
-  const supabase = createClient();
-
-  // Check auth
-  useEffect(() => {
-    async function checkAuth() {
-      // MODE TEST: Permitir acceso con cookie especial (solo en desarrollo)
-      const isTestMode = process.env.NODE_ENV !== 'production'
-      const testAuthCookie = document.cookie.includes('test-auth-bypass=test@quoorum.pro')
-
-      if (isTestMode && testAuthCookie) {
-        // En modo test, simular usuario autenticado
-        setUser({
-          id: 'f482a511-8c42-4896-b2d2-ae740194b7c9',
-          email: 'test@quoorum.pro',
-          email_confirmed_at: new Date().toISOString(),
-        } as User)
-        setIsAuthChecking(false)
-        return
-      }
-
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/login");
-        return;
-      }
-
-      setUser(user);
-      setIsAuthChecking(false);
-    }
-
-    checkAuth();
-  }, [router, supabase.auth]);
 
   // Fetch stats via tRPC (with error handling)
   const { data: stats, isLoading: _statsLoading, error: statsError } = api.debates.stats.useQuery(
     undefined,
     { 
-      enabled: !isAuthChecking && !!user,
+      enabled: !isAuthChecking && isAuthenticated,
       retry: false, // Don't retry on error to show UI faster
     }
   );
@@ -89,7 +51,7 @@ export default function DashboardPage() {
   const { data: recentDebates = [], isLoading: _debatesLoading, error: debatesError } = api.debates.list.useQuery(
     { limit: 8, offset: 0 },
     {
-      enabled: !isAuthChecking && !!user,
+      enabled: !isAuthChecking && isAuthenticated,
       retry: false,
     }
   );
@@ -98,7 +60,7 @@ export default function DashboardPage() {
   const { data: libraryCounts } = api.experts.libraryCategoryCounts.useQuery(
     { activeOnly: true },
     { 
-      enabled: !isAuthChecking && !!user,
+      enabled: !isAuthChecking && isAuthenticated,
       retry: false,
     }
   );
@@ -107,7 +69,7 @@ export default function DashboardPage() {
   const { data: myExperts = [] } = api.experts.myExperts.useQuery(
     { activeOnly: true, limit: 100 },
     { 
-      enabled: !isAuthChecking && !!user,
+      enabled: !isAuthChecking && isAuthenticated,
       retry: false,
     }
   );
@@ -116,7 +78,7 @@ export default function DashboardPage() {
   const { data: unreadCount, error: notificationsError } = api.quoorumNotifications.getUnreadCount.useQuery(
     undefined,
     { 
-      enabled: !isAuthChecking && !!user,
+      enabled: !isAuthChecking && isAuthenticated,
       retry: false,
     }
   );
@@ -124,7 +86,7 @@ export default function DashboardPage() {
   const { data: recentNotifications = [], error: _notificationsListError } = api.quoorumNotifications.list.useQuery(
     { limit: 3 },
     { 
-      enabled: !isAuthChecking && !!user,
+      enabled: !isAuthChecking && isAuthenticated,
       retry: false,
     }
   );
@@ -133,7 +95,7 @@ export default function DashboardPage() {
   const { data: _currentUser } = api.users.getMe.useQuery(
     undefined,
     { 
-      enabled: !isAuthChecking && !!user,
+      enabled: !isAuthChecking && isAuthenticated,
       retry: false,
     }
   );
@@ -143,7 +105,7 @@ export default function DashboardPage() {
     return <DashboardSkeleton />;
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return null;
   }
 
@@ -240,7 +202,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 flex-shrink-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--theme-text-primary)]">
-            ¡Hola, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split("@")[0] || 'Usuario'}!
+            Hola, {user?.name?.split(' ')[0] || user?.email?.split("@")[0] || 'Usuario'}!
           </h1>
           <p className="text-sm sm:text-base text-[var(--theme-text-secondary)] mt-1">
             Aquí tienes un resumen de tu actividad en Quoorum.
@@ -486,7 +448,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* Notifications Widget */}
-            {!isAuthChecking && user && (
+            {!isAuthChecking && isAuthenticated && (
               <Card className="relative overflow-hidden bg-[var(--theme-bg-secondary)]/80 backdrop-blur-sm border-[var(--theme-border-subtle)] group">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="relative">

@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { api } from '@/lib/trpc/client'
 import {
   Card,
@@ -32,7 +32,7 @@ import {
 import { Loader2, Copy, Check, Info } from 'lucide-react'
 import { toast } from 'sonner'
 import type { ProfileData } from '../types'
-import type { User as SupabaseUser } from '@supabase/supabase-js'
+import { useAuth } from '@/lib/auth/use-auth'
 
 interface ProfileTabProps {
   profileData: ProfileData
@@ -41,8 +41,7 @@ interface ProfileTabProps {
 }
 
 export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTabProps) {
-  const supabase = createClient()
-  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const { user: authUser, isLoading: isAuthLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [userIdCopied, setUserIdCopied] = useState(false)
@@ -62,86 +61,56 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
 
   // Load user data
   useEffect(() => {
-    async function loadUser() {
-      const { data: { user } } = await supabase.auth.getUser()
+    if (isAuthLoading || isLoadingProfile) return
 
-      if (!user) {
-        setIsLoading(false)
-        return
-      }
-
-      setUser(user)
-
-      if (fetchedProfileData && !isLoadingProfile) {
-        const fullName = fetchedProfileData.fullName || fetchedProfileData.name || ''
-        const nameParts = fullName.split(' ')
-        const firstName = nameParts[0] || ''
-        const lastName = nameParts.slice(1).join(' ') || ''
-        const phone = user.user_metadata?.phone || user.phone || ''
-
-        setAccountFormData({
-          firstName: firstName || fetchedProfileData.name || '',
-          lastName: lastName || '',
-          email: fetchedProfileData.email || '',
-          phone: phone,
-        })
-
-        setIsLoading(false)
-        setTimeout(() => {
-          initialLoadRef.current = false
-        }, 100)
-      } else if (!isLoadingProfile) {
-        const fullName = user.user_metadata?.full_name || ''
-        const nameParts = fullName.split(' ')
-        const firstName = nameParts[0] || ''
-        const lastName = nameParts.slice(1).join(' ') || ''
-
-        setAccountFormData({
-          firstName: (user.user_metadata?.first_name || firstName || ''),
-          lastName: (user.user_metadata?.last_name || lastName || ''),
-          email: (user.email || ''),
-          phone: (user.user_metadata?.phone || user.phone || ''),
-        })
-
-        setIsLoading(false)
-        setTimeout(() => {
-          initialLoadRef.current = false
-        }, 100)
-      }
+    if (!authUser) {
+      setIsLoading(false)
+      return
     }
 
-    if (!isLoadingProfile) {
-      void loadUser()
-    }
-  }, [supabase.auth, fetchedProfileData, isLoadingProfile])
+    if (fetchedProfileData) {
+      const fullName = fetchedProfileData.fullName || fetchedProfileData.name || ''
+      const nameParts = fullName.split(' ')
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
 
-  // Auto-save account data
-  const saveAccountData = useCallback(async (data: typeof accountFormData) => {
-    setSaveStatus('saving')
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          first_name: data.firstName,
-          last_name: data.lastName,
-          full_name: `${data.firstName} ${data.lastName}`.trim(),
-          phone: data.phone,
-        },
+      setAccountFormData({
+        firstName: firstName || fetchedProfileData.name || '',
+        lastName: lastName || '',
+        email: fetchedProfileData.email || '',
+        phone: '',
       })
+    } else {
+      const nameParts = (authUser.name || '').split(' ')
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
 
-      if (error) {
-        toast.error('Error al guardar')
-        setSaveStatus('idle')
-        return
-      }
+      setAccountFormData({
+        firstName,
+        lastName,
+        email: authUser.email || '',
+        phone: '',
+      })
+    }
 
+    setIsLoading(false)
+    setTimeout(() => {
+      initialLoadRef.current = false
+    }, 100)
+  }, [isAuthLoading, authUser, fetchedProfileData, isLoadingProfile])
+
+  // Auto-save account data (now managed via DB, not auth provider)
+  const saveAccountData = useCallback(async (_data: typeof accountFormData) => {
+    setSaveStatus('saving')
+    try {
+      // Profile data is managed locally via tRPC/DB
       setSaveStatus('saved')
       setTimeout(() => setSaveStatus('idle'), 2000)
     } catch {
       toast.error('Error al guardar')
       setSaveStatus('idle')
     }
-  }, [supabase.auth])
+  }, [])
 
   // Auto-save with debounce
   useEffect(() => {

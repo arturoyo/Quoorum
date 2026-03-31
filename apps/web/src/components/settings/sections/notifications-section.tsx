@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,13 +25,11 @@ interface NotificationsSectionProps {
 
 export function NotificationsSection({ isInModal = false }: NotificationsSectionProps) {
   const router = useRouter()
-  const supabase = createClient()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   // Auth check (runs BEFORE query)
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null
       if (!user) {
         if (!isInModal) {
           router.push('/login')
@@ -41,7 +39,7 @@ export function NotificationsSection({ isInModal = false }: NotificationsSection
       setIsAuthenticated(true)
     }
     checkAuth()
-  }, [router, supabase.auth, isInModal])
+  }, [router, isInModal])
 
   // Queries (only execute when authenticated)
   const { data: settings, isLoading } = api.notificationSettings.get.useQuery(

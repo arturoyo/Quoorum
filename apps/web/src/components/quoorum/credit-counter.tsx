@@ -12,7 +12,7 @@ import { Coins, TrendingUp, AlertCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { api } from '@/lib/trpc/client'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { cn } from '@/lib/utils'
 import type { PhaseCostEstimate } from '@quoorum/quoorum/analytics/phase-cost-estimator'
 
@@ -42,46 +42,8 @@ export function CreditCounter({
   showBreakdown = false,
   variant = 'compact',
 }: CreditCounterProps) {
-  // Verificar autenticación antes de hacer queries
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
-  const supabase = createClient()
-
-  // Verificar autenticación de forma inmediata y reactiva
-  useEffect(() => {
-    let mounted = true
-
-    async function checkAuth() {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (mounted) {
-          setIsAuthenticated(!!user && !error)
-          setIsCheckingAuth(false)
-        }
-      } catch (error) {
-        if (mounted) {
-          setIsAuthenticated(false)
-          setIsCheckingAuth(false)
-        }
-      }
-    }
-
-    // Verificar inmediatamente
-    checkAuth()
-
-    // Escuchar cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setIsAuthenticated(!!session?.user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [supabase.auth])
+  // Verificar autenticacion antes de hacer queries
+  const { isAuthenticated, isLoading: isCheckingAuth } = useAuth()
 
   // Obtener balance de créditos del usuario (solo si está autenticado y terminó la verificación)
   const { data: planData, isLoading: isLoadingCredits, error: _creditError } = api.billing.getCurrentPlan.useQuery(

@@ -27,7 +27,7 @@ import { useRouter } from 'next/navigation'
 import { getContextualIcon } from '@/lib/icons/contextual-icons'
 import { useState, useEffect, useMemo } from 'react'
 import { toast } from 'sonner'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { ProcessTimeline } from '@quoorum/db/schema'
 
@@ -213,34 +213,7 @@ export function NotificationsSidebar({
   onNotificationClick,
 }: NotificationsSidebarProps) {
   const router = useRouter()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
-
-  // Check authentication status before making queries
-  useEffect(() => {
-    let mounted = true
-    setIsCheckingAuth(true)
-
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (mounted) {
-        setIsAuthenticated(!!user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    const subscription = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setIsAuthenticated(!!session?.user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    return () => {
-      mounted = false
-      subscription.data.subscription.unsubscribe()
-    }
-  }, [])
+  const { isAuthenticated, isLoading: isCheckingAuth } = useAuth()
 
   // Aplicar efecto de colapso al contenido principal cuando el sidebar está abierto
   useEffect(() => {

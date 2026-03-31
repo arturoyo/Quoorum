@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { signupAction } from "@/lib/auth/actions";
 import { api } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,12 +24,8 @@ import {
   Lock,
   User,
   AlertCircle,
-  Github,
-  Chrome,
-  CheckCircle,
   Gift,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 
 function SignupContent() {
   const router = useRouter();
@@ -42,14 +38,11 @@ function SignupContent() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [referralValid, setReferralValid] = useState<{
     valid: boolean;
     referrerName?: string;
     message?: string;
   } | null>(null);
-
-  const supabase = createClient();
 
   // Validate referral code if present
   const { data: referralValidation, isLoading: isValidatingReferral } =
@@ -71,12 +64,12 @@ function SignupContent() {
     e.preventDefault();
 
     if (!acceptTerms) {
-      setError("Debes aceptar los términos y condiciones");
+      setError("Debes aceptar los terminos y condiciones");
       return;
     }
 
     if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres");
+      setError("La contrasena debe tener al menos 8 caracteres");
       return;
     }
 
@@ -84,97 +77,21 @@ function SignupContent() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: name,
-            referral_code: referralCode ?? null, // Store referral code in user metadata
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback${
-            referralCode ? `?ref=${referralCode}` : ""
-          }`,
-        },
-      });
+      const result = await signupAction(email, password, name);
 
-      if (error) {
-        if (error.message.includes("already registered")) {
-          setError("Este email ya está registrado. ¿Quieres iniciar sesión?");
-        } else {
-          setError(error.message);
-        }
+      if (!result.success) {
+        setError(result.error || "Error al crear la cuenta");
         return;
       }
 
-      setSuccess(true);
+      router.push("/dashboard");
+      router.refresh();
     } catch {
-      setError("Ha ocurrido un error. Inténtalo de nuevo.");
+      setError("Ha ocurrido un error. Intentalo de nuevo.");
     } finally {
       setIsLoading(false);
     }
   };
-
-  const handleOAuthSignup = async (provider: "google" | "github") => {
-    if (!acceptTerms) {
-      setError("Debes aceptar los términos y condiciones");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirectTo=/dashboard${
-            referralCode ? `&ref=${referralCode}` : ""
-          }`,
-        },
-      });
-
-      if (error) {
-        setError(error.message);
-        setIsLoading(false);
-      }
-    } catch {
-      setError("Ha ocurrido un error. Inténtalo de nuevo.");
-      setIsLoading(false);
-    }
-  };
-
-  if (success) {
-    return (
-      <Card className="border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
-        <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle className="w-8 h-8 text-green-500" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-white">
-            ¡Revisa tu email!
-          </CardTitle>
-          <CardDescription className="text-[var(--theme-text-secondary)]">
-            Te hemos enviado un enlace de confirmación a{" "}
-            <span className="text-white font-medium">{email}</span>
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-center text-sm text-[var(--theme-text-secondary)]">
-            Haz clic en el enlace del email para activar tu cuenta y comenzar a
-            usar Quoorum.
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => router.push("/login")}
-            className="w-full bg-white/5 border-white/10 text-white hover:bg-white/10"
-          >
-            Volver al login
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card className="border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
@@ -201,63 +118,30 @@ function SignupContent() {
             {isValidatingReferral ? (
               <Alert className="border-purple-500/50 bg-purple-500/10">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <AlertDescription>Validando código de referido...</AlertDescription>
+                <AlertDescription>Validando codigo de referido...</AlertDescription>
               </Alert>
             ) : referralValid?.valid ? (
               <Alert className="border-green-500/50 bg-green-500/10">
                 <Gift className="h-4 w-4 text-green-400" />
                 <AlertDescription className="text-green-200">
-                  <strong>¡Bonus de referido activado!</strong>
+                  <strong>Bonus de referido activado!</strong>
                   <br />
                   {referralValid.referrerName
                     ? `${referralValid.referrerName} te ha invitado. `
                     : ""}
-                  Obtendrás 100 créditos adicionales al completar tu registro.
+                  Obtendras 100 creditos adicionales al completar tu registro.
                 </AlertDescription>
               </Alert>
             ) : referralValid && !referralValid.valid ? (
               <Alert variant="destructive" className="border-yellow-500/50 bg-yellow-500/10">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-yellow-200">
-                  {referralValid.message || "Código de referido inválido"}
+                  {referralValid.message || "Codigo de referido invalido"}
                 </AlertDescription>
               </Alert>
             ) : null}
           </div>
         )}
-
-        {/* OAuth Buttons */}
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            onClick={() => handleOAuthSignup("google")}
-            disabled={isLoading}
-            className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-          >
-            <Chrome className="mr-2 h-4 w-4" />
-            Google
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => handleOAuthSignup("github")}
-            disabled={isLoading}
-            className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-          >
-            <Github className="mr-2 h-4 w-4" />
-            GitHub
-          </Button>
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator className="w-full bg-white/10" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-[var(--theme-text-tertiary)]">
-              O continúa con email
-            </span>
-          </div>
-        </div>
 
         {/* Email/Password Form */}
         <form onSubmit={handleEmailSignup} className="space-y-4">
@@ -301,14 +185,14 @@ function SignupContent() {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-[var(--theme-text-secondary)]">
-              Contraseña
+              Contrasena
             </Label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-[var(--theme-text-tertiary)]" />
               <Input
                 id="password"
                 type="password"
-                placeholder="Mínimo 8 caracteres"
+                placeholder="Minimo 8 caracteres"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -332,11 +216,11 @@ function SignupContent() {
             >
               Acepto los{" "}
               <Link href="/terms" className="text-purple-400 hover:text-purple-300">
-                términos de servicio
+                terminos de servicio
               </Link>{" "}
               y la{" "}
               <Link href="/privacy" className="text-purple-400 hover:text-purple-300">
-                política de privacidad
+                politica de privacidad
               </Link>
             </label>
           </div>
@@ -360,12 +244,12 @@ function SignupContent() {
 
       <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-6">
         <p className="text-center text-sm text-[var(--theme-text-secondary)]">
-          ¿Ya tienes cuenta?{" "}
+          Ya tienes cuenta?{" "}
           <Link
             href="/login"
             className="text-purple-400 hover:text-purple-300 font-medium"
           >
-            Inicia sesión
+            Inicia sesion
           </Link>
         </p>
       </CardFooter>

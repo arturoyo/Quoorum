@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import _Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth/use-auth";
 import { api } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,7 +52,6 @@ function getPatternLabel(pattern: string): string {
 
 export default function DebatesPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedDebates, setSelectedDebates] = useState<Set<string>>(new Set());
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -62,7 +61,7 @@ export default function DebatesPage() {
   // Auth check (runs BEFORE query)
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null;
       if (!user) {
         router.push("/login");
       } else {
@@ -70,7 +69,7 @@ export default function DebatesPage() {
       }
     }
     checkAuth();
-  }, [router, supabase.auth]);
+  }, [router]);
 
   // Fetch debates using tRPC (only if authenticated)
   const { data: debates = [], isLoading, error, refetch } = api.debates.list.useQuery(

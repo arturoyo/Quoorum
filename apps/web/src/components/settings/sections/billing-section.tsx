@@ -32,7 +32,7 @@ import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import { SubscriptionManagementModal } from '../subscription-management-modal'
 import { AddCreditsModal } from '../add-credits-modal'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 
 interface BillingSectionProps {
   isInModal?: boolean
@@ -42,34 +42,7 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
   const [isAddCreditsModalOpen, setIsAddCreditsModalOpen] = useState(false)
   const [userCredits, setUserCredits] = useState(0)
-  const supabase = createClient()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
-
-  // Check authentication status before making queries
-  useEffect(() => {
-    let mounted = true
-    setIsCheckingAuth(true)
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (mounted) {
-        setIsAuthenticated(!!user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    const subscription = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setIsAuthenticated(!!session?.user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    return () => {
-      mounted = false
-      subscription.data.subscription.unsubscribe()
-    }
-  }, [supabase.auth])
+  const { isAuthenticated, isLoading: isCheckingAuth } = useAuth()
 
   // Fetch current plan and subscription (only when authenticated)
   const { data: currentPlan, isLoading: isLoadingPlan } = api.billing.getCurrentPlan.useQuery(
@@ -94,16 +67,12 @@ export function BillingSection({ isInModal = false }: BillingSectionProps) {
   )
   const activeSubscription = subscriptions?.[0]
 
-  // Fetch user credits from Supabase metadata
+  // Credits are managed locally via DB
   useEffect(() => {
-    async function loadUserCredits() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUserCredits(user.user_metadata?.credits || 0)
-      }
+    if (currentPlan?.credits) {
+      setUserCredits(currentPlan.credits)
     }
-    void loadUserCredits()
-  }, [supabase.auth])
+  }, [currentPlan])
 
   // Fetch recent invoices
   const { data: invoices = [], isLoading: isLoadingInvoices } = api.billing.getMyInvoices.useQuery(

@@ -10,7 +10,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -87,7 +87,6 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
   const router = useRouter()
   
   // 2. State hooks (always in same order)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingWorker, setEditingWorker] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -112,8 +111,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
   // 3. Effect hooks
   useEffect(() => {
     async function checkAuth() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null
       if (!user) {
         if (!isInModal) {
           router.push('/login')

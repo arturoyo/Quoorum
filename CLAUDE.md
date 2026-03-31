@@ -88,20 +88,20 @@ Este proyecto usa **documentación modular** para facilitar la navegación. Cada
 
 ## ARQUITECTURA — Base de Datos e Infraestructura
 
-**Modelo híbrido:**
-- **Supabase** → Autenticación de usuarios (Auth)
-- **PostgreSQL** → Datos de negocio (debates, roadmap, profiles, etc.)
+**Modelo unificado:**
+- **PostgreSQL** -> Datos de negocio y autenticacion (debates, roadmap, profiles, users, etc.)
+- **Auth local** -> JWT firmado con jose + bcrypt para passwords (sin dependencias externas)
 
 **Entornos:**
 | Entorno | PostgreSQL | Auth |
 |---------|-----------|------|
-| Local (dev) | Docker container `quoorum-postgres` (compose en raíz) | Supabase client |
-| Producción | Pendiente: Supabase PostgreSQL remoto o PostgreSQL dedicado | Supabase client |
+| Local (dev) | Docker container en localhost:5433 | Local JWT (bcryptjs + jose) |
+| Produccion | PostgreSQL dedicado | Local JWT (AUTH_SECRET requerido) |
 
-**Variables críticas (`.env` / `.env.local`):**
+**Variables criticas (`.env` / `.env.local`):**
 ```
-DATABASE_URL=postgresql://postgres:postgres@localhost:5434/quoorum   # Local
-# Para producción usar la connection string de Supabase o DB remota
+DATABASE_URL=postgresql://optym:optym_vision_2026@localhost:5433/quoorum
+AUTH_SECRET=quoorum-dev-secret-change-in-production  # Cambiar en produccion
 ```
 
 **Integración Optym (nuevo)**  
@@ -121,7 +121,7 @@ OPTYM_BASE_URL=https://api.optym.pro/v1
 - **Estado actual:** No desplegado. Falta vincular proyecto y configurar env vars en Vercel dashboard.
 
 **Panel Admin:**
-- Ruta: `/admin/*` (requiere rol admin via Supabase Auth)
+- Ruta: `/admin/*` (requiere rol admin via local auth)
 - Páginas: Dashboard, Billing, Logs, Users, Prompts, Scenarios, **Roadmap** (nuevo, 26 Mar 2026)
 - Roadmap admin requiere migración DB: `pnpm db:generate && pnpm db:migrate` + seed `scripts/seed-roadmap.sql`
 

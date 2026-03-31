@@ -5,6 +5,7 @@ import { db } from "@quoorum/db";
 import { profiles, users, adminUsers } from "@quoorum/db/schema";
 import { eq, sql } from "drizzle-orm";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
+import { jwtVerify } from "jose";
 
 // Validate environment variables on module load
 // This will fail fast if critical vars are missing
@@ -59,37 +60,56 @@ const createContext = async (opts?: FetchCreateContextFnOptions): Promise<TRPCCo
       });
     }
 
-    // SECURITY: Cookie bypass allowed for localhost (dev/test) with optional secret token
+    // PRIMARY: Verify JWT session token
     let userEmail: string | null = null;
-    const host = opts?.req.headers.get('host')?.toLowerCase() ?? '';
-    const isLocalHost = host.startsWith('localhost') || host.startsWith('127.0.0.1');
-    const allowCookieBypass = isLocalHost || process.env.NODE_ENV === 'development';
+    let jwtUserId: string | null = null;
+    const sessionToken = cookies['session-token'];
 
-    if (allowCookieBypass) {
-      const bypassCookie = cookies['test-auth-bypass'] || cookies['user-email'];
-      const secretToken = process.env.DEV_AUTH_BYPASS_SECRET;
-      
-      // If secret is set, require it in the bypass cookie (format: email:secret)
-      if (bypassCookie) {
-        if (secretToken) {
-          const [email, token] = bypassCookie.split(':');
-          if (email && token === secretToken) {
-            userEmail = email;
+    if (sessionToken) {
+      try {
+        const secret = new TextEncoder().encode(
+          process.env.AUTH_SECRET || "quoorum-dev-secret-change-in-production"
+        );
+        const { payload } = await jwtVerify(sessionToken, secret);
+        if (payload.email && payload.userId) {
+          userEmail = payload.email as string;
+          jwtUserId = payload.userId as string;
+          systemLogger.debug("[tRPC Context] JWT session verified", { email: '[REDACTED]' });
+        }
+      } catch {
+        systemLogger.debug("[tRPC Context] JWT verification failed - token expired or invalid");
+      }
+    }
+
+    // FALLBACK: Cookie bypass for localhost dev/test (backward compat)
+    if (!userEmail) {
+      const host = opts?.req.headers.get('host')?.toLowerCase() ?? '';
+      const isLocalHost = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+      const allowCookieBypass = isLocalHost || process.env.NODE_ENV === 'development';
+
+      if (allowCookieBypass) {
+        const bypassCookie = cookies['test-auth-bypass'] || cookies['user-email'];
+        const secretToken = process.env.DEV_AUTH_BYPASS_SECRET;
+
+        if (bypassCookie) {
+          if (secretToken) {
+            const [email, token] = bypassCookie.split(':');
+            if (email && token === secretToken) {
+              userEmail = email;
+            }
           } else {
-            systemLogger.warn("[tRPC Context] Invalid bypass token", { hasToken: !!token, isLocalHost });
+            userEmail = bypassCookie;
           }
-        } else {
-          // No secret configured, allow simple email bypass (backward compat for local)
-          userEmail = bypassCookie;
         }
       }
     }
 
     // Debug: Log cookie parsing
     systemLogger.debug("[tRPC Context] Cookie parsing", {
-      cookieHeader: cookieHeader.substring(0, 100), // First 100 chars
+      cookieHeader: cookieHeader.substring(0, 100),
       cookiesKeys: Object.keys(cookies),
       userEmail: userEmail ? '[REDACTED]' : null,
+      hasJwt: !!jwtUserId,
       isProduction: process.env.NODE_ENV === 'production',
     });
 
@@ -98,7 +118,7 @@ const createContext = async (opts?: FetchCreateContextFnOptions): Promise<TRPCCo
       return unauthenticatedContext();
     }
 
-    systemLogger.debug("[tRPC Context] PostgreSQL-only mode - looking up user", { email: userEmail });
+    systemLogger.debug("[tRPC Context] Looking up user", { email: userEmail, hasJwtId: !!jwtUserId });
 
     // OPTIMIZED: Run all queries in parallel
     const startTime = Date.now();

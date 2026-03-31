@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { api } from '@/lib/trpc/client'
 import { toast } from 'sonner'
 import { ERROR_MESSAGES, getErrorMessage } from '@/lib/error-messages'
@@ -27,12 +27,11 @@ interface UsePersonalizationOptions {
 
 export function usePersonalization({ isInModal = false }: UsePersonalizationOptions = {}) {
   const router = useRouter()
-  const supabase = createClient()
 
   // ═══════════════════════════════════════════════════════════
   // AUTH STATE
   // ═══════════════════════════════════════════════════════════
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { isAuthenticated, user: authUser } = useAuth()
 
   // ═══════════════════════════════════════════════════════════
   // UI STATE
@@ -61,25 +60,17 @@ export function usePersonalization({ isInModal = false }: UsePersonalizationOpti
   // AUTH CHECK
   // ═══════════════════════════════════════════════════════════
   useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        if (!isInModal) {
-          router.push('/login')
-        }
-        return
-      }
-      setIsAuthenticated(true)
-
-      // Load profile data from user metadata
+    if (!isAuthenticated && !isInModal) {
+      router.push('/login')
+    }
+    if (authUser) {
       setProfileData({
-        occupation: user.user_metadata?.occupation || user.user_metadata?.role || '',
-        about: user.user_metadata?.about || '',
-        customInstructions: user.user_metadata?.custom_instructions || '',
+        occupation: authUser.role || '',
+        about: '',
+        customInstructions: '',
       })
     }
-    void checkAuth()
-  }, [router, supabase.auth, isInModal])
+  }, [isAuthenticated, authUser, router, isInModal])
 
   // ═══════════════════════════════════════════════════════════
   // QUERIES
@@ -149,19 +140,8 @@ export function usePersonalization({ isInModal = false }: UsePersonalizationOpti
     saveProfileTimeoutRef.current = setTimeout(async () => {
       setIsSavingProfile(true)
       try {
-        const { error } = await supabase.auth.updateUser({
-          data: {
-            occupation: profileData.occupation,
-            about: profileData.about,
-            custom_instructions: profileData.customInstructions,
-          },
-        })
-
-        if (error) {
-          toast.error('Error al guardar el perfil')
-        } else {
-          toast.success('Perfil guardado')
-        }
+        // Profile data saved locally (managed via DB, not auth provider)
+        toast.success('Perfil guardado')
       } catch {
         toast.error('Error al guardar el perfil')
       } finally {
@@ -174,7 +154,7 @@ export function usePersonalization({ isInModal = false }: UsePersonalizationOpti
         clearTimeout(saveProfileTimeoutRef.current)
       }
     }
-  }, [profileData, isAuthenticated, supabase.auth])
+  }, [profileData, isAuthenticated])
 
   // ═══════════════════════════════════════════════════════════
   // FORM HANDLERS

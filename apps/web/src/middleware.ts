@@ -1,5 +1,7 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { SignJWT, jwtVerify } from "jose";
+
+const SESSION_COOKIE_NAME = "session-token";
 
 // Routes that require authentication
 // NOTE: /api/trpc is NOT included here because tRPC routers handle their own auth
@@ -8,6 +10,21 @@ const protectedRoutes = ["/dashboard", "/debates", "/settings"];
 
 // Routes that should redirect to dashboard if already authenticated
 const authRoutes = ["/login", "/signup", "/forgot-password"];
+
+function getSecret(): Uint8Array {
+  const secret = process.env.AUTH_SECRET || "quoorum-dev-secret-change-in-production";
+  return new TextEncoder().encode(secret);
+}
+
+async function verifyToken(token: string): Promise<{ userId: string; email: string } | null> {
+  try {
+    const { payload } = await jwtVerify(token, getSecret());
+    if (!payload.userId || !payload.email) return null;
+    return { userId: payload.userId as string, email: payload.email as string };
+  } catch {
+    return null;
+  }
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -21,45 +38,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: "", ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({ name, value: "", ...options });
-        },
-      },
-    }
-  );
-
-  // MODE TEST: Permitir acceso con cookie especial (solo en desarrollo)
-  const isTestMode = process.env.NODE_ENV !== 'production'
-  const testAuthCookie = request.cookies.get('test-auth-bypass')?.value
 
   // Check if the route is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
@@ -67,34 +50,24 @@ export async function middleware(request: NextRequest) {
   );
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
-  if (isTestMode && testAuthCookie === 'test@quoorum.pro') {
-    // En modo test, permitir acceso sin validar Supabase
-    if (isProtectedRoute) {
-      // Permitir acceso al dashboard en modo test
-      return response;
-    }
-
-    if (isAuthRoute) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-
+  // Skip auth check for non-protected, non-auth routes
+  if (!isProtectedRoute && !isAuthRoute) {
     return response;
   }
 
-  // Refresh session if expired
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Verify JWT session from cookie
+  const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const session = sessionToken ? await verifyToken(sessionToken) : null;
 
   // Redirect to login if accessing protected route without auth
-  if (isProtectedRoute && !user) {
+  if (isProtectedRoute && !session) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("redirectTo", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
   // Redirect to dashboard if accessing auth routes while authenticated
-  if (isAuthRoute && user) {
+  if (isAuthRoute && session) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

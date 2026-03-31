@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { QuoorumLogo, QuoorumLogoWithText } from '@/components/ui/quoorum-logo'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { NotificationBell, NotificationsSidebar } from '@/components/quoorum/notifications-sidebar'
 import { SettingsModal } from '@/components/settings/settings-modal'
 import { AdminModal } from '@/components/admin/admin-modal'
@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react'
 import { Plus, Settings, Menu, X, History, Shield, MessageCircle, Eye, EyeOff, Sparkles } from 'lucide-react'
 import { CreditCounter } from '@/components/quoorum/credit-counter'
 import { AppFooter } from '@/components/layout/app-footer'
-import type { User } from '@supabase/supabase-js'
+import type { ClientUser } from '@/lib/auth/use-auth'
 
 
 interface AppHeaderProps {
@@ -42,60 +42,18 @@ export function AppHeader({
 }: AppHeaderProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
-  const [user, setUser] = useState<User | null>(null)
+  const { user: authUser, isLoading: isCheckingAuth, isAuthenticated } = useAuth()
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [adminModalOpen, setAdminModalOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const [notificationsSidebarOpen, setNotificationsSidebarOpen] = useState(false)
-  const [showDebugPanel, setShowDebugPanel] = useState(false) // Estado para mostrar/ocultar panel de debug
+  const [showDebugPanel, setShowDebugPanel] = useState(false)
 
   // Fix hydration mismatch by only rendering Popover on client
   useEffect(() => {
     setIsMounted(true)
   }, [])
-
-  // Verificar autenticación de forma inmediata y reactiva
-  useEffect(() => {
-    let mounted = true
-    const supabase = createClient()
-
-    async function checkAuth() {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (mounted) {
-          setIsAuthenticated(!!user && !error)
-          setUser(user)
-          setIsCheckingAuth(false)
-        }
-      } catch (error) {
-        if (mounted) {
-          setIsAuthenticated(false)
-          setUser(null)
-          setIsCheckingAuth(false)
-        }
-      }
-    }
-
-    // Verificar inmediatamente
-    checkAuth()
-
-    // Escuchar cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setIsAuthenticated(!!session?.user)
-        setUser(session?.user ?? null)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [variant])
 
   // Get current user role (to show admin menu)
   // Only fetch when user is authenticated and auth check is complete to prevent 401 errors in console

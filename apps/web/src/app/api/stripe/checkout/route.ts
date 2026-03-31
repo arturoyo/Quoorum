@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStripe, getPriceId, type PlanId, type BillingInterval } from "@/lib/stripe/client";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/auth";
 import { logError } from "@/lib/monitoring";
 import { db } from "@quoorum/db";
 import { subscriptions } from "@quoorum/db/schema";
@@ -8,8 +8,7 @@ import { eq } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return NextResponse.json(

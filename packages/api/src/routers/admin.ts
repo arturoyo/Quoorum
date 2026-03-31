@@ -671,7 +671,7 @@ export const adminRouter = router({
     return {
       env: {
         database: !!process.env.DATABASE_URL,
-        supabase: !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+        auth: true, // Local JWT auth is always available
         openai: !!process.env.OPENAI_API_KEY,
         stripe: !!process.env.STRIPE_SECRET_KEY,
         resend: !!process.env.RESEND_API_KEY,

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/trpc/client'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -44,34 +44,7 @@ export function UsageSection({ isInModal = false }: UsageSectionProps) {
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
   const [isAddCreditsModalOpen, setIsAddCreditsModalOpen] = useState(false)
   const [userCredits, setUserCredits] = useState(0)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
-  const supabase = createClient()
-
-  // Check authentication status before making queries
-  useEffect(() => {
-    let mounted = true
-    setIsCheckingAuth(true)
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (mounted) {
-        setIsAuthenticated(!!user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    const subscription = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setIsAuthenticated(!!session?.user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    return () => {
-      mounted = false
-      subscription.data.subscription.unsubscribe()
-    }
-  }, [supabase.auth])
+  const { isAuthenticated, isLoading: isCheckingAuth } = useAuth()
 
   // Fetch current plan and subscription (only when authenticated)
   const { data: currentPlan, isLoading: isLoadingPlan } = api.billing.getCurrentPlan.useQuery(
@@ -96,16 +69,12 @@ export function UsageSection({ isInModal = false }: UsageSectionProps) {
   )
   const activeSubscription = subscriptions?.[0]
 
-  // Fetch user credits from Supabase metadata
+  // Credits are managed locally via DB, initial value from currentPlan
   useEffect(() => {
-    async function loadUserCredits() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUserCredits(user.user_metadata?.credits || 0)
-      }
+    if (currentPlan?.credits) {
+      setUserCredits(currentPlan.credits)
     }
-    void loadUserCredits()
-  }, [supabase.auth])
+  }, [currentPlan])
 
   // Fetch credit transaction history (real data, not calculated backwards)
   const { data: creditHistory, isLoading: isLoadingHistory } = api.billing.getCreditHistory.useQuery(

@@ -7,16 +7,12 @@ import type { User } from "@quoorum/db";
 import { adminUsers, adminRoles } from "@quoorum/db/schema";
 import { eq, and } from "drizzle-orm";
 
-// Type for Supabase client (avoid importing full package)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SupabaseClient = any;
-
 export interface Context {
   db: Database;
   user: User | null;
   userId: string | null;
-  supabase?: SupabaseClient | null;
-  authUserId?: string | null; // Supabase auth.uid() for RLS policies
+  supabase?: null; // Legacy field, kept for compatibility
+  authUserId?: string | null;
 }
 
 export async function createContext(_opts?: FetchCreateContextFnOptions) {

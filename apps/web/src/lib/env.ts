@@ -16,10 +16,8 @@ const env = {
   // Database
   databaseUrl: process.env.DATABASE_URL,
   
-  // Supabase (Critical for auth)
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  // Auth (local JWT-based)
+  authSecret: process.env.AUTH_SECRET,
   
   // OpenAI (Critical for AI features)
   openaiApiKey: process.env.OPENAI_API_KEY,
@@ -106,14 +104,10 @@ export function validateEnv(): EnvValidationResult {
     missing.critical.push('DATABASE_URL');
   }
 
-  if (!env.supabaseUrl) {
-    errors.push('NEXT_PUBLIC_SUPABASE_URL is required for authentication');
-    missing.critical.push('NEXT_PUBLIC_SUPABASE_URL');
-  }
-
-  if (!env.supabaseAnonKey) {
-    errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is required for authentication');
-    missing.critical.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  // Auth secret is optional in dev (has default fallback)
+  if (isProduction && !env.authSecret) {
+    errors.push('AUTH_SECRET is required for authentication in production');
+    missing.critical.push('AUTH_SECRET');
   }
 
   if (!env.openaiApiKey && !env.optymApiKey) {
@@ -210,12 +204,10 @@ export const envConfig = {
     enabled: !!env.databaseUrl,
   },
   
-  // Supabase
-  supabase: {
-    url: env.supabaseUrl,
-    anonKey: env.supabaseAnonKey,
-    serviceRoleKey: env.supabaseServiceRoleKey,
-    enabled: !!(env.supabaseUrl && env.supabaseAnonKey),
+  // Auth
+  auth: {
+    secret: env.authSecret,
+    enabled: true, // Local auth is always enabled
   },
   
   // OpenAI

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -52,8 +52,6 @@ interface ExpertsSectionProps {
 
 export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
   const router = useRouter()
-  const supabase = createClient()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingExpert, setEditingExpert] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -72,20 +70,7 @@ export function ExpertsSection({ isInModal = false }: ExpertsSectionProps) {
     maxTokens: undefined as number | undefined,
   })
 
-  // Auth check
-  useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        if (!isInModal) {
-          router.push('/login')
-        }
-        return
-      }
-      setIsAuthenticated(true)
-    }
-    checkAuth()
-  }, [router, supabase.auth, isInModal])
+  const { isAuthenticated } = useAuth()
 
   // [WARNING] EXPERTOS PERSONALES ELIMINADOS
   // Los expertos personalizados han sido eliminados del sistema

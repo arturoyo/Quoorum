@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { loginAction } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,13 +18,10 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertCircle,
-  Chrome,
-  Github,
   Loader2,
   Lock,
   Mail,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 
 function LoginContent() {
   const router = useRouter();
@@ -36,57 +33,24 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const supabase = createClient();
-
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const result = await loginAction(email, password);
 
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          setError("Email o contraseña incorrectos");
-        } else if (error.message.includes("Email not confirmed")) {
-          setError("Por favor, confirma tu email antes de iniciar sesión");
-        } else {
-          setError(error.message);
-        }
+      if (!result.success) {
+        setError(result.error || "Email o contrasena incorrectos");
         return;
       }
 
       router.push(redirectTo);
       router.refresh();
     } catch {
-      setError("Ha ocurrido un error. Inténtalo de nuevo.");
+      setError("Ha ocurrido un error. Intentalo de nuevo.");
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleOAuthLogin = async (provider: "google" | "github") => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`,
-        },
-      });
-
-      if (error) {
-        setError(error.message);
-        setIsLoading(false);
-      }
-    } catch {
-      setError("Ha ocurrido un error. Inténtalo de nuevo.");
       setIsLoading(false);
     }
   };
@@ -98,7 +62,7 @@ function LoginContent() {
           Bienvenido de nuevo
         </CardTitle>
         <CardDescription className="text-[var(--theme-text-secondary)]">
-          Inicia sesión para acceder a Quoorum
+          Inicia sesion para acceder a Quoorum
         </CardDescription>
       </CardHeader>
 
@@ -109,39 +73,6 @@ function LoginContent() {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-
-        {/* OAuth Buttons */}
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            onClick={() => handleOAuthLogin("google")}
-            disabled={isLoading}
-            className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-          >
-            <Chrome className="mr-2 h-4 w-4" />
-            Google
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => handleOAuthLogin("github")}
-            disabled={isLoading}
-            className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-          >
-            <Github className="mr-2 h-4 w-4" />
-            GitHub
-          </Button>
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator className="w-full bg-white/10" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-[var(--theme-text-tertiary)]">
-              O continúa con email
-            </span>
-          </div>
-        </div>
 
         {/* Email/Password Form */}
         <form onSubmit={handleEmailLogin} className="space-y-4">
@@ -167,13 +98,13 @@ function LoginContent() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password" className="text-[var(--theme-text-secondary)]">
-                Contraseña
+                Contrasena
               </Label>
               <Link
                 href="/forgot-password"
                 className="text-sm text-purple-400 hover:text-purple-300"
               >
-                ¿Olvidaste tu contraseña?
+                Olvidaste tu contrasena?
               </Link>
             </div>
             <div className="relative">
@@ -181,7 +112,7 @@ function LoginContent() {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -199,10 +130,10 @@ function LoginContent() {
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Iniciando sesión...
+                Iniciando sesion...
               </>
             ) : (
-              "Iniciar sesión"
+              "Iniciar sesion"
             )}
           </Button>
         </form>
@@ -210,12 +141,12 @@ function LoginContent() {
 
       <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-6">
         <p className="text-center text-sm text-[var(--theme-text-secondary)]">
-          ¿No tienes cuenta?{" "}
+          No tienes cuenta?{" "}
           <Link
             href="/signup"
             className="text-purple-400 hover:text-purple-300 font-medium"
           >
-            Regístrate gratis
+            Registrate gratis
           </Link>
         </p>
       </CardFooter>

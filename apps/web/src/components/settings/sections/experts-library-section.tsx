@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -60,8 +60,6 @@ const CATEGORIES = [
 
 export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySectionProps) {
   const router = useRouter()
-  const supabase = createClient()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isForkDialogOpen, setIsForkDialogOpen] = useState(false)
   const [selectedExpert, setSelectedExpert] = useState<{
     id: string
@@ -70,20 +68,7 @@ export function ExpertsLibrarySection({ isInModal = false }: ExpertsLibrarySecti
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
 
-  // Auth check
-  useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        if (!isInModal) {
-          router.push('/login')
-        }
-        return
-      }
-      setIsAuthenticated(true)
-    }
-    checkAuth()
-  }, [router, supabase.auth, isInModal])
+  const { isAuthenticated } = useAuth()
 
   // Queries - Library experts only
   const { data: experts, isLoading, refetch } = api.experts.libraryList.useQuery(

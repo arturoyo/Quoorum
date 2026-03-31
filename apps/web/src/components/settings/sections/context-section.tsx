@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { api } from '@/lib/trpc/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -46,8 +46,6 @@ interface ContextSectionProps {
 
 export function ContextSection({ isInModal = false }: ContextSectionProps) {
   const router = useRouter()
-  const supabase = createClient()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingFile, setEditingFile] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -66,20 +64,7 @@ export function ContextSection({ isInModal = false }: ContextSectionProps) {
     order: 0,
   })
 
-  // Auth check
-  useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        if (!isInModal) {
-          router.push('/login')
-        }
-        return
-      }
-      setIsAuthenticated(true)
-    }
-    checkAuth()
-  }, [router, supabase.auth, isInModal])
+  const { isAuthenticated } = useAuth()
 
   // Queries
   const { data: files, isLoading, refetch } = api.contextFiles.list.useQuery(

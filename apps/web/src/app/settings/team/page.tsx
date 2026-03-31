@@ -2,19 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth/use-auth";
 import { Loader2 } from "lucide-react";
 import { SettingsModal } from "@/components/settings/settings-modal";
 
 export default function TeamSettingsPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null;
 
       if (!user) {
         router.push("/login");
@@ -27,7 +25,7 @@ export default function TeamSettingsPage() {
     }
 
     checkAuth();
-  }, [router, supabase.auth]);
+  }, [router]);
 
   const handleClose = () => {
     setIsOpen(false);

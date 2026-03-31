@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth/use-auth";
 import { api } from "@/lib/trpc/client";
 import {
   Card,
@@ -24,13 +24,12 @@ import {
 
 export default function AdminPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Auth check
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null;
       if (!user) {
         router.push("/login");
       } else {
@@ -38,7 +37,7 @@ export default function AdminPage() {
       }
     }
     checkAuth();
-  }, [router, supabase.auth]);
+  }, [router]);
 
   // Queries
   const { data: systemConfig, isLoading } = api.admin.getSystemConfig.useQuery(

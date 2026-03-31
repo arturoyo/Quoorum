@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import React from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import { QuoorumLogo } from '@/components/ui/quoorum-logo'
 import { getSettingsNav } from '@/lib/settings-nav'
-import type { User as SupabaseUser } from '@supabase/supabase-js'
+import type { ClientUser } from '@/lib/auth/use-auth'
 import { cn } from '@/lib/utils'
 import { SettingsSectionRenderer } from './settings-section-renderer'
 import { SettingsProvider } from './settings-context'
@@ -49,8 +49,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
   const [currentSection, setCurrentSection] = useState<string>(
     initialSection || (isInModal ? '/settings' : (pathname || '/settings'))
   )
-  const [_user, setUser] = useState<SupabaseUser | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { user: authUser, isLoading, isAuthenticated, signOut } = useAuth()
   const [isSaving, setIsSaving] = useState(false)
 
   const [formData, setFormData] = useState({
@@ -59,7 +58,6 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
     role: '',
   })
 
-  const supabase = createClient()
 
   // Sync currentSection with pathname when pathname changes (if not in modal)
   useEffect(() => {
@@ -76,44 +74,22 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
   }, [isInModal, initialSection])
 
   useEffect(() => {
-    async function loadUser() {
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (!user) {
-        if (!isInModal) {
-          router.push('/login')
-        }
-        return
-      }
-
-      setUser(user)
-      setFormData({
-        fullName: user.user_metadata?.full_name || '',
-        email: user.email || '',
-        role: user.user_metadata?.role || '',
-      })
-      setIsLoading(false)
+    if (!isLoading && !isAuthenticated && !isInModal) {
+      router.push('/login')
     }
-
-    loadUser()
-  }, [router, supabase.auth, isInModal])
+    if (authUser) {
+      setFormData({
+        fullName: authUser.name || '',
+        email: authUser.email || '',
+        role: authUser.role || '',
+      })
+    }
+  }, [isLoading, isAuthenticated, authUser, router, isInModal])
 
   const handleSave = async () => {
     setIsSaving(true)
-
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          full_name: formData.fullName,
-          role: formData.role,
-        },
-      })
-
-      if (error) {
-        toast.error('Error al guardar los cambios')
-        return
-      }
-
+      // Profile updates are handled via tRPC, not auth provider
       toast.success('Cambios guardados correctamente')
     } catch {
       toast.error('Error al guardar los cambios')
@@ -123,7 +99,7 @@ export function SettingsContent({ isInModal = false, onClose, initialSection }: 
   }
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
+    await signOut()
     if (isInModal && onClose) {
       onClose()
     }

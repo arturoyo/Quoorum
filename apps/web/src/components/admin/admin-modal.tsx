@@ -9,7 +9,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,6 @@ interface AdminModalProps {
 
 export function AdminModal({ open, onOpenChange, initialSection }: AdminModalProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
@@ -46,7 +45,7 @@ export function AdminModal({ open, onOpenChange, initialSection }: AdminModalPro
 
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null
       if (!user) {
         setIsAuthenticated(false)
         setIsAdmin(false)
@@ -58,7 +57,7 @@ export function AdminModal({ open, onOpenChange, initialSection }: AdminModalPro
       setIsChecking(false)
     }
     checkAuth()
-  }, [supabase.auth, open, onOpenChange])
+  }, [open, onOpenChange])
 
   useEffect(() => {
     if (currentUser) {

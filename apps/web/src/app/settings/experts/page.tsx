@@ -2,32 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth/use-auth";
 import { Loader2 } from "lucide-react";
 import { SettingsModal } from "@/components/settings/settings-modal";
 
 export default function ExpertsPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-  const supabase = createClient();
+
+  const { isLoading: isChecking, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/login");
-        return;
-      }
-
-      // Open modal after auth check
+    if (!isChecking && !isAuthenticated) {
+      router.push("/login");
+    } else if (!isChecking && isAuthenticated) {
       setIsOpen(true);
-      setIsChecking(false);
     }
-
-    checkAuth();
-  }, [router, supabase.auth]);
+  }, [isChecking, isAuthenticated, router]);
 
   const handleClose = () => {
     setIsOpen(false);

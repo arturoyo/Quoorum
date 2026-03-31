@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth/use-auth";
 import { api } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,7 +61,6 @@ type DialogType = "add-credits" | "deduct-credits" | "set-credits" | "change-tie
 
 export default function AdminUsersPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeDialog, setActiveDialog] = useState<DialogType>(null);
   const [userSearch, setUserSearch] = useState("");
@@ -77,7 +76,7 @@ export default function AdminUsersPage() {
   // Auth check
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null;
       if (!user) {
         router.push("/login");
       } else {
@@ -85,7 +84,7 @@ export default function AdminUsersPage() {
       }
     }
     checkAuth();
-  }, [router, supabase.auth]);
+  }, [router]);
 
   // Queries
   const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = api.admin.listUsers.useQuery(

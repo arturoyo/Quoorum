@@ -2,41 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth/use-auth";
 import { Loader2 } from "lucide-react";
 import { SettingsModal } from "@/components/settings/settings-modal";
 
 export default function SettingsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isLoading: isChecking, isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-  const supabase = createClient();
 
   // Get section from URL query params (reactivo)
   const sectionParam = searchParams.get('section');
   const initialSection = sectionParam || '/settings';
 
   useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/login");
-        return;
-      }
-
-      // Open modal after auth check
+    if (!isChecking && !isAuthenticated) {
+      router.push("/login");
+    } else if (!isChecking && isAuthenticated) {
       setIsOpen(true);
-      setIsChecking(false);
     }
-
-    checkAuth();
-  }, [router, supabase.auth]);
+  }, [isChecking, isAuthenticated, router]);
 
   const handleClose = () => {
     setIsOpen(false);
-    // Redirect to dashboard when modal closes
     router.push("/dashboard");
   };
 
@@ -56,7 +45,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen relative bg-[var(--theme-bg-primary)]">
-      {/* Subtle gradient background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5" />
       </div>

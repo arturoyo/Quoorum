@@ -103,22 +103,14 @@ export function AdminSettingsSection({ isInModal = false }: AdminSettingsSection
             <div className="flex items-center justify-between p-3 bg-[#2a3942] rounded-lg">
               <div className="flex items-center gap-3">
                 <Server className="h-5 w-5 text-[#aebac1]" />
-                <span className="text-white">Supabase</span>
+                <span className="text-white">Auth (Local JWT)</span>
               </div>
               <Badge
-                variant={envStatus.supabase ? 'default' : 'secondary'}
-                className={cn(
-                  envStatus.supabase
-                    ? 'bg-green-900/20 text-green-300 border-green-500/30'
-                    : 'bg-red-900/20 text-red-300 border-red-500/30'
-                )}
+                variant="default"
+                className="bg-green-900/20 text-green-300 border-green-500/30"
               >
-                {envStatus.supabase ? (
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                ) : (
-                  <XCircle className="h-3 w-3 mr-1" />
-                )}
-                {envStatus.supabase ? 'Configurado' : 'No configurado'}
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Activo
               </Badge>
             </div>
 

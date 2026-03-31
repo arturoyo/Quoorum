@@ -8,14 +8,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { X, Loader2 } from 'lucide-react'
 import { QuoorumLogo } from '@/components/ui/quoorum-logo'
 import { getAdminNav } from '@/lib/admin-nav'
-import type { User as SupabaseUser } from '@supabase/supabase-js'
+import type { AuthActionResult } from '@/lib/auth/actions'
 import { cn } from '@/lib/utils'
 import { AdminSectionRenderer } from './admin-section-renderer'
 
@@ -31,10 +31,9 @@ export function AdminContent({ isInModal = false, onClose, initialSection }: Adm
   const [currentSection, setCurrentSection] = useState<string>(
     initialSection || (isInModal ? '/admin' : (pathname || '/admin'))
   )
-  const [_user, setUser] = useState<SupabaseUser | null>(null)
+  const [_user, setUser] = useState<AuthActionResult['user'] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const supabase = createClient()
 
   // Sync currentSection with pathname when pathname changes (if not in modal)
   useEffect(() => {
@@ -52,7 +51,7 @@ export function AdminContent({ isInModal = false, onClose, initialSection }: Adm
 
   useEffect(() => {
     async function loadUser() {
-      const { data: { user } } = await supabase.auth.getUser()
+      const sessionResult = await (await import("@/lib/auth/actions")).getSessionAction(); const user = sessionResult.success ? sessionResult.user : null
 
       if (!user) {
         if (!isInModal) {
@@ -66,7 +65,7 @@ export function AdminContent({ isInModal = false, onClose, initialSection }: Adm
     }
 
     loadUser()
-  }, [router, supabase.auth, isInModal])
+  }, [router, isInModal])
 
   if (isLoading) {
     return (

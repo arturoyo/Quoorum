@@ -23,7 +23,7 @@ import {
 } from '../components'
 import { useParams } from 'next/navigation'
 import { useTRPCHealth } from '@/hooks/use-trpc-health'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/lib/auth/use-auth'
 import {
   estimateContextPhaseCost,
   estimateExpertSelectionPhaseCost,
@@ -70,33 +70,7 @@ export default function NewUnifiedDebatePageWithSession() {
   const isAdmin = currentUser?.isAdmin ?? false
 
   // Check authentication status before making queries
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
-  const supabase = createClient()
-
-  useEffect(() => {
-    let mounted = true
-    setIsCheckingAuth(true)
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (mounted) {
-        setIsAuthenticated(!!user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    const subscription = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setIsAuthenticated(!!session?.user)
-        setIsCheckingAuth(false)
-      }
-    })
-
-    return () => {
-      mounted = false
-      subscription.data.subscription.unsubscribe()
-    }
-  }, [supabase.auth])
+  const { isAuthenticated, isLoading: isCheckingAuth } = useAuth()
 
   // Obtener balance de créditos para el PhaseIndicator (solo si está autenticado)
   const { data: planData } = api.billing.getCurrentPlan.useQuery(undefined, {
