@@ -213,7 +213,7 @@ export async function rankOptions(messages: DebateMessage[], question: string): 
   const maxTokens = questionType === 'generation' ? 2000 : 800
 
   const response = await client.generate(prompt, {
-    modelId: 'gpt-4o-mini', // Use cheap model for extraction
+    modelId: 'gemini-2.0-flash', // Use cheap model for extraction
     temperature: questionType === 'generation' ? 0.7 : 0.3, // Higher temp for creative generation
     maxTokens,
   })

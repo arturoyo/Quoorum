@@ -5,7 +5,7 @@
  */
 import { generateText } from "ai";
 import { createModel } from "./providers/index";
-import { getFallbackChain } from "./lib/fallback-config";
+import { getAvailableFallbackChain } from "./lib/fallback-config";
 import { logger } from "./lib/logger";
 import type { AIClient, AIResponse, GenerateOptions } from "./types";
 
@@ -20,7 +20,7 @@ class ForumAIClient implements AIClient {
     const provider = this.getProviderFromModelId(modelId);
 
     // Get fallback chain starting from current provider
-    const fallbackChain = getFallbackChain(provider);
+    const fallbackChain = getAvailableFallbackChain(provider);
 
     let lastError: Error | null = null;
 

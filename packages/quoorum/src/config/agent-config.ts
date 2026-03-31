@@ -43,7 +43,7 @@ const ENV_CONFIG = {
   },
   synthesizer: {
     // Atenea (Diosa de la Sabiduría) - Sabio y conclusivo
-    // ⚡ OPTIMIZADO: gpt-4o-mini es más barato que claude-sonnet pero mejor que gemini para síntesis
+    // ⚡ OPTIMIZADO: gemini-2.0-flash es gratis que claude-sonnet pero mejor que gemini para síntesis
     // Costo: $0.15/1M tokens vs $3.0/1M tokens (claude-sonnet) = 95% más barato
     provider: (process.env.SYNTHESIZER_PROVIDER || 'optym') as AgentConfig['provider'],
     model: process.env.SYNTHESIZER_MODEL || 'optym-balanced', // Optimized: mejor calidad/precio y routing inteligente

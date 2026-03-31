@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "echo '[INFO] Skipping auto-fix (pwsh not available on Linux)'",
+    "predev": "cp -f ../../.env.local .env.local 2>/dev/null || true",
     "dev": "next dev -p 3000",
     "dev:no-fix": "next dev -p 3000",
     "dev:webpack": "next dev -p 3000 --webpack",

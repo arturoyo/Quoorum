@@ -131,7 +131,7 @@ ${context ? `Contexto:\n${context}\n\n` : ''}Analiza esta pregunta e identifica 
 
   const client = getAIClient()
   const response = await client.generate(fullPrompt, {
-    modelId: 'gpt-4o-mini',
+    modelId: 'gemini-2.0-flash',
     temperature: 0.3, // Determinístico para análisis consistente
     maxTokens: 1000,
   })

@@ -101,3 +101,21 @@ export function getNextFallback(currentProvider: ProviderName): FallbackModel | 
 
   return FALLBACK_ORDER[currentIndex + 1] ?? null
 }
+
+/**
+ * Get available fallback chain (only providers with API keys configured)
+ */
+export function getAvailableFallbackChain(fromProvider?: ProviderName): FallbackModel[] {
+  const chain = getFallbackChain(fromProvider)
+  return chain.filter((m) => {
+    switch (m.provider) {
+      case 'google': return !!process.env.GOOGLE_AI_API_KEY
+      case 'openai': return !!process.env.OPENAI_API_KEY
+      case 'anthropic': return !!process.env.ANTHROPIC_API_KEY
+      case 'deepseek': return !!process.env.DEEPSEEK_API_KEY
+      case 'groq': return !!process.env.GROQ_API_KEY
+      case 'optym': return !!process.env.OPTYM_API_KEY
+      default: return true
+    }
+  })
+}

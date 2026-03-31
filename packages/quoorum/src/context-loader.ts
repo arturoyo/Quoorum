@@ -328,7 +328,7 @@ Archivos disponibles:
 ${RELEVANT_FILES.join('\n')}
 `,
     {
-      modelId: 'gpt-4o-mini',
+      modelId: 'gemini-2.0-flash',
       temperature: 0.2,
       maxTokens: 100,
     }
@@ -400,7 +400,7 @@ export async function synthesizeContext(rawContext: string): Promise<string> {
   const client = getAIClient()
 
   const response = await client.generate(SYNTHESIS_PROMPT + rawContext, {
-    modelId: 'gpt-4o-mini',
+    modelId: 'gemini-2.0-flash',
     temperature: 0.3,
     maxTokens: 300,
   })

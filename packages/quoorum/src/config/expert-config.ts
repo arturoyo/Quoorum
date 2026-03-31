@@ -255,8 +255,8 @@ export function getExpertFreeTierConfig(): Pick<ExpertProfile, 'provider' | 'mod
  */
 export function getExpertPaidTierConfig(): Pick<ExpertProfile, 'provider' | 'modelId'> {
   return {
-    provider: 'openai',
-    modelId: 'gpt-4o-mini',
+    provider: 'google',
+    modelId: 'gemini-2.0-flash',
   }
 }
 
