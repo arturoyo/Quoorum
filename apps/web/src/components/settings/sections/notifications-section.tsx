@@ -25,6 +25,7 @@ interface NotificationsSectionProps {
 
 export function NotificationsSection({ isInModal = false }: NotificationsSectionProps) {
   const router = useRouter()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   // Auth check (runs BEFORE query)
   useEffect(() => {

@@ -55,7 +55,7 @@ export function calculateAICost(
   costUsdTotal: number
   isFreeTier: boolean
 } {
-  const providerPricing = AI_PRICING[provider]
+  const providerPricing = (AI_PRICING as Record<string, Record<string, { prompt: number; completion: number }>>)[provider]
   if (!providerPricing) {
     logger.warn(`[AI Cost Tracking] Unknown provider: ${provider}`, { provider, modelId })
     return {

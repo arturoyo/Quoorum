@@ -47,6 +47,7 @@ export function ApiKeysSection({ isInModal = false }: ApiKeysSectionProps) {
   const [newKey, setNewKey] = useState<string | null>(null)
   const [showKey, setShowKey] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   // Auth check (runs BEFORE query)
   useEffect(() => {

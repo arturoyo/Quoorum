@@ -57,15 +57,6 @@ export class LiteLLMProvider implements AIProvider {
   }
 }
 
-const OPTYM_MODELS = [
-  'optym-balanced',
-  'optym-conservative',
-  'optym-aggressive',
-  'optym-auto',
-  'optym-fast',
-  'optym-quality',
-] as const
-
 // ============================================================================
 // OPTYM PROVIDER
 // ============================================================================

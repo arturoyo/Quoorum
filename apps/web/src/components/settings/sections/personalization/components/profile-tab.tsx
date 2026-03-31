@@ -32,7 +32,6 @@ import {
 import { Loader2, Copy, Check, Info } from 'lucide-react'
 import { toast } from 'sonner'
 import type { ProfileData } from '../types'
-import { useAuth } from '@/lib/auth/use-auth'
 
 interface ProfileTabProps {
   profileData: ProfileData
@@ -41,7 +40,7 @@ interface ProfileTabProps {
 }
 
 export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTabProps) {
-  const { user: authUser, isLoading: isAuthLoading } = useAuth()
+  const { user, isLoading: isAuthLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [userIdCopied, setUserIdCopied] = useState(false)
@@ -63,7 +62,7 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
   useEffect(() => {
     if (isAuthLoading || isLoadingProfile) return
 
-    if (!authUser) {
+    if (!user) {
       setIsLoading(false)
       return
     }
@@ -81,14 +80,14 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
         phone: '',
       })
     } else {
-      const nameParts = (authUser.name || '').split(' ')
+      const nameParts = (user.name || '').split(' ')
       const firstName = nameParts[0] || ''
       const lastName = nameParts.slice(1).join(' ') || ''
 
       setAccountFormData({
         firstName,
         lastName,
-        email: authUser.email || '',
+        email: user.email || '',
         phone: '',
       })
     }
@@ -97,7 +96,7 @@ export function ProfileTab({ profileData, onProfileChange, isSaving }: ProfileTa
     setTimeout(() => {
       initialLoadRef.current = false
     }, 100)
-  }, [isAuthLoading, authUser, fetchedProfileData, isLoadingProfile])
+  }, [isAuthLoading, user, fetchedProfileData, isLoadingProfile])
 
   // Auto-save account data (now managed via DB, not auth provider)
   const saveAccountData = useCallback(async (_data: typeof accountFormData) => {

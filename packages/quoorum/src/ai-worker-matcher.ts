@@ -121,7 +121,7 @@ export async function matchWorkersWithAI(
       },
       matchScore: 75 - index * 3,
       reasons: [`Mock worker match for ${worker.name}`],
-      synergy: index > 0 ? [sliced[0].id] : undefined,
+      synergy: index > 0 ? [sliced[0]!.id] : undefined,
     }))
   }
 

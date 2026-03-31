@@ -107,7 +107,7 @@ export async function matchExpertsWithAI(
       score: 80 - index * 5,
       reasons: [`Mock match for ${expert.name}`],
       suggestedRole: index === 0 ? 'primary' : index === 1 ? 'secondary' : 'critic',
-      synergy: index > 0 ? [sliced[0].id] : undefined,
+      synergy: index > 0 ? [sliced[0]!.id] : undefined,
     }))
   }
 

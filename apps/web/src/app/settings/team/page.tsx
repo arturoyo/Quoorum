@@ -9,6 +9,7 @@ import { SettingsModal } from "@/components/settings/settings-modal";
 export default function TeamSettingsPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     async function checkAuth() {

@@ -71,6 +71,13 @@
       "when": 1769439338633,
       "tag": "0033_organic_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1774964175427,
+      "tag": "0034_soft_rhodey",
+      "breakpoints": true
     }
   ]
 }

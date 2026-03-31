@@ -87,6 +87,7 @@ export function WorkersSection({ isInModal = false }: WorkersSectionProps) {
   const router = useRouter()
   
   // 2. State hooks (always in same order)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingWorker, setEditingWorker] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
