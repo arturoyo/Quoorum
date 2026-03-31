@@ -8,9 +8,9 @@ ERRORS=0
 
 # 1. Verificar PostgreSQL local está corriendo
 echo "→ Verificando PostgreSQL local..."
-if ! docker ps | grep -q quoorum-postgres; then
+if ! docker ps | grep -q optym-postgres-vision; then
   echo "  [ERROR] PostgreSQL local NO está corriendo"
-  echo "     Ejecuta: docker start quoorum-postgres"
+  echo "     Ejecuta: docker start optym-postgres-vision  # DB compartida con Opty"
   ERRORS=$((ERRORS + 1))
 else
   echo "  [OK] PostgreSQL local corriendo"
@@ -18,7 +18,7 @@ fi
 
 # 2. Verificar conexión a DB
 echo "→ Verificando conexión a DB..."
-if docker exec quoorum-postgres psql -U postgres -d quoorum -c "SELECT 1;" > /dev/null 2>&1; then
+if docker exec optym-postgres-vision psql -U optym -d quoorum -c "SELECT 1;" > /dev/null 2>&1; then
   echo "  [OK] Conexión a DB OK"
 else
   echo "  [ERROR] No se puede conectar a PostgreSQL"
@@ -27,7 +27,7 @@ fi
 
 # 3. Verificar que existen perfiles (evita foreign key errors)
 echo "→ Verificando perfiles en DB..."
-PROFILE_COUNT=$(docker exec quoorum-postgres psql -U postgres -d quoorum -t -c "SELECT COUNT(*) FROM profiles;" 2>/dev/null | xargs)
+PROFILE_COUNT=$(docker exec optym-postgres-vision psql -U optym -d quoorum -t -c "SELECT COUNT(*) FROM profiles;" 2>/dev/null | xargs)
 if [ -z "$PROFILE_COUNT" ] || [ "$PROFILE_COUNT" -eq 0 ]; then
   echo "  [WARN]  WARNING: No hay perfiles en DB (posible foreign key error)"
   echo "     Usuario actual debe tener perfil antes de crear debates"
@@ -39,7 +39,7 @@ fi
 echo "→ Verificando tablas principales..."
 TABLES=("profiles" "quoorum_debates" "quoorum_debate_comments")
 for table in "${TABLES[@]}"; do
-  if docker exec quoorum-postgres psql -U postgres -d quoorum -c "\d $table" > /dev/null 2>&1; then
+  if docker exec optym-postgres-vision psql -U optym -d quoorum -c "\d $table" > /dev/null 2>&1; then
     echo "  [OK] Tabla $table existe"
   else
     echo "  [ERROR] Tabla $table NO existe"
@@ -49,10 +49,10 @@ done
 
 # 5. Verificar enum draft en debate_status
 echo "→ Verificando enums..."
-DRAFT_EXISTS=$(docker exec quoorum-postgres psql -U postgres -d quoorum -t -c "SELECT unnest(enum_range(NULL::debate_status));" 2>/dev/null | grep -c "draft")
+DRAFT_EXISTS=$(docker exec optym-postgres-vision psql -U optym -d quoorum -t -c "SELECT unnest(enum_range(NULL::debate_status));" 2>/dev/null | grep -c "draft")
 if [ "$DRAFT_EXISTS" -eq 0 ]; then
   echo "  [ERROR] Enum 'draft' NO existe en debate_status"
-  echo "     Ejecuta: docker exec quoorum-postgres psql -U postgres -d quoorum -c \"ALTER TYPE debate_status ADD VALUE 'draft';\""
+  echo "     Ejecuta: docker exec optym-postgres-vision psql -U optym -d quoorum -c \"ALTER TYPE debate_status ADD VALUE 'draft';\""
   ERRORS=$((ERRORS + 1))
 else
   echo "  [OK] Enum debate_status completo"
@@ -60,10 +60,10 @@ fi
 
 # 6. Verificar columna deleted_at
 echo "→ Verificando columnas críticas..."
-DELETED_AT_EXISTS=$(docker exec quoorum-postgres psql -U postgres -d quoorum -t -c "\d quoorum_debates" 2>/dev/null | grep -c "deleted_at")
+DELETED_AT_EXISTS=$(docker exec optym-postgres-vision psql -U optym -d quoorum -t -c "\d quoorum_debates" 2>/dev/null | grep -c "deleted_at")
 if [ "$DELETED_AT_EXISTS" -eq 0 ]; then
   echo "  [ERROR] Columna 'deleted_at' NO existe en quoorum_debates"
-  echo "     Ejecuta: docker exec quoorum-postgres psql -U postgres -d quoorum -c \"ALTER TABLE quoorum_debates ADD COLUMN deleted_at TIMESTAMP WITH TIME ZONE;\""
+  echo "     Ejecuta: docker exec optym-postgres-vision psql -U optym -d quoorum -c \"ALTER TABLE quoorum_debates ADD COLUMN deleted_at TIMESTAMP WITH TIME ZONE;\""
   ERRORS=$((ERRORS + 1))
 else
   echo "  [OK] Columna deleted_at existe"

@@ -108,7 +108,7 @@ case $change_type in
   3)
     ask_question "Perfiles existen" "¿Verificaste que existen perfiles en PostgreSQL local?"
     ask_question "Foreign keys" "¿Verificaste todas las tablas referenciadas existen?"
-    ask_question "Drizzle ORM" "¿Cambiaste de ctx.supabase a db (Drizzle)?"
+    ask_question "Drizzle ORM" "¿Usas db (Drizzle) para todas las queries?"
     ask_question "Filtrado userId" "¿Todas las queries filtran por userId?"
     ;;
   *)
