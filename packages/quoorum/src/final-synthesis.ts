@@ -169,13 +169,13 @@ export async function generateFinalSynthesis(
       .replace('{{QUESTION}}', question)
       .replace('{{DEBATE_HISTORY}}', debateHistory)
 
-    // Generate synthesis with powerful model
+    // Generate synthesis - use Gemini (free tier, large context) instead of dead OpenAI provider
     const client = getAIClient()
-    const modelId = 'gpt-4o' // Usar modelo potente para síntesis final
+    const modelId = 'gemini-2.0-flash'
     const response = await client.generate(finalPrompt, {
       modelId,
-      temperature: 0.2, // Baja temperatura para precisión
-      maxTokens: 2000,
+      temperature: 0.2, // Baja temperatura para precision
+      maxTokens: 4096, // Increased from 2000 to avoid truncated JSON responses
     }) as SynthesisAIResponse
 
     // Parse JSON response
@@ -187,7 +187,28 @@ export async function generateFinalSynthesis(
       .replace(/```\n?/g, '')
       .trim()
 
-    const synthesis: FinalSynthesis = JSON.parse(jsonText)
+    // Extract JSON object if there is extra text around it
+    const jsonMatch = jsonText.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      quoorumLogger.error('[Final Synthesis] No JSON object found in AI response', undefined, {
+        sessionId,
+        responseLength: synthesisText.length,
+        responsePreview: synthesisText.substring(0, 200),
+      })
+      return null
+    }
+
+    let synthesis: FinalSynthesis
+    try {
+      synthesis = JSON.parse(jsonMatch[0]) as FinalSynthesis
+    } catch (parseError) {
+      quoorumLogger.error('[Final Synthesis] JSON parse failed - response may be truncated', parseError instanceof Error ? parseError : undefined, {
+        sessionId,
+        responseLength: synthesisText.length,
+        jsonLength: jsonMatch[0].length,
+      })
+      return null
+    }
 
     // Calculate cost for tracking using provider-reported usage when available.
     const tokensUsed = response.usage?.totalTokens ?? 0
@@ -205,7 +226,7 @@ export async function generateFinalSynthesis(
       synthesis,
       costUsd,
       tokensUsed,
-      provider: 'openai', // Assuming OpenAI for gpt-4o
+      provider: 'google',
       model: modelId,
     }
 

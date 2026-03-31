@@ -31,8 +31,11 @@ export { getAIClient, resetAIClient } from "./client";
 export {
   getFallbackChain,
   getNextFallback,
+  getAvailableFallbackChain,
+  isProviderAvailable,
   FALLBACK_ORDER,
   type FallbackModel,
+  type ProviderName,
 } from "./lib/fallback-config";
 
 // Rate Limiting

@@ -209,8 +209,8 @@ export async function rankOptions(messages: DebateMessage[], question: string): 
 
   const prompt = buildRankingPrompt(question) + debateSummary
 
-  // Increase tokens for generation type (needs more space for full content)
-  const maxTokens = questionType === 'generation' ? 2000 : 800
+  // Increase tokens to avoid truncated JSON responses ("Unterminated string" errors)
+  const maxTokens = questionType === 'generation' ? 4096 : 2000
 
   const response = await client.generate(prompt, {
     modelId: 'gemini-2.0-flash', // Use cheap model for extraction
@@ -247,7 +247,10 @@ export async function rankOptions(messages: DebateMessage[], question: string): 
     // Handle decision type: return sorted options
     return parsed.options.sort((a, b) => b.successRate - a.successRate)
   } catch (error) {
-    quoorumLogger.error('[Consensus] Error parsing ranking response', error instanceof Error ? error : undefined)
+    quoorumLogger.error('[Consensus] Error parsing ranking response - possible truncated JSON', error instanceof Error ? error : undefined, {
+      responseLength: response.text.length,
+      responsePreview: response.text.substring(0, 200),
+    })
     // If JSON parsing fails, return empty
     return []
   }

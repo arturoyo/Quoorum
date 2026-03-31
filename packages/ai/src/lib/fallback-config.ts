@@ -1,13 +1,14 @@
 /**
  * AI Provider Fallback Configuration
  *
- * Orden: Más barato → Más caro (ideal para desarrollo/pruebas)
+ * Orden: Más barato -> Mas caro (ideal para desarrollo/pruebas)
+ *
+ * Only providers with valid API keys are included at runtime.
+ * Dead providers (no balance, no key, quota exceeded) are filtered
+ * out by getAvailableFallbackChain() so they never cause fallback loops.
  *
  * Costos aproximados por 1M tokens:
  * - Gemini 2.0 Flash: $0.00 (FREE tier)
- * - DeepSeek: $0.14
- * - Groq Llama: $0.05-0.10 (muy rápido)
- * - GPT-4o-mini: $0.15 (input) + $0.60 (output)
  * - Claude Haiku: $0.25 (input) + $1.25 (output)
  */
 
@@ -22,7 +23,10 @@ export interface FallbackModel {
 }
 
 /**
- * Orden de fallback: FREE primero, luego por costo ascendente
+ * Orden de fallback: FREE primero, luego por costo ascendente.
+ *
+ * NOTE: All providers are listed here for completeness, but only those
+ * with valid API keys will be used at runtime (see getAvailableFallbackChain).
  */
 export const FALLBACK_ORDER: FallbackModel[] = [
   {
@@ -103,19 +107,31 @@ export function getNextFallback(currentProvider: ProviderName): FallbackModel | 
 }
 
 /**
- * Get available fallback chain (only providers with API keys configured)
+ * Check if a provider has its API key configured
+ */
+function isProviderAvailable(provider: ProviderName): boolean {
+  switch (provider) {
+    case 'google': return !!process.env.GOOGLE_AI_API_KEY
+    case 'openai': return !!process.env.OPENAI_API_KEY
+    case 'anthropic': return !!process.env.ANTHROPIC_API_KEY
+    case 'deepseek': return !!process.env.DEEPSEEK_API_KEY
+    case 'groq': return !!process.env.GROQ_API_KEY
+    case 'optym': return !!process.env.OPTYM_API_KEY
+    default: return true
+  }
+}
+
+/**
+ * Get available fallback chain (only providers with API keys configured).
+ * Providers without valid API keys are silently filtered out to avoid
+ * unnecessary fallback loops (e.g., DeepSeek with no balance, Groq with no key).
  */
 export function getAvailableFallbackChain(fromProvider?: ProviderName): FallbackModel[] {
   const chain = getFallbackChain(fromProvider)
-  return chain.filter((m) => {
-    switch (m.provider) {
-      case 'google': return !!process.env.GOOGLE_AI_API_KEY
-      case 'openai': return !!process.env.OPENAI_API_KEY
-      case 'anthropic': return !!process.env.ANTHROPIC_API_KEY
-      case 'deepseek': return !!process.env.DEEPSEEK_API_KEY
-      case 'groq': return !!process.env.GROQ_API_KEY
-      case 'optym': return !!process.env.OPTYM_API_KEY
-      default: return true
-    }
-  })
+  return chain.filter((m) => isProviderAvailable(m.provider))
 }
+
+/**
+ * Check if a specific provider is available (has API key configured)
+ */
+export { isProviderAvailable }

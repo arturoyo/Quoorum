@@ -155,7 +155,7 @@ export async function loggingMetricsExample() {
   // Add metric handler
   metrics.addHandler((metric) => {
     if (metric.name.includes('cost')) {
-      console.log(`💰 Cost metric: ${metric.value} ${metric.unit}`)
+      console.log(`[COST] Cost metric: ${metric.value} ${metric.unit}`)
     }
   })
 
@@ -368,7 +368,7 @@ export async function batchProcessingExample() {
       cost: result.totalCostUsd,
     })
 
-    console.log(`✓ Completed (${result.totalRounds} rounds, $${result.totalCostUsd})`)
+    console.log(`[OK] Completed (${result.totalRounds} rounds, $${result.totalCostUsd})`)
   }
 
   // Summary

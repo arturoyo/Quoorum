@@ -10,6 +10,7 @@
     "dev:webpack": "next dev -p 3000 --webpack",
     "build": "cd ../.. && turbo build --filter=@quoorum/web",
     "start": "next start",
+    "clean": "rm -rf .next",
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
     "lint:fix": "next lint --fix",

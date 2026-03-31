@@ -12,7 +12,7 @@ import { quoorumLogger } from '../logger'
 
 // Zod schema for validation
 const ExpertProviderConfigSchema = z.object({
-  provider: z.enum(['openai', 'anthropic', 'google', 'groq', 'deepseek']),
+  provider: z.enum(['openai', 'anthropic', 'google', 'groq', 'deepseek', 'optym']),
   model: z.string().min(1),
 })
 

@@ -158,14 +158,14 @@ describe('generateFinalSynthesis', () => {
     expect(result?.synthesis).toMatchObject(mockSynthesis)
     expect(result?.costUsd).toBeGreaterThan(0)
     expect(result?.tokensUsed).toBe(1500)
-    expect(result?.provider).toBe('openai')
-    expect(result?.model).toBe('gpt-4o')
+    expect(result?.provider).toBe('google')
+    expect(result?.model).toBe('gemini-2.0-flash')
     expect(mockGenerate).toHaveBeenCalledWith(
       expect.stringContaining('SECRETARIO DEL TRIBUNAL'),
       expect.objectContaining({
-        modelId: 'gpt-4o',
+        modelId: 'gemini-2.0-flash',
         temperature: 0.2,
-        maxTokens: 2000,
+        maxTokens: 4096,
       })
     )
   })
@@ -332,9 +332,9 @@ describe('generateFinalSynthesis', () => {
     await generateFinalSynthesis('test-session', 'Pregunta', rounds)
 
     expect(mockGenerate).toHaveBeenCalledWith(expect.any(String), {
-      modelId: 'gpt-4o',
+      modelId: 'gemini-2.0-flash',
       temperature: 0.2,
-      maxTokens: 2000,
+      maxTokens: 4096,
     })
   })
 })
