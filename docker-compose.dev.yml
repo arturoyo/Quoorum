@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     container_name: quoorum-dev
-    mem_limit: 2g
-    memswap_limit: 2g
+    mem_limit: 4g
+    memswap_limit: 4g
     cpus: 2.0
     volumes:
       - .:/app
@@ -13,7 +13,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://optym:${POSTGRES_VISION_PASSWORD:-optym_vision_2026}@optym-postgres-vision:5432/quoorum
       - AUTH_SECRET=${AUTH_SECRET:-quoorum-dev-secret}
-      - NODE_OPTIONS=--max-old-space-size=1536
+      - NODE_OPTIONS=--max-old-space-size=3072
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY:-}
