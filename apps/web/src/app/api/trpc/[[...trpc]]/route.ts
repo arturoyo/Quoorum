@@ -79,28 +79,8 @@ const createContext = async (opts?: FetchCreateContextFnOptions): Promise<TRPCCo
       }
     }
 
-    // FALLBACK: Cookie bypass for localhost dev/test (backward compat)
-    if (!userEmail) {
-      const host = opts?.req.headers.get('host')?.toLowerCase() ?? '';
-      const isLocalHost = host.startsWith('localhost') || host.startsWith('127.0.0.1');
-      const allowCookieBypass = isLocalHost || process.env.NODE_ENV === 'development';
-
-      if (allowCookieBypass) {
-        const bypassCookie = cookies['test-auth-bypass'] || cookies['user-email'];
-        const secretToken = process.env.DEV_AUTH_BYPASS_SECRET;
-
-        if (bypassCookie) {
-          if (secretToken) {
-            const [email, token] = bypassCookie.split(':');
-            if (email && token === secretToken) {
-              userEmail = email;
-            }
-          } else {
-            userEmail = bypassCookie;
-          }
-        }
-      }
-    }
+    // Auth bypass REMOVED 2026-04-26 — was exploitable via tunnel.
+    // Use normal JWT auth or Google OAuth.
 
     // Debug: Log cookie parsing
     systemLogger.debug("[tRPC Context] Cookie parsing", {
