@@ -92,9 +92,7 @@ export type { NotificationSettings, NewNotificationSettings } from "./notificati
 export { sessions, sessionsRelations } from "./sessions";
 export type { Session, NewSession } from "./sessions";
 
-// API Keys
-export { apiKeys, apiKeysRelations } from "./api-keys";
-export type { ApiKey, NewApiKey } from "./api-keys";
+// API Keys — exported from ./subscriptions (export * above)
 
 // Webhook Events (Idempotency)
 export { webhookEvents } from "./webhook-events";
