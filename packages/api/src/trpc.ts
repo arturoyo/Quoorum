@@ -119,5 +119,30 @@ const isAdmin = middleware(async ({ ctx, next }) => {
 
 export const adminProcedure = t.procedure.use(isAdmin);
 
-// Rate limited procedure (stub - implement actual rate limiting as needed)
-export const expensiveRateLimitedProcedure = t.procedure.use(isAuthenticated);
+// In-memory rate limiter for expensive operations (LLM calls)
+const _rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 10; // max requests per window
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+
+const rateLimiter = t.middleware(async ({ ctx, next }) => {
+  const userId = ctx.userId;
+  if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  const now = Date.now();
+  const entry = _rateLimitMap.get(userId);
+
+  if (!entry || now > entry.resetAt) {
+    _rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+  } else if (entry.count >= RATE_LIMIT_MAX) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: `Rate limit exceeded. Max ${RATE_LIMIT_MAX} expensive operations per minute.`,
+    });
+  } else {
+    entry.count++;
+  }
+
+  return next();
+});
+
+export const expensiveRateLimitedProcedure = t.procedure.use(isAuthenticated).use(rateLimiter);
