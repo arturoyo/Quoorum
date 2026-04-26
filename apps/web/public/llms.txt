@@ -1,0 +1,30 @@
+# Quoorum — Plataforma de decisiones en equipo
+> Toma mejores decisiones en equipo, de forma estructurada y asincrona
+
+## Documentacion
+- [Inicio rapido](https://quoorum.com/docs/quickstart) — Crea tu primera decision en 3 minutos (<3K tokens)
+- [API Reference](https://quoorum.com/docs/api) — API REST para integracion (<12K tokens)
+- [Metodologia](https://quoorum.com/docs/methodology) — Framework de decision estructurada (<8K tokens)
+- [Integraciones](https://quoorum.com/docs/integrations) — Slack, Teams, Notion, Jira (<6K tokens)
+- [Precios](https://quoorum.com/pricing) — Planes para equipos (<3K tokens)
+- [Casos de uso](https://quoorum.com/cases) — Ejemplos por industria (<5K tokens)
+
+## Que hace Quoorum
+Quoorum estructura las decisiones de equipo para evitar reuniones innecesarias, sesgos y decisiones sin contexto. Cada decision sigue un flujo: propuesta, discusion estructurada, votacion y registro. Todo asincrono, con trazabilidad completa.
+
+## Funcionalidades principales
+- Creacion de propuestas con contexto, opciones y criterios
+- Discusiones estructuradas con hilos por argumento
+- Votacion ponderada, anonima o publica
+- Decision tracking: quien decidio que, cuando y por que
+- Historial de decisiones buscable y auditable
+- Integraciones con Slack, Microsoft Teams, Notion, Jira
+- Plantillas de decision por tipo (hiring, producto, presupuesto, estrategia)
+- Roles y permisos por equipo y proyecto
+
+## Para quien
+Equipos de producto, startups, comites de direccion, equipos remotos que necesitan decidir sin reuniones sincronas.
+
+## Contacto
+- Web: https://quoorum.com
+- Email: info@quoorum.com

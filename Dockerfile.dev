@@ -1,0 +1,13 @@
+FROM node:22-alpine
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
+COPY apps/web/package.json apps/web/
+COPY packages/api/package.json packages/api/
+COPY packages/core/package.json packages/core/
+COPY packages/db/package.json packages/db/
+COPY packages/ui/package.json packages/ui/
+COPY packages/quoorum/package.json packages/quoorum/
+COPY packages/workers/package.json packages/workers/
+COPY packages/ai/package.json packages/ai/
+RUN pnpm install --frozen-lockfile
