@@ -24,6 +24,7 @@ services:
     command: pnpm dev --filter=@quoorum/web
     networks:
       - optym_optym-network
+      - arturo_web_network
     restart: "no"
 
 volumes:
@@ -31,4 +32,6 @@ volumes:
 
 networks:
   optym_optym-network:
+    external: true
+  arturo_web_network:
     external: true
